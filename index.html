@@ -245,8 +245,8 @@
 
     .calendar-year {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 0.75rem;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.9rem;
       margin-top: 0.5rem;
     }
 
@@ -257,7 +257,12 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.05);
       cursor: pointer;
       border: 1px solid rgba(255,255,255,0.9);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.2s ease;
+    }
+
+    .month-card.active {
+      border-color: rgba(212, 175, 55, 0.6);
+      box-shadow: 0 4px 16px rgba(212, 175, 55, 0.12);
     }
 
     .month-card:hover {
@@ -273,8 +278,8 @@
     }
 
     .month-name {
-      font-size: 0.9rem;
-      font-weight: 600;
+      font-size: 0.95rem;
+      font-weight: 700;
     }
 
     .month-stat {
@@ -298,23 +303,101 @@
       width: 40%;
     }
 
-    .inventory-list {
-      margin-top: 0.4rem;
+    .mini-calendar {
+      margin-top: 0.5rem;
+      border: 1px dashed rgba(0,0,0,0.06);
+      border-radius: 12px;
+      padding: 0.5rem;
+      background: rgba(255,255,255,0.6);
     }
 
-    .inventory-item {
+    .mini-weekdays,
+    .mini-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.25rem;
+      font-size: 0.7rem;
+      text-align: center;
+    }
+
+    .mini-weekdays span {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .mini-day {
+      padding: 0.35rem 0;
+      border-radius: 10px;
+      background: rgba(0,0,0,0.02);
+      position: relative;
+    }
+
+    .mini-day.empty {
+      background: transparent;
+    }
+
+    .mini-day.has-booking {
+      border: 1px solid rgba(212, 175, 55, 0.8);
+      background: rgba(212, 175, 55, 0.08);
+      font-weight: 700;
+      color: var(--accent-gold-dark);
+      box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.15) inset;
+    }
+
+    .mini-day .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-gold);
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .month-footnote {
+      margin-top: 0.35rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.5rem 0;
-      border-bottom: 1px dashed rgba(0,0,0,0.04);
-      font-size: 0.85rem;
+    }
+
+    .inventory-list {
+      margin-top: 0.6rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 0.7rem;
+    }
+
+    .inventory-card {
+      background: var(--bg-card);
+      border-radius: 14px;
+      padding: 0.8rem 0.9rem;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 0.6rem;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      border: 1px solid rgba(255,255,255,0.9);
+    }
+
+    .inventory-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle at 30% 30%, #fff9ec, #f1dec0);
+      font-size: 1.1rem;
     }
 
     .inventory-item-main {
       display: flex;
       flex-direction: column;
       gap: 0.1rem;
+      font-size: 0.9rem;
     }
 
     .inventory-item-meta {
@@ -340,6 +423,60 @@
     .badge-low {
       background: rgba(217, 83, 79, 0.08);
       color: var(--danger);
+    }
+
+    .inventory-status {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.2rem;
+      font-size: 0.85rem;
+    }
+
+    .collab-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 0.8rem;
+      margin-top: 0.6rem;
+    }
+
+    .collab-card {
+      background: var(--bg-card);
+      border-radius: 14px;
+      padding: 0.9rem 1rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      border: 1px solid rgba(255,255,255,0.9);
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .collab-headline {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .collab-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      color: white;
+      font-weight: 700;
+      background: linear-gradient(135deg, #e5c676, #b58c25);
+    }
+
+    .collab-meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .collab-actions {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
     }
 
     .kiosk-wrapper {
@@ -643,22 +780,24 @@
       </div>
 
       <div class="section-title" style="margin-top:1rem;">
-        <h2>Agenda do mês (resumo)</h2>
-        <button class="secondary">Ver mês detalhado</button>
+        <h2 id="selected-month-title">Agenda do mês</h2>
+        <div class="pill-row" id="selected-month-tags"></div>
       </div>
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Dia</th>
-            <th>Atendimentos</th>
-            <th>Ocupação</th>
-            <th>Profissionais</th>
-          </tr>
-        </thead>
-        <tbody id="agenda-month-summary">
-          <!-- Populado via JS mock -->
-        </tbody>
-      </table>
+      <div class="card" style="margin-top:0.2rem;">
+        <table class="table" style="margin:0;">
+          <thead>
+            <tr>
+              <th>Dia</th>
+              <th>Atendimentos</th>
+              <th>Profissionais</th>
+              <th>Destaques</th>
+            </tr>
+          </thead>
+          <tbody id="agenda-month-summary">
+            <!-- Populado via JS mock -->
+          </tbody>
+        </table>
+      </div>
     </section>
 
     <section id="page-ceo-inventory" class="page-ceo hidden">
@@ -738,17 +877,17 @@
         <h2>Configurações do salão</h2>
       </div>
       <div class="card">
-        <h3>Colaboradora</h3>
-        <div class="subtext">Definir comissão e visualizar vínculo.</div>
-        <div class="inventory-item" style="border-bottom:none;">
-          <div class="inventory-item-main">
-            <strong>Colaboradora atual</strong>
-            <span class="inventory-item-meta">Comissão: 40% sobre serviços</span>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+          <div>
+            <h3>Colaboradoras e permissões</h3>
+            <div class="subtext">Adicione novas profissionais, ajuste comissões e controle o que cada uma pode ver.</div>
           </div>
-          <button class="secondary" style="font-size:0.75rem;padding:0.3rem 0.6rem;">
-            Editar
-          </button>
+          <div style="display:flex;gap:0.4rem;">
+            <button class="secondary" style="font-size:0.85rem;" onclick="alert('Fluxo de convite mockado')">Adicionar colaboradora</button>
+            <button style="font-size:0.85rem;" onclick="alert('Importação mockada')">Importar da ficha</button>
+          </div>
         </div>
+        <div id="collaborators-list" class="collab-grid"></div>
       </div>
 
       <div class="card" style="margin-top:0.8rem;">
@@ -952,27 +1091,178 @@
   let currentPageCEO = 'dashboard';
   let currentPageColab = 'dashboard';
 
-  // Mock de dados
-  const mockYear = [
-    { month: 'Jan', bookings: 90, occupancy: 70 },
-    { month: 'Fev', bookings: 80, occupancy: 65 },
-    { month: 'Mar', bookings: 110, occupancy: 82 },
-    { month: 'Abr', bookings: 95, occupancy: 75 },
-    { month: 'Mai', bookings: 105, occupancy: 79 },
-    { month: 'Jun', bookings: 88, occupancy: 68 },
-    { month: 'Jul', bookings: 120, occupancy: 86 },
-    { month: 'Ago', bookings: 115, occupancy: 83 },
-    { month: 'Set', bookings: 92, occupancy: 72 },
-    { month: 'Out', bookings: 100, occupancy: 77 },
-    { month: 'Nov', bookings: 130, occupancy: 88 },
-    { month: 'Dez', bookings: 140, occupancy: 92 }
-  ];
+  const calendarYear = 2025;
+  let selectedMonthIndex = 0;
 
-  const mockAgendaMonth = [
-    { day: '01', count: 8, occupancy: '80%', pros: 'CEO + Colab' },
-    { day: '02', count: 6, occupancy: '60%', pros: 'CEO' },
-    { day: '03', count: 9, occupancy: '90%', pros: 'Colab' },
-    { day: '04', count: 7, occupancy: '70%', pros: 'CEO + Colab' }
+  const mockYearDetailed = [
+    {
+      monthIndex: 0,
+      month: 'Jan',
+      fullName: 'Janeiro',
+      bookings: 90,
+      occupancy: 70,
+      highlightDays: [2, 8, 14, 22, 29],
+      tags: ['Verão cheio', 'Clientes recorrentes'],
+      daysSummary: [
+        { day: '02/01', count: 6, pros: 'CEO + Colab', highlight: 'Manutenções de viagem' },
+        { day: '14/01', count: 8, pros: 'CEO', highlight: 'Agenda cheia' },
+        { day: '29/01', count: 7, pros: 'Colab', highlight: 'Promo alongamento' }
+      ]
+    },
+    {
+      monthIndex: 1,
+      month: 'Fev',
+      fullName: 'Fevereiro',
+      bookings: 80,
+      occupancy: 65,
+      highlightDays: [3, 9, 16, 24],
+      tags: ['Carnaval', 'Blocos cedo'],
+      daysSummary: [
+        { day: '03/02', count: 5, pros: 'CEO', highlight: 'Pré-feriado' },
+        { day: '16/02', count: 9, pros: 'CEO + Colab', highlight: 'Noivas e formaturas' },
+        { day: '24/02', count: 6, pros: 'Colab', highlight: 'Clientes novas' }
+      ]
+    },
+    {
+      monthIndex: 2,
+      month: 'Mar',
+      fullName: 'Março',
+      bookings: 110,
+      occupancy: 82,
+      highlightDays: [5, 12, 18, 27],
+      tags: ['Alta procura', 'Eventos corporativos'],
+      daysSummary: [
+        { day: '05/03', count: 9, pros: 'CEO', highlight: 'Combo fibra + spa' },
+        { day: '18/03', count: 10, pros: 'CEO + Colab', highlight: 'Agenda cheia' },
+        { day: '27/03', count: 8, pros: 'Colab', highlight: 'Cartão fidelidade' }
+      ]
+    },
+    {
+      monthIndex: 3,
+      month: 'Abr',
+      fullName: 'Abril',
+      bookings: 95,
+      occupancy: 75,
+      highlightDays: [6, 13, 22],
+      tags: ['Páscoa', 'Cortes curtos'],
+      daysSummary: [
+        { day: '06/04', count: 7, pros: 'CEO + Colab', highlight: 'Pacote pós-feriado' },
+        { day: '13/04', count: 8, pros: 'CEO', highlight: 'Clientes recorrentes' },
+        { day: '22/04', count: 6, pros: 'Colab', highlight: 'Agenda enxuta' }
+      ]
+    },
+    {
+      monthIndex: 4,
+      month: 'Mai',
+      fullName: 'Maio',
+      bookings: 105,
+      occupancy: 79,
+      highlightDays: [3, 9, 17, 25],
+      tags: ['Noivas', 'Dia das mães'],
+      daysSummary: [
+        { day: '03/05', count: 10, pros: 'CEO + Colab', highlight: 'Pacote noiva' },
+        { day: '09/05', count: 9, pros: 'CEO', highlight: 'Pré dia das mães' },
+        { day: '25/05', count: 7, pros: 'Colab', highlight: 'Agenda equilibrada' }
+      ]
+    },
+    {
+      monthIndex: 5,
+      month: 'Jun',
+      fullName: 'Junho',
+      bookings: 88,
+      occupancy: 68,
+      highlightDays: [4, 12, 19, 28],
+      tags: ['Festas juninas', 'Cores quentes'],
+      daysSummary: [
+        { day: '04/06', count: 6, pros: 'Colab', highlight: 'Esmaltação express' },
+        { day: '12/06', count: 8, pros: 'CEO', highlight: 'Dia dos namorados' },
+        { day: '28/06', count: 7, pros: 'CEO + Colab', highlight: 'Pós festa junina' }
+      ]
+    },
+    {
+      monthIndex: 6,
+      month: 'Jul',
+      fullName: 'Julho',
+      bookings: 120,
+      occupancy: 86,
+      highlightDays: [2, 10, 18, 26],
+      tags: ['Férias', 'Alta ocupação'],
+      daysSummary: [
+        { day: '02/07', count: 10, pros: 'CEO + Colab', highlight: 'Agenda cheia cedo' },
+        { day: '18/07', count: 11, pros: 'CEO', highlight: 'Dia inteiro fibra' },
+        { day: '26/07', count: 9, pros: 'Colab', highlight: 'Combo esmaltação + spa' }
+      ]
+    },
+    {
+      monthIndex: 7,
+      month: 'Ago',
+      fullName: 'Agosto',
+      bookings: 115,
+      occupancy: 83,
+      highlightDays: [6, 15, 20, 30],
+      tags: ['Retorno aulas', 'Campanha geladeira'],
+      daysSummary: [
+        { day: '06/08', count: 8, pros: 'CEO', highlight: 'Manutenções escolares' },
+        { day: '20/08', count: 10, pros: 'CEO + Colab', highlight: 'Agenda cheia' },
+        { day: '30/08', count: 9, pros: 'Colab', highlight: 'Bônus consumação' }
+      ]
+    },
+    {
+      monthIndex: 8,
+      month: 'Set',
+      fullName: 'Setembro',
+      bookings: 92,
+      occupancy: 72,
+      highlightDays: [3, 11, 19, 27],
+      tags: ['Primavera', 'Agenda enxuta'],
+      daysSummary: [
+        { day: '11/09', count: 7, pros: 'Colab', highlight: 'Cores florais' },
+        { day: '19/09', count: 8, pros: 'CEO', highlight: 'Clientes recorrentes' },
+        { day: '27/09', count: 6, pros: 'CEO + Colab', highlight: 'Sábado light' }
+      ]
+    },
+    {
+      monthIndex: 9,
+      month: 'Out',
+      fullName: 'Outubro',
+      bookings: 100,
+      occupancy: 77,
+      highlightDays: [5, 13, 21, 29],
+      tags: ['Primavera', 'Pré feriado'],
+      daysSummary: [
+        { day: '05/10', count: 9, pros: 'CEO + Colab', highlight: 'Agenda cheia' },
+        { day: '21/10', count: 8, pros: 'CEO', highlight: 'Lançamento cor nova' },
+        { day: '29/10', count: 7, pros: 'Colab', highlight: 'Dia de reposição' }
+      ]
+    },
+    {
+      monthIndex: 10,
+      month: 'Nov',
+      fullName: 'Novembro',
+      bookings: 130,
+      occupancy: 88,
+      highlightDays: [2, 9, 16, 23, 29],
+      tags: ['Black friday', 'Alta demanda'],
+      daysSummary: [
+        { day: '09/11', count: 11, pros: 'CEO', highlight: 'Pré black' },
+        { day: '23/11', count: 12, pros: 'CEO + Colab', highlight: 'Corre de fim de mês' },
+        { day: '29/11', count: 10, pros: 'Colab', highlight: 'Extra slots' }
+      ]
+    },
+    {
+      monthIndex: 11,
+      month: 'Dez',
+      fullName: 'Dezembro',
+      bookings: 140,
+      occupancy: 92,
+      highlightDays: [4, 12, 18, 23, 28],
+      tags: ['Natal', 'Reveillon'],
+      daysSummary: [
+        { day: '12/12', count: 12, pros: 'CEO + Colab', highlight: 'Agenda lotada' },
+        { day: '23/12', count: 11, pros: 'CEO', highlight: 'Pré natal' },
+        { day: '28/12', count: 9, pros: 'Colab', highlight: 'Alongamento viagem' }
+      ]
+    }
   ];
 
   const mockPolish = [
@@ -985,6 +1275,12 @@
     { name: 'Coca lata', stock: 8, price: 7, low: false },
     { name: 'Energético', stock: 3, price: 10, low: true },
     { name: 'Água sem gás', stock: 15, price: 4, low: false }
+  ];
+
+  const collaborators = [
+    { name: 'Glecie', role: 'CEO', commission: 'Recebe total', permissions: 'Agenda, estoque, financeiro', color: '#d4af37' },
+    { name: 'Camila', role: 'Colaboradora', commission: '40% serviços', permissions: 'Agenda compartilhada, comissões', color: '#f3c06b' },
+    { name: 'Laura', role: 'Colaboradora', commission: '35% serviços', permissions: 'Agenda própria, estoque consulta', color: '#b58c25' }
   ];
 
   const kioskDrinks = [
@@ -1155,27 +1451,64 @@
     renderYearCalendar();
     renderAgendaMonthSummary();
     renderInventoryLists();
+    renderCollaborators();
   }
 
   function renderYearCalendar() {
     const container = document.getElementById('year-calendar');
     if (!container) return;
     container.innerHTML = '';
-    mockYear.forEach(m => {
+    mockYearDetailed.forEach(m => {
       const div = document.createElement('div');
-      div.className = 'month-card';
-      div.innerHTML = `
-        <div class="month-header">
-          <div class="month-name">${m.month}</div>
-          <div class="month-stat">${m.bookings} atend.</div>
-        </div>
-        <div class="month-bar">
-          <div class="month-bar-fill" style="width:${m.occupancy}%;"></div>
-        </div>
-        <div class="subtext" style="margin-top:0.25rem;">
-          Ocupação aproximada: ${m.occupancy}%
+      div.className = 'month-card' + (m.monthIndex === selectedMonthIndex ? ' active' : '');
+
+      const header = document.createElement('div');
+      header.className = 'month-header';
+      header.innerHTML = `
+        <div class="month-name">${m.fullName}</div>
+        <div class="month-stat">${m.bookings} atend.</div>
+      `;
+
+      const bar = document.createElement('div');
+      bar.className = 'month-bar';
+      bar.innerHTML = `<div class="month-bar-fill" style="width:${m.occupancy}%;"></div>`;
+
+      const mini = document.createElement('div');
+      mini.className = 'mini-calendar';
+      mini.innerHTML = `
+        <div class="mini-weekdays">
+          <span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span><span>D</span>
         </div>
       `;
+
+      const daysGrid = document.createElement('div');
+      daysGrid.className = 'mini-days';
+      const days = buildMonthDays(calendarYear, m.monthIndex, m.highlightDays);
+      days.forEach(d => {
+        const span = document.createElement('span');
+        span.className = 'mini-day' + (d.hasBooking ? ' has-booking' : '') + (d.empty ? ' empty' : '');
+        span.textContent = d.label;
+        if (d.hasBooking) {
+          const dot = document.createElement('span');
+          dot.className = 'dot';
+          span.appendChild(dot);
+        }
+        daysGrid.appendChild(span);
+      });
+      mini.appendChild(daysGrid);
+
+      const footnote = document.createElement('div');
+      footnote.className = 'month-footnote';
+      footnote.innerHTML = `
+        <span>Ocupação: ${m.occupancy}%</span>
+        <span class="tag">ver mês</span>
+      `;
+
+      div.appendChild(header);
+      div.appendChild(bar);
+      div.appendChild(mini);
+      div.appendChild(footnote);
+      div.onclick = () => setSelectedMonth(m.monthIndex);
       container.appendChild(div);
     });
   }
@@ -1184,16 +1517,56 @@
     const tbody = document.getElementById('agenda-month-summary');
     if (!tbody) return;
     tbody.innerHTML = '';
-    mockAgendaMonth.forEach(d => {
+    const month = mockYearDetailed[selectedMonthIndex];
+    const monthTitle = document.getElementById('selected-month-title');
+    const tagContainer = document.getElementById('selected-month-tags');
+    if (monthTitle) monthTitle.textContent = `Agenda de ${month.fullName}`;
+    if (tagContainer) {
+      tagContainer.innerHTML = '';
+      month.tags.forEach(t => {
+        const span = document.createElement('span');
+        span.className = 'pill';
+        span.textContent = t;
+        tagContainer.appendChild(span);
+      });
+      const ocup = document.createElement('span');
+      ocup.className = 'pill';
+      ocup.textContent = `${month.occupancy}% ocupação`;
+      tagContainer.appendChild(ocup);
+    }
+    month.daysSummary.forEach(d => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${d.day}</td>
-        <td>${d.count}</td>
-        <td>${d.occupancy}</td>
+        <td>${d.count} atend.</td>
         <td>${d.pros}</td>
+        <td>${d.highlight}</td>
       `;
       tbody.appendChild(tr);
     });
+  }
+
+  function setSelectedMonth(index) {
+    selectedMonthIndex = index;
+    renderYearCalendar();
+    renderAgendaMonthSummary();
+  }
+
+  function buildMonthDays(year, monthIndex, highlightDays = []) {
+    const result = [];
+    const firstWeekday = new Date(year, monthIndex, 1).getDay(); // 0=domingo
+    const offset = (firstWeekday + 6) % 7; // força a semana a começar na segunda
+    const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+    for (let i = 0; i < offset; i++) {
+      result.push({ empty: true, label: '' });
+    }
+    for (let d = 1; d <= daysInMonth; d++) {
+      result.push({
+        label: d,
+        hasBooking: highlightDays.includes(d)
+      });
+    }
+    return result;
   }
 
   function renderInventoryLists() {
@@ -1204,13 +1577,14 @@
       mockPolish.forEach(p => {
         const pct = Math.round((p.current / p.total) * 100);
         const div = document.createElement('div');
-        div.className = 'inventory-item';
+        div.className = 'inventory-card';
         div.innerHTML = `
+          <div class="inventory-icon">💅</div>
           <div class="inventory-item-main">
             <strong>${p.name}</strong>
             <span class="inventory-item-meta">${p.brand} • ${p.current} ml de ${p.total} ml</span>
           </div>
-          <div style="text-align:right;display:flex;flex-direction:column;gap:0.2rem;align-items:flex-end;">
+          <div class="inventory-status">
             <div class="progress-bar">
               <div class="progress-fill" style="width:${pct}%;"></div>
             </div>
@@ -1226,20 +1600,51 @@
     if (fridgeEl) {
       fridgeEl.innerHTML = '';
       mockFridge.forEach(f => {
+        const emoji = f.name.toLowerCase().includes('água') ? '🚰' : f.name.toLowerCase().includes('energ') ? '⚡' : '🥤';
         const div = document.createElement('div');
-        div.className = 'inventory-item';
+        div.className = 'inventory-card';
         div.innerHTML = `
+          <div class="inventory-icon">${emoji}</div>
           <div class="inventory-item-main">
             <strong>${f.name}</strong>
             <span class="inventory-item-meta">${f.stock} unidades • Venda R$ ${f.price}</span>
           </div>
-          <span class="badge ${f.low ? 'badge-low' : ''}">
-            ${f.low ? 'Repor logo' : 'Ok'}
-          </span>
+          <div class="inventory-status">
+            <span class="badge ${f.low ? 'badge-low' : ''}">
+              ${f.low ? 'Repor logo' : 'OK'}
+            </span>
+            <button class="secondary" style="font-size:0.7rem;padding:0.2rem 0.5rem;">Mover p/ geladeira</button>
+          </div>
         `;
         fridgeEl.appendChild(div);
       });
     }
+  }
+
+  function renderCollaborators() {
+    const container = document.getElementById('collaborators-list');
+    if (!container) return;
+    container.innerHTML = '';
+    collaborators.forEach(col => {
+      const card = document.createElement('div');
+      card.className = 'collab-card';
+      card.innerHTML = `
+        <div class="collab-headline">
+          <div class="collab-avatar" style="background:${col.color}">${col.name[0]}</div>
+          <div>
+            <strong>${col.name}</strong>
+            <div class="collab-meta">${col.role} • ${col.commission}</div>
+          </div>
+        </div>
+        <div class="collab-meta">Permissões: ${col.permissions}</div>
+        <div class="collab-actions">
+          <button class="secondary" style="font-size:0.75rem;" onclick="alert('Editar ${col.name}')">Editar perfil</button>
+          <button style="font-size:0.75rem;" onclick="alert('Ajustar comissão de ${col.name}')">Comissão</button>
+          <button class="secondary" style="font-size:0.75rem;" onclick="alert('Desativar ${col.name}')">Desativar</button>
+        </div>
+      `;
+      container.appendChild(card);
+    });
   }
 
   // -----------------------------
