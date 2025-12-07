@@ -1064,6 +1064,14 @@
       box-shadow: 0 8px 18px rgba(0,0,0,0.08);
     }
 
+    @media (min-width: 900px) {
+      .floating-cta { display: none; }
+    }
+
+    @media (max-width: 899px) {
+      .floating-cta { display: inline-flex; }
+    }
+
     .client-detail-tabs {
       display: inline-flex;
       gap: 0.3rem;
@@ -1291,6 +1299,31 @@
       color: var(--accent-gold-dark);
       border-color: rgba(212, 175, 55, 0.5);
       box-shadow: 0 2px 10px rgba(212, 175, 55, 0.15);
+    }
+
+    .agenda-filter-select {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      padding: 0.35rem 0.6rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    }
+
+    .agenda-filter-select label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    .agenda-filter-select select {
+      border: none;
+      background: transparent;
+      font-weight: 600;
+      color: var(--accent-gold-dark);
+      outline: none;
     }
 
     .collab-form {
@@ -1559,6 +1592,10 @@
           <div class="pill-row" style="margin:0;">
             <span class="pill">2025</span>
             <span class="pill">CEO + Colab</span>
+          </div>
+          <div class="agenda-filter-select">
+            <label>Profissional</label>
+            <select id="agenda-prof-filter" onchange="setAgendaProfessionalFilter(this.value, 'ceo')"></select>
           </div>
           <button class="secondary" onclick="openAppointmentModal()">Novo agendamento</button>
         </div>
@@ -2169,6 +2206,25 @@
       </div>
     </div>
 
+    <div id="day-appointments-modal" class="dialog-layer hidden">
+      <div class="dialog-card" style="max-width:620px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
+          <div>
+            <h3 id="day-appointments-title" style="margin:0;">Agendamentos do dia</h3>
+            <div class="subtext" id="day-appointments-caption">Horários e profissionais do dia selecionado</div>
+          </div>
+          <button class="secondary" style="height:32px;padding:0.35rem 0.8rem;" onclick="closeDialog('day-appointments-modal')">Fechar</button>
+        </div>
+
+        <div id="day-appointments-list" class="agenda-appointments" style="margin:0.75rem 0 0.25rem 0;"></div>
+
+        <div class="dialog-actions" style="justify-content:space-between;">
+          <button class="secondary" onclick="closeDialog('day-appointments-modal')">Voltar</button>
+          <button onclick="openAppointmentModal(null, null, dayModalDate)">Novo agendamento para este dia</button>
+        </div>
+      </div>
+    </div>
+
     <div id="appointment-remove-modal" class="dialog-layer hidden">
       <div class="dialog-card" style="max-width:420px;">
         <h3>Remover agendamento</h3>
@@ -2236,6 +2292,10 @@
           <div class="pill-row" style="margin:0;">
             <span class="pill">2025</span>
             <span class="pill">CEO + Colab</span>
+          </div>
+          <div class="agenda-filter-select">
+            <label>Profissional</label>
+            <select id="agenda-prof-filter-colab" onchange="setAgendaProfessionalFilter(this.value, 'colab')"></select>
           </div>
           <button class="secondary" onclick="openAppointmentModal()">Novo agendamento</button>
         </div>
@@ -2410,189 +2470,31 @@
   let currentClientDetailId = null;
   let activeClientTab = 'data';
   let appointmentPrefillClient = null;
+  let appointmentPrefillDate = null;
+  let appointmentPrefillTime = null;
   let appointmentFormMode = 'add';
   let appointmentEditingId = null;
   let pendingRemoveAppointmentId = null;
+  let dayModalDate = null;
+  let dayModalScope = 'ceo';
+  let agendaProfessionalFilter = 'all';
+  let agendaProfessionalFilterColab = 'all';
 
   const calendarYear = 2025;
+  const monthNamesFull = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+  const monthNamesShort = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  const baseYearDetailed = monthNamesFull.map((fullName, idx) => ({
+    monthIndex: idx,
+    month: monthNamesShort[idx],
+    fullName,
+    tags: []
+  }));
+  let mockYearDetailed = JSON.parse(JSON.stringify(baseYearDetailed));
   let selectedMonthIndex = new Date().getMonth();
   let selectedMonthIndexColab = new Date().getMonth();
   let agendaViewMode = 'year';
   let agendaViewModeColab = 'year';
   let selectedDashboardMonth = new Date().getMonth();
-
-  const mockYearDetailed = [
-    {
-      monthIndex: 0,
-      month: 'Jan',
-      fullName: 'Janeiro',
-      bookings: 90,
-      occupancy: 70,
-      highlightDays: [2, 8, 14, 22, 29],
-      tags: ['Verão cheio', 'Clientes recorrentes'],
-      daysSummary: [
-        { day: '02/01', count: 6, pros: 'CEO + Colab', highlight: 'Manutenções de viagem' },
-        { day: '14/01', count: 8, pros: 'CEO', highlight: 'Agenda cheia' },
-        { day: '29/01', count: 7, pros: 'Colab', highlight: 'Promo alongamento' }
-      ]
-    },
-    {
-      monthIndex: 1,
-      month: 'Fev',
-      fullName: 'Fevereiro',
-      bookings: 80,
-      occupancy: 65,
-      highlightDays: [3, 9, 16, 24],
-      tags: ['Carnaval', 'Blocos cedo'],
-      daysSummary: [
-        { day: '03/02', count: 5, pros: 'CEO', highlight: 'Pré-feriado' },
-        { day: '16/02', count: 9, pros: 'CEO + Colab', highlight: 'Noivas e formaturas' },
-        { day: '24/02', count: 6, pros: 'Colab', highlight: 'Clientes novas' }
-      ]
-    },
-    {
-      monthIndex: 2,
-      month: 'Mar',
-      fullName: 'Março',
-      bookings: 110,
-      occupancy: 82,
-      highlightDays: [5, 12, 18, 27],
-      tags: ['Alta procura', 'Eventos corporativos'],
-      daysSummary: [
-        { day: '05/03', count: 9, pros: 'CEO', highlight: 'Combo fibra + spa' },
-        { day: '18/03', count: 10, pros: 'CEO + Colab', highlight: 'Agenda cheia' },
-        { day: '27/03', count: 8, pros: 'Colab', highlight: 'Cartão fidelidade' }
-      ]
-    },
-    {
-      monthIndex: 3,
-      month: 'Abr',
-      fullName: 'Abril',
-      bookings: 95,
-      occupancy: 75,
-      highlightDays: [6, 13, 22],
-      tags: ['Páscoa', 'Cortes curtos'],
-      daysSummary: [
-        { day: '06/04', count: 7, pros: 'CEO + Colab', highlight: 'Pacote pós-feriado' },
-        { day: '13/04', count: 8, pros: 'CEO', highlight: 'Clientes recorrentes' },
-        { day: '22/04', count: 6, pros: 'Colab', highlight: 'Agenda enxuta' }
-      ]
-    },
-    {
-      monthIndex: 4,
-      month: 'Mai',
-      fullName: 'Maio',
-      bookings: 105,
-      occupancy: 79,
-      highlightDays: [3, 9, 17, 25],
-      tags: ['Noivas', 'Dia das mães'],
-      daysSummary: [
-        { day: '03/05', count: 10, pros: 'CEO + Colab', highlight: 'Pacote noiva' },
-        { day: '09/05', count: 9, pros: 'CEO', highlight: 'Pré dia das mães' },
-        { day: '25/05', count: 7, pros: 'Colab', highlight: 'Agenda equilibrada' }
-      ]
-    },
-    {
-      monthIndex: 5,
-      month: 'Jun',
-      fullName: 'Junho',
-      bookings: 88,
-      occupancy: 68,
-      highlightDays: [4, 12, 19, 28],
-      tags: ['Festas juninas', 'Cores quentes'],
-      daysSummary: [
-        { day: '04/06', count: 6, pros: 'Colab', highlight: 'Esmaltação express' },
-        { day: '12/06', count: 8, pros: 'CEO', highlight: 'Dia dos namorados' },
-        { day: '28/06', count: 7, pros: 'CEO + Colab', highlight: 'Pós festa junina' }
-      ]
-    },
-    {
-      monthIndex: 6,
-      month: 'Jul',
-      fullName: 'Julho',
-      bookings: 120,
-      occupancy: 86,
-      highlightDays: [2, 10, 18, 26],
-      tags: ['Férias', 'Alta ocupação'],
-      daysSummary: [
-        { day: '02/07', count: 10, pros: 'CEO + Colab', highlight: 'Agenda cheia cedo' },
-        { day: '18/07', count: 11, pros: 'CEO', highlight: 'Dia inteiro fibra' },
-        { day: '26/07', count: 9, pros: 'Colab', highlight: 'Combo esmaltação + spa' }
-      ]
-    },
-    {
-      monthIndex: 7,
-      month: 'Ago',
-      fullName: 'Agosto',
-      bookings: 115,
-      occupancy: 83,
-      highlightDays: [6, 15, 20, 30],
-      tags: ['Retorno aulas', 'Campanha geladeira'],
-      daysSummary: [
-        { day: '06/08', count: 8, pros: 'CEO', highlight: 'Manutenções escolares' },
-        { day: '20/08', count: 10, pros: 'CEO + Colab', highlight: 'Agenda cheia' },
-        { day: '30/08', count: 9, pros: 'Colab', highlight: 'Bônus consumação' }
-      ]
-    },
-    {
-      monthIndex: 8,
-      month: 'Set',
-      fullName: 'Setembro',
-      bookings: 92,
-      occupancy: 72,
-      highlightDays: [3, 11, 19, 27],
-      tags: ['Primavera', 'Agenda enxuta'],
-      daysSummary: [
-        { day: '11/09', count: 7, pros: 'Colab', highlight: 'Cores florais' },
-        { day: '19/09', count: 8, pros: 'CEO', highlight: 'Clientes recorrentes' },
-        { day: '27/09', count: 6, pros: 'CEO + Colab', highlight: 'Sábado light' }
-      ]
-    },
-    {
-      monthIndex: 9,
-      month: 'Out',
-      fullName: 'Outubro',
-      bookings: 100,
-      occupancy: 77,
-      highlightDays: [5, 13, 21, 29],
-      tags: ['Primavera', 'Pré feriado'],
-      daysSummary: [
-        { day: '05/10', count: 9, pros: 'CEO + Colab', highlight: 'Agenda cheia' },
-        { day: '21/10', count: 8, pros: 'CEO', highlight: 'Lançamento cor nova' },
-        { day: '29/10', count: 7, pros: 'Colab', highlight: 'Dia de reposição' }
-      ]
-    },
-    {
-      monthIndex: 10,
-      month: 'Nov',
-      fullName: 'Novembro',
-      bookings: 130,
-      occupancy: 88,
-      highlightDays: [2, 9, 16, 23, 29],
-      tags: ['Black friday', 'Alta demanda'],
-      daysSummary: [
-        { day: '09/11', count: 11, pros: 'CEO', highlight: 'Pré black' },
-        { day: '23/11', count: 12, pros: 'CEO + Colab', highlight: 'Corre de fim de mês' },
-        { day: '29/11', count: 10, pros: 'Colab', highlight: 'Extra slots' }
-      ]
-    },
-    {
-      monthIndex: 11,
-      month: 'Dez',
-      fullName: 'Dezembro',
-      bookings: 140,
-      occupancy: 92,
-      highlightDays: [4, 12, 18, 23, 28],
-      tags: ['Natal', 'Reveillon'],
-      daysSummary: [
-        { day: '12/12', count: 12, pros: 'CEO + Colab', highlight: 'Agenda lotada' },
-        { day: '23/12', count: 11, pros: 'CEO', highlight: 'Pré natal' },
-        { day: '28/12', count: 9, pros: 'Colab', highlight: 'Alongamento viagem' }
-      ]
-    }
-  ];
-
-  const baseYearDetailed = JSON.parse(JSON.stringify(mockYearDetailed));
 
   let mockPolish = [
     { name: 'Nude Elegante', brand: 'Marca X', current: 30, total: 50, low: false },
@@ -2609,8 +2511,6 @@
   let inventoryFormMode = 'add';
   let inventoryEditingType = 'polish';
   let inventoryEditingIndex = null;
-
-  const monthNamesFull = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 
   const monthlyDashboardStats = [
     { monthIndex: 0, revenue: 12340, commission: 3250, consumption: 640, alerts: 3, alertsDesc: 'Esmalte nude, top coat, energético', delta: '+18% contra Dez' },
@@ -2634,9 +2534,9 @@
   ];
 
   const collaborators = [
-    { name: 'Glecie', role: 'CEO', commission: 'Recebe total', permissions: 'Agenda, estoque, financeiro', color: '#d4af37', username: 'glecie', active: true },
-    { name: 'Camila', role: 'Colaboradora', commission: '40% serviços', permissions: 'Agenda compartilhada, comissões', color: '#f3c06b', username: 'camila', active: true },
-    { name: 'Laura', role: 'Colaboradora', commission: '35% serviços', permissions: 'Agenda própria, estoque consulta', color: '#b58c25', username: 'laura', active: true }
+    { id: 'glecie', name: 'Glecie', role: 'CEO', commission: 'Recebe total', permissions: 'Agenda, estoque, financeiro', color: '#d4af37', username: 'glecie', active: true },
+    { id: 'camila', name: 'Camila', role: 'Colaboradora', commission: '40% serviços', permissions: 'Agenda compartilhada, comissões', color: '#f3c06b', username: 'camila', active: true },
+    { id: 'laura', name: 'Laura', role: 'Colaboradora', commission: '35% serviços', permissions: 'Agenda própria, estoque consulta', color: '#b58c25', username: 'laura', active: true }
   ];
 
   let collaboratorAccounts = [
@@ -2663,8 +2563,8 @@
       extra: 'Instagram @maria',
       history: ['Alongamento inicial 10/01', 'Manutenção fibra 12/04'],
       consume: ['Água sem gás', 'Suco verde'],
-      future: [{ date: '2025-05-10', time: '15:00', service: 'Manutenção fibra', professional: 'Glecie' }],
-      nextAppointment: { date: '2025-05-10', time: '15:00', service: 'Manutenção fibra' }
+      future: [{ date: '2025-05-10', time: '15:00', service: 'Manutenção fibra', serviceName: 'Manutenção fibra', professional: 'Glecie', professionalName: 'Glecie', professionalId: 'glecie' }],
+      nextAppointment: { date: '2025-05-10', time: '15:00', service: 'Manutenção fibra', serviceName: 'Manutenção fibra' }
     },
     {
       id: 'cli-ana',
@@ -2684,8 +2584,8 @@
       extra: 'Indicada por Laura',
       history: ['Spa mãos 02/04'],
       consume: ['Energético', 'Água com gás'],
-      future: [{ date: '2025-04-22', time: '14:30', service: 'Spa mãos', professional: 'Camila' }],
-      nextAppointment: { date: '2025-04-22', time: '14:30', service: 'Spa mãos' }
+      future: [{ date: '2025-04-22', time: '14:30', service: 'Spa mãos', serviceName: 'Spa mãos', professional: 'Camila', professionalName: 'Camila', professionalId: 'camila' }],
+      nextAppointment: { date: '2025-04-22', time: '14:30', service: 'Spa mãos', serviceName: 'Spa mãos' }
     },
     {
       id: 'cli-luisa',
@@ -2705,8 +2605,8 @@
       extra: '',
       history: ['Alongamento novo 28/03'],
       consume: ['Coca lata'],
-      future: [],
-      nextAppointment: { date: '2025-05-02', time: '10:00', service: 'Manutenção alongamento' }
+      future: [{ date: '2025-05-02', time: '10:00', service: 'Manutenção alongamento', serviceName: 'Manutenção alongamento', professional: 'Laura', professionalName: 'Laura', professionalId: 'laura' }],
+      nextAppointment: { date: '2025-05-02', time: '10:00', service: 'Manutenção alongamento', serviceName: 'Manutenção alongamento' }
     }
   ];
 
@@ -2714,8 +2614,57 @@
   let pendingRemoveClientId = null;
 
   let appointments = [
-    { id: 'appt-1', clientId: 'cli-maria', professional: 'Glecie', service: 'Manutenção fibra', date: '2025-05-10', time: '15:00', notes: 'Rever cutícula' },
-    { id: 'appt-2', clientId: 'cli-ana', professional: 'Camila', service: 'Spa mãos', date: '2025-04-22', time: '14:30', notes: 'Chega 10min antes' }
+    {
+      id: 'appt-1',
+      clientId: 'cli-maria',
+      clientName: 'Maria Souza',
+      professionalId: 'glecie',
+      professionalName: 'Glecie',
+      professional: 'Glecie',
+      serviceId: 'manutencao',
+      serviceName: 'Manutenção fibra',
+      service: 'Manutenção fibra',
+      date: '2025-05-10',
+      time: '15:00',
+      status: 'scheduled',
+      notes: 'Rever cutícula',
+      createdAt: '2025-03-15T10:00:00Z',
+      updatedAt: '2025-03-15T10:00:00Z'
+    },
+    {
+      id: 'appt-2',
+      clientId: 'cli-ana',
+      clientName: 'Ana Paula',
+      professionalId: 'camila',
+      professionalName: 'Camila',
+      professional: 'Camila',
+      serviceId: 'spa-maos',
+      serviceName: 'Spa mãos',
+      service: 'Spa mãos',
+      date: '2025-04-22',
+      time: '14:30',
+      status: 'scheduled',
+      notes: 'Chega 10min antes',
+      createdAt: '2025-03-10T09:00:00Z',
+      updatedAt: '2025-03-10T09:00:00Z'
+    },
+    {
+      id: 'appt-3',
+      clientId: 'cli-luisa',
+      clientName: 'Luísa Martins',
+      professionalId: 'laura',
+      professionalName: 'Laura',
+      professional: 'Laura',
+      serviceId: 'manutencao-alongamento',
+      serviceName: 'Manutenção alongamento',
+      service: 'Manutenção alongamento',
+      date: '2025-05-02',
+      time: '10:00',
+      status: 'scheduled',
+      notes: 'Prefere formato quadrado',
+      createdAt: '2025-03-05T12:00:00Z',
+      updatedAt: '2025-03-05T12:00:00Z'
+    }
   ];
 
   function formatCurrency(value) {
@@ -2729,10 +2678,37 @@
     return `${d}/${m}/${y}`;
   }
 
+  function slugify(value = '') {
+    return value
+      .toString()
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      || 'ref';
+  }
+
+  function findCollaboratorByIdOrName(value) {
+    if (!value) return null;
+    const lowered = value.toLowerCase();
+    return collaborators.find(c => c.id === lowered || c.username === lowered || c.name.toLowerCase() === lowered) || null;
+  }
+
+  function findServiceByIdOrName(value) {
+    if (!value) return null;
+    const lowered = value.toLowerCase();
+    return kioskServices.find(s => s.id === lowered || s.name.toLowerCase() === lowered) || null;
+  }
+
+  function getProfessionalKey(appt) {
+    return (appt.professionalId || slugify(appt.professionalName || appt.professional || ''))?.toLowerCase();
+  }
+
   function buildWhatsAppLink(client, payload = {}) {
     const number = (client.phone || '').replace(/\D/g, '') || '55';
     const appt = payload.appointment || client.nextAppointment || {};
-    const service = payload.service || appt.service || client.lastService || 'seu atendimento';
+    const service = payload.service || appt.serviceName || appt.service || client.lastService || 'seu atendimento';
     const dateLabel = payload.dateLabel || (appt.date ? formatDateLabel(appt.date) : (client.lastDate || 'data a combinar'));
     const time = payload.time || appt.time || 'horário a combinar';
     const text = `Olá, tudo bem? Seu agendamento para ${service} está confirmado para o dia ${dateLabel} às ${time}. Qualquer ajuste necessário, estou à disposição.`;
@@ -2745,7 +2721,7 @@
     const dashSelect = document.getElementById('dashboard-month-filter');
     const fillSelect = (selectEl) => {
       if (selectEl && selectEl.options.length === 0) {
-        mockYearDetailed.forEach(m => {
+        baseYearDetailed.forEach(m => {
           const opt = document.createElement('option');
           opt.value = m.monthIndex;
           opt.textContent = m.fullName;
@@ -2773,8 +2749,66 @@
   let kioskServices = [
     { id: 'manutencao', name: 'Manutenção fibra', duration: '1h30', price: 120, icon: '💅' },
     { id: 'alongamento', name: 'Alongamento novo', duration: '2h', price: 180, icon: '✨' },
+    { id: 'spa-maos', name: 'Spa mãos', duration: '50min', price: 90, icon: '🧴' },
     { id: 'esmalta', name: 'Esmaltação simples', duration: '40min', price: 50, icon: '🎨' },
   ];
+
+  function normalizeAppointmentsData() {
+    appointments = appointments.map(appt => {
+      const fallbackClientId = appt.clientId || (appt.clientName ? `cli-${slugify(appt.clientName)}` : `cli-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`);
+      let client = clients.find(c => c.id === fallbackClientId);
+      if (!client) {
+        client = {
+          id: fallbackClientId,
+          name: appt.clientName || appt.client || 'Cliente',
+          phone: appt.phone || '55',
+          owners: [],
+          responsible: '',
+          history: [],
+          consume: [],
+          future: [],
+          nextAppointment: {}
+        };
+        clients.push(client);
+      }
+
+      const service = findServiceByIdOrName(appt.serviceId || appt.serviceName || appt.service);
+      const professional = findCollaboratorByIdOrName(appt.professionalId || appt.professionalName || appt.professional);
+      const professionalName = professional?.name || appt.professionalName || appt.professional || 'Equipe';
+      const professionalId = professional?.id || slugify(professionalName);
+      const serviceName = service?.name || appt.serviceName || appt.service || 'Serviço';
+      const serviceId = service?.id || slugify(serviceName);
+      const status = appt.status || 'scheduled';
+      const createdAt = appt.createdAt || new Date().toISOString();
+      const updatedAt = appt.updatedAt || createdAt;
+      const time = appt.time || '00:00';
+      const normalizedId = appt.id || `appt-${Date.now()}-${Math.random().toString(16).slice(2, 7)}`;
+
+      client.name = client.name || appt.clientName || 'Cliente';
+      client.owners = client.owners || [];
+      if (professionalName && !client.owners.includes(professionalName)) client.owners.push(professionalName);
+      if (!client.responsible) client.responsible = professionalName;
+
+      return {
+        ...appt,
+        id: normalizedId,
+        clientId: client.id,
+        clientName: client.name,
+        professionalId,
+        professionalName,
+        professional: professionalName,
+        serviceId,
+        serviceName,
+        service: serviceName,
+        status,
+        date: appt.date,
+        time,
+        notes: appt.notes || '',
+        createdAt,
+        updatedAt
+      };
+    });
+  }
 
   let cart = [];
 
@@ -2785,9 +2819,12 @@
     currentRole = role;
     if (role === 'colab') {
       currentColabAccount = account;
+      agendaProfessionalFilterColab = account?.id || slugify(account?.name || '') || 'all';
     } else {
       currentColabAccount = null;
+      agendaProfessionalFilterColab = 'all';
     }
+    if (role === 'ceo') agendaProfessionalFilter = 'all';
 
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('app-shell').classList.add('hidden');
@@ -3174,7 +3211,7 @@
     }
 
     if (activeClientTab === 'future') {
-      const fut = (client.future || []).map(f => `<li>${formatDateLabel(f.date)} • ${f.time} • ${f.service} (${f.professional || 'Equipe'})</li>`).join('') || '<li>Nenhum agendamento futuro</li>';
+      const fut = (client.future || []).map(f => `<li>${formatDateLabel(f.date)} • ${f.time} • ${f.serviceName || f.service} (${f.professionalName || f.professional || 'Equipe'})</li>`).join('') || '<li>Nenhum agendamento futuro</li>';
       container.innerHTML = `
         <div class="client-detail-section">
           <h4>Próximos horários</h4>
@@ -3223,10 +3260,28 @@
     const client = clients.find(c => c.id === clientId);
     if (!client) return;
     const related = appointments
-      .filter(a => a.clientId === clientId)
-      .sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
-    client.future = related.map(r => ({ date: r.date, time: r.time, service: r.service, professional: r.professional }));
-    client.nextAppointment = related[0] ? { date: related[0].date, time: related[0].time, service: related[0].service } : {};
+      .filter(a => a.clientId === clientId && a.status !== 'canceled')
+      .sort((a, b) => new Date(`${a.date}T${a.time || '00:00'}`) - new Date(`${b.date}T${b.time || '00:00'}`));
+
+    const today = new Date();
+    const future = related.filter(r => new Date(`${r.date}T${r.time || '00:00'}`) >= today);
+    const owners = new Set(client.owners || []);
+    related.forEach(r => { if (r.professionalName) owners.add(r.professionalName); });
+    client.owners = Array.from(owners);
+    client.future = future.map(r => ({ date: r.date, time: r.time, service: r.serviceName || r.service, professional: r.professionalName || r.professional }));
+    client.nextAppointment = future[0]
+      ? { date: future[0].date, time: future[0].time, service: future[0].serviceName || future[0].service }
+      : {};
+    const lastDone = [...related].filter(r => new Date(`${r.date}T${r.time || '00:00'}`) <= today).pop();
+    if (lastDone) {
+      client.lastService = lastDone.serviceName || lastDone.service;
+      client.lastDate = formatDateLabel(lastDone.date);
+    }
+    if (!lastDone && future[0]) {
+      client.lastService = future[0].serviceName || future[0].service;
+      client.lastDate = formatDateLabel(future[0].date);
+    }
+    client.responsible = future[0]?.professionalName || lastDone?.professionalName || client.responsible;
   }
 
   function bindClientFromInput() {
@@ -3236,10 +3291,68 @@
     hidden.value = match ? match.id : '';
   }
 
-  function openAppointmentModal(clientId = null, appointmentId = null) {
+  function renderDayAppointmentsModal() {
+    const list = document.getElementById('day-appointments-list');
+    const caption = document.getElementById('day-appointments-caption');
+    if (!list || !dayModalDate) return;
+    list.innerHTML = '';
+    const scope = dayModalScope || 'ceo';
+    const items = getAppointmentsForScope(scope)
+      .filter(a => a.date === dayModalDate && a.status !== 'canceled')
+      .map(a => ({
+        ...a,
+        dateObj: new Date(`${a.date}T${a.time || '00:00'}`)
+      }))
+      .sort((a, b) => a.dateObj - b.dateObj);
+
+    if (caption) caption.textContent = `Horários do dia ${formatDateLabel(dayModalDate)}`;
+
+    if (!items.length) {
+      list.innerHTML = '<div class="subtext">Nenhum agendamento para este dia.</div>';
+      return;
+    }
+
+    items.forEach(appt => {
+      const client = clients.find(c => c.id === appt.clientId);
+      const color = getProfessionalColor(appt.professionalName || appt.professional);
+      const row = document.createElement('div');
+      row.className = 'appointment-card';
+      row.style.setProperty('--appt-color', color);
+      row.innerHTML = `
+        <div class="appointment-meta">
+          <div class="appointment-title" style="font-size:1rem;">
+            ${appt.time || '--:--'} • ${appt.serviceName || appt.service}
+            <span class="appointment-pill" style="background:${color}1a;border-color:${color}33;">${appt.professionalName || appt.professional || 'Equipe'}</span>
+          </div>
+          <div class="appointment-subtext">
+            <span>${client ? client.name : appt.clientName || 'Cliente'}</span>
+            <span>${appt.status === 'done' ? 'Concluído' : 'Agendado'}</span>
+          </div>
+        </div>
+        <div class="appointment-actions">
+          <button class="ghost-btn secondary icon-mini" onclick="openAppointmentModal('${client?.id || ''}','${appt.id}')">✎ Editar</button>
+          <button class="ghost-btn secondary icon-mini" onclick="openRemoveAppointmentModal('${appt.id}')">🗑 Cancelar</button>
+        </div>
+      `;
+      list.appendChild(row);
+    });
+  }
+
+  function openDayAppointmentsModal(dateStr, scope = 'ceo') {
+    dayModalDate = dateStr;
+    dayModalScope = scope;
+    const title = document.getElementById('day-appointments-title');
+    if (title) title.textContent = `Agendamentos de ${formatDateLabel(dateStr)}`;
+    renderDayAppointmentsModal();
+    openDialog('day-appointments-modal');
+  }
+
+  function openAppointmentModal(clientId = null, appointmentId = null, presetDate = null, presetTime = null) {
     appointmentFormMode = appointmentId ? 'edit' : 'add';
     appointmentEditingId = appointmentId;
     appointmentPrefillClient = clientId;
+    appointmentPrefillDate = presetDate;
+    appointmentPrefillTime = presetTime;
     const client = clients.find(c => c.id === clientId);
     const editing = appointmentId ? appointments.find(a => a.id === appointmentId) : null;
     const modalTitle = document.getElementById('appointment-modal-title');
@@ -3260,55 +3373,70 @@
     if (clientInput) clientInput.value = baseClient ? baseClient.name : '';
     if (hidden) hidden.value = baseClient ? baseClient.id : '';
     if (notes) notes.value = editing ? (editing.notes || '') : '';
-    if (dateInput) dateInput.value = editing ? editing.date : (baseClient?.nextAppointment?.date || '');
-    if (timeInput) timeInput.value = editing ? editing.time : (baseClient?.nextAppointment?.time || '');
+    const defaultDate = editing ? editing.date : (appointmentPrefillDate || baseClient?.nextAppointment?.date || '');
+    const defaultTime = editing ? editing.time : (appointmentPrefillTime || baseClient?.nextAppointment?.time || '');
+    if (dateInput) dateInput.value = defaultDate;
+    if (timeInput) timeInput.value = defaultTime;
 
     if (profSelect) {
       profSelect.innerHTML = '';
       collaborators.forEach(col => {
         const opt = document.createElement('option');
-        opt.value = col.name;
+        opt.value = col.id || slugify(col.name);
         opt.textContent = col.name;
         profSelect.appendChild(opt);
       });
-      if (baseClient?.responsible) profSelect.value = baseClient.responsible;
+      if (baseClient?.responsible) profSelect.value = baseClient.responsible.toLowerCase();
       if (currentRole === 'colab' && currentColabAccount) {
-        profSelect.value = currentColabAccount.name;
+        profSelect.value = currentColabAccount.id || slugify(currentColabAccount.name);
       }
-      if (editing && editing.professional) profSelect.value = editing.professional;
+      if (editing && (editing.professionalId || editing.professional)) {
+        profSelect.value = editing.professionalId || slugify(editing.professional);
+      }
     }
 
     if (serviceSelect) {
       serviceSelect.innerHTML = '';
-      kioskServices.forEach(s => {
+      const services = [...kioskServices];
+      const editingServiceId = editing?.serviceId || editing?.service;
+      if (editingServiceId && !services.some(s => s.id === editingServiceId || s.name === editing.service)) {
+        services.push({ id: editingServiceId, name: editing?.serviceName || editing?.service || 'Serviço' });
+      }
+      services.forEach(s => {
         const opt = document.createElement('option');
-        opt.value = s.name;
-        opt.textContent = `${s.name} • R$ ${s.price}`;
+        opt.value = s.id;
+        opt.textContent = `${s.name}${s.price ? ' • R$ ' + s.price : ''}`;
         serviceSelect.appendChild(opt);
       });
+      serviceSelect.value = editing?.serviceId || editing?.service || services[0]?.id || '';
     }
 
     renderClientsDatalist();
     openDialog('appointment-modal');
+    appointmentPrefillDate = null;
+    appointmentPrefillTime = null;
   }
 
   function saveAppointment() {
     const clientInput = document.getElementById('appointment-client');
     const hidden = document.getElementById('appointment-client-id');
-    const professional = document.getElementById('appointment-professional').value;
-    const service = document.getElementById('appointment-service').value;
+    const professionalValue = document.getElementById('appointment-professional').value;
+    const serviceValue = document.getElementById('appointment-service').value;
     const date = document.getElementById('appointment-date').value;
     const time = document.getElementById('appointment-time').value;
     const notes = document.getElementById('appointment-notes').value;
 
     const isEditing = appointmentFormMode === 'edit';
+    const editingAppt = isEditing ? appointments.find(a => a.id === appointmentEditingId) : null;
+    const professional = findCollaboratorByIdOrName(professionalValue) || { name: professionalValue, id: slugify(professionalValue) };
+    const service = findServiceByIdOrName(serviceValue) || { name: serviceValue, id: slugify(serviceValue) };
     let client = clients.find(c => c.id === hidden.value) || clients.find(c => c.name.toLowerCase() === (clientInput.value || '').toLowerCase());
     if (!client) {
       client = {
         id: `cli-${Date.now()}`,
         name: clientInput.value,
         phone: '55',
-        lastService: service,
+        lastService: service.name,
         lastDate: formatDateLabel(date),
         instagram: '',
         birthday: '',
@@ -3316,8 +3444,8 @@
         prefShape: '',
         prefExtension: '',
         allergies: '',
-        responsible: professional,
-        owners: [currentRole === 'colab' && currentColabAccount ? currentColabAccount.name : professional || 'Glecie'],
+        responsible: professional.name,
+        owners: [currentRole === 'colab' && currentColabAccount ? currentColabAccount.name : professional.name || 'Glecie'],
         notes: '',
         extra: '',
         history: [],
@@ -3328,31 +3456,46 @@
       clients.push(client);
     }
 
-    client.lastService = service;
-    client.lastDate = date ? formatDateLabel(date) : client.lastDate;
-    client.responsible = professional || client.responsible;
-    client.nextAppointment = { date, time, service };
-    client.future = client.future || [];
-    client.future.push({ date, time, service, professional });
-    if (currentRole === 'colab' && currentColabAccount && !client.owners.includes(currentColabAccount.name)) {
-      client.owners.push(currentColabAccount.name);
-    }
+    client.owners = client.owners || [];
+    if (professional.name && !client.owners.includes(professional.name)) client.owners.push(professional.name);
+    client.responsible = professional.name || client.responsible;
+
+    const status = isEditing ? (editingAppt?.status || 'scheduled') : 'scheduled';
+    const baseCreatedAt = isEditing ? (editingAppt?.createdAt || new Date().toISOString()) : new Date().toISOString();
+    const appointmentPayload = {
+      clientId: client.id,
+      clientName: client.name,
+      professionalId: professional.id,
+      professionalName: professional.name,
+      professional: professional.name,
+      serviceId: service.id,
+      serviceName: service.name,
+      service: service.name,
+      date,
+      time,
+      notes,
+      status
+    };
 
     if (appointmentFormMode === 'edit' && appointmentEditingId) {
       const appt = appointments.find(a => a.id === appointmentEditingId);
       if (appt) {
         const previousClientId = appt.clientId;
-        appt.clientId = client.id;
-        appt.professional = professional;
-        appt.service = service;
-        appt.date = date;
-        appt.time = time;
-        appt.notes = notes;
-        rebuildClientAppointments(previousClientId);
+        Object.assign(appt, appointmentPayload, {
+          status,
+          updatedAt: new Date().toISOString(),
+          createdAt: appt.createdAt || baseCreatedAt
+        });
+        if (previousClientId && previousClientId !== client.id) rebuildClientAppointments(previousClientId);
       }
     } else {
-      const appt = { id: `appt-${Date.now()}`, clientId: client.id, professional, service, date, time, notes };
-      appointments.push(appt);
+      appointments.push({
+        id: `appt-${Date.now()}-${Math.random().toString(16).slice(2, 7)}`,
+        createdAt: baseCreatedAt,
+        updatedAt: baseCreatedAt,
+        ...appointmentPayload,
+        status
+      });
     }
 
     rebuildClientAppointments(client.id);
@@ -3369,7 +3512,7 @@
     renderAgendaMonthSummary('colab');
 
     closeDialog('appointment-modal');
-    const link = buildWhatsAppLink(client, { appointment: { date, time, service } });
+    const link = buildWhatsAppLink(client, { appointment: { date, time, serviceName: service.name, service: service.name } });
     if (!isEditing) window.open(link, '_blank');
 
     appointmentFormMode = 'add';
@@ -3544,10 +3687,11 @@
   function filterClientsByRole(scope) {
     if (scope === 'ceo') return clients;
     const colabName = currentColabAccount?.name || 'colab';
+    const colabId = currentColabAccount?.id || '';
     const owned = c => (c.owners || []).some(o => o.toLowerCase() === colabName.toLowerCase());
-    const responsible = c => (c.responsible || '').toLowerCase() === colabName.toLowerCase();
-    const viaAppointments = c => appointments.some(a => a.clientId === c.id && (a.professional || '').toLowerCase() === colabName.toLowerCase());
-    const viaFuture = c => (c.future || []).some(f => (f.professional || '').toLowerCase() === colabName.toLowerCase());
+    const responsible = c => (c.responsible || '').toLowerCase() === colabName.toLowerCase() || (c.responsible || '').toLowerCase() === colabId.toLowerCase();
+    const viaAppointments = c => appointments.some(a => a.clientId === c.id && ((a.professionalName || '').toLowerCase() === colabName.toLowerCase() || (a.professionalId || '').toLowerCase() === colabId.toLowerCase()));
+    const viaFuture = c => (c.future || []).some(f => (f.professionalName || f.professional || '').toLowerCase() === colabName.toLowerCase());
     return clients.filter(c => owned(c) || responsible(c) || viaAppointments(c) || viaFuture(c));
   }
 
@@ -3631,7 +3775,9 @@
       btnMonth.classList.toggle('active', mode === 'month');
     }
     renderAgendaMonthCalendar(scope);
+    renderAgendaMonthSummary(scope);
     renderAgendaAppointments(scope);
+    renderYearCalendar(scope);
   }
 
   function getProfessionalColor(name) {
@@ -3639,10 +3785,35 @@
     return match?.color || '#d4af37';
   }
 
+  function getAppointmentsForScope(scope = 'ceo') {
+    let list = appointments.filter(a => a.status !== 'canceled');
+    if (scope === 'colab') {
+      const colabName = (currentColabAccount?.name || '').toLowerCase();
+      const colabId = (currentColabAccount?.id || '').toLowerCase();
+      list = list.filter(a => (a.professionalName || '').toLowerCase() === colabName || (a.professionalId || '').toLowerCase() === colabId);
+    }
+    const activeFilter = scope === 'ceo' ? agendaProfessionalFilter : agendaProfessionalFilterColab;
+    if (activeFilter && activeFilter !== 'all') {
+      list = list.filter(a => getProfessionalKey(a) === activeFilter.toLowerCase() || (a.professionalName || '').toLowerCase() === activeFilter.toLowerCase());
+    }
+    return list;
+  }
+
   function filterAppointmentsByScope(scope = 'ceo') {
-    if (scope === 'ceo') return appointments;
-    const colabName = (currentColabAccount?.name || '').toLowerCase();
-    return appointments.filter(a => (a.professional || '').toLowerCase() === colabName);
+    return getAppointmentsForScope(scope);
+  }
+
+  function setAgendaProfessionalFilter(value, scope = 'ceo') {
+    if (scope === 'ceo') {
+      agendaProfessionalFilter = value || 'all';
+    } else {
+      agendaProfessionalFilterColab = value || (currentColabAccount?.id || 'all');
+    }
+    renderYearCalendar(scope);
+    renderAgendaMonthCalendar(scope);
+    renderAgendaMonthSummary(scope);
+    renderAgendaAppointments(scope);
+    renderDayAppointmentsModal();
   }
 
   function renderAgendaAppointments(scope = 'ceo') {
@@ -3665,19 +3836,19 @@
 
     items.forEach(appt => {
       const client = clients.find(c => c.id === appt.clientId);
-      const color = getProfessionalColor(appt.professional);
+      const color = getProfessionalColor(appt.professionalName || appt.professional);
       const card = document.createElement('div');
       card.className = 'appointment-card';
       card.style.setProperty('--appt-color', color);
       card.innerHTML = `
         <div class="appointment-meta">
           <div class="appointment-title">
-            ${client ? client.name : 'Cliente'}
-            <span class="appointment-pill" style="background:${color}1a;border-color:${color}33;">${appt.professional || 'Equipe'}</span>
+            ${client ? client.name : (appt.clientName || 'Cliente')}
+            <span class="appointment-pill" style="background:${color}1a;border-color:${color}33;">${appt.professionalName || appt.professional || 'Equipe'}</span>
           </div>
           <div class="appointment-subtext">
             <span>${formatDateLabel(appt.date)} • ${appt.time}</span>
-            <span>Serviço: ${appt.service}</span>
+            <span>Serviço: ${appt.serviceName || appt.service}</span>
           </div>
         </div>
         <div class="appointment-actions">
@@ -3716,8 +3887,40 @@
     closeDialog('appointment-remove-modal');
   }
 
+  function populateProfessionalFilters() {
+    const ceoSelect = document.getElementById('agenda-prof-filter');
+    const colabSelect = document.getElementById('agenda-prof-filter-colab');
+    const optionList = [{ id: 'all', name: 'Todos' }, ...collaborators.map(c => ({ id: c.id || slugify(c.name), name: c.name }))];
+
+    if (ceoSelect) {
+      ceoSelect.innerHTML = '';
+      optionList.forEach(optData => {
+        const opt = document.createElement('option');
+        opt.value = optData.id;
+        opt.textContent = optData.name;
+        ceoSelect.appendChild(opt);
+      });
+      ceoSelect.value = agendaProfessionalFilter;
+    }
+
+    if (colabSelect) {
+      colabSelect.innerHTML = '';
+      const colabOptions = currentColabAccount ? [{ id: currentColabAccount.id || slugify(currentColabAccount.name), name: currentColabAccount.name }] : collaborators.map(c => ({ id: c.id || slugify(c.name), name: c.name }));
+      colabOptions.forEach(optData => {
+        const opt = document.createElement('option');
+        opt.value = optData.id;
+        opt.textContent = optData.name;
+        colabSelect.appendChild(opt);
+      });
+      colabSelect.value = agendaProfessionalFilterColab;
+      if (!colabSelect.value && colabOptions[0]) colabSelect.value = colabOptions[0].id;
+      colabSelect.disabled = true;
+    }
+  }
+
   function renderCeoContent() {
     setupMonthSelects();
+    populateProfessionalFilters();
     renderDashboardCards();
     renderYearCalendar('ceo');
     setAgendaView(agendaViewMode, 'ceo');
@@ -3733,6 +3936,7 @@
 
   function renderColabContent() {
     setupMonthSelects();
+    populateProfessionalFilters();
     renderYearCalendar('colab');
     setAgendaView(agendaViewModeColab, 'colab');
     renderAgendaMonthSummary('colab');
@@ -3744,7 +3948,8 @@
     const container = document.getElementById(scope === 'ceo' ? 'year-calendar' : 'year-calendar-colab');
     if (!container) return;
     container.innerHTML = '';
-    mockYearDetailed.forEach(m => {
+    baseYearDetailed.forEach(m => {
+      const monthData = buildMonthSnapshot(m.monthIndex, scope);
       const div = document.createElement('div');
       const selected = scope === 'ceo' ? selectedMonthIndex : selectedMonthIndexColab;
       div.className = 'month-card' + (m.monthIndex === selected ? ' active' : '');
@@ -3753,12 +3958,12 @@
       header.className = 'month-header';
       header.innerHTML = `
         <div class="month-name">${m.fullName}</div>
-        <div class="month-stat">${m.bookings} atend.</div>
+        <div class="month-stat">${monthData.bookings} atend.</div>
       `;
 
       const bar = document.createElement('div');
       bar.className = 'month-bar';
-      bar.innerHTML = `<div class="month-bar-fill" style="width:${m.occupancy}%;"></div>`;
+      bar.innerHTML = `<div class="month-bar-fill" style="width:${monthData.occupancy}%;"></div>`;
 
       const mini = document.createElement('div');
       mini.className = 'mini-calendar';
@@ -3770,11 +3975,14 @@
 
       const daysGrid = document.createElement('div');
       daysGrid.className = 'mini-days';
-      const days = buildMonthDays(calendarYear, m.monthIndex, m.highlightDays);
+      const days = buildMonthDays(calendarYear, m.monthIndex, monthData.highlightDays);
       days.forEach(d => {
         const span = document.createElement('span');
         span.className = 'mini-day' + (d.hasBooking ? ' has-booking' : '') + (d.empty ? ' empty' : '');
         span.textContent = d.label;
+        if (!d.empty) {
+          span.onclick = () => openDayAppointmentsModal(`${calendarYear}-${String(m.monthIndex + 1).padStart(2, '0')}-${String(d.label).padStart(2, '0')}`, scope);
+        }
         if (d.hasBooking) {
           const dot = document.createElement('span');
           dot.className = 'dot';
@@ -3787,7 +3995,7 @@
       const footnote = document.createElement('div');
       footnote.className = 'month-footnote';
       footnote.innerHTML = `
-        <span>Ocupação: ${m.occupancy}%</span>
+        <span>Ocupação: ${monthData.occupancy}%</span>
         <span class="tag">ver mês</span>
       `;
 
@@ -3814,7 +4022,7 @@
       w.textContent = day;
       calendarEl.appendChild(w);
     });
-    const month = mockYearDetailed[selected];
+    const month = buildMonthSnapshot(selected, scope);
     const days = buildMonthDays(calendarYear, month.monthIndex, month.highlightDays);
     days.forEach(d => {
       const cell = document.createElement('div');
@@ -3823,14 +4031,16 @@
         calendarEl.appendChild(cell);
         return;
       }
-      cell.className = 'month-day' + (d.hasBooking ? ' has-booking' : '');
+      const match = month.daysSummary.find(day => day.day.startsWith(String(d.label).padStart(2, '0')));
+      const hasBooking = Boolean(match);
+      cell.className = 'month-day' + (hasBooking ? ' has-booking' : '');
+      const badgeText = hasBooking ? `${match.count} ag.` : 'Livre';
       cell.innerHTML = `
         <div class="day-number">${d.label}</div>
-        ${d.hasBooking ? '<span class="day-badge">Atendimento</span>' : '<span class="day-badge" style="background:transparent;color:var(--text-muted);">Livre</span>'}
+        <span class="day-badge" style="${hasBooking ? '' : 'background:transparent;color:var(--text-muted);'}">${badgeText}</span>
       `;
       cell.onclick = () => {
-        const match = month.daysSummary.find(day => day.day.startsWith(String(d.label).padStart(2, '0')));
-        if (match) alert(`${match.day}: ${match.count} atendimentos • ${match.pros} • ${match.highlight}`);
+        openDayAppointmentsModal(`${calendarYear}-${String(month.monthIndex + 1).padStart(2, '0')}-${String(d.label).padStart(2, '0')}`, scope);
       };
       calendarEl.appendChild(cell);
     });
@@ -3841,7 +4051,7 @@
     if (!tbody) return;
     tbody.innerHTML = '';
     const selected = scope === 'ceo' ? selectedMonthIndex : selectedMonthIndexColab;
-    const month = mockYearDetailed[selected];
+    const month = buildMonthSnapshot(selected, scope);
     const monthTitle = document.getElementById(scope === 'ceo' ? 'selected-month-title' : 'selected-month-title-colab');
     const tagContainer = document.getElementById(scope === 'ceo' ? 'selected-month-tags' : 'selected-month-tags-colab');
     if (monthTitle) monthTitle.textContent = `Agenda de ${month.fullName}`;
@@ -3853,11 +4063,24 @@
         span.textContent = t;
         tagContainer.appendChild(span);
       });
+      if (!month.tags.length) {
+        const total = document.createElement('span');
+        total.className = 'pill';
+        total.textContent = `${month.bookings} atend.`;
+        tagContainer.appendChild(total);
+      }
       const ocup = document.createElement('span');
       ocup.className = 'pill';
       ocup.textContent = `${month.occupancy}% ocupação`;
       tagContainer.appendChild(ocup);
     }
+    if (!month.daysSummary.length) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td colspan="4" class="subtext">Nenhum agendamento neste mês.</td>`;
+      tbody.appendChild(tr);
+      return;
+    }
+
     month.daysSummary.forEach(d => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -3879,6 +4102,41 @@
     renderYearCalendar(scope);
     renderAgendaMonthCalendar(scope);
     renderAgendaMonthSummary(scope);
+  }
+
+  function buildMonthSnapshot(monthIndex, scope = 'ceo') {
+    const base = baseYearDetailed[monthIndex] || { monthIndex, fullName: monthNamesFull[monthIndex] || '', month: monthNamesShort[monthIndex] || '', tags: [] };
+    const scopedAppointments = getAppointmentsForScope(scope).filter(a => {
+      if (!a.date) return false;
+      const [year, month] = a.date.split('-').map(Number);
+      if (!month) return false;
+      if (!year) return month - 1 === monthIndex;
+      return month - 1 === monthIndex && year === calendarYear;
+    });
+
+    const dayMap = {};
+    scopedAppointments.forEach(appt => {
+      const [, month, day] = (appt.date || '').split('-');
+      const dayNum = parseInt(day, 10);
+      if (!dayNum) return;
+      if (!dayMap[dayNum]) dayMap[dayNum] = { count: 0, pros: '', highlight: '' };
+      dayMap[dayNum].count += 1;
+      dayMap[dayNum].pros = mergePros(dayMap[dayNum].pros, appt.professionalName || appt.professional || 'Equipe');
+      dayMap[dayNum].highlight = appt.serviceName || appt.service || dayMap[dayNum].highlight || 'Agendado';
+    });
+
+    const highlightDays = Object.keys(dayMap).map(Number).sort((a, b) => a - b);
+    const daysSummary = highlightDays.map(day => ({
+      day: `${String(day).padStart(2, '0')}/${String(monthIndex + 1).padStart(2, '0')}`,
+      count: dayMap[day].count,
+      pros: dayMap[day].pros || 'Equipe',
+      highlight: dayMap[day].highlight || 'Agendado'
+    }));
+
+    const daysInMonth = new Date(calendarYear, monthIndex + 1, 0).getDate();
+    const occupancy = Math.round((highlightDays.length / daysInMonth) * 100) || 0;
+
+    return { ...base, bookings: scopedAppointments.length, highlightDays, daysSummary, occupancy };
   }
 
   function buildMonthDays(year, monthIndex, highlightDays = []) {
@@ -3926,13 +4184,14 @@
   }
 
   function refreshAgendaFromAppointments() {
-    mockYearDetailed.forEach((m, idx) => {
-      const base = baseYearDetailed[idx];
-      m.highlightDays = [...base.highlightDays];
-      m.daysSummary = base.daysSummary.map(d => ({ ...d }));
-      m.bookings = base.bookings;
-    });
-    appointments.forEach(appt => addAppointmentToAgenda(appt.date, appt.service, appt.professional));
+    clients.forEach(c => rebuildClientAppointments(c.id));
+    renderYearCalendar('ceo');
+    renderYearCalendar('colab');
+    renderAgendaMonthCalendar('ceo');
+    renderAgendaMonthCalendar('colab');
+    renderAgendaMonthSummary('ceo');
+    renderAgendaMonthSummary('colab');
+    renderDayAppointmentsModal();
   }
 
   function switchInventoryTab(tab) {
@@ -4457,6 +4716,7 @@
 
   // Inicialização
   // (poderia detectar login real do Firebase aqui)
+  normalizeAppointmentsData();
   refreshAgendaFromAppointments();
   syncKioskFromInventory();
   switchLoginMode('ceo');
