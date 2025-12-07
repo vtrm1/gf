@@ -437,7 +437,7 @@
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: var(--accent-gold);
+      background: var(--appt-color, var(--accent-gold));
       position: absolute;
       bottom: 4px;
       left: 50%;
@@ -969,6 +969,77 @@
 
     .client-card a:hover {
       text-decoration: underline;
+    }
+
+    .agenda-appointments {
+      margin-top: 0.8rem;
+      display: grid;
+      gap: 0.6rem;
+    }
+
+    .appointment-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+      border: 1px solid rgba(0,0,0,0.04);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.5rem 1rem;
+      align-items: center;
+      position: relative;
+    }
+
+    .appointment-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 12px;
+      bottom: 12px;
+      width: 5px;
+      border-radius: 12px;
+      background: var(--accent-gold);
+      opacity: 0.9;
+    }
+
+    .appointment-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .appointment-title {
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .appointment-subtext {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .appointment-actions {
+      display: flex;
+      gap: 0.35rem;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .appointment-pill {
+      background: rgba(0,0,0,0.03);
+      color: var(--text-main);
+      padding: 0.2rem 0.55rem;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      border: 1px solid rgba(0,0,0,0.05);
     }
 
     .floating-cta {
@@ -1527,6 +1598,11 @@
         </table>
       </div>
 
+      <div class="section-title" style="margin-top:1rem;">
+        <h2>Agendamentos futuros</h2>
+      </div>
+      <div class="agenda-appointments" id="agenda-appointments-list"></div>
+
       <button class="floating-cta" onclick="openAppointmentModal()">
         ✚ Novo agendamento
       </button>
@@ -2055,7 +2131,7 @@
     <div id="appointment-modal" class="dialog-layer hidden">
       <div class="dialog-card" style="max-width:640px;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
-          <h3>Novo agendamento</h3>
+          <h3 id="appointment-modal-title">Novo agendamento</h3>
           <button class="secondary" style="height:32px;padding:0.35rem 0.8rem;" onclick="closeDialog('appointment-modal')">Fechar</button>
         </div>
         <div class="dialog-grid">
@@ -2088,7 +2164,18 @@
         </div>
         <div class="dialog-actions">
           <button class="secondary" onclick="closeDialog('appointment-modal')">Cancelar</button>
-          <button onclick="saveAppointment()">Salvar e gerar WhatsApp</button>
+          <button id="appointment-submit-btn" onclick="saveAppointment()">Salvar e gerar WhatsApp</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="appointment-remove-modal" class="dialog-layer hidden">
+      <div class="dialog-card" style="max-width:420px;">
+        <h3>Remover agendamento</h3>
+        <p class="subtext">Confirme para remover este horário e atualizar a agenda.</p>
+        <div class="dialog-actions" style="justify-content:space-between;">
+          <button class="secondary" onclick="closeDialog('appointment-remove-modal')">Cancelar</button>
+          <button style="background:var(--danger);" onclick="confirmRemoveAppointment()">Remover</button>
         </div>
       </div>
     </div>
@@ -2183,6 +2270,11 @@
           <tbody id="agenda-month-summary-colab"></tbody>
         </table>
       </div>
+
+      <div class="section-title" style="margin-top:1rem;">
+        <h2>Agendamentos futuros</h2>
+      </div>
+      <div class="agenda-appointments" id="agenda-appointments-list-colab"></div>
 
       <button class="floating-cta secondary" onclick="openAppointmentModal()">
         ✚ Novo agendamento
@@ -2318,6 +2410,9 @@
   let currentClientDetailId = null;
   let activeClientTab = 'data';
   let appointmentPrefillClient = null;
+  let appointmentFormMode = 'add';
+  let appointmentEditingId = null;
+  let pendingRemoveAppointmentId = null;
 
   const calendarYear = 2025;
   let selectedMonthIndex = new Date().getMonth();
@@ -2496,6 +2591,8 @@
       ]
     }
   ];
+
+  const baseYearDetailed = JSON.parse(JSON.stringify(mockYearDetailed));
 
   let mockPolish = [
     { name: 'Nude Elegante', brand: 'Marca X', current: 30, total: 50, low: false },
@@ -3108,15 +3205,28 @@
     const index = clients.findIndex(c => c.id === pendingRemoveClientId);
     if (index >= 0) clients.splice(index, 1);
     appointments = appointments.filter(a => !(a.clientId === pendingRemoveClientId && isFutureDate(a.date)));
+    refreshAgendaFromAppointments();
     closeDialog('client-detail-modal');
     closeDialog('client-remove-modal');
     renderClients('ceo');
     renderClients('colab');
+    renderAgendaAppointments('ceo');
+    renderAgendaAppointments('colab');
     renderAgendaMonthCalendar('ceo');
     renderAgendaMonthSummary('ceo');
     renderAgendaMonthCalendar('colab');
     renderAgendaMonthSummary('colab');
     pendingRemoveClientId = null;
+  }
+
+  function rebuildClientAppointments(clientId) {
+    const client = clients.find(c => c.id === clientId);
+    if (!client) return;
+    const related = appointments
+      .filter(a => a.clientId === clientId)
+      .sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
+    client.future = related.map(r => ({ date: r.date, time: r.time, service: r.service, professional: r.professional }));
+    client.nextAppointment = related[0] ? { date: related[0].date, time: related[0].time, service: related[0].service } : {};
   }
 
   function bindClientFromInput() {
@@ -3126,9 +3236,14 @@
     hidden.value = match ? match.id : '';
   }
 
-  function openAppointmentModal(clientId = null) {
+  function openAppointmentModal(clientId = null, appointmentId = null) {
+    appointmentFormMode = appointmentId ? 'edit' : 'add';
+    appointmentEditingId = appointmentId;
     appointmentPrefillClient = clientId;
     const client = clients.find(c => c.id === clientId);
+    const editing = appointmentId ? appointments.find(a => a.id === appointmentId) : null;
+    const modalTitle = document.getElementById('appointment-modal-title');
+    const submitBtn = document.getElementById('appointment-submit-btn');
     const clientInput = document.getElementById('appointment-client');
     const hidden = document.getElementById('appointment-client-id');
     const profSelect = document.getElementById('appointment-professional');
@@ -3137,11 +3252,16 @@
     const timeInput = document.getElementById('appointment-time');
     const notes = document.getElementById('appointment-notes');
 
-    if (clientInput) clientInput.value = client ? client.name : '';
-    if (hidden) hidden.value = client ? client.id : '';
-    if (notes) notes.value = '';
-    if (dateInput) dateInput.value = client?.nextAppointment?.date || '';
-    if (timeInput) timeInput.value = client?.nextAppointment?.time || '';
+    if (modalTitle) modalTitle.textContent = appointmentFormMode === 'edit' ? 'Editar agendamento' : 'Novo agendamento';
+    if (submitBtn) submitBtn.textContent = appointmentFormMode === 'edit' ? 'Atualizar e gerar WhatsApp' : 'Salvar e gerar WhatsApp';
+
+    const baseClient = editing ? clients.find(c => c.id === editing.clientId) : client;
+
+    if (clientInput) clientInput.value = baseClient ? baseClient.name : '';
+    if (hidden) hidden.value = baseClient ? baseClient.id : '';
+    if (notes) notes.value = editing ? (editing.notes || '') : '';
+    if (dateInput) dateInput.value = editing ? editing.date : (baseClient?.nextAppointment?.date || '');
+    if (timeInput) timeInput.value = editing ? editing.time : (baseClient?.nextAppointment?.time || '');
 
     if (profSelect) {
       profSelect.innerHTML = '';
@@ -3151,10 +3271,11 @@
         opt.textContent = col.name;
         profSelect.appendChild(opt);
       });
-      if (client?.responsible) profSelect.value = client.responsible;
+      if (baseClient?.responsible) profSelect.value = baseClient.responsible;
       if (currentRole === 'colab' && currentColabAccount) {
         profSelect.value = currentColabAccount.name;
       }
+      if (editing && editing.professional) profSelect.value = editing.professional;
     }
 
     if (serviceSelect) {
@@ -3180,6 +3301,7 @@
     const time = document.getElementById('appointment-time').value;
     const notes = document.getElementById('appointment-notes').value;
 
+    const isEditing = appointmentFormMode === 'edit';
     let client = clients.find(c => c.id === hidden.value) || clients.find(c => c.name.toLowerCase() === (clientInput.value || '').toLowerCase());
     if (!client) {
       client = {
@@ -3216,13 +3338,30 @@
       client.owners.push(currentColabAccount.name);
     }
 
-    const appt = { id: `appt-${Date.now()}`, clientId: client.id, professional, service, date, time, notes };
-    appointments.push(appt);
+    if (appointmentFormMode === 'edit' && appointmentEditingId) {
+      const appt = appointments.find(a => a.id === appointmentEditingId);
+      if (appt) {
+        const previousClientId = appt.clientId;
+        appt.clientId = client.id;
+        appt.professional = professional;
+        appt.service = service;
+        appt.date = date;
+        appt.time = time;
+        appt.notes = notes;
+        rebuildClientAppointments(previousClientId);
+      }
+    } else {
+      const appt = { id: `appt-${Date.now()}`, clientId: client.id, professional, service, date, time, notes };
+      appointments.push(appt);
+    }
 
-    addAppointmentToAgenda(date, service);
+    rebuildClientAppointments(client.id);
+    refreshAgendaFromAppointments();
 
     renderClients('ceo');
     renderClients('colab');
+    renderAgendaAppointments('ceo');
+    renderAgendaAppointments('colab');
     if (currentClientDetailId === client.id) renderClientDetailTab();
     renderAgendaMonthCalendar('ceo');
     renderAgendaMonthSummary('ceo');
@@ -3231,7 +3370,10 @@
 
     closeDialog('appointment-modal');
     const link = buildWhatsAppLink(client, { appointment: { date, time, service } });
-    window.open(link, '_blank');
+    if (!isEditing) window.open(link, '_blank');
+
+    appointmentFormMode = 'add';
+    appointmentEditingId = null;
   }
 
   function openDialog(id) {
@@ -3489,6 +3631,89 @@
       btnMonth.classList.toggle('active', mode === 'month');
     }
     renderAgendaMonthCalendar(scope);
+    renderAgendaAppointments(scope);
+  }
+
+  function getProfessionalColor(name) {
+    const match = collaborators.find(c => c.name.toLowerCase() === (name || '').toLowerCase());
+    return match?.color || '#d4af37';
+  }
+
+  function filterAppointmentsByScope(scope = 'ceo') {
+    if (scope === 'ceo') return appointments;
+    const colabName = (currentColabAccount?.name || '').toLowerCase();
+    return appointments.filter(a => (a.professional || '').toLowerCase() === colabName);
+  }
+
+  function renderAgendaAppointments(scope = 'ceo') {
+    const listEl = document.getElementById(scope === 'ceo' ? 'agenda-appointments-list' : 'agenda-appointments-list-colab');
+    if (!listEl) return;
+    listEl.innerHTML = '';
+    const now = new Date();
+    const items = filterAppointmentsByScope(scope)
+      .map(a => ({
+        ...a,
+        dateObj: new Date(`${a.date}T${a.time || '00:00'}`)
+      }))
+      .filter(a => a.dateObj.toString() !== 'Invalid Date' && a.dateObj >= now)
+      .sort((a, b) => a.dateObj - b.dateObj);
+
+    if (!items.length) {
+      listEl.innerHTML = '<div class="subtext">Nenhum agendamento futuro.</div>';
+      return;
+    }
+
+    items.forEach(appt => {
+      const client = clients.find(c => c.id === appt.clientId);
+      const color = getProfessionalColor(appt.professional);
+      const card = document.createElement('div');
+      card.className = 'appointment-card';
+      card.style.setProperty('--appt-color', color);
+      card.innerHTML = `
+        <div class="appointment-meta">
+          <div class="appointment-title">
+            ${client ? client.name : 'Cliente'}
+            <span class="appointment-pill" style="background:${color}1a;border-color:${color}33;">${appt.professional || 'Equipe'}</span>
+          </div>
+          <div class="appointment-subtext">
+            <span>${formatDateLabel(appt.date)} • ${appt.time}</span>
+            <span>Serviço: ${appt.service}</span>
+          </div>
+        </div>
+        <div class="appointment-actions">
+          <button class="ghost-btn secondary icon-mini" onclick="openAppointmentModal('${client?.id || ''}','${appt.id}')">✎ Editar</button>
+          <button class="ghost-btn secondary icon-mini" onclick="openRemoveAppointmentModal('${appt.id}')">🗑 Remover</button>
+        </div>
+      `;
+      listEl.appendChild(card);
+    });
+  }
+
+  function openRemoveAppointmentModal(id) {
+    pendingRemoveAppointmentId = id;
+    openDialog('appointment-remove-modal');
+  }
+
+  function confirmRemoveAppointment() {
+    if (!pendingRemoveAppointmentId) return;
+    const apptIndex = appointments.findIndex(a => a.id === pendingRemoveAppointmentId);
+    if (apptIndex >= 0) {
+      const appt = appointments[apptIndex];
+      appointments.splice(apptIndex, 1);
+      rebuildClientAppointments(appt.clientId);
+    }
+    pendingRemoveAppointmentId = null;
+    refreshAgendaFromAppointments();
+    renderClients('ceo');
+    renderClients('colab');
+    if (currentClientDetailId) renderClientDetailTab();
+    renderAgendaAppointments('ceo');
+    renderAgendaAppointments('colab');
+    renderAgendaMonthCalendar('ceo');
+    renderAgendaMonthSummary('ceo');
+    renderAgendaMonthCalendar('colab');
+    renderAgendaMonthSummary('colab');
+    closeDialog('appointment-remove-modal');
   }
 
   function renderCeoContent() {
@@ -3497,6 +3722,7 @@
     renderYearCalendar('ceo');
     setAgendaView(agendaViewMode, 'ceo');
     renderAgendaMonthSummary('ceo');
+    renderAgendaAppointments('ceo');
     switchInventoryTab(currentInventoryTab);
     renderInventoryLists();
     renderCollaborators();
@@ -3510,6 +3736,7 @@
     renderYearCalendar('colab');
     setAgendaView(agendaViewModeColab, 'colab');
     renderAgendaMonthSummary('colab');
+    renderAgendaAppointments('colab');
     renderClients('colab');
   }
 
@@ -3671,7 +3898,15 @@
     return result;
   }
 
-  function addAppointmentToAgenda(dateStr, service) {
+  function mergePros(existing, professional) {
+    if (!existing) return professional || 'Equipe';
+    if (!professional) return existing;
+    const parts = existing.split('+').map(p => p.trim());
+    if (parts.includes(professional)) return existing;
+    return `${existing} + ${professional}`;
+  }
+
+  function addAppointmentToAgenda(dateStr, service, professional) {
     if (!dateStr) return;
     const [year, month, day] = dateStr.split('-').map(Number);
     if (!month || !day) return;
@@ -3683,9 +3918,21 @@
     if (existing) {
       existing.count += 1;
       existing.highlight = service || existing.highlight;
+      existing.pros = mergePros(existing.pros, professional);
     } else {
-      monthEntry.daysSummary.push({ day: label, count: 1, pros: 'Equipe', highlight: service || 'Agendado' });
+      monthEntry.daysSummary.push({ day: label, count: 1, pros: professional || 'Equipe', highlight: service || 'Agendado' });
     }
+    monthEntry.bookings = (monthEntry.bookings || 0) + 1;
+  }
+
+  function refreshAgendaFromAppointments() {
+    mockYearDetailed.forEach((m, idx) => {
+      const base = baseYearDetailed[idx];
+      m.highlightDays = [...base.highlightDays];
+      m.daysSummary = base.daysSummary.map(d => ({ ...d }));
+      m.bookings = base.bookings;
+    });
+    appointments.forEach(appt => addAppointmentToAgenda(appt.date, appt.service, appt.professional));
   }
 
   function switchInventoryTab(tab) {
@@ -4210,6 +4457,7 @@
 
   // Inicialização
   // (poderia detectar login real do Firebase aqui)
+  refreshAgendaFromAppointments();
   syncKioskFromInventory();
   switchLoginMode('ceo');
 </script>
