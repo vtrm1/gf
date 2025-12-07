@@ -181,11 +181,48 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.4rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
     }
 
     .topbar h1 {
       font-size: 1.3rem;
+    }
+
+    .global-filter-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.8rem 1rem;
+      background: #fffaf3;
+      border: 1px solid var(--border-soft);
+      border-radius: 14px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.06);
+      flex-wrap: wrap;
+    }
+
+    .global-filter-bar .label {
+      font-weight: 600;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .global-filter-select {
+      min-width: 180px;
+      padding: 0.6rem 0.75rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-soft);
+      background: white;
+      color: var(--text-main);
+      box-shadow: inset 0 1px 0 rgba(0,0,0,0.04);
+    }
+
+    .global-filter-select:focus {
+      outline: 1px solid rgba(212,175,55,0.5);
     }
 
     .card-grid {
@@ -1562,6 +1599,11 @@
       <div class="topbar-actions"></div>
     </header>
 
+    <div class="global-filter-bar">
+      <div class="label">Filtro mensal:</div>
+      <select id="global-month-filter" class="global-filter-select"></select>
+    </div>
+
     <!-- Páginas da CEO -->
     <section id="page-ceo-dashboard" class="page-ceo">
       <div class="card-grid">
@@ -1815,17 +1857,17 @@
       <div class="card-grid">
         <div class="card">
           <h3>Receita bruta</h3>
-          <div class="value">R$ 15.800</div>
+          <div class="value" id="finance-revenue">R$ 0,00</div>
           <div class="subtext">Inclui serviços e bebidas</div>
         </div>
         <div class="card">
           <h3>Custos (produtos)</h3>
-          <div class="value">R$ 3.100</div>
+          <div class="value" id="finance-costs">R$ 0,00</div>
           <div class="subtext">Baseado no consumo estimado de esmaltes e itens</div>
         </div>
         <div class="card">
           <h3>Lucro estimado</h3>
-          <div class="value">R$ 12.700</div>
+          <div class="value" id="finance-profit">R$ 0,00</div>
           <div class="subtext">Antes de outras despesas fixas</div>
         </div>
       </div>
@@ -2578,6 +2620,8 @@
   </div>
 </section>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
   // -----------------------------
   // ESTADO GLOBAL (simples)
@@ -2606,6 +2650,20 @@
   let agendaProfessionalFilter = 'all';
   let agendaProfessionalFilterColab = 'all';
 
+  const firebaseConfig = {
+    apiKey: "AIzaSyBje0Zy_NKLc8tMOIuR4wEc-qHW-9UJsGw",
+    authDomain: "gleicef-naildesigner.firebaseapp.com",
+    projectId: "gleicef-naildesigner",
+    storageBucket: "gleicef-naildesigner.firebasestorage.app",
+    messagingSenderId: "670848534218",
+    appId: "1:670848534218:web:6cfb3046c1d1e3d5809633",
+    measurementId: "G-7M3WX6GK18"
+  };
+
+  let firebaseApp = null;
+  let firestore = null;
+  let globalMonthUnsub = null;
+
   const calendarYear = 2025;
   const monthNamesFull = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
   const monthNamesShort = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
@@ -2622,17 +2680,18 @@
   let agendaViewModeColab = 'year';
   let selectedDashboardMonth = new Date().getMonth();
   let selectedDashboardYear = new Date().getFullYear();
+  let selectedGlobalMonthKey = 'all';
 
   let mockPolish = [
-    { name: 'Nude Elegante', brand: 'Marca X', current: 30, total: 50, low: false },
-    { name: 'Vermelho Clássico', brand: 'Marca Y', current: 10, total: 50, low: true },
-    { name: 'Top Coat Brilho', brand: 'Marca Z', current: 12, total: 30, low: true }
+    { name: 'Nude Elegante', brand: 'Marca X', current: 30, total: 50, low: false, addedAt: '2025-01-05' },
+    { name: 'Vermelho Clássico', brand: 'Marca Y', current: 10, total: 50, low: true, addedAt: '2025-02-10' },
+    { name: 'Top Coat Brilho', brand: 'Marca Z', current: 12, total: 30, low: true, addedAt: '2025-03-02' }
   ];
 
   let mockFridge = [
-    { id: 'fridge-coca', name: 'Coca lata', stock: 8, price: 7, low: false, paused: false },
-    { id: 'fridge-energetico', name: 'Energético', stock: 3, price: 10, low: true, paused: false },
-    { id: 'fridge-agua', name: 'Água sem gás', stock: 15, price: 4, low: false, paused: false }
+    { id: 'fridge-coca', name: 'Coca lata', stock: 8, price: 7, low: false, paused: false, addedAt: '2025-01-08' },
+    { id: 'fridge-energetico', name: 'Energético', stock: 3, price: 10, low: true, paused: false, addedAt: '2025-02-12' },
+    { id: 'fridge-agua', name: 'Água sem gás', stock: 15, price: 4, low: false, paused: false, addedAt: '2025-03-12' }
   ];
 
   let inventoryFormMode = 'add';
@@ -2652,6 +2711,20 @@
     { monthIndex: 9, revenue: 13000, commission: 3350, consumption: 610, alerts: 1, alertsDesc: 'Água', delta: '+3% contra Set' },
     { monthIndex: 10, revenue: 17500, commission: 4700, consumption: 900, alerts: 2, alertsDesc: 'Top coat, energético', delta: '+12% contra Out' },
     { monthIndex: 11, revenue: 19000, commission: 5100, consumption: 980, alerts: 3, alertsDesc: 'Esmalte nude, top coat, energético', delta: '+8% contra Nov' }
+  ];
+
+  const financialEntries = [
+    { id: 'fin-1', type: 'receita', amount: 5800, date: '2025-01-12', description: 'Serviços' },
+    { id: 'fin-2', type: 'despesa', amount: 1200, date: '2025-01-18', description: 'Produtos' },
+    { id: 'fin-3', type: 'receita', amount: 6400, date: '2025-02-10', description: 'Serviços' },
+    { id: 'fin-4', type: 'despesa', amount: 1500, date: '2025-02-22', description: 'Reposição' }
+  ];
+
+  const stockMovements = [
+    { id: 'stk-1', type: 'entrada', category: 'esmalte', quantity: 10, date: '2025-01-05' },
+    { id: 'stk-2', type: 'entrada', category: 'geladeira', quantity: 6, date: '2025-02-12' },
+    { id: 'stk-3', type: 'saida', category: 'geladeira', quantity: 3, date: '2025-02-18' },
+    { id: 'stk-4', type: 'entrada', category: 'esmalte', quantity: 5, date: '2025-03-02' }
   ];
 
   let investments = [
@@ -2723,6 +2796,7 @@
       ]
     }
   ];
+  const investmentHistoryStore = {};
 
   const collaborators = [
     { id: 'glecie', name: 'Glecie', role: 'CEO', commission: 'Recebe total', permissions: 'Agenda, estoque, financeiro', color: '#d4af37', username: 'glecie', active: true },
@@ -3859,21 +3933,33 @@
     if (label) label.textContent = formatMonthWithYear(getDashboardFilterTarget());
   }
 
+  function refreshMonthlyConsumers() {
+    updateGlobalMonthLabel();
+    renderDashboardCards();
+    renderInvestments();
+    renderFinance();
+    renderInventoryLists();
+  }
+
   function changeGlobalMonth(delta) {
     const pivot = new Date(selectedDashboardYear, selectedDashboardMonth + delta, 1);
     selectedDashboardMonth = pivot.getMonth();
     selectedDashboardYear = pivot.getFullYear();
-    updateGlobalMonthLabel();
-    renderDashboardCards();
-    renderInvestments();
+    selectedGlobalMonthKey = `${selectedDashboardYear}-${String(selectedDashboardMonth + 1).padStart(2, '0')}`;
+    persistGlobalMonth(selectedGlobalMonthKey);
+    const select = document.getElementById('global-month-filter');
+    if (select) select.value = selectedGlobalMonthKey;
+    refreshMonthlyConsumers();
   }
 
   function setDashboardMonth(value, year = selectedDashboardYear) {
     selectedDashboardMonth = parseInt(value, 10) || 0;
     selectedDashboardYear = year || selectedDashboardYear;
-    updateGlobalMonthLabel();
-    renderDashboardCards();
-    renderInvestments();
+    selectedGlobalMonthKey = `${selectedDashboardYear}-${String(selectedDashboardMonth + 1).padStart(2, '0')}`;
+    persistGlobalMonth(selectedGlobalMonthKey);
+    const select = document.getElementById('global-month-filter');
+    if (select) select.value = selectedGlobalMonthKey;
+    refreshMonthlyConsumers();
   }
 
   function computeInvestmentDashboardStats(target = getDashboardFilterTarget()) {
@@ -3940,6 +4026,19 @@
     if (invPaidDesc) invPaidDesc.textContent = `Pagamentos registrados em ${formatMonthWithYear(target)}`;
     if (invFuture) invFuture.textContent = formatCurrency(invStats.futurosPlanejados);
     if (invFutureDesc) invFutureDesc.textContent = `${invStats.futurosQuantidade} planejado(s) para os próximos meses`;
+  }
+
+  function renderFinance() {
+    const revenueEl = document.getElementById('finance-revenue');
+    const costEl = document.getElementById('finance-costs');
+    const profitEl = document.getElementById('finance-profit');
+    const target = getDashboardFilterTarget();
+    const filtered = selectedGlobalMonthKey === 'all' ? financialEntries : financialEntries.filter(e => matchesTargetMonth(e.date, target));
+    const revenue = filtered.filter(f => f.type === 'receita').reduce((acc, cur) => acc + cur.amount, 0);
+    const cost = filtered.filter(f => f.type === 'despesa').reduce((acc, cur) => acc + cur.amount, 0);
+    if (revenueEl) revenueEl.textContent = formatCurrency(revenue);
+    if (costEl) costEl.textContent = formatCurrency(cost);
+    if (profitEl) profitEl.textContent = formatCurrency(revenue - cost);
   }
 
   function filterClientsByRole(scope) {
@@ -4564,9 +4663,12 @@
   function renderInventoryLists() {
     const polishEl = document.getElementById('inventory-polish-list');
     const fridgeEl = document.getElementById('inventory-fridge-list');
+    const target = getDashboardFilterTarget();
+    const polishSource = selectedGlobalMonthKey === 'all' ? mockPolish : mockPolish.filter(p => matchesTargetMonth(p.addedAt, target));
+    const fridgeSource = selectedGlobalMonthKey === 'all' ? mockFridge : mockFridge.filter(f => matchesTargetMonth(f.addedAt, target));
     if (polishEl) {
       polishEl.innerHTML = '';
-      mockPolish.forEach(p => {
+      polishSource.forEach(p => {
         const pct = Math.round((p.current / p.total) * 100);
         const div = document.createElement('div');
         div.className = 'inventory-card';
@@ -4592,14 +4694,14 @@
         `;
         polishEl.appendChild(div);
       });
-      if (!mockPolish.length) {
+      if (!polishSource.length) {
         polishEl.innerHTML = '<div class="inventory-empty">Nenhum esmalte cadastrado.</div>';
       }
     }
 
     if (fridgeEl) {
       fridgeEl.innerHTML = '';
-      mockFridge.forEach(f => {
+      fridgeSource.forEach(f => {
         const emoji = getFridgeIcon(f.name);
         const stockPct = Math.min(100, Math.max(10, Math.round((f.stock / 20) * 100)));
         const div = document.createElement('div');
@@ -4630,7 +4732,7 @@
         `;
         fridgeEl.appendChild(div);
       });
-      if (!mockFridge.length) {
+      if (!fridgeSource.length) {
         fridgeEl.innerHTML = '<div class="inventory-empty">Nenhum item na geladeira.</div>';
       }
     }
@@ -4805,16 +4907,13 @@
     select.value = selectedInvestmentMonth;
   }
 
-  function handleInvestmentMonthChange(value) {
-    selectedInvestmentMonth = value || 'all';
-    renderInvestments();
-  }
-
   function getInvestmentFilterTarget() {
-    if (!selectedInvestmentMonth || selectedInvestmentMonth === 'all') return null;
-    const [year, month] = selectedInvestmentMonth.split('-').map(v => parseInt(v, 10));
-    if (Number.isNaN(year) || Number.isNaN(month)) return null;
-    return { year, monthIndex: month - 1 };
+    if (selectedGlobalMonthKey && selectedGlobalMonthKey !== 'all') {
+      const [year, month] = selectedGlobalMonthKey.split('-').map(v => parseInt(v, 10));
+      if (Number.isNaN(year) || Number.isNaN(month)) return null;
+      return { year, monthIndex: month - 1 };
+    }
+    return null;
   }
 
   function formatMonthRef(monthStr) {
@@ -4836,13 +4935,156 @@
     return `${monthNamesFull[target.monthIndex]} ${target.year}`;
   }
 
+  function initFirebaseApp() {
+    if (firebaseApp || !window.firebase) return;
+    firebaseApp = firebase.initializeApp(firebaseConfig);
+    firestore = firebase.firestore();
+  }
+
+  function currentUserConfigDoc() {
+    if (!firestore) return null;
+    const userId = currentRole === 'colab' ? (currentColabAccount?.id || 'colab') : 'ceo';
+    return firestore.collection('settings').doc(`global-month-${userId}`);
+  }
+
+  function monthKeyFromDate(dateStr) {
+    if (!dateStr) return null;
+    const dt = new Date(dateStr);
+    if (Number.isNaN(dt.getTime())) return null;
+    return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}`;
+  }
+
+  function addMonthToMap(map, year, monthIndex) {
+    if (year == null || monthIndex == null || Number.isNaN(year) || Number.isNaN(monthIndex)) return;
+    const key = `${year}-${String(monthIndex + 1).padStart(2, '0')}`;
+    if (!map.has(key)) map.set(key, { year, monthIndex });
+  }
+
+  function deriveMonthsFromInvestment(inv, map) {
+    const ref = parseMonthRef(inv.mesReferencia);
+    const total = inv.parcelasTotais || 1;
+    if (ref) {
+      if (inv.parcelado && total > 1) {
+        for (let i = 0; i < total; i++) addMonthToMap(map, ref.year, ref.monthIndex + i);
+      } else {
+        addMonthToMap(map, ref.year, ref.monthIndex);
+      }
+    }
+    if (inv.createdAt) {
+      const key = monthKeyFromDate(inv.createdAt);
+      if (key) {
+        const [y, m] = key.split('-').map(v => parseInt(v, 10));
+        addMonthToMap(map, y, m - 1);
+      }
+    }
+  }
+
+  async function buildGlobalMonthOptions() {
+    const select = document.getElementById('global-month-filter');
+    if (!select) return;
+    initFirebaseApp();
+    const map = new Map();
+    const today = new Date();
+    addMonthToMap(map, today.getFullYear(), today.getMonth());
+
+    investments.forEach(inv => deriveMonthsFromInvestment(inv, map));
+    financialEntries.forEach(fin => {
+      const key = monthKeyFromDate(fin.date);
+      if (key) {
+        const [y, m] = key.split('-').map(v => parseInt(v, 10));
+        addMonthToMap(map, y, m - 1);
+      }
+    });
+    stockMovements.forEach(move => {
+      const key = monthKeyFromDate(move.date);
+      if (key) {
+        const [y, m] = key.split('-').map(v => parseInt(v, 10));
+        addMonthToMap(map, y, m - 1);
+      }
+    });
+
+    if (firestore) {
+      const snapInvest = await firestore.collection('investments').get().catch(() => null);
+      snapInvest?.forEach(doc => deriveMonthsFromInvestment(doc.data() || {}, map));
+      const snapFin = await firestore.collection('financial').get().catch(() => null);
+      snapFin?.forEach(doc => {
+        const key = monthKeyFromDate((doc.data() || {}).date);
+        if (key) {
+          const [y, m] = key.split('-').map(v => parseInt(v, 10));
+          addMonthToMap(map, y, m - 1);
+        }
+      });
+      const snapStock = await firestore.collection('stock').get().catch(() => null);
+      snapStock?.forEach(doc => {
+        const key = monthKeyFromDate((doc.data() || {}).date || (doc.data() || {}).createdAt);
+        if (key) {
+          const [y, m] = key.split('-').map(v => parseInt(v, 10));
+          addMonthToMap(map, y, m - 1);
+        }
+      });
+    }
+
+    const sorted = Array.from(map.entries()).sort((a, b) => (a[1].year - b[1].year) || (a[1].monthIndex - b[1].monthIndex));
+    select.innerHTML = '<option value="all">Todos</option>' + sorted.map(([key, target]) => `<option value="${key}">${formatMonthSelectLabel(target)}</option>`).join('');
+    select.value = selectedGlobalMonthKey;
+    select.onchange = (e) => handleGlobalMonthSelect(e.target.value);
+  }
+
+  function handleGlobalMonthSelect(value) {
+    selectedGlobalMonthKey = value || 'all';
+    if (selectedGlobalMonthKey === 'all') {
+      const now = new Date();
+      selectedDashboardMonth = now.getMonth();
+      selectedDashboardYear = now.getFullYear();
+    } else {
+      const [year, month] = selectedGlobalMonthKey.split('-').map(v => parseInt(v, 10));
+      selectedDashboardMonth = month - 1;
+      selectedDashboardYear = year;
+    }
+    persistGlobalMonth(selectedGlobalMonthKey);
+    refreshMonthlyConsumers();
+  }
+
+  async function persistGlobalMonth(value) {
+    selectedGlobalMonthKey = value || 'all';
+    const docRef = currentUserConfigDoc();
+    if (!docRef) return;
+    await docRef.set({ value: selectedGlobalMonthKey, updatedAt: Date.now() }, { merge: true }).catch(() => {});
+  }
+
+  async function listenGlobalMonth() {
+    initFirebaseApp();
+    const docRef = currentUserConfigDoc();
+    if (!docRef) return;
+    if (globalMonthUnsub) globalMonthUnsub();
+    globalMonthUnsub = docRef.onSnapshot(doc => {
+      const data = doc.data() || {};
+      selectedGlobalMonthKey = data.value || 'all';
+      const target = getDashboardFilterTarget();
+      selectedDashboardMonth = target.monthIndex;
+      selectedDashboardYear = target.year;
+      refreshMonthlyConsumers();
+    });
+  }
+
+  function getDashboardFilterTarget() {
+    if (selectedGlobalMonthKey && selectedGlobalMonthKey !== 'all') {
+      const [year, month] = selectedGlobalMonthKey.split('-').map(v => parseInt(v, 10));
+      return { year, monthIndex: month - 1 };
+    }
+    return { year: selectedDashboardYear, monthIndex: selectedDashboardMonth || 0 };
+  }
+
   function monthsDiff(start, target) {
     if (!start || !target) return Infinity;
     return (target.year - start.year) * 12 + (target.monthIndex - start.monthIndex);
   }
 
-  function getDashboardFilterTarget() {
-    return { year: selectedDashboardYear, monthIndex: selectedDashboardMonth || 0 };
+  function matchesTargetMonth(dateStr, target) {
+    if (!dateStr || !target) return false;
+    const dt = new Date(dateStr);
+    if (Number.isNaN(dt.getTime())) return false;
+    return dt.getFullYear() === target.year && dt.getMonth() === target.monthIndex;
   }
 
   function isInvestmentActiveInMonth(inv, target) {
@@ -4874,8 +5116,23 @@
     if (!ref) return null;
     if (!inv.parcelado || total <= 1) return monthsDiff(ref, target) === 0 ? 1 : null;
     const diff = monthsDiff(ref, target);
-    if (diff < 0 || diff >= total) return null;
+    if (diff < 0) return null;
+    if (diff >= total) return total;
     return diff + 1;
+  }
+
+  function recordInvestmentHistory(invId, action, description) {
+    const entry = {
+      timestamp: new Date().toISOString(),
+      action,
+      usuario: currentRole || 'ceo',
+      descricao: description
+    };
+    if (!investmentHistoryStore[invId]) investmentHistoryStore[invId] = [];
+    investmentHistoryStore[invId].push(entry);
+    if (firestore) {
+      firestore.collection('investments').doc(invId).collection('history').add(entry).catch(() => {});
+    }
   }
 
   function syncInvestmentStatus(inv) {
@@ -5023,6 +5280,12 @@
       const parcelLabel = getInvestmentParcelLabel(item, currentTarget);
       const amountLabel = formatCurrency(getInvestmentMonthlyValue(item));
       const totalLabel = formatCurrency(item.valorTotal || item.amount || 0);
+      const displayStatus = (() => {
+        const activeParcel = getActiveParcelNumber(item, currentTarget);
+        const total = item.parcelasTotais || 1;
+        if (activeParcel && activeParcel >= total) return 'Pago';
+        return item.status;
+      })();
       const card = document.createElement('div');
       card.className = 'investment-card';
       card.dataset.id = item.id;
@@ -5033,7 +5296,7 @@
             <span class="investment-tag">${item.category || item.categoria || 'Investimento'}</span>
             <span class="investment-tag">Ref.: ${formatMonthRef(item.mesReferencia)}</span>
           </div>
-          <span class="investment-status ${investmentBadge(item.status)}">${item.status}</span>
+          <span class="investment-status ${investmentBadge(displayStatus)}">${displayStatus}</span>
         </div>
         <div class="investment-card-actions compact">
           <button class="ghost-btn investment-toggle" onclick="toggleInvestmentDetails('${item.id}')">Ver detalhes</button>
@@ -5072,24 +5335,38 @@
       return getInvestmentFilterTarget() || getDashboardFilterTarget() || fallback;
     }
 
-    function markInvestmentPaid(id) {
-      investments = investments.map(inv => {
-        if (inv.id !== id) return inv;
-        const target = getInvestmentActionTarget(inv);
-        const active = getActiveParcelNumber(inv, target);
-        const total = inv.parcelasTotais || 1;
-        if (!active) return inv;
-        const payments = inv.payments || [];
-        const exists = payments.some(p => p.year === target.year && p.monthIndex === target.monthIndex);
-        if (exists) return inv;
-        const now = new Date().toISOString();
-        const updatedPayments = [...payments, { year: target.year, monthIndex: target.monthIndex, amount: inv.valorParcela || inv.valorTotal, date: now }];
-        const history = [...(inv.history || []), { type: 'pagamento', date: now, detail: `Parcela ${active}/${total} paga em ${formatMonthWithYear(target)}` }];
-        return syncInvestmentStatus({ ...inv, payments: updatedPayments, history, lastPaymentAt: now, updatedAt: now });
-      });
-      renderInvestments();
-      renderDashboardCards();
+  function markInvestmentPaid(id) {
+    const target = getInvestmentFilterTarget() || getDashboardFilterTarget();
+    const nowISO = new Date().toISOString();
+    let updatedInvestment = null;
+    investments = investments.map(inv => {
+      if (inv.id !== id) return inv;
+      const total = inv.parcelasTotais || 1;
+      const payments = inv.payments || [];
+      const activeParcel = inv.parcelado && total > 1 ? getActiveParcelNumber(inv, target) || payments.length + 1 : 1;
+
+      if (inv.parcelado && total > 1) {
+        const duplicate = payments.some(p => p.year === target?.year && p.monthIndex === target?.monthIndex);
+        if (duplicate) return inv;
+        const updatedPayments = [...payments, { year: target?.year, monthIndex: target?.monthIndex, amount: inv.valorParcela || inv.valorTotal, date: nowISO }];
+        const nextParcel = Math.min(activeParcel + 1, total);
+        const status = nextParcel > total ? 'Pago' : nextParcel === total ? 'Em andamento' : 'Em andamento';
+        const history = [...(inv.history || []), { type: 'pagamento', date: nowISO, detail: `Parcela ${activeParcel}/${total} paga em ${formatMonthWithYear(target)}` }];
+        recordInvestmentHistory(inv.id, 'pagamento', `Parcela ${activeParcel}/${total} paga`);
+        updatedInvestment = { ...inv, payments: updatedPayments, parcelaAtual: Math.min(updatedPayments.length, total), status: nextParcel > total ? 'Pago' : status, updatedAt: nowISO, lastPaymentAt: nowISO, history };
+        return updatedInvestment;
+      }
+
+      recordInvestmentHistory(inv.id, 'pagamento', 'Investimento pago');
+      updatedInvestment = { ...inv, status: 'Pago', updatedAt: nowISO, lastPaymentAt: nowISO, history: [...(inv.history || []), { type: 'pagamento', date: nowISO, detail: 'Pagamento único concluído' }] };
+      return updatedInvestment;
+    });
+    if (firestore && updatedInvestment) {
+      firestore.collection('investments').doc(updatedInvestment.id).set(updatedInvestment, { merge: true }).catch(() => {});
     }
+    renderInvestments();
+    renderDashboardCards();
+  }
 
   function reopenInvestment(id) {
     const target = getInvestmentActionTarget();
@@ -5352,8 +5629,13 @@
   // (poderia detectar login real do Firebase aqui)
   normalizeAppointmentsData();
   normalizeInvestments();
+  initFirebaseApp();
+  buildGlobalMonthOptions();
+  listenGlobalMonth();
   refreshAgendaFromAppointments();
   syncKioskFromInventory();
+  refreshMonthlyConsumers();
+  renderFinance();
   switchLoginMode('ceo');
 </script>
 
