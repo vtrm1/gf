@@ -549,6 +549,31 @@
       width: 70%;
     }
 
+    .inventory-visibility {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .inventory-toggle {
+      padding: 0.25rem 0.65rem;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      background: rgba(0,0,0,0.04);
+      color: var(--text-muted);
+      box-shadow: none;
+      font-size: 0.78rem;
+    }
+
+    .inventory-toggle.active {
+      background: rgba(212, 175, 55, 0.12);
+      color: var(--accent-gold-dark);
+      border-color: rgba(212, 175, 55, 0.35);
+    }
+
     .inventory-foot {
       display: flex;
       align-items: center;
@@ -1231,7 +1256,7 @@
 
         <div class="modal-actions">
           <button class="secondary" onclick="closeInventoryModal()">Cancelar</button>
-          <button id="inventory-modal-save" onclick="addPolishItem()">Salvar</button>
+          <button id="inventory-modal-save" onclick="submitInventoryForm()">Salvar</button>
         </div>
       </div>
     </div>
@@ -1766,10 +1791,14 @@
   ];
 
   let mockFridge = [
-    { name: 'Coca lata', stock: 8, price: 7, low: false },
-    { name: 'Energético', stock: 3, price: 10, low: true },
-    { name: 'Água sem gás', stock: 15, price: 4, low: false }
+    { id: 'fridge-coca', name: 'Coca lata', stock: 8, price: 7, low: false, paused: false },
+    { id: 'fridge-energetico', name: 'Energético', stock: 3, price: 10, low: true, paused: false },
+    { id: 'fridge-agua', name: 'Água sem gás', stock: 15, price: 4, low: false, paused: false }
   ];
+
+  let inventoryFormMode = 'add';
+  let inventoryEditingType = 'polish';
+  let inventoryEditingIndex = null;
 
   const monthNamesFull = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 
@@ -1832,12 +1861,7 @@
     if (agendaSelect) agendaSelect.value = selectedMonthIndex;
   }
 
-  const kioskDrinks = [
-    { id: 'coca', name: 'Coca lata', price: 7, icon: '🥤' },
-    { id: 'energetico', name: 'Energético', price: 10, icon: '⚡' },
-    { id: 'cerveja', name: 'Cerveja long neck', price: 12, icon: '🍺' },
-    { id: 'agua', name: 'Água sem gás', price: 4, icon: '💧' },
-  ];
+  let kioskDrinks = [];
 
   const kioskServices = [
     { id: 'manutencao', name: 'Manutenção fibra', price: 120, icon: '💅' },
@@ -2299,15 +2323,53 @@
     }
   }
 
-  function openInventoryModal(type) {
+  function resetInventoryForm() {
+    document.getElementById('new-polish-name').value = '';
+    document.getElementById('new-polish-brand').value = '';
+    document.getElementById('new-polish-total').value = '';
+    document.getElementById('new-polish-current').value = '';
+    document.getElementById('new-fridge-name').value = '';
+    document.getElementById('new-fridge-price').value = '';
+    document.getElementById('new-fridge-stock').value = '';
+  }
+
+  function openInventoryModal(type, mode = 'add', index = null) {
+    inventoryFormMode = mode;
+    inventoryEditingType = type;
+    inventoryEditingIndex = index;
     const modal = document.getElementById('inventory-modal');
     const title = document.getElementById('inventory-modal-title');
     const save = document.getElementById('inventory-modal-save');
     const polishFields = document.getElementById('inventory-modal-polish');
     const fridgeFields = document.getElementById('inventory-modal-fridge');
+    resetInventoryForm();
+    const isEdit = mode === 'edit';
+    if (isEdit && index !== null) {
+      if (type === 'polish') {
+        const item = mockPolish[index];
+        if (item) {
+          document.getElementById('new-polish-name').value = item.name;
+          document.getElementById('new-polish-brand').value = item.brand;
+          document.getElementById('new-polish-total').value = item.total;
+          document.getElementById('new-polish-current').value = item.current;
+        }
+      } else {
+        const item = mockFridge[index];
+        if (item) {
+          document.getElementById('new-fridge-name').value = item.name;
+          document.getElementById('new-fridge-price').value = item.price;
+          document.getElementById('new-fridge-stock').value = item.stock;
+        }
+      }
+    }
     if (modal) modal.classList.remove('hidden');
-    if (title) title.textContent = type === 'polish' ? 'Adicionar esmalte' : 'Adicionar item da geladeira';
-    if (save) save.onclick = type === 'polish' ? addPolishItem : addFridgeItem;
+    if (title) title.textContent = isEdit
+      ? (type === 'polish' ? 'Editar esmalte' : 'Editar item da geladeira')
+      : (type === 'polish' ? 'Adicionar esmalte' : 'Adicionar item da geladeira');
+    if (save) {
+      save.textContent = isEdit ? 'Salvar alterações' : 'Salvar';
+      save.onclick = submitInventoryForm;
+    }
     if (polishFields && fridgeFields) {
       polishFields.classList.toggle('hidden', type !== 'polish');
       fridgeFields.classList.toggle('hidden', type !== 'fridge');
@@ -2316,7 +2378,18 @@
 
   function closeInventoryModal() {
     const modal = document.getElementById('inventory-modal');
+    inventoryFormMode = 'add';
+    inventoryEditingIndex = null;
+    inventoryEditingType = 'polish';
     if (modal) modal.classList.add('hidden');
+  }
+
+  function getFridgeIcon(name) {
+    const lower = name.toLowerCase();
+    if (lower.includes('água')) return '🚰';
+    if (lower.includes('ener')) return '⚡';
+    if (lower.includes('suco')) return '🧃';
+    return '🥤';
   }
 
   function renderInventoryLists() {
@@ -2358,7 +2431,7 @@
     if (fridgeEl) {
       fridgeEl.innerHTML = '';
       mockFridge.forEach(f => {
-        const emoji = f.name.toLowerCase().includes('água') ? '🚰' : f.name.toLowerCase().includes('energ') ? '⚡' : '🥤';
+        const emoji = getFridgeIcon(f.name);
         const stockPct = Math.min(100, Math.max(10, Math.round((f.stock / 20) * 100)));
         const div = document.createElement('div');
         div.className = 'inventory-card';
@@ -2367,6 +2440,10 @@
           <div>
             <div class="inventory-card-title">${emoji} ${f.name}</div>
             <div class="inventory-meta">${f.stock} unidades • R$ ${f.price}</div>
+          </div>
+          <div class="inventory-visibility">
+            <span>${f.paused ? 'Pausado no tablet' : 'Visível no tablet'}</span>
+            <button class="inventory-toggle ${f.paused ? '' : 'active'}" onclick="toggleFridgeVisibility(${mockFridge.indexOf(f)})">${f.paused ? 'Pausado' : 'Ativo'}</button>
           </div>
           <div class="inventory-progress">
             <div class="fill" style="width:${stockPct}%;"></div>
@@ -2390,21 +2467,52 @@
     }
   }
 
-  function addPolishItem() {
+  function getPolishFormData() {
     const name = document.getElementById('new-polish-name').value.trim();
     const brand = document.getElementById('new-polish-brand').value.trim();
     const total = parseInt(document.getElementById('new-polish-total').value, 10) || 0;
     const current = parseInt(document.getElementById('new-polish-current').value, 10) || 0;
     if (!name || !brand || !total) {
       alert('Preencha nome, marca e volume total.');
-      return;
+      return null;
     }
-    mockPolish.push({ name, brand, total, current, low: current <= total * 0.2 });
-    document.getElementById('new-polish-name').value = '';
-    document.getElementById('new-polish-brand').value = '';
-    document.getElementById('new-polish-total').value = '';
-    document.getElementById('new-polish-current').value = '';
+    return { name, brand, total, current, low: current <= total * 0.2 };
+  }
+
+  function getFridgeFormData() {
+    const name = document.getElementById('new-fridge-name').value.trim();
+    const price = parseFloat(document.getElementById('new-fridge-price').value) || 0;
+    const stock = parseInt(document.getElementById('new-fridge-stock').value, 10) || 0;
+    if (!name || !price) {
+      alert('Preencha o nome e preço do item.');
+      return null;
+    }
+    return { name, price, stock, low: stock < 5 };
+  }
+
+  function submitInventoryForm() {
+    if (inventoryEditingType === 'polish') {
+      const data = getPolishFormData();
+      if (!data) return;
+      if (inventoryFormMode === 'edit' && inventoryEditingIndex !== null) {
+        const existing = mockPolish[inventoryEditingIndex];
+        mockPolish[inventoryEditingIndex] = { ...existing, ...data };
+      } else {
+        mockPolish.push(data);
+      }
+    } else {
+      const data = getFridgeFormData();
+      if (!data) return;
+      if (inventoryFormMode === 'edit' && inventoryEditingIndex !== null) {
+        const existing = mockFridge[inventoryEditingIndex];
+        mockFridge[inventoryEditingIndex] = { ...existing, ...data, paused: existing.paused, id: existing.id };
+      } else {
+        const id = 'fridge-' + Date.now();
+        mockFridge.push({ ...data, paused: false, id });
+      }
+    }
     renderInventoryLists();
+    syncKioskFromInventory();
     closeInventoryModal();
   }
 
@@ -2415,13 +2523,7 @@
   }
 
   function editPolish(index) {
-    const item = mockPolish[index];
-    const newName = prompt('Nome do esmalte', item.name) || item.name;
-    const newBrand = prompt('Marca', item.brand) || item.brand;
-    const newTotal = parseInt(prompt('Volume total (ml)', item.total) || item.total, 10);
-    const newCurrent = parseInt(prompt('Volume atual (ml)', item.current) || item.current, 10);
-    mockPolish[index] = { ...item, name: newName, brand: newBrand, total: newTotal, current: newCurrent, low: newCurrent <= newTotal * 0.2 };
-    renderInventoryLists();
+    openInventoryModal('polish', 'edit', index);
   }
 
   function removePolish(index) {
@@ -2429,40 +2531,27 @@
     renderInventoryLists();
   }
 
-  function addFridgeItem() {
-    const name = document.getElementById('new-fridge-name').value.trim();
-    const price = parseFloat(document.getElementById('new-fridge-price').value) || 0;
-    const stock = parseInt(document.getElementById('new-fridge-stock').value, 10) || 0;
-    if (!name || !price) {
-      alert('Preencha o nome e preço do item.');
-      return;
-    }
-    mockFridge.push({ name, price, stock, low: stock < 5 });
-    document.getElementById('new-fridge-name').value = '';
-    document.getElementById('new-fridge-price').value = '';
-    document.getElementById('new-fridge-stock').value = '';
-    renderInventoryLists();
-    closeInventoryModal();
-  }
-
   function adjustFridge(index, delta) {
     mockFridge[index].stock = Math.max(0, mockFridge[index].stock + delta);
     mockFridge[index].low = mockFridge[index].stock < 5;
     renderInventoryLists();
+    syncKioskFromInventory();
+  }
+
+  function toggleFridgeVisibility(index) {
+    mockFridge[index].paused = !mockFridge[index].paused;
+    renderInventoryLists();
+    syncKioskFromInventory();
   }
 
   function editFridge(index) {
-    const item = mockFridge[index];
-    const newName = prompt('Item da geladeira', item.name) || item.name;
-    const newPrice = parseFloat(prompt('Preço de venda', item.price) || item.price);
-    const newStock = parseInt(prompt('Quantidade', item.stock) || item.stock, 10);
-    mockFridge[index] = { ...item, name: newName, price: newPrice, stock: newStock, low: newStock < 5 };
-    renderInventoryLists();
+    openInventoryModal('fridge', 'edit', index);
   }
 
   function removeFridge(index) {
     mockFridge.splice(index, 1);
     renderInventoryLists();
+    syncKioskFromInventory();
   }
 
   function renderCollaborators() {
@@ -2537,6 +2626,14 @@
   function removeInvestment(id) {
     investments = investments.filter(inv => inv.id !== id);
     renderInvestments();
+  }
+
+  function syncKioskFromInventory() {
+    kioskDrinks = mockFridge
+      .filter(item => !item.paused)
+      .map(item => ({ id: item.id, name: item.name, price: item.price, icon: getFridgeIcon(item.name) }));
+    cart = cart.filter(entry => entry.type !== 'drink' || kioskDrinks.some(d => d.id === entry.id));
+    renderKiosk();
   }
 
   // -----------------------------
@@ -2655,6 +2752,7 @@
 
   // Inicialização
   // (poderia detectar login real do Firebase aqui)
+  syncKioskFromInventory();
   switchLoginMode('ceo');
 </script>
 
