@@ -453,81 +453,194 @@
       align-items: center;
     }
 
+    .inventory-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+      margin-bottom: 0.3rem;
+      flex-wrap: wrap;
+    }
+
+    .inventory-tabs {
+      display: inline-flex;
+      background: rgba(212, 175, 55, 0.12);
+      border-radius: 14px;
+      padding: 0.2rem;
+      gap: 0.2rem;
+    }
+
+    .inventory-tab {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 0.45rem 0.9rem;
+      font-weight: 600;
+      box-shadow: none;
+    }
+
+    .inventory-tab.active {
+      background: #fffaf3;
+      color: var(--text-main);
+      border-color: rgba(212, 175, 55, 0.4);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    }
+
     .inventory-list {
       margin-top: 0.6rem;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 0.7rem;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
     }
 
     .inventory-card {
+      position: relative;
       background: var(--bg-card);
-      border-radius: 14px;
-      padding: 0.8rem 0.9rem;
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      gap: 0.6rem;
-      align-items: center;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-      border: 1px solid rgba(255,255,255,0.9);
-    }
-
-    .inventory-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      display: grid;
-      place-items: center;
-      background: radial-gradient(circle at 30% 30%, #fff9ec, #f1dec0);
-      font-size: 1.1rem;
-    }
-
-    .inventory-item-main {
+      border-radius: 18px;
+      padding: 1rem 1rem 0.9rem;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+      border: 1px solid rgba(255,255,255,0.95);
       display: flex;
       flex-direction: column;
-      gap: 0.1rem;
-      font-size: 0.9rem;
+      gap: 0.65rem;
     }
 
-    .inventory-item-meta {
+    .inventory-badge {
+      position: absolute;
+      top: 0.8rem;
+      right: 0.9rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
       font-size: 0.75rem;
+      background: rgba(0,0,0,0.04);
       color: var(--text-muted);
     }
 
-    .progress-bar {
-      width: 110px;
-      height: 6px;
+    .inventory-badge.low {
+      background: rgba(217, 83, 79, 0.08);
+      color: var(--danger);
+    }
+
+    .inventory-card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .inventory-meta {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 0.1rem;
+    }
+
+    .inventory-progress {
+      width: 100%;
+      height: 8px;
       border-radius: 999px;
-      background: rgba(0,0,0,0.05);
+      background: rgba(0,0,0,0.04);
       overflow: hidden;
     }
 
-    .progress-fill {
+    .inventory-progress .fill {
       height: 100%;
       border-radius: 999px;
       background: linear-gradient(90deg, #f6e3b8, #d4af37);
       width: 70%;
     }
 
-    .badge-low {
-      background: rgba(217, 83, 79, 0.08);
+    .inventory-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+    }
+
+    .quantity-actions {
+      display: inline-flex;
+      gap: 0.35rem;
+    }
+
+    .quantity-actions button {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border-radius: 10px;
+      background: rgba(0,0,0,0.04);
+      color: var(--text-main);
+      box-shadow: none;
+      border: 1px solid rgba(0,0,0,0.04);
+    }
+
+    .inventory-actions-icons {
+      display: inline-flex;
+      gap: 0.35rem;
+      align-items: center;
+    }
+
+    .icon-button {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border-radius: 10px;
+      background: rgba(0,0,0,0.04);
+      color: var(--text-muted);
+      box-shadow: none;
+      border: 1px solid rgba(0,0,0,0.04);
+      font-size: 0.95rem;
+    }
+
+    .icon-button.danger {
       color: var(--danger);
     }
 
-    .inventory-status {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 0.2rem;
-      font-size: 0.85rem;
+    .inventory-tabpanel {
+      margin-top: 0.4rem;
     }
 
-    .inventory-actions {
+    .inventory-empty {
+      padding: 0.8rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .inventory-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.25);
       display: flex;
-      flex-wrap: wrap;
-      gap: 0.3rem;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 10;
+    }
+
+    .inventory-modal .card {
+      max-width: 520px;
+      width: 100%;
+      padding: 1.2rem 1.3rem;
+    }
+
+    .inventory-modal .modal-actions {
+      display: flex;
       justify-content: flex-end;
-      margin-top: 0.2rem;
+      gap: 0.5rem;
+      margin-top: 0.8rem;
+    }
+
+    .inventory-modal .modal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.6rem;
+      margin-top: 0.4rem;
+    }
+
+    .inventory-modal input {
+      width: 100%;
+      padding: 0.55rem 0.65rem;
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      background: rgba(255,255,255,0.9);
     }
 
     .collab-grid {
@@ -1047,34 +1160,81 @@
     </section>
 
     <section id="page-ceo-inventory" class="page-ceo hidden">
-      <div class="section-title">
-        <h2>Estoque de esmaltes</h2>
-        <div class="month-visual-toggle">
-          <input id="new-polish-name" placeholder="Nome" style="width:150px;" />
-          <input id="new-polish-brand" placeholder="Marca" style="width:120px;" />
-          <input id="new-polish-total" type="number" placeholder="ml total" style="width:100px;" />
-          <input id="new-polish-current" type="number" placeholder="ml atual" style="width:100px;" />
-          <button class="secondary" onclick="addPolishItem()">Adicionar esmalte</button>
+      <div class="inventory-header">
+        <div class="inventory-tabs">
+          <button id="inventory-tab-btn-polish" class="inventory-tab active" onclick="switchInventoryTab('polish')">Esmaltes</button>
+          <button id="inventory-tab-btn-fridge" class="inventory-tab" onclick="switchInventoryTab('fridge')">Geladeira</button>
         </div>
       </div>
 
-      <div class="inventory-list" id="inventory-polish-list">
-        <!-- Itens via JS mock -->
-      </div>
-
-      <div class="section-title" style="margin-top:0.9rem;">
-        <h2>Estoque da geladeira</h2>
-        <div class="month-visual-toggle">
-          <input id="new-fridge-name" placeholder="Item" style="width:150px;" />
-          <input id="new-fridge-price" type="number" placeholder="Preço" style="width:100px;" />
-          <input id="new-fridge-stock" type="number" placeholder="Qtd." style="width:80px;" />
-          <button class="secondary" onclick="addFridgeItem()">Adicionar item</button>
+      <div id="inventory-panel-polish" class="inventory-tabpanel">
+        <div class="section-title">
+          <h2>Esmaltes</h2>
+          <button onclick="openInventoryModal('polish')">Adicionar</button>
+        </div>
+        <div class="inventory-list" id="inventory-polish-list">
+          <!-- Itens via JS mock -->
         </div>
       </div>
-      <div class="inventory-list" id="inventory-fridge-list">
-        <!-- Itens via JS mock -->
+
+      <div id="inventory-panel-fridge" class="inventory-tabpanel hidden">
+        <div class="section-title">
+          <h2>Geladeira</h2>
+          <button onclick="openInventoryModal('fridge')">Adicionar</button>
+        </div>
+        <div class="inventory-list" id="inventory-fridge-list">
+          <!-- Itens via JS mock -->
+        </div>
       </div>
     </section>
+
+    <div id="inventory-modal" class="inventory-modal hidden">
+      <div class="card">
+        <div class="section-title" style="margin-top:0;">
+          <h2 id="inventory-modal-title">Adicionar item</h2>
+          <button class="secondary" onclick="closeInventoryModal()">Fechar</button>
+        </div>
+
+        <div id="inventory-modal-polish" class="modal-grid">
+          <div>
+            <label class="subtext">Nome</label>
+            <input id="new-polish-name" placeholder="Ex: Nude clássico" />
+          </div>
+          <div>
+            <label class="subtext">Marca</label>
+            <input id="new-polish-brand" placeholder="Marca" />
+          </div>
+          <div>
+            <label class="subtext">Volume total (ml)</label>
+            <input id="new-polish-total" type="number" placeholder="Ex: 50" />
+          </div>
+          <div>
+            <label class="subtext">Volume atual (ml)</label>
+            <input id="new-polish-current" type="number" placeholder="Ex: 30" />
+          </div>
+        </div>
+
+        <div id="inventory-modal-fridge" class="modal-grid hidden">
+          <div>
+            <label class="subtext">Item</label>
+            <input id="new-fridge-name" placeholder="Ex: Água com gás" />
+          </div>
+          <div>
+            <label class="subtext">Preço de venda</label>
+            <input id="new-fridge-price" type="number" placeholder="Ex: 6" />
+          </div>
+          <div>
+            <label class="subtext">Quantidade</label>
+            <input id="new-fridge-stock" type="number" placeholder="Ex: 12" />
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="secondary" onclick="closeInventoryModal()">Cancelar</button>
+          <button id="inventory-modal-save" onclick="addPolishItem()">Salvar</button>
+        </div>
+      </div>
+    </div>
 
     <section id="page-ceo-investments" class="page-ceo hidden">
       <div class="section-title">
@@ -1421,6 +1581,7 @@
   let currentPageColab = 'dashboard';
   let loginMode = 'ceo';
   let currentColabAccount = null;
+  let currentInventoryTab = 'polish';
 
   const calendarYear = 2025;
   let selectedMonthIndex = new Date().getMonth();
@@ -1965,6 +2126,7 @@
     renderYearCalendar();
     setAgendaView(agendaViewMode);
     renderAgendaMonthSummary();
+    switchInventoryTab(currentInventoryTab);
     renderInventoryLists();
     renderCollaborators();
     renderInvestments();
@@ -2121,6 +2283,42 @@
     return result;
   }
 
+  function switchInventoryTab(tab) {
+    currentInventoryTab = tab;
+    const polishPanel = document.getElementById('inventory-panel-polish');
+    const fridgePanel = document.getElementById('inventory-panel-fridge');
+    const polishBtn = document.getElementById('inventory-tab-btn-polish');
+    const fridgeBtn = document.getElementById('inventory-tab-btn-fridge');
+    if (polishPanel && fridgePanel) {
+      polishPanel.classList.toggle('hidden', tab !== 'polish');
+      fridgePanel.classList.toggle('hidden', tab !== 'fridge');
+    }
+    if (polishBtn && fridgeBtn) {
+      polishBtn.classList.toggle('active', tab === 'polish');
+      fridgeBtn.classList.toggle('active', tab === 'fridge');
+    }
+  }
+
+  function openInventoryModal(type) {
+    const modal = document.getElementById('inventory-modal');
+    const title = document.getElementById('inventory-modal-title');
+    const save = document.getElementById('inventory-modal-save');
+    const polishFields = document.getElementById('inventory-modal-polish');
+    const fridgeFields = document.getElementById('inventory-modal-fridge');
+    if (modal) modal.classList.remove('hidden');
+    if (title) title.textContent = type === 'polish' ? 'Adicionar esmalte' : 'Adicionar item da geladeira';
+    if (save) save.onclick = type === 'polish' ? addPolishItem : addFridgeItem;
+    if (polishFields && fridgeFields) {
+      polishFields.classList.toggle('hidden', type !== 'polish');
+      fridgeFields.classList.toggle('hidden', type !== 'fridge');
+    }
+  }
+
+  function closeInventoryModal() {
+    const modal = document.getElementById('inventory-modal');
+    if (modal) modal.classList.add('hidden');
+  }
+
   function renderInventoryLists() {
     const polishEl = document.getElementById('inventory-polish-list');
     const fridgeEl = document.getElementById('inventory-fridge-list');
@@ -2131,57 +2329,64 @@
         const div = document.createElement('div');
         div.className = 'inventory-card';
         div.innerHTML = `
-          <div class="inventory-icon">💅</div>
-          <div class="inventory-item-main">
-            <strong>${p.name}</strong>
-            <span class="inventory-item-meta">${p.brand} • ${p.current} ml de ${p.total} ml</span>
+          <span class="inventory-badge ${p.low ? 'low' : ''}">${p.low ? 'Baixo estoque' : 'OK'}</span>
+          <div>
+            <div class="inventory-card-title">${p.name}</div>
+            <div class="inventory-meta">${p.brand} • ${p.current} ml de ${p.total} ml</div>
           </div>
-          <div class="inventory-status">
-            <div class="progress-bar">
-              <div class="progress-fill" style="width:${pct}%;"></div>
+          <div class="inventory-progress">
+            <div class="fill" style="width:${pct}%;"></div>
+          </div>
+          <div class="inventory-foot">
+            <div class="quantity-actions">
+              <button onclick="adjustPolish(${mockPolish.indexOf(p)}, -5)">−</button>
+              <button onclick="adjustPolish(${mockPolish.indexOf(p)}, 5)">+</button>
             </div>
-            <span class="badge ${p.low ? 'badge-low' : ''}">
-              ${p.low ? 'Baixo estoque' : pct + '% restante'}
-            </span>
-          </div>
-          <div class="inventory-actions">
-            <button class="secondary" style="font-size:0.75rem;" onclick="adjustPolish(${mockPolish.indexOf(p)}, 5)">+5ml</button>
-            <button class="secondary" style="font-size:0.75rem;" onclick="adjustPolish(${mockPolish.indexOf(p)}, -5)">-5ml</button>
-            <button style="font-size:0.75rem;" onclick="editPolish(${mockPolish.indexOf(p)})">Editar</button>
-            <button class="secondary" style="font-size:0.75rem;color:var(--danger);border-color:var(--danger);" onclick="removePolish(${mockPolish.indexOf(p)})">Remover</button>
+            <div class="inventory-actions-icons">
+              <button class="icon-button" onclick="editPolish(${mockPolish.indexOf(p)})">✎</button>
+              <button class="icon-button danger" onclick="removePolish(${mockPolish.indexOf(p)})">🗑</button>
+            </div>
           </div>
         `;
         polishEl.appendChild(div);
       });
+      if (!mockPolish.length) {
+        polishEl.innerHTML = '<div class="inventory-empty">Nenhum esmalte cadastrado.</div>';
+      }
     }
 
     if (fridgeEl) {
       fridgeEl.innerHTML = '';
       mockFridge.forEach(f => {
         const emoji = f.name.toLowerCase().includes('água') ? '🚰' : f.name.toLowerCase().includes('energ') ? '⚡' : '🥤';
+        const stockPct = Math.min(100, Math.max(10, Math.round((f.stock / 20) * 100)));
         const div = document.createElement('div');
         div.className = 'inventory-card';
         div.innerHTML = `
-          <div class="inventory-icon">${emoji}</div>
-          <div class="inventory-item-main">
-            <strong>${f.name}</strong>
-            <span class="inventory-item-meta">${f.stock} unidades • Venda R$ ${f.price}</span>
+          <span class="inventory-badge ${f.low ? 'low' : ''}">${f.low ? 'Baixo estoque' : 'OK'}</span>
+          <div>
+            <div class="inventory-card-title">${emoji} ${f.name}</div>
+            <div class="inventory-meta">${f.stock} unidades • R$ ${f.price}</div>
           </div>
-          <div class="inventory-status">
-            <span class="badge ${f.low ? 'badge-low' : ''}">
-              ${f.low ? 'Repor logo' : 'OK'}
-            </span>
-            <button class="secondary" style="font-size:0.7rem;padding:0.2rem 0.5rem;">Mover p/ geladeira</button>
+          <div class="inventory-progress">
+            <div class="fill" style="width:${stockPct}%;"></div>
           </div>
-          <div class="inventory-actions">
-            <button class="secondary" style="font-size:0.75rem;" onclick="adjustFridge(${mockFridge.indexOf(f)}, 1)">+1</button>
-            <button class="secondary" style="font-size:0.75rem;" onclick="adjustFridge(${mockFridge.indexOf(f)}, -1)">-1</button>
-            <button style="font-size:0.75rem;" onclick="editFridge(${mockFridge.indexOf(f)})">Editar</button>
-            <button class="secondary" style="font-size:0.75rem;color:var(--danger);border-color:var(--danger);" onclick="removeFridge(${mockFridge.indexOf(f)})">Remover</button>
+          <div class="inventory-foot">
+            <div class="quantity-actions">
+              <button onclick="adjustFridge(${mockFridge.indexOf(f)}, -1)">−</button>
+              <button onclick="adjustFridge(${mockFridge.indexOf(f)}, 1)">+</button>
+            </div>
+            <div class="inventory-actions-icons">
+              <button class="icon-button" onclick="editFridge(${mockFridge.indexOf(f)})">✎</button>
+              <button class="icon-button danger" onclick="removeFridge(${mockFridge.indexOf(f)})">🗑</button>
+            </div>
           </div>
         `;
         fridgeEl.appendChild(div);
       });
+      if (!mockFridge.length) {
+        fridgeEl.innerHTML = '<div class="inventory-empty">Nenhum item na geladeira.</div>';
+      }
     }
   }
 
@@ -2200,6 +2405,7 @@
     document.getElementById('new-polish-total').value = '';
     document.getElementById('new-polish-current').value = '';
     renderInventoryLists();
+    closeInventoryModal();
   }
 
   function adjustPolish(index, delta) {
@@ -2236,6 +2442,7 @@
     document.getElementById('new-fridge-price').value = '';
     document.getElementById('new-fridge-stock').value = '';
     renderInventoryLists();
+    closeInventoryModal();
   }
 
   function adjustFridge(index, delta) {
