@@ -89,6 +89,11 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     }
 
+    .segmented.compact button {
+      padding: 0.3rem 0.65rem;
+      font-size: 0.8rem;
+    }
+
     .tag {
       display: inline-flex;
       align-items: center;
@@ -267,6 +272,21 @@
       font-size: 0.7rem;
       background: rgba(0,0,0,0.04);
     }
+
+    .badge.status-plan { background: rgba(212, 175, 55, 0.1); color: var(--accent-gold-dark); }
+    .badge.status-progress { background: rgba(46, 204, 113, 0.12); color: #1e824c; }
+    .badge.status-paid { background: rgba(52, 152, 219, 0.12); color: #1f6fa5; }
+
+    .investment-groups { display: flex; flex-direction: column; gap: 0.9rem; }
+    .investment-group { border: 1px solid var(--border-soft); border-radius: 14px; padding: 0.6rem; background: #fffdf9; box-shadow: 0 8px 18px rgba(0,0,0,0.04); }
+    .investment-group-head { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem; flex-wrap: wrap; }
+    .investment-table { width: 100%; border-collapse: collapse; }
+    .investment-table th, .investment-table td { padding: 0.55rem 0.35rem; text-align: left; border-bottom: 1px solid rgba(0,0,0,0.03); }
+    .investment-table th { color: var(--text-muted); font-weight: 500; font-size: 0.8rem; }
+    .investment-main { display: flex; flex-direction: column; gap: 0.15rem; }
+    .investment-meta { font-size: 0.8rem; color: var(--text-muted); display: flex; gap: 0.35rem; flex-wrap: wrap; align-items: center; }
+    .investment-actions { display: inline-flex; gap: 0.3rem; flex-wrap: wrap; }
+    .pill.soft { background: rgba(0,0,0,0.04); color: var(--text-muted); }
 
     .calendar-year {
       display: grid;
@@ -716,6 +736,10 @@
     .dialog-card textarea {
       min-height: 60px;
       resize: vertical;
+    }
+
+    .dialog-card .disabled {
+      opacity: 0.6;
     }
 
     .dialog-actions {
@@ -1546,6 +1570,21 @@
           <div class="value" id="dashboard-stock-alerts">0</div>
           <div class="subtext" id="dashboard-stock-alerts-desc">Nenhum alerta</div>
         </div>
+        <div class="card">
+          <h3>Investimentos do mês</h3>
+          <div class="value" id="dashboard-invest-month">R$ 0,00</div>
+          <div class="subtext" id="dashboard-invest-month-desc">Planejados para o mês selecionado</div>
+        </div>
+        <div class="card">
+          <h3>Parcelas pagas</h3>
+          <div class="value" id="dashboard-invest-paid">R$ 0,00</div>
+          <div class="subtext" id="dashboard-invest-paid-desc">Pagamentos registrados no mês</div>
+        </div>
+        <div class="card">
+          <h3>Planejado para próximos meses</h3>
+          <div class="value" id="dashboard-invest-future">R$ 0,00</div>
+          <div class="subtext" id="dashboard-invest-future-desc">Investimentos agendados para frente</div>
+        </div>
       </div>
 
       <div class="section-title" style="margin-top:1rem;">
@@ -1721,40 +1760,37 @@
 
     <section id="page-ceo-investments" class="page-ceo hidden">
       <div class="section-title">
-        <h2>Investimentos do salão</h2>
-        <div class="pill-row">
-          <span class="pill">Planejamento</span>
-          <span class="pill">Compras e reformas</span>
+        <div>
+          <h2>Investimentos do salão</h2>
+          <div class="pill-row">
+            <span class="pill">Planejamento</span>
+            <span class="pill">Compras e reformas</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
+          <div class="segmented compact">
+            <button id="invest-filter-all" class="active" onclick="setInvestmentFilter('Todos')">Todos</button>
+            <button id="invest-filter-plan" onclick="setInvestmentFilter('Planejado')">Planejamento</button>
+            <button id="invest-filter-progress" onclick="setInvestmentFilter('Em andamento')">Em andamento</button>
+            <button id="invest-filter-paid" onclick="setInvestmentFilter('Pago')">Pagos</button>
+          </div>
+          <button class="secondary" onclick="openInvestmentModal()">Adicionar investimento</button>
         </div>
       </div>
+
       <div class="card">
-        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:flex-end;">
+        <div class="table-head" style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
           <div>
-            <label class="subtext">Título</label>
-            <input id="new-invest-title" placeholder="Ex: Nova poltrona" />
+            <div class="subtext">Organize por status e acompanhe parcelas</div>
+            <div class="tag">Valor total, parcelas e mês de referência</div>
           </div>
-          <div>
-            <label class="subtext">Valor</label>
-            <input id="new-invest-amount" type="number" placeholder="500" />
+          <div class="pill-row" style="margin:0;">
+            <span class="pill">Planejado</span>
+            <span class="pill">Em andamento</span>
+            <span class="pill">Pago</span>
           </div>
-          <div>
-            <label class="subtext">Categoria</label>
-            <input id="new-invest-category" placeholder="Equipamento" />
-          </div>
-          <button onclick="addInvestment()">Registrar investimento</button>
         </div>
-        <table class="table" style="margin-top:0.8rem;">
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>Categoria</th>
-              <th>Valor</th>
-              <th>Status</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody id="investment-table"></tbody>
-        </table>
+        <div id="investment-groups" class="investment-groups"></div>
       </div>
     </section>
 
@@ -2069,6 +2105,87 @@
         <div class="dialog-actions">
           <button class="secondary" onclick="closeDialog('service-edit-modal')">Cancelar</button>
           <button onclick="saveServiceEdit()">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="investment-modal" class="dialog-layer hidden">
+      <div class="dialog-card" style="max-width:720px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:0.6rem;">
+          <div>
+            <h3 id="investment-modal-title">Adicionar investimento</h3>
+            <div class="subtext">Preencha valores, parcelas e mês de referência</div>
+          </div>
+          <button class="secondary" style="height:32px;padding:0.35rem 0.8rem;" onclick="closeDialog('investment-modal')">Fechar</button>
+        </div>
+        <div class="dialog-grid">
+          <input type="hidden" id="investment-id" />
+          <div>
+            <label>Título</label>
+            <input id="investment-title" placeholder="Ex: Reforma recepção" />
+          </div>
+          <div>
+            <label>Categoria</label>
+            <input id="investment-category" placeholder="Equipamento, obra, melhoria" />
+          </div>
+          <div>
+            <label>Mês de referência</label>
+            <input id="investment-month" type="month" />
+          </div>
+          <div>
+            <label>Valor total</label>
+            <input id="investment-amount" type="number" placeholder="500" />
+          </div>
+          <div>
+            <label>Parcelado?</label>
+            <select id="investment-parceled" onchange="toggleParcelFields()">
+              <option value="nao">Não</option>
+              <option value="sim">Sim</option>
+            </select>
+          </div>
+          <div>
+            <label>Número de parcelas</label>
+            <input id="investment-installments" type="number" min="1" placeholder="1" />
+          </div>
+          <div>
+            <label>Valor de cada parcela</label>
+            <input id="investment-installment-value" type="number" placeholder="0" />
+          </div>
+          <div>
+            <label>Data da primeira parcela</label>
+            <input id="investment-first-date" type="date" />
+          </div>
+          <div>
+            <label>Parcela atual</label>
+            <input id="investment-current-installment" type="number" min="0" placeholder="0" />
+          </div>
+          <div>
+            <label>Status</label>
+            <select id="investment-status">
+              <option value="Planejado">Planejado</option>
+              <option value="Em andamento">Em andamento</option>
+              <option value="Pago">Pago</option>
+            </select>
+          </div>
+          <div>
+            <label>Observações</label>
+            <textarea id="investment-notes" placeholder="Materiais, cronograma ou fornecedor"></textarea>
+          </div>
+        </div>
+        <div class="dialog-actions">
+          <button class="secondary" onclick="closeDialog('investment-modal')">Cancelar</button>
+          <button id="investment-modal-save" onclick="saveInvestment()">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="investment-remove-modal" class="dialog-layer hidden">
+      <div class="dialog-card" style="max-width:420px;">
+        <h3>Remover investimento</h3>
+        <p class="subtext" id="investment-remove-text">Confirme para remover o investimento selecionado.</p>
+        <div class="dialog-actions" style="justify-content:space-between;">
+          <button class="secondary" onclick="closeDialog('investment-remove-modal')">Cancelar</button>
+          <button onclick="confirmRemoveInvestment()" style="background:var(--danger);">Remover</button>
         </div>
       </div>
     </div>
@@ -2523,9 +2640,57 @@
   ];
 
   let investments = [
-    { id: 1, title: 'Poltrona reclinável', category: 'Equipamento', amount: 850, status: 'Planejado' },
-    { id: 2, title: 'Reforma da recepção', category: 'Obra', amount: 2500, status: 'Em andamento' },
-    { id: 3, title: 'Kit iluminação', category: 'Melhoria', amount: 600, status: 'Pago' }
+    {
+      id: 'inv-1',
+      title: 'Poltrona reclinável',
+      category: 'Equipamento',
+      valorTotal: 850,
+      valorParcela: 850,
+      parcelasTotais: 1,
+      parcelaAtual: 0,
+      mesReferencia: `${new Date().getFullYear()}-01`,
+      status: 'Planejado',
+      parcelado: false,
+      firstParcelDate: `${new Date().getFullYear()}-01-10`,
+      observacoes: 'Conforto na recepção',
+      createdAt: `${new Date().toISOString()}`,
+      updatedAt: `${new Date().toISOString()}`,
+      lastPaymentAt: null
+    },
+    {
+      id: 'inv-2',
+      title: 'Reforma da recepção',
+      category: 'Obra',
+      valorTotal: 2500,
+      valorParcela: 500,
+      parcelasTotais: 5,
+      parcelaAtual: 2,
+      mesReferencia: `${new Date().getFullYear()}-02`,
+      status: 'Em andamento',
+      parcelado: true,
+      firstParcelDate: `${new Date().getFullYear()}-02-05`,
+      observacoes: 'Dividido em 5x com fornecedor',
+      createdAt: `${new Date().toISOString()}`,
+      updatedAt: `${new Date().toISOString()}`,
+      lastPaymentAt: `${new Date().getFullYear()}-02-05T12:00:00Z`
+    },
+    {
+      id: 'inv-3',
+      title: 'Kit iluminação',
+      category: 'Melhoria',
+      valorTotal: 600,
+      valorParcela: 200,
+      parcelasTotais: 3,
+      parcelaAtual: 3,
+      mesReferencia: `${new Date().getFullYear()}-03`,
+      status: 'Pago',
+      parcelado: true,
+      firstParcelDate: `${new Date().getFullYear()}-03-01`,
+      observacoes: 'Upgrade de ring lights',
+      createdAt: `${new Date().toISOString()}`,
+      updatedAt: `${new Date().toISOString()}`,
+      lastPaymentAt: `${new Date().getFullYear()}-05-01T12:00:00Z`
+    }
   ];
 
   const collaborators = [
@@ -3662,6 +3827,40 @@
     renderDashboardCards();
   }
 
+  function computeInvestmentDashboardStats(monthIndex) {
+    const currentYear = new Date().getFullYear();
+    const target = new Date(currentYear, monthIndex, 1);
+    let totalMes = 0;
+    let parcelasPagasMes = 0;
+    let futurosPlanejados = 0;
+    let futurosQuantidade = 0;
+
+    investments.forEach(inv => {
+      const ref = inv.mesReferencia ? inv.mesReferencia.split('-') : null;
+      const refDate = ref ? new Date(parseInt(ref[0], 10), parseInt(ref[1], 10) - 1, 1) : null;
+      const total = inv.valorTotal ?? inv.amount ?? 0;
+      const parcela = inv.valorParcela || (total / (inv.parcelasTotais || 1));
+      if (refDate && refDate.getMonth() === target.getMonth() && refDate.getFullYear() === target.getFullYear()) {
+        totalMes += total;
+      }
+
+      if (refDate && (refDate > target)) {
+        futurosPlanejados += total;
+        futurosQuantidade += 1;
+      }
+
+      const paidDate = inv.lastPaymentAt ? new Date(inv.lastPaymentAt) : null;
+      const paidMatches = paidDate
+        ? (paidDate.getMonth() === target.getMonth() && paidDate.getFullYear() === target.getFullYear())
+        : (inv.status === 'Pago' && refDate && refDate.getMonth() === target.getMonth() && refDate.getFullYear() === target.getFullYear());
+      if (paidMatches) {
+        parcelasPagasMes += parcela;
+      }
+    });
+
+    return { totalMes, parcelasPagasMes, futurosPlanejados, futurosQuantidade };
+  }
+
   function renderDashboardCards() {
     const stats = monthlyDashboardStats.find(s => s.monthIndex === selectedDashboardMonth) || monthlyDashboardStats[0];
     const revenueEl = document.getElementById('dashboard-revenue');
@@ -3682,6 +3881,21 @@
     if (consDelta) consDelta.textContent = 'Geladeira e consumo interno';
     if (alertEl) alertEl.textContent = `${stats.alerts} itens`;
     if (alertDesc) alertDesc.textContent = stats.alertsDesc;
+
+    const invStats = computeInvestmentDashboardStats(selectedDashboardMonth);
+    const invMonth = document.getElementById('dashboard-invest-month');
+    const invMonthDesc = document.getElementById('dashboard-invest-month-desc');
+    const invPaid = document.getElementById('dashboard-invest-paid');
+    const invPaidDesc = document.getElementById('dashboard-invest-paid-desc');
+    const invFuture = document.getElementById('dashboard-invest-future');
+    const invFutureDesc = document.getElementById('dashboard-invest-future-desc');
+
+    if (invMonth) invMonth.textContent = formatCurrency(invStats.totalMes);
+    if (invMonthDesc) invMonthDesc.textContent = `Investimentos com referência em ${monthLabel}`;
+    if (invPaid) invPaid.textContent = formatCurrency(invStats.parcelasPagasMes);
+    if (invPaidDesc) invPaidDesc.textContent = `Pagamentos registrados em ${monthLabel}`;
+    if (invFuture) invFuture.textContent = formatCurrency(invStats.futurosPlanejados);
+    if (invFutureDesc) invFutureDesc.textContent = `${invStats.futurosQuantidade} planejado(s) para os próximos meses`;
   }
 
   function filterClientsByRole(scope) {
@@ -4499,50 +4713,251 @@
     });
   }
 
-  function renderInvestments() {
-    const tbody = document.getElementById('investment-table');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-    investments.forEach(item => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${item.title}</td>
-        <td>${item.category}</td>
-        <td>${formatCurrency(item.amount)}</td>
-        <td><span class="badge">${item.status}</span></td>
-        <td style="display:flex;gap:0.3rem;flex-wrap:wrap;">
-          <button class="secondary" style="font-size:0.75rem;" onclick="toggleInvestmentStatus(${item.id})">${item.status === 'Pago' ? 'Reabrir' : 'Marcar pago'}</button>
-          <button class="secondary" style="font-size:0.75rem;color:var(--danger);border-color:var(--danger);" onclick="removeInvestment(${item.id})">Remover</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
+  let investmentFilter = 'Todos';
+  let investmentEditingId = null;
+
+  function setInvestmentFilter(value) {
+    investmentFilter = value;
+    const ids = {
+      Todos: 'invest-filter-all',
+      Planejado: 'invest-filter-plan',
+      'Em andamento': 'invest-filter-progress',
+      Pago: 'invest-filter-paid'
+    };
+    Object.entries(ids).forEach(([status, btnId]) => {
+      const btn = document.getElementById(btnId);
+      if (btn) btn.classList.toggle('active', value === status);
+    });
+    renderInvestments();
+  }
+
+  function formatMonthRef(monthStr) {
+    if (!monthStr) return '—';
+    const [year, month] = monthStr.split('-');
+    const idx = parseInt(month, 10) - 1;
+    return `${monthNamesShort[idx] || month}/${year}`;
+  }
+
+  function investmentBadge(status) {
+    const map = {
+      Planejado: 'status-plan',
+      'Em andamento': 'status-progress',
+      Pago: 'status-paid'
+    };
+    return map[status] || '';
+  }
+
+  function openInvestmentModal(mode = 'add', id = null) {
+    investmentEditingId = mode === 'edit' ? id : null;
+    const modalTitle = document.getElementById('investment-modal-title');
+    const saveBtn = document.getElementById('investment-modal-save');
+    const inv = investments.find(i => i.id === id) || {};
+    document.getElementById('investment-id').value = inv.id || '';
+    document.getElementById('investment-title').value = inv.title || '';
+    document.getElementById('investment-category').value = inv.category || inv.categoria || '';
+    document.getElementById('investment-month').value = inv.mesReferencia || '';
+    document.getElementById('investment-amount').value = inv.valorTotal || inv.amount || '';
+    document.getElementById('investment-parceled').value = inv.parcelado ? 'sim' : 'nao';
+    document.getElementById('investment-installments').value = inv.parcelasTotais || 1;
+    document.getElementById('investment-installment-value').value = inv.valorParcela || '';
+    document.getElementById('investment-first-date').value = inv.firstParcelDate || '';
+    document.getElementById('investment-current-installment').value = inv.parcelaAtual || 0;
+    document.getElementById('investment-status').value = inv.status || 'Planejado';
+    document.getElementById('investment-notes').value = inv.observacoes || '';
+    if (modalTitle) modalTitle.textContent = mode === 'edit' ? 'Editar investimento' : 'Adicionar investimento';
+    if (saveBtn) saveBtn.textContent = mode === 'edit' ? 'Atualizar' : 'Salvar';
+    toggleParcelFields();
+    openDialog('investment-modal');
+  }
+
+  function toggleParcelFields() {
+    const isParceled = document.getElementById('investment-parceled').value === 'sim';
+    const installs = document.getElementById('investment-installments');
+    const value = document.getElementById('investment-installment-value');
+    const firstDate = document.getElementById('investment-first-date');
+    [installs, value, firstDate].forEach(el => {
+      if (!el) return;
+      el.disabled = !isParceled;
+      el.classList.toggle('disabled', !isParceled);
     });
   }
 
-  function addInvestment() {
-    const title = document.getElementById('new-invest-title').value.trim();
-    const amount = parseFloat(document.getElementById('new-invest-amount').value) || 0;
-    const category = document.getElementById('new-invest-category').value.trim() || 'Geral';
-    if (!title || !amount) {
-      alert('Preencha título e valor do investimento');
+  function saveInvestment() {
+    const id = document.getElementById('investment-id').value || `inv-${Date.now()}`;
+    const title = document.getElementById('investment-title').value.trim();
+    const category = document.getElementById('investment-category').value.trim() || 'Geral';
+    const mesReferencia = document.getElementById('investment-month').value;
+    const valorTotal = parseFloat(document.getElementById('investment-amount').value) || 0;
+    const parcelado = document.getElementById('investment-parceled').value === 'sim';
+    const parcelasTotais = parcelado ? (parseInt(document.getElementById('investment-installments').value, 10) || 1) : 1;
+    const valorParcelaInput = parseFloat(document.getElementById('investment-installment-value').value);
+    const valorParcela = parcelado ? (valorParcelaInput || (valorTotal / parcelasTotais)) : valorTotal;
+    const firstParcelDate = document.getElementById('investment-first-date').value || '';
+    const parcelaAtual = parseInt(document.getElementById('investment-current-installment').value, 10) || 0;
+    const status = document.getElementById('investment-status').value || 'Planejado';
+    const observacoes = document.getElementById('investment-notes').value || '';
+
+    if (!title || !valorTotal) {
+      alert('Preencha título e valor total');
       return;
     }
-    const id = Date.now();
-    investments.push({ id, title, amount, category, status: 'Planejado' });
-    document.getElementById('new-invest-title').value = '';
-    document.getElementById('new-invest-amount').value = '';
-    document.getElementById('new-invest-category').value = '';
+
+    const existing = investments.find(i => i.id === id);
+    const now = new Date().toISOString();
+    const parcelaAtualFinal = Math.min(parcelaAtual, parcelasTotais);
+    let statusFinal = status;
+    if (parcelaAtualFinal >= parcelasTotais) {
+      statusFinal = 'Pago';
+    } else if (parcelaAtualFinal > 0 && parcelasTotais > 1) {
+      statusFinal = 'Em andamento';
+    }
+
+    const payload = {
+      id,
+      title,
+      category,
+      valorTotal,
+      valorParcela,
+      parcelasTotais,
+      parcelaAtual: parcelaAtualFinal,
+      mesReferencia,
+      parcelado,
+      firstParcelDate,
+      observacoes,
+      status: statusFinal,
+      createdAt: existing?.createdAt || now,
+      updatedAt: now,
+      lastPaymentAt: existing?.lastPaymentAt || null
+    };
+
+    if (existing) {
+      investments = investments.map(inv => inv.id === id ? { ...inv, ...payload } : inv);
+    } else {
+      investments.push(payload);
+    }
+
+    closeDialog('investment-modal');
     renderInvestments();
+    renderDashboardCards();
   }
 
-  function toggleInvestmentStatus(id) {
-    investments = investments.map(inv => inv.id === id ? { ...inv, status: inv.status === 'Pago' ? 'Planejado' : 'Pago' } : inv);
-    renderInvestments();
+  function renderInvestments() {
+    const container = document.getElementById('investment-groups');
+    if (!container) return;
+    container.innerHTML = '';
+    const statusList = ['Planejado', 'Em andamento', 'Pago'];
+    const filtered = investmentFilter === 'Todos' ? investments : investments.filter(inv => inv.status === investmentFilter);
+
+    statusList
+      .filter(status => investmentFilter === 'Todos' || status === investmentFilter)
+      .forEach(status => {
+        const groupItems = filtered
+          .filter(inv => inv.status === status)
+          .sort((a, b) => (a.mesReferencia || '').localeCompare(b.mesReferencia || ''));
+        const group = document.createElement('div');
+        group.className = 'investment-group';
+        group.innerHTML = `
+          <div class="investment-group-head">
+            <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+              <strong>${status}</strong>
+              <span class="badge ${investmentBadge(status)}">${groupItems.length} itens</span>
+            </div>
+            <div class="pill soft">Organização por referência mensal</div>
+          </div>
+          <table class="investment-table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Categoria</th>
+                <th>Mês ref.</th>
+                <th>Parcelas</th>
+                <th>Valores</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        `;
+        const tbody = group.querySelector('tbody');
+        groupItems.forEach(item => {
+          const total = item.valorTotal ?? item.amount ?? 0;
+          const parcelaTotal = item.parcelasTotais || 1;
+          const current = item.parcelaAtual || 0;
+          const parcLabel = parcelaTotal > 1 ? `${current}/${parcelaTotal}` : 'Única';
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>
+              <div class="investment-main">
+                <strong>${item.title}</strong>
+                <div class="investment-meta">
+                  <span>${item.observacoes || 'Sem observações'}</span>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge-soft">${item.category || item.categoria || 'Geral'}</span></td>
+            <td>${formatMonthRef(item.mesReferencia)}</td>
+            <td>${parcLabel}</td>
+            <td>
+              <div class="investment-meta">
+                <span>Total: <strong>${formatCurrency(total)}</strong></span>
+                <span>Parcela: <strong>${formatCurrency(item.valorParcela || total)}</strong></span>
+              </div>
+            </td>
+            <td><span class="badge ${investmentBadge(item.status)}">${item.status}</span></td>
+            <td>
+              <div class="investment-actions">
+                <button class="ghost-btn" title="Editar" onclick="openInvestmentModal('edit', '${item.id}')">✏️</button>
+                <button class="ghost-btn secondary" title="Próxima parcela" onclick="advanceInvestment('${item.id}')">⏭</button>
+                <button class="ghost-btn secondary" title="Marcar pago" onclick="markInvestmentPaid('${item.id}')">✔️</button>
+                <button class="ghost-btn secondary" style="color:var(--danger);border-color:var(--danger);" title="Remover" onclick="openInvestmentRemoveModal('${item.id}')">🗑</button>
+              </div>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+        container.appendChild(group);
+      });
   }
 
-  function removeInvestment(id) {
-    investments = investments.filter(inv => inv.id !== id);
+  function advanceInvestment(id) {
+    investments = investments.map(inv => {
+      if (inv.id !== id) return inv;
+      const next = Math.min((inv.parcelaAtual || 0) + 1, inv.parcelasTotais || 1);
+      const status = next >= (inv.parcelasTotais || 1) ? 'Pago' : 'Em andamento';
+      return { ...inv, parcelaAtual: next, status, lastPaymentAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    });
     renderInvestments();
+    renderDashboardCards();
+  }
+
+  function markInvestmentPaid(id) {
+    investments = investments.map(inv => inv.id === id ? {
+      ...inv,
+      parcelaAtual: inv.parcelasTotais || 1,
+      status: 'Pago',
+      lastPaymentAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    } : inv);
+    renderInvestments();
+    renderDashboardCards();
+  }
+
+  function openInvestmentRemoveModal(id) {
+    investmentEditingId = id;
+    const inv = investments.find(i => i.id === id);
+    const text = document.getElementById('investment-remove-text');
+    if (text) text.textContent = `Remover "${inv?.title || 'investimento'}"?`; 
+    openDialog('investment-remove-modal');
+  }
+
+  function confirmRemoveInvestment() {
+    if (!investmentEditingId) return;
+    investments = investments.filter(inv => inv.id !== investmentEditingId);
+    investmentEditingId = null;
+    closeDialog('investment-remove-modal');
+    renderInvestments();
+    renderDashboardCards();
   }
 
   function renderServicesTable() {
