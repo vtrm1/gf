@@ -482,14 +482,17 @@
     .kiosk-wrapper {
       max-width: 900px;
       margin: 0 auto;
-      padding: 1rem;
+      padding: 1.25rem 1.5rem 1.5rem;
+      background: radial-gradient(circle at 10% 20%, #fff7e6, #f0e7d8);
+      border-radius: 22px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.08);
     }
 
     .kiosk-grid {
       display: grid;
-      grid-template-columns: 2fr 1.4fr;
-      gap: 1rem;
-      margin-top: 0.8rem;
+      grid-template-columns: 1.8fr 1.1fr;
+      gap: 1.1rem;
+      margin-top: 1rem;
     }
 
     .kiosk-section-title {
@@ -499,40 +502,73 @@
 
     .kiosk-items {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 0.6rem;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.7rem;
     }
 
     .kiosk-card {
       background: var(--bg-card);
-      border-radius: 16px;
-      padding: 0.75rem 0.8rem;
-      text-align: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 18px;
+      padding: 0.85rem 0.9rem;
+      text-align: left;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      border: 1px solid rgba(255,255,255,0.95);
+      position: relative;
+      overflow: hidden;
     }
 
     .kiosk-card h3 {
       font-size: 0.9rem;
-      margin-bottom: 0.15rem;
+      margin-bottom: 0.25rem;
     }
 
     .kiosk-price {
-      font-size: 0.9rem;
-      font-weight: 600;
+      font-size: 1rem;
+      font-weight: 700;
       margin-bottom: 0.35rem;
+    }
+
+    .kiosk-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-size: 1.3rem;
+      background: radial-gradient(circle at 30% 30%, #fff3d4, #f1d9a0);
+      margin-bottom: 0.35rem;
+    }
+
+    .kiosk-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.25rem 0.55rem;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.03);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .kiosk-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.09), transparent 50%);
+      pointer-events: none;
     }
 
     .kiosk-cart {
       background: var(--bg-card);
-      border-radius: 18px;
-      padding: 0.9rem 1rem;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 20px;
+      padding: 1rem 1.1rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      border: 1px solid rgba(255,255,255,0.95);
       display: flex;
       flex-direction: column;
       gap: 0.4rem;
-      max-height: 450px;
+      max-height: 520px;
     }
 
     .kiosk-cart-list {
@@ -545,7 +581,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.35rem 0;
+      padding: 0.45rem 0;
       border-bottom: 1px solid rgba(0,0,0,0.03);
       font-size: 0.85rem;
     }
@@ -556,6 +592,76 @@
       align-items: center;
       margin-top: 0.5rem;
       font-weight: 600;
+    }
+
+    .kiosk-hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .kiosk-steps {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-top: 0.35rem;
+    }
+
+    .kiosk-pill {
+      background: rgba(0,0,0,0.04);
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .login-mode-toggle {
+      display: flex;
+      gap: 0.4rem;
+      margin: 0.6rem 0;
+      flex-wrap: wrap;
+    }
+
+    .login-tab {
+      border-radius: 14px;
+      padding: 0.5rem 0.9rem;
+      background: rgba(0,0,0,0.03);
+      border: 1px solid transparent;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .login-tab.active {
+      background: rgba(212, 175, 55, 0.15);
+      color: var(--accent-gold-dark);
+      border-color: rgba(212, 175, 55, 0.5);
+      box-shadow: 0 2px 10px rgba(212, 175, 55, 0.15);
+    }
+
+    .collab-form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.5rem;
+      margin-top: 0.6rem;
+    }
+
+    .collab-form input {
+      width: 100%;
+      padding: 0.55rem 0.6rem;
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      background: rgba(255,255,255,0.8);
+    }
+
+    .collab-form small {
+      grid-column: 1 / -1;
+      color: var(--text-muted);
     }
 
     .login-screen {
@@ -638,21 +744,44 @@
 
 <!-- LOGIN / SELEÇÃO DE PAPEL (SIMULAÇÃO) -->
 <section id="login-screen" class="login-screen">
-  <h1>Salão Glecie • Painel</h1>
-  <p>Escolha como deseja acessar o sistema. Depois você pode trocar isso por login real com Firebase.</p>
+  <h1 id="login-title">Salão Glecie • Painel</h1>
+  <p id="login-subtitle">Escolha como deseja acessar o sistema. Depois você pode trocar isso por login real com Firebase.</p>
 
-  <div class="card" style="margin-top:0.6rem;">
+  <div class="login-mode-toggle">
+    <div class="login-tab active" id="tab-ceo" onclick="switchLoginMode('ceo')">Sou a CEO</div>
+    <div class="login-tab" id="tab-colab" onclick="switchLoginMode('colab')">Sou colaboradora</div>
+  </div>
+
+  <div class="card" id="login-ceo-card" style="margin-top:0.4rem;">
     <h3>Acesso principal (dona do espaço)</h3>
     <p class="subtext">Controle total: agenda, estoque, financeiro e comissões.</p>
     <button style="margin-top:0.5rem;" onclick="setRole('ceo')">Entrar como CEO</button>
   </div>
 
-  <div class="card" style="margin-top:0.8rem;">
-    <h3>Colaboradora</h3>
-    <p class="subtext">Enxerga agenda das duas e apenas as próprias comissões.</p>
-    <button style="margin-top:0.5rem;" class="secondary" onclick="setRole('colab')">
-      Entrar como colaboradora
-    </button>
+  <div class="card hidden" id="login-colab-card" style="margin-top:0.4rem;">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+      <div>
+        <h3>Login dedicado da colaboradora</h3>
+        <p class="subtext">Tela enxuta: apenas o login desta colaboradora e o acesso ao tablet.</p>
+      </div>
+      <div class="chip">Criado pela CEO</div>
+    </div>
+    <div class="collab-form">
+      <div>
+        <label class="subtext">Usuário</label>
+        <input id="collab-login-username" placeholder="ex: camila" />
+      </div>
+      <div>
+        <label class="subtext">Senha</label>
+        <input id="collab-login-password" type="password" placeholder="••••••" />
+      </div>
+      <div>
+        <label class="subtext">Dispositivo</label>
+        <input id="collab-login-device" placeholder="Tablet da recepção" />
+      </div>
+      <small>Use o usuário e senha criados na Configuração &gt; Colaboradoras.</small>
+    </div>
+    <button style="margin-top:0.5rem;" onclick="loginCollaboratorAccount()">Entrar como colaboradora</button>
   </div>
 
   <div class="card" style="margin-top:0.8rem;">
@@ -891,6 +1020,34 @@
       </div>
 
       <div class="card" style="margin-top:0.8rem;">
+        <h3>Criar login dedicado para colaboradora</h3>
+        <div class="subtext">A CEO registra usuário e senha. A colaboradora só enxerga o próprio login e o botão do tablet.</div>
+        <div class="collab-form">
+          <div>
+            <label class="subtext">Nome da colaboradora</label>
+            <input id="new-colab-name" placeholder="Ex: Camila" />
+          </div>
+          <div>
+            <label class="subtext">Usuário</label>
+            <input id="new-colab-username" placeholder="Ex: camila" />
+          </div>
+          <div>
+            <label class="subtext">Senha inicial</label>
+            <input id="new-colab-password" placeholder="Ex: 123" />
+          </div>
+          <div>
+            <label class="subtext">Permissões</label>
+            <input id="new-colab-permissions" placeholder="Agenda compartilhada, comissões" />
+          </div>
+          <small>Ela poderá alterar a senha depois. Copie este login dedicado para entregar apenas a esta colaboradora.</small>
+        </div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.6rem;">
+          <button onclick="createCollaboratorAccount()">Gerar usuário e senha</button>
+          <button class="secondary" onclick="switchLoginMode('colab')">Ver tela que ela recebe</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:0.8rem;">
         <h3>Tabela de serviços</h3>
         <div class="subtext">Valores utilizados no app.</div>
         <table class="table" style="margin-top:0.4rem;">
@@ -1037,10 +1194,15 @@
 <!-- TELA KIOSK (CLIENTE) -->
 <section id="kiosk-screen" class="hidden">
   <div class="kiosk-wrapper">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
+    <div class="kiosk-hero">
       <div>
         <h1 style="font-size:1.4rem;">Consumo & Serviço</h1>
         <div class="tag" style="margin-top:0.2rem;">Selecione o que você está consumindo agora</div>
+        <div class="kiosk-steps">
+          <span class="kiosk-pill">1️⃣ Escolha a bebida</span>
+          <span class="kiosk-pill">2️⃣ Marque o serviço</span>
+          <span class="kiosk-pill">3️⃣ Confirme e avisa a profissional</span>
+        </div>
       </div>
       <button class="secondary" onclick="backToLogin()">Sair do modo tablet</button>
     </div>
@@ -1090,6 +1252,8 @@
   let currentRole = null; // 'ceo' | 'colab' | 'kiosk'
   let currentPageCEO = 'dashboard';
   let currentPageColab = 'dashboard';
+  let loginMode = 'ceo';
+  let currentColabAccount = null;
 
   const calendarYear = 2025;
   let selectedMonthIndex = 0;
@@ -1278,22 +1442,27 @@
   ];
 
   const collaborators = [
-    { name: 'Glecie', role: 'CEO', commission: 'Recebe total', permissions: 'Agenda, estoque, financeiro', color: '#d4af37' },
-    { name: 'Camila', role: 'Colaboradora', commission: '40% serviços', permissions: 'Agenda compartilhada, comissões', color: '#f3c06b' },
-    { name: 'Laura', role: 'Colaboradora', commission: '35% serviços', permissions: 'Agenda própria, estoque consulta', color: '#b58c25' }
+    { name: 'Glecie', role: 'CEO', commission: 'Recebe total', permissions: 'Agenda, estoque, financeiro', color: '#d4af37', username: 'glecie' },
+    { name: 'Camila', role: 'Colaboradora', commission: '40% serviços', permissions: 'Agenda compartilhada, comissões', color: '#f3c06b', username: 'camila' },
+    { name: 'Laura', role: 'Colaboradora', commission: '35% serviços', permissions: 'Agenda própria, estoque consulta', color: '#b58c25', username: 'laura' }
+  ];
+
+  let collaboratorAccounts = [
+    { name: 'Camila', username: 'camila', password: '123', permissions: 'Agenda compartilhada, comissões', device: 'Tablet da recepção' },
+    { name: 'Laura', username: 'laura', password: '456', permissions: 'Agenda própria, estoque consulta', device: 'Tablet manicure' },
   ];
 
   const kioskDrinks = [
-    { id: 'coca', name: 'Coca lata', price: 7 },
-    { id: 'energetico', name: 'Energético', price: 10 },
-    { id: 'cerveja', name: 'Cerveja long neck', price: 12 },
-    { id: 'agua', name: 'Água sem gás', price: 4 },
+    { id: 'coca', name: 'Coca lata', price: 7, icon: '🥤' },
+    { id: 'energetico', name: 'Energético', price: 10, icon: '⚡' },
+    { id: 'cerveja', name: 'Cerveja long neck', price: 12, icon: '🍺' },
+    { id: 'agua', name: 'Água sem gás', price: 4, icon: '💧' },
   ];
 
   const kioskServices = [
-    { id: 'manutencao', name: 'Manutenção fibra', price: 120 },
-    { id: 'alongamento', name: 'Alongamento novo', price: 180 },
-    { id: 'esmalta', name: 'Esmaltação simples', price: 50 },
+    { id: 'manutencao', name: 'Manutenção fibra', price: 120, icon: '💅' },
+    { id: 'alongamento', name: 'Alongamento novo', price: 180, icon: '✨' },
+    { id: 'esmalta', name: 'Esmaltação simples', price: 50, icon: '🎨' },
   ];
 
   let cart = [];
@@ -1301,8 +1470,13 @@
   // -----------------------------
   // TROCA DE PAPEL / TELAS
   // -----------------------------
-  function setRole(role) {
+  function setRole(role, account = null) {
     currentRole = role;
+    if (role === 'colab') {
+      currentColabAccount = account;
+    } else {
+      currentColabAccount = null;
+    }
 
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('app-shell').classList.add('hidden');
@@ -1324,16 +1498,88 @@
     document.getElementById('login-screen').classList.remove('hidden');
     document.getElementById('app-shell').classList.add('hidden');
     document.getElementById('kiosk-screen').classList.add('hidden');
+    switchLoginMode(loginMode);
   }
 
   function openKioskFromDashboard() {
     setRole('kiosk');
   }
 
+  function switchLoginMode(mode) {
+    loginMode = mode;
+    const ceoCard = document.getElementById('login-ceo-card');
+    const colabCard = document.getElementById('login-colab-card');
+    const tabCeo = document.getElementById('tab-ceo');
+    const tabColab = document.getElementById('tab-colab');
+    const title = document.getElementById('login-title');
+    const subtitle = document.getElementById('login-subtitle');
+
+    if (!ceoCard || !colabCard) return;
+
+    const isCeo = mode === 'ceo';
+    ceoCard.classList.toggle('hidden', !isCeo);
+    colabCard.classList.toggle('hidden', isCeo);
+    tabCeo.classList.toggle('active', isCeo);
+    tabColab.classList.toggle('active', !isCeo);
+    title.textContent = isCeo ? 'Salão Glecie • Painel' : 'Login exclusivo da colaboradora';
+    subtitle.textContent = isCeo
+      ? 'Escolha como deseja acessar o sistema. Depois você pode trocar isso por login real com Firebase.'
+      : 'Use apenas o usuário e senha que a CEO criou para você. Aqui não aparece a opção de entrar como CEO.';
+  }
+
+  function openCollaboratorLogin(username) {
+    const account = collaboratorAccounts.find(acc => acc.username === username);
+    backToLogin();
+    switchLoginMode('colab');
+    if (account) {
+      document.getElementById('collab-login-username').value = account.username;
+      document.getElementById('collab-login-password').value = account.password;
+      document.getElementById('collab-login-device').value = account.device || '';
+    }
+  }
+
+  function loginCollaboratorAccount() {
+    const username = document.getElementById('collab-login-username').value.trim();
+    const password = document.getElementById('collab-login-password').value.trim();
+    const device = document.getElementById('collab-login-device').value.trim();
+    const account = collaboratorAccounts.find(acc => acc.username === username && acc.password === password);
+    if (!account) {
+      alert('Usuário ou senha inválidos. Confira o login entregue pela CEO.');
+      return;
+    }
+    currentColabAccount = { ...account, device };
+    setRole('colab', currentColabAccount);
+  }
+
+  function createCollaboratorAccount() {
+    const name = document.getElementById('new-colab-name').value.trim();
+    const username = document.getElementById('new-colab-username').value.trim();
+    const password = document.getElementById('new-colab-password').value.trim();
+    const permissions = document.getElementById('new-colab-permissions').value.trim();
+
+    if (!name || !username || !password) {
+      alert('Preencha nome, usuário e senha para criar o acesso.');
+      return;
+    }
+
+    collaboratorAccounts.push({ name, username, password, permissions, device: 'Tablet dedicado' });
+    collaborators.push({ name, username, role: 'Colaboradora', commission: '40% serviços', permissions: permissions || 'Agenda compartilhada, comissões', color: '#f1c76d' });
+
+    renderCollaborators();
+    document.getElementById('new-colab-name').value = '';
+    document.getElementById('new-colab-username').value = '';
+    document.getElementById('new-colab-password').value = '';
+    document.getElementById('new-colab-permissions').value = '';
+    alert(`Login criado para ${name}. Usuário: ${username} | Senha: ${password}`);
+  }
+
   function updateRoleLabel(role) {
     const el = document.getElementById('sidebar-role-label');
     if (role === 'ceo') el.textContent = 'Acesso CEO (total)';
-    if (role === 'colab') el.textContent = 'Colaboradora (comissão)';
+    if (role === 'colab') {
+      const label = currentColabAccount ? `${currentColabAccount.name} (colab)` : 'Colaboradora (comissão)';
+      el.textContent = label;
+    }
   }
 
   function setupSidebar(role) {
@@ -1637,10 +1883,12 @@
           </div>
         </div>
         <div class="collab-meta">Permissões: ${col.permissions}</div>
+        ${col.username ? `<div class="collab-meta">Login: <strong>${col.username}</strong></div>` : ''}
         <div class="collab-actions">
           <button class="secondary" style="font-size:0.75rem;" onclick="alert('Editar ${col.name}')">Editar perfil</button>
           <button style="font-size:0.75rem;" onclick="alert('Ajustar comissão de ${col.name}')">Comissão</button>
           <button class="secondary" style="font-size:0.75rem;" onclick="alert('Desativar ${col.name}')">Desativar</button>
+          ${col.username ? `<button style="font-size:0.75rem;" onclick="openCollaboratorLogin('${col.username}')">Login dedicado</button>` : ''}
         </div>
       `;
       container.appendChild(card);
@@ -1659,9 +1907,11 @@
         const div = document.createElement('div');
         div.className = 'kiosk-card';
         div.innerHTML = `
+          <div class="kiosk-icon">${d.icon || '🥤'}</div>
           <h3>${d.name}</h3>
           <div class="kiosk-price">R$ ${d.price}</div>
-          <button onclick="addDrinkToCart('${d.id}')">Adicionar</button>
+          <div class="kiosk-badge">Consumo imediato</div>
+          <button style="margin-top:0.5rem;" onclick="addDrinkToCart('${d.id}')">Adicionar</button>
         `;
         drinksEl.appendChild(div);
       });
@@ -1672,9 +1922,11 @@
         const div = document.createElement('div');
         div.className = 'kiosk-card';
         div.innerHTML = `
+          <div class="kiosk-icon">${s.icon || '💅'}</div>
           <h3>${s.name}</h3>
           <div class="kiosk-price">R$ ${s.price}</div>
-          <button onclick="selectService('${s.id}')">Selecionar</button>
+          <div class="kiosk-badge">Serviço principal</div>
+          <button style="margin-top:0.5rem;" onclick="selectService('${s.id}')">Selecionar</button>
         `;
         servicesEl.appendChild(div);
       });
@@ -1759,6 +2011,7 @@
 
   // Inicialização
   // (poderia detectar login real do Firebase aqui)
+  switchLoginMode('ceo');
 </script>
 
 </body>
