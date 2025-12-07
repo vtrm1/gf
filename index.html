@@ -1510,7 +1510,7 @@
             <div class="section-caption">Lista compacta para gerenciar permissões, comissão e logins dedicados.</div>
           </div>
           <div class="block-actions">
-            <button class="ghost-btn secondary" onclick="alert('Fluxo de convite mockado')">+ Colaboradora</button>
+            <button class="ghost-btn secondary" onclick="openCollabAddModal()">+ Colaboradora</button>
             <button class="ghost-btn" onclick="openDedicatedLoginModal()">🔑 Criar login dedicado</button>
             <button class="ghost-btn secondary" onclick="alert('Importação mockada')">⤓ Importar</button>
           </div>
@@ -1574,6 +1574,41 @@
       </div>
     </div>
 
+    <div id="add-collab-modal" class="dialog-layer hidden">
+      <div class="dialog-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h3>Adicionar colaboradora</h3>
+          <button class="secondary" style="height:32px;padding:0.35rem 0.8rem;" onclick="closeDialog('add-collab-modal')">Fechar</button>
+        </div>
+        <div class="dialog-grid">
+          <div>
+            <label>Nome</label>
+            <input id="add-collab-name" placeholder="Ex: Camilia" />
+          </div>
+          <div>
+            <label>Cargo</label>
+            <input id="add-collab-role" placeholder="Ex: Colaboradora" />
+          </div>
+          <div>
+            <label>Comissão</label>
+            <input id="add-collab-commission" placeholder="Ex: 40% serviços" />
+          </div>
+          <div>
+            <label>Login</label>
+            <input id="add-collab-login" placeholder="Usuário opcional" />
+          </div>
+          <div style="grid-column:1 / span 2;">
+            <label>Permissões (resumo)</label>
+            <input id="add-collab-permissions" placeholder="Agenda, estoque, comissões" />
+          </div>
+        </div>
+        <div class="dialog-actions">
+          <button class="secondary" onclick="closeDialog('add-collab-modal')">Cancelar</button>
+          <button onclick="saveNewCollaborator()">Salvar colaboradora</button>
+        </div>
+      </div>
+    </div>
+
     <div id="edit-collab-modal" class="dialog-layer hidden">
       <div class="dialog-card">
         <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -1628,6 +1663,23 @@
         <div class="dialog-actions">
           <button class="secondary" onclick="closeDialog('commission-modal')">Cancelar</button>
           <button onclick="saveCommission()">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="collab-status-modal" class="dialog-layer hidden">
+      <div class="dialog-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h3>Status da colaboradora</h3>
+          <button class="secondary" style="height:32px;padding:0.35rem 0.8rem;" onclick="closeDialog('collab-status-modal')">Fechar</button>
+        </div>
+        <p class="subtext" id="collab-status-text">Gerencie ativação ou remoção.</p>
+        <div class="dialog-actions" style="justify-content:space-between;">
+          <button class="secondary" onclick="removeCollaborator()" style="color:var(--danger);border-color:var(--danger);">Remover colaboradora</button>
+          <div style="display:flex;gap:0.4rem;">
+            <button class="secondary" onclick="closeDialog('collab-status-modal')">Cancelar</button>
+            <button onclick="confirmDeactivateCollaborator()" id="collab-status-toggle">Desativar</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1733,38 +1785,48 @@
 
     <section id="page-colab-agenda" class="page-colab hidden">
       <div class="section-title">
-        <h2>Agenda compartilhada</h2>
-        <div class="pill-row">
-          <span class="pill">Ver CEO + Colab</span>
+        <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+          <h2 style="margin:0;">Agenda compartilhada</h2>
+          <div class="segmented">
+            <button id="agenda-toggle-year-colab" class="active" onclick="setAgendaView('year','colab')">Visão anual</button>
+            <button id="agenda-toggle-month-colab" onclick="setAgendaView('month','colab')">Mês a mês</button>
+          </div>
+          <div class="pill-row" style="margin:0;">
+            <span class="pill">2025</span>
+            <span class="pill">CEO + Colab</span>
+          </div>
         </div>
       </div>
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Dia</th>
-            <th>Profissional</th>
-            <th>Horário</th>
-            <th>Cliente</th>
-            <th>Serviço</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Hoje</td>
-            <td>Glecie</td>
-            <td>10:00</td>
-            <td>Juliana</td>
-            <td>Esmaltação</td>
-          </tr>
-          <tr>
-            <td>Hoje</td>
-            <td>Colab</td>
-            <td>11:30</td>
-            <td>Carla</td>
-            <td>Manutenção</td>
-          </tr>
-        </tbody>
-      </table>
+      <div id="agenda-view-year-colab">
+        <div class="calendar-year" id="year-calendar-colab"></div>
+      </div>
+
+      <div id="agenda-view-month-colab" class="hidden">
+        <div class="month-visual-toggle" style="margin-bottom:0.4rem;">
+          <label class="subtext">Selecione o mês</label>
+          <select id="agenda-month-selector-colab" onchange="setSelectedMonth(parseInt(this.value), 'colab')"></select>
+          <div class="tag">Toque nos dias com atendimento para abrir detalhes</div>
+        </div>
+        <div class="full-month-calendar" id="agenda-month-calendar-colab"></div>
+      </div>
+
+      <div class="section-title" style="margin-top:1rem;">
+        <h2 id="selected-month-title-colab">Agenda do mês</h2>
+        <div class="pill-row" id="selected-month-tags-colab"></div>
+      </div>
+      <div class="card" style="margin-top:0.2rem;">
+        <table class="table" style="margin:0;">
+          <thead>
+            <tr>
+              <th>Dia</th>
+              <th>Atendimentos</th>
+              <th>Profissionais</th>
+              <th>Destaques</th>
+            </tr>
+          </thead>
+          <tbody id="agenda-month-summary-colab"></tbody>
+        </table>
+      </div>
     </section>
 
     <section id="page-colab-commission" class="page-colab hidden">
@@ -1869,11 +1931,14 @@
   let currentInventoryTab = 'polish';
   let currentEditingCollabIndex = null;
   let currentCommissionIndex = null;
+  let currentCollabStatusIndex = null;
   let currentEditingServiceId = null;
 
   const calendarYear = 2025;
   let selectedMonthIndex = new Date().getMonth();
+  let selectedMonthIndexColab = new Date().getMonth();
   let agendaViewMode = 'year';
+  let agendaViewModeColab = 'year';
   let selectedDashboardMonth = new Date().getMonth();
 
   const mockYearDetailed = [
@@ -2087,9 +2152,9 @@
   ];
 
   const collaborators = [
-    { name: 'Glecie', role: 'CEO', commission: 'Recebe total', permissions: 'Agenda, estoque, financeiro', color: '#d4af37', username: 'glecie' },
-    { name: 'Camila', role: 'Colaboradora', commission: '40% serviços', permissions: 'Agenda compartilhada, comissões', color: '#f3c06b', username: 'camila' },
-    { name: 'Laura', role: 'Colaboradora', commission: '35% serviços', permissions: 'Agenda própria, estoque consulta', color: '#b58c25', username: 'laura' }
+    { name: 'Glecie', role: 'CEO', commission: 'Recebe total', permissions: 'Agenda, estoque, financeiro', color: '#d4af37', username: 'glecie', active: true },
+    { name: 'Camila', role: 'Colaboradora', commission: '40% serviços', permissions: 'Agenda compartilhada, comissões', color: '#f3c06b', username: 'camila', active: true },
+    { name: 'Laura', role: 'Colaboradora', commission: '35% serviços', permissions: 'Agenda própria, estoque consulta', color: '#b58c25', username: 'laura', active: true }
   ];
 
   let collaboratorAccounts = [
@@ -2103,15 +2168,20 @@
 
   function setupMonthSelects() {
     const agendaSelect = document.getElementById('agenda-month-selector');
+    const agendaSelectColab = document.getElementById('agenda-month-selector-colab');
     const dashSelect = document.getElementById('dashboard-month-filter');
-    if (agendaSelect && agendaSelect.options.length === 0) {
-      mockYearDetailed.forEach(m => {
-        const opt = document.createElement('option');
-        opt.value = m.monthIndex;
-        opt.textContent = m.fullName;
-        agendaSelect.appendChild(opt);
-      });
-    }
+    const fillSelect = (selectEl) => {
+      if (selectEl && selectEl.options.length === 0) {
+        mockYearDetailed.forEach(m => {
+          const opt = document.createElement('option');
+          opt.value = m.monthIndex;
+          opt.textContent = m.fullName;
+          selectEl.appendChild(opt);
+        });
+      }
+    };
+    fillSelect(agendaSelect);
+    fillSelect(agendaSelectColab);
     if (dashSelect && dashSelect.options.length === 0) {
       monthNamesFull.forEach((name, idx) => {
         const opt = document.createElement('option');
@@ -2122,6 +2192,7 @@
     }
     if (dashSelect) dashSelect.value = selectedDashboardMonth;
     if (agendaSelect) agendaSelect.value = selectedMonthIndex;
+    if (agendaSelectColab) agendaSelectColab.value = selectedMonthIndexColab;
   }
 
   let kioskDrinks = [];
@@ -2249,6 +2320,32 @@
     openDialog('login-dedicated-modal');
   }
 
+  function openCollabAddModal() {
+    document.getElementById('add-collab-name').value = '';
+    document.getElementById('add-collab-role').value = 'Colaboradora';
+    document.getElementById('add-collab-commission').value = '40% serviços';
+    document.getElementById('add-collab-login').value = '';
+    document.getElementById('add-collab-permissions').value = 'Agenda compartilhada, comissões';
+    openDialog('add-collab-modal');
+  }
+
+  function saveNewCollaborator() {
+    const name = document.getElementById('add-collab-name').value.trim();
+    const role = document.getElementById('add-collab-role').value.trim() || 'Colaboradora';
+    const commission = document.getElementById('add-collab-commission').value.trim() || '40% serviços';
+    const username = document.getElementById('add-collab-login').value.trim();
+    const permissions = document.getElementById('add-collab-permissions').value.trim() || 'Agenda compartilhada, comissões';
+    if (!name) return;
+    const palette = ['#f1c76d', '#d4af37', '#f3c06b', '#b58c25'];
+    const color = palette[Math.floor(Math.random() * palette.length)];
+    collaborators.push({ name, role, commission, permissions, username, color, active: true });
+    if (username) {
+      collaboratorAccounts.push({ name, username, password: '123', permissions, device: 'Tablet dedicado' });
+    }
+    renderCollaborators();
+    closeDialog('add-collab-modal');
+  }
+
   function openEditCollab(index) {
     currentEditingCollabIndex = index;
     const col = collaborators[index];
@@ -2294,6 +2391,36 @@
     collaborators[currentCommissionIndex].commission = `${value}% serviços`;
     renderCollaborators();
     closeDialog('commission-modal');
+  }
+
+  function openCollabStatusModal(index, wantsRemove = false) {
+    currentCollabStatusIndex = index;
+    const col = collaborators[index];
+    const toggleBtn = document.getElementById('collab-status-toggle');
+    const textEl = document.getElementById('collab-status-text');
+    if (toggleBtn) toggleBtn.textContent = col.active ? 'Desativar' : 'Reativar';
+    if (textEl) textEl.textContent = `${col.name} • ${col.role}`;
+    const removeBtn = document.querySelector('#collab-status-modal button[onclick="removeCollaborator()"]');
+    if (removeBtn) removeBtn.dataset.triggerRemove = wantsRemove ? 'true' : 'false';
+    openDialog('collab-status-modal');
+    if (wantsRemove && removeBtn) removeBtn.focus();
+  }
+
+  function confirmDeactivateCollaborator() {
+    if (currentCollabStatusIndex === null) return;
+    collaborators[currentCollabStatusIndex].active = !collaborators[currentCollabStatusIndex].active;
+    renderCollaborators();
+    closeDialog('collab-status-modal');
+    currentCollabStatusIndex = null;
+  }
+
+  function removeCollaborator() {
+    if (currentCollabStatusIndex === null) return;
+    const removed = collaborators.splice(currentCollabStatusIndex, 1)[0];
+    collaboratorAccounts = collaboratorAccounts.filter(acc => acc.name !== removed.name && acc.username !== removed.username);
+    renderCollaborators();
+    closeDialog('collab-status-modal');
+    currentCollabStatusIndex = null;
   }
 
   function openDialog(id) {
@@ -2422,6 +2549,7 @@
       const id = `page-colab-${currentPageColab}`;
       const el = document.getElementById(id);
       if (el) el.classList.remove('hidden');
+      renderColabContent();
     }
   }
 
@@ -2456,12 +2584,16 @@
     if (alertDesc) alertDesc.textContent = stats.alertsDesc;
   }
 
-  function setAgendaView(mode) {
-    agendaViewMode = mode;
-    const yearView = document.getElementById('agenda-view-year');
-    const monthView = document.getElementById('agenda-view-month');
-    const btnYear = document.getElementById('agenda-toggle-year');
-    const btnMonth = document.getElementById('agenda-toggle-month');
+  function setAgendaView(mode, scope = 'ceo') {
+    if (scope === 'ceo') {
+      agendaViewMode = mode;
+    } else {
+      agendaViewModeColab = mode;
+    }
+    const yearView = document.getElementById(scope === 'ceo' ? 'agenda-view-year' : 'agenda-view-year-colab');
+    const monthView = document.getElementById(scope === 'ceo' ? 'agenda-view-month' : 'agenda-view-month-colab');
+    const btnYear = document.getElementById(scope === 'ceo' ? 'agenda-toggle-year' : 'agenda-toggle-year-colab');
+    const btnMonth = document.getElementById(scope === 'ceo' ? 'agenda-toggle-month' : 'agenda-toggle-month-colab');
     if (yearView && monthView) {
       yearView.classList.toggle('hidden', mode !== 'year');
       monthView.classList.toggle('hidden', mode !== 'month');
@@ -2470,15 +2602,15 @@
       btnYear.classList.toggle('active', mode === 'year');
       btnMonth.classList.toggle('active', mode === 'month');
     }
-    renderAgendaMonthCalendar();
+    renderAgendaMonthCalendar(scope);
   }
 
   function renderCeoContent() {
     setupMonthSelects();
     renderDashboardCards();
-    renderYearCalendar();
-    setAgendaView(agendaViewMode);
-    renderAgendaMonthSummary();
+    renderYearCalendar('ceo');
+    setAgendaView(agendaViewMode, 'ceo');
+    renderAgendaMonthSummary('ceo');
     switchInventoryTab(currentInventoryTab);
     renderInventoryLists();
     renderCollaborators();
@@ -2486,13 +2618,21 @@
     renderInvestments();
   }
 
-  function renderYearCalendar() {
-    const container = document.getElementById('year-calendar');
+  function renderColabContent() {
+    setupMonthSelects();
+    renderYearCalendar('colab');
+    setAgendaView(agendaViewModeColab, 'colab');
+    renderAgendaMonthSummary('colab');
+  }
+
+  function renderYearCalendar(scope = 'ceo') {
+    const container = document.getElementById(scope === 'ceo' ? 'year-calendar' : 'year-calendar-colab');
     if (!container) return;
     container.innerHTML = '';
     mockYearDetailed.forEach(m => {
       const div = document.createElement('div');
-      div.className = 'month-card' + (m.monthIndex === selectedMonthIndex ? ' active' : '');
+      const selected = scope === 'ceo' ? selectedMonthIndex : selectedMonthIndexColab;
+      div.className = 'month-card' + (m.monthIndex === selected ? ' active' : '');
 
       const header = document.createElement('div');
       header.className = 'month-header';
@@ -2540,15 +2680,16 @@
       div.appendChild(bar);
       div.appendChild(mini);
       div.appendChild(footnote);
-      div.onclick = () => setSelectedMonth(m.monthIndex);
+      div.onclick = () => setSelectedMonth(m.monthIndex, scope);
       container.appendChild(div);
     });
   }
 
-  function renderAgendaMonthCalendar() {
-    const calendarEl = document.getElementById('agenda-month-calendar');
-    const selector = document.getElementById('agenda-month-selector');
-    if (selector) selector.value = selectedMonthIndex;
+  function renderAgendaMonthCalendar(scope = 'ceo') {
+    const calendarEl = document.getElementById(scope === 'ceo' ? 'agenda-month-calendar' : 'agenda-month-calendar-colab');
+    const selector = document.getElementById(scope === 'ceo' ? 'agenda-month-selector' : 'agenda-month-selector-colab');
+    const selected = scope === 'ceo' ? selectedMonthIndex : selectedMonthIndexColab;
+    if (selector) selector.value = selected;
     if (!calendarEl) return;
     calendarEl.innerHTML = '';
     const weekdays = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D'];
@@ -2558,7 +2699,7 @@
       w.textContent = day;
       calendarEl.appendChild(w);
     });
-    const month = mockYearDetailed[selectedMonthIndex];
+    const month = mockYearDetailed[selected];
     const days = buildMonthDays(calendarYear, month.monthIndex, month.highlightDays);
     days.forEach(d => {
       const cell = document.createElement('div');
@@ -2580,13 +2721,14 @@
     });
   }
 
-  function renderAgendaMonthSummary() {
-    const tbody = document.getElementById('agenda-month-summary');
+  function renderAgendaMonthSummary(scope = 'ceo') {
+    const tbody = document.getElementById(scope === 'ceo' ? 'agenda-month-summary' : 'agenda-month-summary-colab');
     if (!tbody) return;
     tbody.innerHTML = '';
-    const month = mockYearDetailed[selectedMonthIndex];
-    const monthTitle = document.getElementById('selected-month-title');
-    const tagContainer = document.getElementById('selected-month-tags');
+    const selected = scope === 'ceo' ? selectedMonthIndex : selectedMonthIndexColab;
+    const month = mockYearDetailed[selected];
+    const monthTitle = document.getElementById(scope === 'ceo' ? 'selected-month-title' : 'selected-month-title-colab');
+    const tagContainer = document.getElementById(scope === 'ceo' ? 'selected-month-tags' : 'selected-month-tags-colab');
     if (monthTitle) monthTitle.textContent = `Agenda de ${month.fullName}`;
     if (tagContainer) {
       tagContainer.innerHTML = '';
@@ -2613,11 +2755,15 @@
     });
   }
 
-  function setSelectedMonth(index) {
-    selectedMonthIndex = index;
-    renderYearCalendar();
-    renderAgendaMonthCalendar();
-    renderAgendaMonthSummary();
+  function setSelectedMonth(index, scope = 'ceo') {
+    if (scope === 'ceo') {
+      selectedMonthIndex = index;
+    } else {
+      selectedMonthIndexColab = index;
+    }
+    renderYearCalendar(scope);
+    renderAgendaMonthCalendar(scope);
+    renderAgendaMonthSummary(scope);
   }
 
   function buildMonthDays(year, monthIndex, highlightDays = []) {
@@ -2898,6 +3044,7 @@
           <div class="collab-info">
             <strong>${col.name}</strong>
             <div class="collab-meta">${col.role} • ${col.commission}</div>
+            <div class="collab-meta">${col.active ? 'Ativa' : 'Desativada'}</div>
           </div>
         </div>
         <div class="collab-permissions">
@@ -2906,10 +3053,11 @@
           <span class="collab-meta">Permissões detalhadas no modal</span>
         </div>
         <div class="collab-actions">
-          <button class="ghost-btn secondary" onclick="openEditCollab(${index})">✏️ Editar</button>
-          <button class="ghost-btn" onclick="openCommissionModal(${index})">💰 Comissão</button>
-          <button class="ghost-btn secondary" onclick="alert('Desativar ${col.name}')">🚫 Desativar</button>
-          ${col.username ? `<button class="ghost-btn" onclick="openCollaboratorLogin('${col.username}')">🔑 Login</button>` : `<button class="ghost-btn" onclick="openDedicatedLoginModal('${col.name}')">🔑 Criar login</button>`}
+          <button class="ghost-btn secondary" onclick="openEditCollab(${index})" title="Editar">✏️</button>
+          <button class="ghost-btn" onclick="openCommissionModal(${index})" title="Comissão">💰</button>
+          <button class="ghost-btn secondary" onclick="openCollabStatusModal(${index})" title="Ativar/Desativar">🚫</button>
+          <button class="ghost-btn secondary" onclick="openCollabStatusModal(${index}, true)" title="Remover">🗑</button>
+          ${col.username ? `<button class="ghost-btn" onclick="openCollaboratorLogin('${col.username}')" title="Login dedicado">🔑</button>` : `<button class="ghost-btn" onclick="openDedicatedLoginModal('${col.name}')">🔑 Criar login</button>`}
         </div>
       `;
       container.appendChild(row);
