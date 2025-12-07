@@ -380,16 +380,13 @@
       width: 40%;
     }
 
-    .mini-calendar {
-      margin-top: 0.5rem;
-      border: 1px dashed rgba(0,0,0,0.06);
-      border-radius: 12px;
-      padding: 0.5rem;
-      background: rgba(255,255,255,0.6);
-    }
-
-      background: #fffaf3;
-    }
+      .mini-calendar {
+        margin-top: 0.5rem;
+        border: 1px dashed rgba(0,0,0,0.06);
+        border-radius: 12px;
+        padding: 0.5rem;
+        background: rgba(255,255,255,0.6);
+      }
 
     @media (max-width: 768px) {
       .kiosk-icon-btn { display: none; }
@@ -1776,16 +1773,13 @@
       </div>
     </div>
 
-    <section id="page-ceo-investments" class="page-ceo hidden">
-      <div class="section-title">
-        <div>
-          <h2>Investimentos</h2>
-          <div class="pill-row">
-            <span class="pill">Planejamento</span>
-            <span class="pill">Compras, reformas e upgrades</span>
+      <section id="page-ceo-investments" class="page-ceo hidden">
+        <div class="section-title">
+          <div>
+            <h2>Investimentos</h2>
+            <div class="subtext">Compras, reformas e melhorias</div>
           </div>
         </div>
-      </div>
 
       <div class="card investment-controls">
         <div class="filter-line">
@@ -5057,42 +5051,45 @@
             <div class="investment-note">${item.observacoes || 'Sem observações adicionais'}</div>
           </div>
           <div class="investment-card-actions">
-            <div class="investment-actions">
-              <button class="ghost-btn" title="Editar" onclick="openInvestmentModal('edit', '${item.id}')">✏️</button>
-              <button class="ghost-btn secondary" title="Marcar parcela paga" onclick="markInvestmentPaid('${item.id}')">✔️</button>
-              <button class="ghost-btn secondary" title="Reabrir parcela" onclick="reopenInvestment('${item.id}')">↺</button>
-              <button class="ghost-btn" title="Ver histórico" onclick="openInvestmentHistory('${item.id}')">📜</button>
-              <button class="ghost-btn secondary" style="color:var(--danger);border-color:var(--danger);" title="Remover" onclick="openInvestmentRemoveModal('${item.id}')">🗑</button>
+              <div class="investment-actions">
+                <button class="ghost-btn" title="Editar" onclick="openInvestmentModal('edit', '${item.id}')">✏️</button>
+                <button class="ghost-btn secondary" title="Marcar parcela paga" onclick="markInvestmentPaid('${item.id}')">✔️</button>
+                <button class="ghost-btn secondary" style="color:var(--danger);border-color:var(--danger);" title="Remover" onclick="openInvestmentRemoveModal('${item.id}')">🗑</button>
+              </div>
             </div>
           </div>
-        </div>
-      `;
+        `;
       container.appendChild(card);
     });
   }
 
-  function getInvestmentActionTarget() {
-    return getInvestmentFilterTarget() || getDashboardFilterTarget();
-  }
+    function getInvestmentActionTarget(inv = null) {
+      const fallback = (() => {
+        if (inv?.mesReferencia) return parseMonthRef(inv.mesReferencia);
+        const now = new Date();
+        return { year: now.getFullYear(), monthIndex: now.getMonth() };
+      })();
+      return getInvestmentFilterTarget() || getDashboardFilterTarget() || fallback;
+    }
 
-  function markInvestmentPaid(id) {
-    const target = getInvestmentActionTarget();
-    investments = investments.map(inv => {
-      if (inv.id !== id) return inv;
-      const active = getActiveParcelNumber(inv, target);
-      const total = inv.parcelasTotais || 1;
-      if (!active) return inv;
-      const payments = inv.payments || [];
-      const exists = payments.some(p => p.year === target.year && p.monthIndex === target.monthIndex);
-      if (exists) return inv;
-      const now = new Date().toISOString();
-      const updatedPayments = [...payments, { year: target.year, monthIndex: target.monthIndex, amount: inv.valorParcela || inv.valorTotal, date: now }];
-      const history = [...(inv.history || []), { type: 'pagamento', date: now, detail: `Parcela ${active}/${total} paga em ${formatMonthWithYear(target)}` }];
-      return syncInvestmentStatus({ ...inv, payments: updatedPayments, history, lastPaymentAt: now, updatedAt: now });
-    });
-    renderInvestments();
-    renderDashboardCards();
-  }
+    function markInvestmentPaid(id) {
+      investments = investments.map(inv => {
+        if (inv.id !== id) return inv;
+        const target = getInvestmentActionTarget(inv);
+        const active = getActiveParcelNumber(inv, target);
+        const total = inv.parcelasTotais || 1;
+        if (!active) return inv;
+        const payments = inv.payments || [];
+        const exists = payments.some(p => p.year === target.year && p.monthIndex === target.monthIndex);
+        if (exists) return inv;
+        const now = new Date().toISOString();
+        const updatedPayments = [...payments, { year: target.year, monthIndex: target.monthIndex, amount: inv.valorParcela || inv.valorTotal, date: now }];
+        const history = [...(inv.history || []), { type: 'pagamento', date: now, detail: `Parcela ${active}/${total} paga em ${formatMonthWithYear(target)}` }];
+        return syncInvestmentStatus({ ...inv, payments: updatedPayments, history, lastPaymentAt: now, updatedAt: now });
+      });
+      renderInvestments();
+      renderDashboardCards();
+    }
 
   function reopenInvestment(id) {
     const target = getInvestmentActionTarget();
