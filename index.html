@@ -940,6 +940,15 @@
       border-radius: 10px;
     }
 
+    .client-actions .icon-mini {
+      padding: 0.3rem 0.6rem;
+      font-size: 0.78rem;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+    }
+
     .client-pill {
       background: rgba(212,175,55,0.12);
       color: var(--text-main);
@@ -1954,15 +1963,16 @@
       </div>
     </div>
 
-    <div id="client-add-modal" class="dialog-layer hidden">
+    <div id="client-form-modal" class="dialog-layer hidden">
       <div class="dialog-card">
         <div style="display:flex;justify-content:space-between;align-items:center;">
-          <h3>Novo cliente</h3>
-          <button class="secondary" style="height:32px;padding:0.35rem 0.8rem;" onclick="closeDialog('client-add-modal')">Fechar</button>
+          <h3 id="client-form-title">Adicionar cliente</h3>
+          <button class="secondary" style="height:32px;padding:0.35rem 0.8rem;" onclick="closeDialog('client-form-modal')">Fechar</button>
         </div>
         <div class="dialog-grid">
+          <input type="hidden" id="client-id" />
           <div>
-            <label>Nome</label>
+            <label>Nome completo</label>
             <input id="client-name" placeholder="Ex: Maria Souza" />
           </div>
           <div>
@@ -1970,17 +1980,52 @@
             <input id="client-phone" placeholder="55999999999" />
           </div>
           <div>
-            <label>Observações</label>
-            <textarea id="client-notes" placeholder="Preferências, alergias"></textarea>
+            <label>Instagram</label>
+            <input id="client-instagram" placeholder="@cliente" />
           </div>
           <div>
-            <label>Outros detalhes (opcional)</label>
-            <textarea id="client-extra" placeholder="Instagram, indicação..."></textarea>
+            <label>Data de aniversário</label>
+            <input id="client-birthday" type="date" />
+          </div>
+          <div>
+            <label>Preferência de cor</label>
+            <input id="client-pref-color" placeholder="Nude, vermelho" />
+          </div>
+          <div>
+            <label>Formato de unha</label>
+            <input id="client-pref-shape" placeholder="Quadrada, amendoada" />
+          </div>
+          <div>
+            <label>Tipo de alongamento</label>
+            <input id="client-pref-extension" placeholder="Fibra, gel" />
+          </div>
+          <div>
+            <label>Alergias</label>
+            <input id="client-allergies" placeholder="Produtos ou materiais" />
+          </div>
+          <div>
+            <label>Observações</label>
+            <textarea id="client-notes" placeholder="Preferências, observações gerais"></textarea>
+          </div>
+          <div>
+            <label>Responsável</label>
+            <select id="client-responsible"></select>
           </div>
         </div>
         <div class="dialog-actions">
-          <button class="secondary" onclick="closeDialog('client-add-modal')">Cancelar</button>
-          <button onclick="saveClient()">Salvar cliente</button>
+          <button class="secondary" onclick="closeDialog('client-form-modal')">Cancelar</button>
+          <button id="client-form-save" onclick="saveClient()">Salvar cliente</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="client-remove-modal" class="dialog-layer hidden">
+      <div class="dialog-card" style="max-width:420px;">
+        <h3>Remover cliente</h3>
+        <p class="subtext" id="client-remove-text">Confirme para remover a cliente e cancelar seus agendamentos futuros.</p>
+        <div class="dialog-actions" style="justify-content:space-between;">
+          <button class="secondary" onclick="closeDialog('client-remove-modal')">Cancelar</button>
+          <button onclick="confirmRemoveClient()" style="background:var(--danger);">Remover</button>
         </div>
       </div>
     </div>
@@ -2507,6 +2552,13 @@
       id: 'cli-maria',
       name: 'Maria Souza',
       phone: '55999900001',
+      instagram: '@maria',
+      birthday: '1995-04-12',
+      prefColor: 'Nude clássico',
+      prefShape: 'Quadrada',
+      prefExtension: 'Fibra',
+      allergies: 'Nenhuma',
+      responsible: 'Glecie',
       lastService: 'Manutenção fibra',
       lastDate: '12/04',
       owners: ['Glecie'],
@@ -2521,6 +2573,13 @@
       id: 'cli-ana',
       name: 'Ana Paula',
       phone: '55999900002',
+      instagram: '@anap',
+      birthday: '1992-08-02',
+      prefColor: 'Rosé',
+      prefShape: 'Amendoada',
+      prefExtension: 'Fibra',
+      allergies: 'Alergia a acetona forte',
+      responsible: 'Camila',
       lastService: 'Spa mãos',
       lastDate: '02/04',
       owners: ['Camila'],
@@ -2535,6 +2594,13 @@
       id: 'cli-luisa',
       name: 'Luísa Martins',
       phone: '55999900003',
+      instagram: '@luisam',
+      birthday: '1994-03-28',
+      prefColor: 'Vermelho',
+      prefShape: 'Quadrada',
+      prefExtension: 'Gel',
+      allergies: 'Nenhuma',
+      responsible: 'Laura',
       lastService: 'Alongamento novo',
       lastDate: '28/03',
       owners: ['Laura'],
@@ -2546,6 +2612,9 @@
       nextAppointment: { date: '2025-05-02', time: '10:00', service: 'Manutenção alongamento' }
     }
   ];
+
+  let currentClientEditingId = null;
+  let pendingRemoveClientId = null;
 
   let appointments = [
     { id: 'appt-1', clientId: 'cli-maria', professional: 'Glecie', service: 'Manutenção fibra', date: '2025-05-10', time: '15:00', notes: 'Rever cutícula' },
@@ -2569,7 +2638,7 @@
     const service = payload.service || appt.service || client.lastService || 'seu atendimento';
     const dateLabel = payload.dateLabel || (appt.date ? formatDateLabel(appt.date) : (client.lastDate || 'data a combinar'));
     const time = payload.time || appt.time || 'horário a combinar';
-    const text = `Olá, tudo bem? Seu agendamento para ${service} está confirmado para o dia ${dateLabel} às ${time}. Qualquer necessidade de ajuste, estou à disposição.`;
+    const text = `Olá, tudo bem? Seu agendamento para ${service} está confirmado para o dia ${dateLabel} às ${time}. Qualquer ajuste necessário, estou à disposição.`;
     return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
   }
 
@@ -2830,39 +2899,115 @@
     currentCollabStatusIndex = null;
   }
 
-  function openClientModal() {
-    document.getElementById('client-name').value = '';
-    document.getElementById('client-phone').value = '';
-    document.getElementById('client-notes').value = '';
-    document.getElementById('client-extra').value = '';
-    openDialog('client-add-modal');
+  function openClientModal(mode = 'add', clientId = null) {
+    const isEdit = mode === 'edit';
+    currentClientEditingId = isEdit ? clientId : null;
+    const client = isEdit ? clients.find(c => c.id === clientId) : null;
+    const title = document.getElementById('client-form-title');
+    const save = document.getElementById('client-form-save');
+    const fields = {
+      id: document.getElementById('client-id'),
+      name: document.getElementById('client-name'),
+      phone: document.getElementById('client-phone'),
+      instagram: document.getElementById('client-instagram'),
+      birthday: document.getElementById('client-birthday'),
+      prefColor: document.getElementById('client-pref-color'),
+      prefShape: document.getElementById('client-pref-shape'),
+      prefExtension: document.getElementById('client-pref-extension'),
+      allergies: document.getElementById('client-allergies'),
+      notes: document.getElementById('client-notes'),
+      responsible: document.getElementById('client-responsible')
+    };
+
+    if (fields.responsible) {
+      fields.responsible.innerHTML = '';
+      collaborators.forEach(col => {
+        const opt = document.createElement('option');
+        opt.value = col.name;
+        opt.textContent = col.name;
+        fields.responsible.appendChild(opt);
+      });
+    }
+
+    if (title) title.textContent = isEdit ? 'Editar cliente' : 'Adicionar cliente';
+    if (save) save.textContent = isEdit ? 'Salvar alterações' : 'Salvar cliente';
+
+    if (fields.id) fields.id.value = client?.id || '';
+    if (fields.name) fields.name.value = client?.name || '';
+    if (fields.phone) fields.phone.value = client?.phone || '';
+    if (fields.instagram) fields.instagram.value = client?.instagram || '';
+    if (fields.birthday) fields.birthday.value = client?.birthday || '';
+    if (fields.prefColor) fields.prefColor.value = client?.prefColor || '';
+    if (fields.prefShape) fields.prefShape.value = client?.prefShape || '';
+    if (fields.prefExtension) fields.prefExtension.value = client?.prefExtension || '';
+    if (fields.allergies) fields.allergies.value = client?.allergies || '';
+    if (fields.notes) fields.notes.value = client?.notes || '';
+    if (fields.responsible) fields.responsible.value = client?.responsible || (currentRole === 'colab' && currentColabAccount ? currentColabAccount.name : collaborators[0].name);
+
+    openDialog('client-form-modal');
   }
 
   function saveClient() {
     const name = document.getElementById('client-name').value.trim();
     const phone = document.getElementById('client-phone').value.trim();
-    const notes = document.getElementById('client-notes').value.trim();
-    const extra = document.getElementById('client-extra').value.trim();
     if (!name || !phone) return;
-    const owner = currentRole === 'colab' && currentColabAccount ? currentColabAccount.name : 'Glecie';
-    const newClient = {
-      id: `cli-${Date.now()}`,
-      name,
-      phone,
-      lastService: 'Novo cadastro',
-      lastDate: '',
-      owners: [owner],
-      notes,
-      extra,
-      history: [],
-      consume: [],
-      future: [],
-      nextAppointment: {}
-    };
-    clients.push(newClient);
+    const instagram = document.getElementById('client-instagram').value.trim();
+    const birthday = document.getElementById('client-birthday').value;
+    const prefColor = document.getElementById('client-pref-color').value.trim();
+    const prefShape = document.getElementById('client-pref-shape').value.trim();
+    const prefExtension = document.getElementById('client-pref-extension').value.trim();
+    const allergies = document.getElementById('client-allergies').value.trim();
+    const notes = document.getElementById('client-notes').value.trim();
+    const responsible = document.getElementById('client-responsible').value;
+    const existingId = document.getElementById('client-id').value || currentClientEditingId;
+    const owner = responsible || (currentRole === 'colab' && currentColabAccount ? currentColabAccount.name : 'Glecie');
+
+    if (existingId) {
+      const target = clients.find(c => c.id === existingId);
+      if (target) {
+        Object.assign(target, {
+          name,
+          phone,
+          instagram,
+          birthday,
+          prefColor,
+          prefShape,
+          prefExtension,
+          allergies,
+          notes,
+          responsible: owner
+        });
+        if (!target.owners.includes(owner)) target.owners.push(owner);
+      }
+    } else {
+      const newClient = {
+        id: `cli-${Date.now()}`,
+        name,
+        phone,
+        instagram,
+        birthday,
+        prefColor,
+        prefShape,
+        prefExtension,
+        allergies,
+        responsible: owner,
+        lastService: 'Novo cadastro',
+        lastDate: '',
+        owners: [owner],
+        notes,
+        extra: '',
+        history: [],
+        consume: [],
+        future: [],
+        nextAppointment: {}
+      };
+      clients.push(newClient);
+    }
+
     renderClients('ceo');
     renderClients('colab');
-    closeDialog('client-add-modal');
+    closeDialog('client-form-modal');
+    currentClientEditingId = null;
   }
 
   function openClientDetails(id) {
@@ -2898,6 +3043,11 @@
           <h4>Informações</h4>
           <div class="client-detail-list">
             <span>Telefone: <a href="${buildWhatsAppLink(client)}" target="_blank" rel="noopener">${client.phone}</a></span>
+            <span>Instagram: ${client.instagram || '—'}</span>
+            <span>Aniversário: ${client.birthday || '—'}</span>
+            <span>Preferências: ${client.prefColor || '—'} • ${client.prefShape || '—'} • ${client.prefExtension || '—'}</span>
+            <span>Alergias: ${client.allergies || '—'}</span>
+            <span>Responsável: ${client.responsible || (client.owners || ['Equipe'])[0]}</span>
             <span>Observações: ${client.notes || '—'}</span>
             <span>Extras: ${client.extra || '—'}</span>
             <span>Último serviço: ${client.lastService || '—'} ${client.lastDate ? '(' + client.lastDate + ')' : ''}</span>
@@ -2938,6 +3088,37 @@
     }
   }
 
+  function openRemoveClientModal(id) {
+    pendingRemoveClientId = id;
+    const client = clients.find(c => c.id === id);
+    const text = document.getElementById('client-remove-text');
+    if (text && client) text.textContent = `Remover ${client.name} e cancelar agendamentos futuros?`;
+    openDialog('client-remove-modal');
+  }
+
+  function isFutureDate(dateStr) {
+    if (!dateStr) return false;
+    const today = new Date();
+    const d = new Date(`${dateStr}T00:00:00`);
+    return d >= new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  }
+
+  function confirmRemoveClient() {
+    if (!pendingRemoveClientId) return;
+    const index = clients.findIndex(c => c.id === pendingRemoveClientId);
+    if (index >= 0) clients.splice(index, 1);
+    appointments = appointments.filter(a => !(a.clientId === pendingRemoveClientId && isFutureDate(a.date)));
+    closeDialog('client-detail-modal');
+    closeDialog('client-remove-modal');
+    renderClients('ceo');
+    renderClients('colab');
+    renderAgendaMonthCalendar('ceo');
+    renderAgendaMonthSummary('ceo');
+    renderAgendaMonthCalendar('colab');
+    renderAgendaMonthSummary('colab');
+    pendingRemoveClientId = null;
+  }
+
   function bindClientFromInput() {
     const input = document.getElementById('appointment-client');
     const hidden = document.getElementById('appointment-client-id');
@@ -2970,6 +3151,7 @@
         opt.textContent = col.name;
         profSelect.appendChild(opt);
       });
+      if (client?.responsible) profSelect.value = client.responsible;
       if (currentRole === 'colab' && currentColabAccount) {
         profSelect.value = currentColabAccount.name;
       }
@@ -3006,7 +3188,14 @@
         phone: '55',
         lastService: service,
         lastDate: formatDateLabel(date),
-        owners: [currentRole === 'colab' && currentColabAccount ? currentColabAccount.name : 'Glecie'],
+        instagram: '',
+        birthday: '',
+        prefColor: '',
+        prefShape: '',
+        prefExtension: '',
+        allergies: '',
+        responsible: professional,
+        owners: [currentRole === 'colab' && currentColabAccount ? currentColabAccount.name : professional || 'Glecie'],
         notes: '',
         extra: '',
         history: [],
@@ -3019,6 +3208,7 @@
 
     client.lastService = service;
     client.lastDate = date ? formatDateLabel(date) : client.lastDate;
+    client.responsible = professional || client.responsible;
     client.nextAppointment = { date, time, service };
     client.future = client.future || [];
     client.future.push({ date, time, service, professional });
@@ -3029,9 +3219,15 @@
     const appt = { id: `appt-${Date.now()}`, clientId: client.id, professional, service, date, time, notes };
     appointments.push(appt);
 
+    addAppointmentToAgenda(date, service);
+
     renderClients('ceo');
     renderClients('colab');
     if (currentClientDetailId === client.id) renderClientDetailTab();
+    renderAgendaMonthCalendar('ceo');
+    renderAgendaMonthSummary('ceo');
+    renderAgendaMonthCalendar('colab');
+    renderAgendaMonthSummary('colab');
 
     closeDialog('appointment-modal');
     const link = buildWhatsAppLink(client, { appointment: { date, time, service } });
@@ -3206,7 +3402,11 @@
   function filterClientsByRole(scope) {
     if (scope === 'ceo') return clients;
     const colabName = currentColabAccount?.name || 'colab';
-    return clients.filter(c => (c.owners || []).some(o => o.toLowerCase() === colabName.toLowerCase()));
+    const owned = c => (c.owners || []).some(o => o.toLowerCase() === colabName.toLowerCase());
+    const responsible = c => (c.responsible || '').toLowerCase() === colabName.toLowerCase();
+    const viaAppointments = c => appointments.some(a => a.clientId === c.id && (a.professional || '').toLowerCase() === colabName.toLowerCase());
+    const viaFuture = c => (c.future || []).some(f => (f.professional || '').toLowerCase() === colabName.toLowerCase());
+    return clients.filter(c => owned(c) || responsible(c) || viaAppointments(c) || viaFuture(c));
   }
 
   function renderClients(scope = 'ceo') {
@@ -3228,20 +3428,24 @@
           <div>
             <div class="client-name">${c.name}</div>
             <div class="client-meta">${badge}</div>
+            <div class="client-meta">${c.prefColor ? 'Cor: ' + c.prefColor + ' • ' : ''}${c.prefShape ? 'Formato: ' + c.prefShape : ''}</div>
             <div class="client-meta">${c.notes || 'Sem observações'}</div>
           </div>
           <div class="client-pill">${c.nextAppointment?.time || '--:--'} • ${c.nextAppointment?.date ? formatDateLabel(c.nextAppointment.date) : 'agenda'}</div>
         </div>
         <div class="client-meta" style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
           <a href="${whatsapp}" target="_blank" rel="noopener">${c.phone}</a>
+          ${c.instagram ? `<span class="badge-soft">${c.instagram}</span>` : ''}
           <span class="badge-soft">Último: ${c.lastService || '—'}</span>
         </div>
         <div class="client-actions">
           <div class="inline-actions">
             <button class="secondary" onclick="openClientDetails('${c.id}')">Ver ficha</button>
             <button class="secondary" onclick="openAppointmentModal('${c.id}')">Agendar</button>
+            <button class="ghost-btn secondary icon-mini" onclick="openClientModal('edit','${c.id}')">✎ Editar</button>
+            <button class="ghost-btn secondary icon-mini" onclick="openRemoveClientModal('${c.id}')">🗑 Remover</button>
           </div>
-          <span class="client-pill">${(c.owners || ['CEO'])[0]}</span>
+          <span class="client-pill">${c.responsible || (c.owners || ['Responsável'])[0]}</span>
         </div>
       `;
       listEl.appendChild(card);
@@ -3465,6 +3669,23 @@
       });
     }
     return result;
+  }
+
+  function addAppointmentToAgenda(dateStr, service) {
+    if (!dateStr) return;
+    const [year, month, day] = dateStr.split('-').map(Number);
+    if (!month || !day) return;
+    const monthEntry = mockYearDetailed.find(m => m.monthIndex === (month - 1));
+    if (!monthEntry) return;
+    if (!monthEntry.highlightDays.includes(day)) monthEntry.highlightDays.push(day);
+    const label = `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}`;
+    const existing = monthEntry.daysSummary.find(d => d.day.startsWith(String(day).padStart(2, '0')));
+    if (existing) {
+      existing.count += 1;
+      existing.highlight = service || existing.highlight;
+    } else {
+      monthEntry.daysSummary.push({ day: label, count: 1, pros: 'Equipe', highlight: service || 'Agendado' });
+    }
   }
 
   function switchInventoryTab(tab) {
