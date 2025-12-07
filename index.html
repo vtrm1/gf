@@ -277,40 +277,47 @@
     .badge.status-progress { background: rgba(46, 204, 113, 0.12); color: #1e824c; }
     .badge.status-paid { background: rgba(52, 152, 219, 0.12); color: #1f6fa5; }
 
-    .investment-groups { display: flex; flex-direction: column; gap: 0.9rem; }
-    .investment-group { border: 1px solid var(--border-soft); border-radius: 14px; padding: 0.8rem; background: #fffdf9; box-shadow: 0 8px 18px rgba(0,0,0,0.04); }
-    .investment-group-head { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; margin-bottom: 0.55rem; flex-wrap: wrap; }
-    .investment-cards { display: flex; flex-direction: column; gap: 0.75rem; }
-    .investment-card { border: 1px solid var(--border-soft); border-radius: 14px; padding: 0.85rem 0.95rem; background: linear-gradient(180deg,#fffdf7,#ffffff); box-shadow: 0 6px 16px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 0.4rem; transition: transform 0.1s ease, box-shadow 0.1s ease; }
-    .investment-card:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.06); }
-    .investment-card-head { display: flex; justify-content: space-between; gap: 0.75rem; align-items: flex-start; }
-    .investment-card-title { font-weight: 700; font-size: 1rem; display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
-    .investment-chip { background: rgba(0,0,0,0.04); border-radius: 10px; padding: 0.15rem 0.5rem; font-size: 0.78rem; color: var(--text-muted); }
-    .investment-card-line { display: flex; flex-wrap: wrap; gap: 0.5rem; color: var(--text-muted); font-size: 0.88rem; align-items: center; }
-    .investment-card-actions { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.3rem; }
-    .investment-card-actions .investment-actions { display: inline-flex; gap: 0.25rem; flex-wrap: wrap; }
+    .investment-controls { display: flex; flex-direction: column; gap: 0.75rem; }
+    .filter-line { display: flex; justify-content: space-between; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
+    .filter-label { font-weight: 600; color: var(--text-main); display: block; margin-top: 0.15rem; }
+    .month-dropdown { padding: 0.45rem 0.6rem; border-radius: 10px; border: 1px solid var(--border-soft); background: #fffbf4; min-width: 160px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.04); }
+    .control-actions { display: flex; justify-content: space-between; align-items: center; gap: 0.65rem; flex-wrap: wrap; }
+    .investment-groups { display: flex; flex-direction: column; gap: 0.75rem; }
+    .investment-card { border: 1px solid var(--border-soft); border-radius: 14px; padding: 0.9rem 1rem; background: linear-gradient(180deg,#fffefb,#ffffff); box-shadow: 0 8px 16px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 0.55rem; }
+    .investment-card-head { display: flex; justify-content: space-between; gap: 0.6rem; align-items: flex-start; }
+    .investment-card-title { font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+    .investment-tag { background: rgba(0,0,0,0.03); border-radius: 10px; padding: 0.15rem 0.55rem; font-size: 0.78rem; color: var(--text-muted); }
+    .investment-status { padding: 0.25rem 0.6rem; border-radius: 999px; font-weight: 700; font-size: 0.78rem; }
+    .status-plan { background: rgba(212, 175, 55, 0.12); color: #a67c00; }
+    .status-progress { background: rgba(46, 204, 113, 0.12); color: #1e824c; }
+    .status-paid { background: rgba(52, 152, 219, 0.12); color: #1f6fa5; }
+    .investment-meta-line { display: flex; flex-wrap: wrap; gap: 0.8rem; color: var(--text-muted); font-size: 0.9rem; align-items: center; }
+    .investment-meta-line strong { color: var(--text-main); }
+    .investment-card-actions { display: flex; gap: 0.35rem; flex-wrap: wrap; justify-content: flex-start; }
+    .investment-card-actions.compact { justify-content: flex-start; padding: 0; }
+    .investment-actions { display: inline-flex; gap: 0.3rem; flex-wrap: wrap; align-items: center; }
+    .investment-actions button { height: 34px; }
     .investment-note { color: var(--text-muted); font-size: 0.86rem; }
-    .pill.soft { background: rgba(0,0,0,0.04); color: var(--text-muted); }
     .investment-history-list { display: flex; flex-direction: column; gap: 0.45rem; margin-top: 0.6rem; }
     .investment-history-item { padding: 0.55rem 0.65rem; border-radius: 12px; background: #fffaf3; border: 1px solid var(--border-soft); box-shadow: 0 4px 12px rgba(0,0,0,0.04); display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
     .investment-history-item .subtext { margin: 0; }
+    .investment-toggle { background: transparent; color: var(--text-main); font-weight: 700; box-shadow: none; padding: 0.25rem 0; }
 
     @media (min-width: 801px) {
-      .investment-card { flex-direction: row; justify-content: space-between; align-items: center; }
-      .investment-card-body { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
-      .investment-card-left { flex: 1; min-width: 320px; display: flex; flex-direction: column; gap: 0.3rem; }
-      .investment-card-right { display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-end; min-width: 180px; text-align: right; }
-      .investment-card-actions { width: 100%; justify-content: flex-end; }
+      .investment-card { flex-direction: row; align-items: center; justify-content: space-between; }
+      .investment-card-body { display: flex; flex: 1; align-items: center; gap: 1rem; flex-wrap: wrap; }
+      .investment-card-actions { justify-content: flex-end; min-width: 260px; }
+      .investment-card-left { display: flex; flex-direction: column; gap: 0.35rem; min-width: 260px; }
+      .investment-card-actions.compact { display: none; }
     }
 
     @media (max-width: 800px) {
-      .investment-card { gap: 0.25rem; }
+      .investment-card { gap: 0.35rem; }
       .investment-card-body { display: none; }
-      .investment-card.expanded .investment-card-body { display: flex; flex-direction: column; align-items: flex-start; gap: 0.4rem; }
-      .investment-card-actions { justify-content: flex-start; }
-      .investment-card-head { align-items: center; }
-      .investment-chip { font-size: 0.75rem; }
-      .investment-toggle { background: transparent; color: var(--text-main); font-weight: 600; padding: 0.3rem 0; box-shadow: none; }
+      .investment-card.expanded .investment-card-body { display: flex; flex-direction: column; gap: 0.3rem; align-items: flex-start; }
+      .investment-card-actions { width: 100%; }
+      .investment-card-actions:not(.compact) { display: none; }
+      .investment-card.expanded .investment-card-actions:not(.compact) { display: flex; }
     }
 
     .calendar-year {
@@ -381,43 +388,6 @@
       background: rgba(255,255,255,0.6);
     }
 
-    .month-visual-toggle {
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      flex-wrap: wrap;
-    }
-
-    .topbar-actions {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      flex-wrap: wrap;
-    }
-
-    .month-nav {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.25rem 0.35rem;
-      border: 1px solid var(--border-soft);
-      border-radius: 999px;
-      background: #fffaf3;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.04);
-    }
-
-    .month-nav-label {
-      min-width: 128px;
-      text-align: center;
-      font-weight: 600;
-      color: var(--text);
-    }
-
-    .kiosk-icon-btn {
-      padding: 0.4rem 0.55rem;
-      border-radius: 12px;
-      border: 1px solid var(--border-soft);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.04);
       background: #fffaf3;
     }
 
@@ -1592,17 +1562,7 @@
         <h1 id="page-title">Dashboard</h1>
         <div class="tag" id="page-subtitle">Visão geral do salão</div>
       </div>
-      <div class="topbar-actions">
-        <div class="month-visual-toggle">
-          <label class="subtext">Filtro mensal</label>
-          <div class="month-nav">
-            <button class="ghost-btn" onclick="changeGlobalMonth(-1)">◀</button>
-            <div id="global-month-label" class="month-nav-label">—</div>
-            <button class="ghost-btn" onclick="changeGlobalMonth(1)">▶</button>
-          </div>
-        </div>
-        <button class="ghost-btn kiosk-icon-btn" title="Abrir modo tablet" onclick="openKioskFromDashboard()">📱</button>
-      </div>
+      <div class="topbar-actions"></div>
     </header>
 
     <!-- Páginas da CEO -->
@@ -1819,37 +1779,34 @@
     <section id="page-ceo-investments" class="page-ceo hidden">
       <div class="section-title">
         <div>
-          <h2>Investimentos do salão</h2>
+          <h2>Investimentos</h2>
           <div class="pill-row">
             <span class="pill">Planejamento</span>
-            <span class="pill">Compras e reformas</span>
+            <span class="pill">Compras, reformas e upgrades</span>
           </div>
-        </div>
-        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
-          <div class="segmented compact">
-            <button id="invest-filter-all" class="active" onclick="setInvestmentFilter('Todos')">Todos</button>
-            <button id="invest-filter-plan" onclick="setInvestmentFilter('Planejado')">Planejamento</button>
-            <button id="invest-filter-progress" onclick="setInvestmentFilter('Em andamento')">Em andamento</button>
-            <button id="invest-filter-paid" onclick="setInvestmentFilter('Pago')">Pagos</button>
-          </div>
-          <button class="secondary" onclick="openInvestmentModal()">Adicionar investimento</button>
         </div>
       </div>
 
-      <div class="card">
-        <div class="table-head" style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <div class="card investment-controls">
+        <div class="filter-line">
           <div>
-            <div class="subtext">Organize por status e acompanhe parcelas</div>
-            <div class="tag">Valor total, parcelas e mês de referência</div>
+            <div class="subtext">Filtro mensal inteligente</div>
+            <label class="filter-label" for="investment-month-filter">Selecione o mês (ou Todos)</label>
           </div>
-          <div class="pill-row" style="margin:0;">
-            <span class="pill">Planejado</span>
-            <span class="pill">Em andamento</span>
-            <span class="pill">Pago</span>
-          </div>
+          <select id="investment-month-filter" class="month-dropdown" onchange="handleInvestmentMonthChange(this.value)"></select>
         </div>
-        <div id="investment-groups" class="investment-groups"></div>
+        <div class="control-actions">
+          <div class="segmented compact">
+            <button id="invest-filter-all" class="active" onclick="setInvestmentFilter('Todos')">Todos</button>
+            <button id="invest-filter-plan" onclick="setInvestmentFilter('Planejado')">Planejado</button>
+            <button id="invest-filter-progress" onclick="setInvestmentFilter('Em andamento')">Em andamento</button>
+            <button id="invest-filter-paid" onclick="setInvestmentFilter('Pago')">Pago</button>
+          </div>
+          <button class="secondary" onclick="openInvestmentModal()">+ Adicionar investimento</button>
+        </div>
       </div>
+
+      <div id="investment-groups" class="investment-groups"></div>
     </section>
 
     <section id="page-ceo-finance" class="page-ceo hidden">
@@ -3796,6 +3753,11 @@
         btn.onclick = () => navigatePage('ceo', item.id);
         nav.appendChild(btn);
       });
+      const kioskBtn = document.createElement('button');
+      kioskBtn.className = 'nav';
+      kioskBtn.textContent = 'Modo Tablet';
+      kioskBtn.onclick = () => setRole('kiosk');
+      nav.appendChild(kioskBtn);
       highlightSidebarActive('ceo', currentPageCEO);
     }
 
@@ -3814,6 +3776,11 @@
         btn.onclick = () => navigatePage('colab', item.id);
         nav.appendChild(btn);
       });
+      const kioskBtn = document.createElement('button');
+      kioskBtn.className = 'nav';
+      kioskBtn.textContent = 'Modo Tablet';
+      kioskBtn.onclick = () => setRole('kiosk');
+      nav.appendChild(kioskBtn);
       highlightSidebarActive('colab', currentPageColab);
     }
   }
@@ -4797,7 +4764,13 @@
   }
 
   let investmentFilter = 'Todos';
+  let selectedInvestmentMonth = 'all';
   let investmentEditingId = null;
+
+  function formatMonthSelectLabel(target) {
+    if (!target) return '—';
+    return `${String(target.monthIndex + 1).padStart(2, '0')}/${target.year}`;
+  }
 
   function setInvestmentFilter(value) {
     investmentFilter = value;
@@ -4812,6 +4785,42 @@
       if (btn) btn.classList.toggle('active', value === status);
     });
     renderInvestments();
+  }
+
+  function buildInvestmentMonthOptions() {
+    const select = document.getElementById('investment-month-filter');
+    if (!select) return;
+    const months = new Map();
+    investments.forEach(inv => {
+      const ref = parseMonthRef(inv.mesReferencia);
+      if (!ref) return;
+      const total = inv.parcelasTotais || 1;
+      for (let i = 0; i < total; i++) {
+        const date = new Date(ref.year, ref.monthIndex + i, 1);
+        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        if (!months.has(key)) {
+          months.set(key, { year: date.getFullYear(), monthIndex: date.getMonth() });
+        }
+      }
+    });
+    const sorted = Array.from(months.entries()).sort((a, b) => (a[1].year - b[1].year) || (a[1].monthIndex - b[1].monthIndex));
+    select.innerHTML = '<option value="all">Todos</option>' + sorted.map(([key, target]) => `<option value="${key}">${formatMonthSelectLabel(target)}</option>`).join('');
+    if (selectedInvestmentMonth !== 'all' && !months.has(selectedInvestmentMonth)) {
+      selectedInvestmentMonth = 'all';
+    }
+    select.value = selectedInvestmentMonth;
+  }
+
+  function handleInvestmentMonthChange(value) {
+    selectedInvestmentMonth = value || 'all';
+    renderInvestments();
+  }
+
+  function getInvestmentFilterTarget() {
+    if (!selectedInvestmentMonth || selectedInvestmentMonth === 'all') return null;
+    const [year, month] = selectedInvestmentMonth.split('-').map(v => parseInt(v, 10));
+    if (Number.isNaN(year) || Number.isNaN(month)) return null;
+    return { year, monthIndex: month - 1 };
   }
 
   function formatMonthRef(monthStr) {
@@ -4997,90 +5006,77 @@
     const container = document.getElementById('investment-groups');
     if (!container) return;
     investments = investments.map(syncInvestmentStatus);
+    buildInvestmentMonthOptions();
     container.innerHTML = '';
-    const targetMonth = getDashboardFilterTarget();
-    const statusList = ['Planejado', 'Em andamento', 'Pago'];
-    const visibleByMonth = investments.filter(inv => isInvestmentActiveInMonth(inv, targetMonth));
+
+    const target = getInvestmentFilterTarget();
+    const visibleByMonth = target ? investments.filter(inv => isInvestmentActiveInMonth(inv, target)) : investments;
     const filtered = investmentFilter === 'Todos' ? visibleByMonth : visibleByMonth.filter(inv => inv.status === investmentFilter);
 
     if (!filtered.length) {
-      container.innerHTML = '<div class="subtext">Nenhum investimento para o mês selecionado.</div>';
+      container.innerHTML = '<div class="subtext">Nenhum investimento para este filtro.</div>';
       return;
     }
 
-    statusList
-      .filter(status => investmentFilter === 'Todos' || status === investmentFilter)
-      .forEach(status => {
-        const groupItems = filtered
-          .filter(inv => inv.status === status)
-          .sort((a, b) => (a.mesReferencia || '').localeCompare(b.mesReferencia || ''));
-        if (!groupItems.length) return;
-        const group = document.createElement('div');
-        group.className = 'investment-group';
-        group.innerHTML = `
-          <div class="investment-group-head">
-            <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
-              <strong>${status}</strong>
-              <span class="badge ${investmentBadge(status)}">${groupItems.length} itens</span>
-            </div>
-            <div class="pill soft">Filtro: ${formatMonthWithYear(targetMonth)}</div>
-          </div>
-        `;
-        const cards = document.createElement('div');
-        cards.className = 'investment-cards';
+    const sorted = filtered.slice().sort((a, b) => {
+      const aRef = parseMonthRef(a.mesReferencia) || { year: 0, monthIndex: 0 };
+      const bRef = parseMonthRef(b.mesReferencia) || { year: 0, monthIndex: 0 };
+      return (aRef.year - bRef.year) || (aRef.monthIndex - bRef.monthIndex);
+    });
 
-        groupItems.forEach(item => {
-          const activeParcel = getActiveParcelNumber(item, targetMonth);
-          const parcelLabel = getInvestmentParcelLabel(item, targetMonth);
-          const monthlyValue = getInvestmentMonthlyValue(item);
-          const total = item.valorTotal ?? item.amount ?? 0;
-          const paidCount = (item.payments || []).length;
-          const card = document.createElement('div');
-          card.className = 'investment-card';
-          card.dataset.id = item.id;
-          card.innerHTML = `
-            <div class="investment-card-left">
-              <div class="investment-card-head">
-                <div class="investment-card-title">
-                  ${item.title}
-                  <span class="badge ${investmentBadge(item.status)}">${item.status}</span>
-                </div>
-                <span class="investment-chip">${item.category || item.categoria || 'Geral'}</span>
-              </div>
-              <div class="investment-card-body">
-                <div class="investment-card-line">
-                  <span>${formatMonthRef(item.mesReferencia)}</span>
-                  <span>Parcela ${parcelLabel}</span>
-                  <span>Total ${formatCurrency(total)}</span>
-                  <span>Parcela ${formatCurrency(monthlyValue)}</span>
-                </div>
-                ${item.observacoes ? `<div class="investment-note">${item.observacoes}</div>` : ''}
-              </div>
+    sorted.forEach(item => {
+      const currentTarget = target || parseMonthRef(item.mesReferencia) || getDashboardFilterTarget();
+      const parcelLabel = getInvestmentParcelLabel(item, currentTarget);
+      const amountLabel = formatCurrency(getInvestmentMonthlyValue(item));
+      const totalLabel = formatCurrency(item.valorTotal || item.amount || 0);
+      const card = document.createElement('div');
+      card.className = 'investment-card';
+      card.dataset.id = item.id;
+      card.innerHTML = `
+        <div class="investment-card-head">
+          <div class="investment-card-title">
+            ${item.title}
+            <span class="investment-tag">${item.category || item.categoria || 'Investimento'}</span>
+            <span class="investment-tag">Ref.: ${formatMonthRef(item.mesReferencia)}</span>
+          </div>
+          <span class="investment-status ${investmentBadge(item.status)}">${item.status}</span>
+        </div>
+        <div class="investment-card-actions compact">
+          <button class="ghost-btn investment-toggle" onclick="toggleInvestmentDetails('${item.id}')">Ver detalhes</button>
+        </div>
+        <div class="investment-card-body">
+          <div class="investment-card-left">
+            <div class="investment-meta-line">
+              <span>Parcela do mês: <strong>${parcelLabel}</strong></span>
+              <span>Total: <strong>${totalLabel}</strong></span>
             </div>
-            <div class="investment-card-right">
-              <div class="investment-chip">${activeParcel ? `Parcela ativa ${activeParcel}/${item.parcelasTotais || 1}` : 'Sem parcela ativa'}</div>
-              <div class="investment-chip">${paidCount} parcela(s) paga(s)</div>
-              <div class="investment-card-actions">
-                <button class="ghost-btn investment-toggle" onclick="toggleInvestmentDetails('${item.id}')">Detalhes</button>
-                <div class="investment-actions">
-                  <button class="ghost-btn" title="Editar" onclick="openInvestmentModal('edit', '${item.id}')">✏️</button>
-                  <button class="ghost-btn secondary" title="Marcar parcela paga" onclick="markInvestmentPaid('${item.id}')">✔️</button>
-                  <button class="ghost-btn secondary" title="Reabrir parcela" onclick="reopenInvestment('${item.id}')">↺</button>
-                  <button class="ghost-btn" title="Ver histórico" onclick="openInvestmentHistory('${item.id}')">📜</button>
-                  <button class="ghost-btn secondary" style="color:var(--danger);border-color:var(--danger);" title="Remover" onclick="openInvestmentRemoveModal('${item.id}')">🗑</button>
-                </div>
-              </div>
+            <div class="investment-meta-line">
+              <span>Valor da parcela: <strong>${amountLabel}</strong></span>
+              <span>Status: <strong>${item.status}</strong></span>
             </div>
-          `;
-          cards.appendChild(card);
-        });
-        group.appendChild(cards);
-        container.appendChild(group);
-      });
+            <div class="investment-note">${item.observacoes || 'Sem observações adicionais'}</div>
+          </div>
+          <div class="investment-card-actions">
+            <div class="investment-actions">
+              <button class="ghost-btn" title="Editar" onclick="openInvestmentModal('edit', '${item.id}')">✏️</button>
+              <button class="ghost-btn secondary" title="Marcar parcela paga" onclick="markInvestmentPaid('${item.id}')">✔️</button>
+              <button class="ghost-btn secondary" title="Reabrir parcela" onclick="reopenInvestment('${item.id}')">↺</button>
+              <button class="ghost-btn" title="Ver histórico" onclick="openInvestmentHistory('${item.id}')">📜</button>
+              <button class="ghost-btn secondary" style="color:var(--danger);border-color:var(--danger);" title="Remover" onclick="openInvestmentRemoveModal('${item.id}')">🗑</button>
+            </div>
+          </div>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function getInvestmentActionTarget() {
+    return getInvestmentFilterTarget() || getDashboardFilterTarget();
   }
 
   function markInvestmentPaid(id) {
-    const target = getDashboardFilterTarget();
+    const target = getInvestmentActionTarget();
     investments = investments.map(inv => {
       if (inv.id !== id) return inv;
       const active = getActiveParcelNumber(inv, target);
@@ -5099,7 +5095,7 @@
   }
 
   function reopenInvestment(id) {
-    const target = getDashboardFilterTarget();
+    const target = getInvestmentActionTarget();
     investments = investments.map(inv => {
       if (inv.id !== id) return inv;
       const payments = inv.payments || [];
@@ -5116,6 +5112,8 @@
     const card = document.querySelector(`.investment-card[data-id="${id}"]`);
     if (!card) return;
     card.classList.toggle('expanded');
+    const btn = card.querySelector('.investment-toggle');
+    if (btn) btn.textContent = card.classList.contains('expanded') ? 'Ocultar detalhes' : 'Ver detalhes';
   }
 
   function openInvestmentHistory(id) {
