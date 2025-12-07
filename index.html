@@ -286,7 +286,20 @@
     .investment-main { display: flex; flex-direction: column; gap: 0.15rem; }
     .investment-meta { font-size: 0.8rem; color: var(--text-muted); display: flex; gap: 0.35rem; flex-wrap: wrap; align-items: center; }
     .investment-actions { display: inline-flex; gap: 0.3rem; flex-wrap: wrap; }
+    .investment-cards { display: none; flex-direction: column; gap: 0.75rem; }
+    .investment-card { border: 1px solid var(--border-soft); border-radius: 14px; padding: 0.75rem; background: #fffdf9; box-shadow: 0 6px 14px rgba(0,0,0,0.04); display: flex; flex-direction: column; gap: 0.35rem; }
+    .investment-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.6rem; }
+    .investment-card-title { font-weight: 700; font-size: 0.95rem; }
+    .investment-card-line { display: flex; flex-wrap: wrap; gap: 0.45rem; color: var(--text-muted); font-size: 0.85rem; }
+    .investment-card-actions { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.25rem; }
+    .investment-card-actions .investment-actions { gap: 0.2rem; }
     .pill.soft { background: rgba(0,0,0,0.04); color: var(--text-muted); }
+
+    @media (max-width: 800px) {
+      .investment-table { display: none; }
+      .investment-cards { display: flex; }
+      .investment-group { padding: 0.85rem; }
+    }
 
     .calendar-year {
       display: grid;
@@ -2152,10 +2165,6 @@
             <input id="investment-installment-value" type="number" placeholder="0" />
           </div>
           <div>
-            <label>Data da primeira parcela</label>
-            <input id="investment-first-date" type="date" />
-          </div>
-          <div>
             <label>Parcela atual</label>
             <input id="investment-current-installment" type="number" min="0" placeholder="0" />
           </div>
@@ -2651,7 +2660,6 @@
       mesReferencia: `${new Date().getFullYear()}-01`,
       status: 'Planejado',
       parcelado: false,
-      firstParcelDate: `${new Date().getFullYear()}-01-10`,
       observacoes: 'Conforto na recepção',
       createdAt: `${new Date().toISOString()}`,
       updatedAt: `${new Date().toISOString()}`,
@@ -2668,7 +2676,6 @@
       mesReferencia: `${new Date().getFullYear()}-02`,
       status: 'Em andamento',
       parcelado: true,
-      firstParcelDate: `${new Date().getFullYear()}-02-05`,
       observacoes: 'Dividido em 5x com fornecedor',
       createdAt: `${new Date().toISOString()}`,
       updatedAt: `${new Date().toISOString()}`,
@@ -2685,7 +2692,6 @@
       mesReferencia: `${new Date().getFullYear()}-03`,
       status: 'Pago',
       parcelado: true,
-      firstParcelDate: `${new Date().getFullYear()}-03-01`,
       observacoes: 'Upgrade de ring lights',
       createdAt: `${new Date().toISOString()}`,
       updatedAt: `${new Date().toISOString()}`,
@@ -3825,36 +3831,34 @@
   function setDashboardMonth(value) {
     selectedDashboardMonth = parseInt(value, 10) || 0;
     renderDashboardCards();
+    renderInvestments();
   }
 
   function computeInvestmentDashboardStats(monthIndex) {
-    const currentYear = new Date().getFullYear();
-    const target = new Date(currentYear, monthIndex, 1);
+    const target = { year: new Date().getFullYear(), monthIndex: monthIndex ?? 0 };
     let totalMes = 0;
     let parcelasPagasMes = 0;
     let futurosPlanejados = 0;
     let futurosQuantidade = 0;
 
     investments.forEach(inv => {
-      const ref = inv.mesReferencia ? inv.mesReferencia.split('-') : null;
-      const refDate = ref ? new Date(parseInt(ref[0], 10), parseInt(ref[1], 10) - 1, 1) : null;
-      const total = inv.valorTotal ?? inv.amount ?? 0;
-      const parcela = inv.valorParcela || (total / (inv.parcelasTotais || 1));
-      if (refDate && refDate.getMonth() === target.getMonth() && refDate.getFullYear() === target.getFullYear()) {
-        totalMes += total;
+      const ref = parseMonthRef(inv.mesReferencia);
+      const active = isInvestmentActiveInMonth(inv, target);
+      const monthlyValue = getInvestmentMonthlyValue(inv);
+
+      if (active) {
+        totalMes += monthlyValue;
+        const paidDate = inv.lastPaymentAt ? new Date(inv.lastPaymentAt) : null;
+        const paidThisMonth = paidDate && paidDate.getMonth() === target.monthIndex && paidDate.getFullYear() === target.year;
+        const finalParcelReached = ref && monthsDiff(ref, target) >= (inv.parcelasTotais || 1) - 1 && inv.status === 'Pago';
+        if (paidThisMonth || finalParcelReached) {
+          parcelasPagasMes += monthlyValue;
+        }
       }
 
-      if (refDate && (refDate > target)) {
-        futurosPlanejados += total;
+      if (ref && monthsDiff(ref, target) < 0) {
+        futurosPlanejados += inv.valorTotal ?? inv.amount ?? 0;
         futurosQuantidade += 1;
-      }
-
-      const paidDate = inv.lastPaymentAt ? new Date(inv.lastPaymentAt) : null;
-      const paidMatches = paidDate
-        ? (paidDate.getMonth() === target.getMonth() && paidDate.getFullYear() === target.getFullYear())
-        : (inv.status === 'Pago' && refDate && refDate.getMonth() === target.getMonth() && refDate.getFullYear() === target.getFullYear());
-      if (paidMatches) {
-        parcelasPagasMes += parcela;
       }
     });
 
@@ -4738,6 +4742,48 @@
     return `${monthNamesShort[idx] || month}/${year}`;
   }
 
+  function parseMonthRef(monthStr) {
+    if (!monthStr) return null;
+    const [year, month] = monthStr.split('-').map(v => parseInt(v, 10));
+    if (Number.isNaN(year) || Number.isNaN(month)) return null;
+    return { year, monthIndex: month - 1 };
+  }
+
+  function monthsDiff(start, target) {
+    if (!start || !target) return Infinity;
+    return (target.year - start.year) * 12 + (target.monthIndex - start.monthIndex);
+  }
+
+  function getDashboardFilterTarget() {
+    const year = new Date().getFullYear();
+    return { year, monthIndex: selectedDashboardMonth || 0 };
+  }
+
+  function isInvestmentActiveInMonth(inv, target) {
+    const ref = parseMonthRef(inv.mesReferencia);
+    if (!ref) return false;
+    const diff = monthsDiff(ref, target);
+    const total = inv.parcelasTotais || 1;
+    if (inv.parcelado && total > 1) return diff >= 0 && diff < total;
+    return diff === 0;
+  }
+
+  function getInvestmentMonthlyValue(inv) {
+    const total = inv.valorTotal ?? inv.amount ?? 0;
+    const parcels = inv.parcelasTotais || 1;
+    if (inv.parcelado && parcels > 1) return inv.valorParcela || (total / parcels);
+    return total;
+  }
+
+  function getInvestmentParcelLabel(inv, target) {
+    const total = inv.parcelasTotais || 1;
+    if (!inv.parcelado || total <= 1) return 'Única';
+    const ref = parseMonthRef(inv.mesReferencia);
+    const diff = monthsDiff(ref, target);
+    const current = Math.max(1, Math.min(total, diff + 1));
+    return `${current}/${total}`;
+  }
+
   function investmentBadge(status) {
     const map = {
       Planejado: 'status-plan',
@@ -4760,7 +4806,6 @@
     document.getElementById('investment-parceled').value = inv.parcelado ? 'sim' : 'nao';
     document.getElementById('investment-installments').value = inv.parcelasTotais || 1;
     document.getElementById('investment-installment-value').value = inv.valorParcela || '';
-    document.getElementById('investment-first-date').value = inv.firstParcelDate || '';
     document.getElementById('investment-current-installment').value = inv.parcelaAtual || 0;
     document.getElementById('investment-status').value = inv.status || 'Planejado';
     document.getElementById('investment-notes').value = inv.observacoes || '';
@@ -4774,8 +4819,7 @@
     const isParceled = document.getElementById('investment-parceled').value === 'sim';
     const installs = document.getElementById('investment-installments');
     const value = document.getElementById('investment-installment-value');
-    const firstDate = document.getElementById('investment-first-date');
-    [installs, value, firstDate].forEach(el => {
+    [installs, value].forEach(el => {
       if (!el) return;
       el.disabled = !isParceled;
       el.classList.toggle('disabled', !isParceled);
@@ -4792,7 +4836,6 @@
     const parcelasTotais = parcelado ? (parseInt(document.getElementById('investment-installments').value, 10) || 1) : 1;
     const valorParcelaInput = parseFloat(document.getElementById('investment-installment-value').value);
     const valorParcela = parcelado ? (valorParcelaInput || (valorTotal / parcelasTotais)) : valorTotal;
-    const firstParcelDate = document.getElementById('investment-first-date').value || '';
     const parcelaAtual = parseInt(document.getElementById('investment-current-installment').value, 10) || 0;
     const status = document.getElementById('investment-status').value || 'Planejado';
     const observacoes = document.getElementById('investment-notes').value || '';
@@ -4822,7 +4865,6 @@
       parcelaAtual: parcelaAtualFinal,
       mesReferencia,
       parcelado,
-      firstParcelDate,
       observacoes,
       status: statusFinal,
       createdAt: existing?.createdAt || now,
@@ -4845,8 +4887,15 @@
     const container = document.getElementById('investment-groups');
     if (!container) return;
     container.innerHTML = '';
+    const targetMonth = getDashboardFilterTarget();
     const statusList = ['Planejado', 'Em andamento', 'Pago'];
-    const filtered = investmentFilter === 'Todos' ? investments : investments.filter(inv => inv.status === investmentFilter);
+    const visibleByMonth = investments.filter(inv => isInvestmentActiveInMonth(inv, targetMonth));
+    const filtered = investmentFilter === 'Todos' ? visibleByMonth : visibleByMonth.filter(inv => inv.status === investmentFilter);
+
+    if (!filtered.length) {
+      container.innerHTML = '<div class="subtext">Nenhum investimento para o mês selecionado.</div>';
+      return;
+    }
 
     statusList
       .filter(status => investmentFilter === 'Todos' || status === investmentFilter)
@@ -4854,6 +4903,7 @@
         const groupItems = filtered
           .filter(inv => inv.status === status)
           .sort((a, b) => (a.mesReferencia || '').localeCompare(b.mesReferencia || ''));
+        if (!groupItems.length) return;
         const group = document.createElement('div');
         group.className = 'investment-group';
         group.innerHTML = `
@@ -4878,13 +4928,15 @@
             </thead>
             <tbody></tbody>
           </table>
+          <div class="investment-cards"></div>
         `;
         const tbody = group.querySelector('tbody');
+        const cards = group.querySelector('.investment-cards');
         groupItems.forEach(item => {
           const total = item.valorTotal ?? item.amount ?? 0;
           const parcelaTotal = item.parcelasTotais || 1;
-          const current = item.parcelaAtual || 0;
-          const parcLabel = parcelaTotal > 1 ? `${current}/${parcelaTotal}` : 'Única';
+          const parcLabel = getInvestmentParcelLabel(item, targetMonth);
+          const monthlyValue = getInvestmentMonthlyValue(item);
           const row = document.createElement('tr');
           row.innerHTML = `
             <td>
@@ -4901,7 +4953,7 @@
             <td>
               <div class="investment-meta">
                 <span>Total: <strong>${formatCurrency(total)}</strong></span>
-                <span>Parcela: <strong>${formatCurrency(item.valorParcela || total)}</strong></span>
+                <span>Parcela: <strong>${formatCurrency(monthlyValue)}</strong></span>
               </div>
             </td>
             <td><span class="badge ${investmentBadge(item.status)}">${item.status}</span></td>
@@ -4915,6 +4967,39 @@
             </td>
           `;
           tbody.appendChild(row);
+
+          const card = document.createElement('div');
+          card.className = 'investment-card';
+          card.innerHTML = `
+            <div class="investment-card-head">
+              <div>
+                <div class="investment-card-title">${item.title}</div>
+                <div class="investment-card-line">
+                  <span>${formatMonthRef(item.mesReferencia)}</span>
+                  <span>Parcela ${parcLabel}</span>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:0.3rem;align-items:flex-end;">
+                <span class="badge-soft">${item.category || item.categoria || 'Geral'}</span>
+                <span class="badge ${investmentBadge(item.status)}">${item.status}</span>
+              </div>
+            </div>
+            <div class="investment-card-line">
+              <span>Total: <strong>${formatCurrency(total)}</strong></span>
+              <span>Parcela: <strong>${formatCurrency(monthlyValue)}</strong></span>
+              ${item.observacoes ? `<span>${item.observacoes}</span>` : ''}
+            </div>
+            <div class="investment-card-actions">
+              <div class="investment-meta">${parcelaTotal > 1 ? `${parcLabel} • ${item.status}` : item.status}</div>
+              <div class="investment-actions">
+                <button class="ghost-btn" title="Editar" onclick="openInvestmentModal('edit', '${item.id}')">✏️</button>
+                <button class="ghost-btn secondary" title="Próxima parcela" onclick="advanceInvestment('${item.id}')">⏭</button>
+                <button class="ghost-btn secondary" title="Marcar pago" onclick="markInvestmentPaid('${item.id}')">✔️</button>
+                <button class="ghost-btn secondary" style="color:var(--danger);border-color:var(--danger);" title="Remover" onclick="openInvestmentRemoveModal('${item.id}')">🗑</button>
+              </div>
+            </div>
+          `;
+          cards.appendChild(card);
         });
         container.appendChild(group);
       });
