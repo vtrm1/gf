@@ -860,6 +860,194 @@
       background: rgba(0,0,0,0.05);
     }
 
+    .clients-header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.4rem;
+    }
+
+    .clients-actions {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .clients-search {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.55rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-soft);
+      background: rgba(255,255,255,0.92);
+      min-width: 240px;
+    }
+
+    .clients-search input {
+      border: none;
+      outline: none;
+      background: transparent;
+      width: 100%;
+      font-size: 0.9rem;
+      color: var(--text-main);
+    }
+
+    .clients-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 0.75rem;
+      margin-top: 0.4rem;
+    }
+
+    .client-card {
+      background: var(--bg-card);
+      border-radius: 14px;
+      padding: 0.85rem 0.95rem;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+      border: 1px solid rgba(255,255,255,0.95);
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      position: relative;
+    }
+
+    .client-name {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .client-meta {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      line-height: 1.3;
+    }
+
+    .client-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 0.35rem;
+    }
+
+    .client-actions .secondary {
+      padding: 0.35rem 0.7rem;
+      font-size: 0.8rem;
+      border-radius: 10px;
+    }
+
+    .client-pill {
+      background: rgba(212,175,55,0.12);
+      color: var(--text-main);
+      border-radius: 10px;
+      padding: 0.2rem 0.55rem;
+      font-size: 0.78rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      width: fit-content;
+    }
+
+    .client-card a {
+      color: var(--accent-gold-dark);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .client-card a:hover {
+      text-decoration: underline;
+    }
+
+    .floating-cta {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 0.7rem 1rem;
+      border-radius: 14px;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.14);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: linear-gradient(135deg, #d4af37, #b58c25);
+      color: white;
+      z-index: 8;
+    }
+
+    .floating-cta.secondary {
+      background: rgba(0,0,0,0.08);
+      color: var(--text-main);
+      border: 1px solid var(--border-soft);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+    }
+
+    .client-detail-tabs {
+      display: inline-flex;
+      gap: 0.3rem;
+      background: rgba(212,175,55,0.1);
+      padding: 0.2rem;
+      border-radius: 12px;
+      margin: 0.4rem 0;
+    }
+
+    .client-detail-tabs button {
+      background: transparent;
+      color: var(--text-main);
+      box-shadow: none;
+      border-radius: 10px;
+      padding: 0.35rem 0.7rem;
+      font-size: 0.85rem;
+      border: 1px solid transparent;
+    }
+
+    .client-detail-tabs button.active {
+      background: #fffaf3;
+      border-color: rgba(212,175,55,0.5);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .client-detail-section {
+      background: rgba(255,255,255,0.9);
+      border: 1px solid var(--border-soft);
+      border-radius: 12px;
+      padding: 0.75rem 0.85rem;
+      margin-top: 0.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .client-detail-section h4 {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    .client-detail-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .badge-soft {
+      display: inline-flex;
+      padding: 0.15rem 0.45rem;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.04);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .inline-actions {
+      display: flex;
+      gap: 0.3rem;
+      flex-wrap: wrap;
+    }
+
     .kiosk-wrapper {
       max-width: 900px;
       margin: 0 auto;
@@ -1292,6 +1480,7 @@
             <span class="pill">2025</span>
             <span class="pill">CEO + Colab</span>
           </div>
+          <button class="secondary" onclick="openAppointmentModal()">Novo agendamento</button>
         </div>
       </div>
       <div id="agenda-view-year">
@@ -1328,6 +1517,10 @@
           </tbody>
         </table>
       </div>
+
+      <button class="floating-cta" onclick="openAppointmentModal()">
+        ✚ Novo agendamento
+      </button>
     </section>
 
     <section id="page-ceo-inventory" class="page-ceo hidden">
@@ -1497,6 +1690,29 @@
           </tr>
         </tbody>
       </table>
+    </section>
+
+    <section id="page-ceo-clients" class="page-ceo hidden">
+      <div class="section-title">
+        <h2>Clientes</h2>
+        <div class="pill-row">
+          <span class="pill">Visão geral</span>
+          <span class="pill">CEO vê todas</span>
+        </div>
+      </div>
+      <div class="settings-block">
+        <div class="clients-header">
+          <div class="clients-actions">
+            <button class="ghost-btn" onclick="openClientModal()">+ Adicionar cliente</button>
+            <div class="clients-search">
+              <span>🔍</span>
+              <input id="client-search-ceo" placeholder="Buscar por nome ou telefone" oninput="renderClients('ceo')" />
+            </div>
+          </div>
+          <button class="secondary" onclick="openAppointmentModal()">Novo agendamento</button>
+        </div>
+        <div id="clients-grid-ceo" class="clients-grid"></div>
+      </div>
     </section>
 
     <section id="page-ceo-settings" class="page-ceo hidden">
@@ -1738,6 +1954,100 @@
       </div>
     </div>
 
+    <div id="client-add-modal" class="dialog-layer hidden">
+      <div class="dialog-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h3>Novo cliente</h3>
+          <button class="secondary" style="height:32px;padding:0.35rem 0.8rem;" onclick="closeDialog('client-add-modal')">Fechar</button>
+        </div>
+        <div class="dialog-grid">
+          <div>
+            <label>Nome</label>
+            <input id="client-name" placeholder="Ex: Maria Souza" />
+          </div>
+          <div>
+            <label>Telefone</label>
+            <input id="client-phone" placeholder="55999999999" />
+          </div>
+          <div>
+            <label>Observações</label>
+            <textarea id="client-notes" placeholder="Preferências, alergias"></textarea>
+          </div>
+          <div>
+            <label>Outros detalhes (opcional)</label>
+            <textarea id="client-extra" placeholder="Instagram, indicação..."></textarea>
+          </div>
+        </div>
+        <div class="dialog-actions">
+          <button class="secondary" onclick="closeDialog('client-add-modal')">Cancelar</button>
+          <button onclick="saveClient()">Salvar cliente</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="client-detail-modal" class="dialog-layer hidden">
+      <div class="dialog-card" style="max-width:720px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:0.6rem;flex-wrap:wrap;">
+          <div>
+            <h3 id="client-detail-name">Ficha da cliente</h3>
+            <div class="subtext" id="client-detail-phone"></div>
+          </div>
+          <div class="inline-actions">
+            <button class="secondary" onclick="openAppointmentModal(currentClientDetailId)">Agendar novamente</button>
+            <button class="ghost-btn" onclick="closeDialog('client-detail-modal')">Fechar</button>
+          </div>
+        </div>
+        <div class="client-detail-tabs">
+          <button id="tab-detail-data" class="active" onclick="switchClientTab('data')">Dados pessoais</button>
+          <button id="tab-detail-history" onclick="switchClientTab('history')">Histórico de serviços</button>
+          <button id="tab-detail-consume" onclick="switchClientTab('consume')">Consumos</button>
+          <button id="tab-detail-future" onclick="switchClientTab('future')">Agendamentos futuros</button>
+        </div>
+        <div id="client-detail-content"></div>
+      </div>
+    </div>
+
+    <div id="appointment-modal" class="dialog-layer hidden">
+      <div class="dialog-card" style="max-width:640px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h3>Novo agendamento</h3>
+          <button class="secondary" style="height:32px;padding:0.35rem 0.8rem;" onclick="closeDialog('appointment-modal')">Fechar</button>
+        </div>
+        <div class="dialog-grid">
+          <div>
+            <label>Cliente</label>
+            <input id="appointment-client" list="clients-datalist" placeholder="Buscar ou digitar cliente" oninput="bindClientFromInput()" />
+            <input type="hidden" id="appointment-client-id" />
+            <datalist id="clients-datalist"></datalist>
+          </div>
+          <div>
+            <label>Profissional</label>
+            <select id="appointment-professional"></select>
+          </div>
+          <div>
+            <label>Serviço</label>
+            <select id="appointment-service"></select>
+          </div>
+          <div>
+            <label>Data</label>
+            <input id="appointment-date" type="date" />
+          </div>
+          <div>
+            <label>Horário</label>
+            <input id="appointment-time" type="time" />
+          </div>
+          <div>
+            <label>Observações</label>
+            <textarea id="appointment-notes" placeholder="Preferências, recados"></textarea>
+          </div>
+        </div>
+        <div class="dialog-actions">
+          <button class="secondary" onclick="closeDialog('appointment-modal')">Cancelar</button>
+          <button onclick="saveAppointment()">Salvar e gerar WhatsApp</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Páginas da COLABORADORA -->
     <section id="page-colab-dashboard" class="page-colab hidden">
       <div class="card-grid">
@@ -1795,6 +2105,7 @@
             <span class="pill">2025</span>
             <span class="pill">CEO + Colab</span>
           </div>
+          <button class="secondary" onclick="openAppointmentModal()">Novo agendamento</button>
         </div>
       </div>
       <div id="agenda-view-year-colab">
@@ -1827,6 +2138,10 @@
           <tbody id="agenda-month-summary-colab"></tbody>
         </table>
       </div>
+
+      <button class="floating-cta secondary" onclick="openAppointmentModal()">
+        ✚ Novo agendamento
+      </button>
     </section>
 
     <section id="page-colab-commission" class="page-colab hidden">
@@ -1860,6 +2175,28 @@
           </tr>
         </tbody>
       </table>
+    </section>
+
+    <section id="page-colab-clients" class="page-colab hidden">
+      <div class="section-title">
+        <h2>Clientes</h2>
+        <div class="pill-row">
+          <span class="pill">Você vê apenas seus contatos</span>
+        </div>
+      </div>
+      <div class="settings-block">
+        <div class="clients-header">
+          <div class="clients-actions">
+            <button class="ghost-btn" onclick="openClientModal()">+ Adicionar cliente</button>
+            <div class="clients-search">
+              <span>🔍</span>
+              <input id="client-search-colab" placeholder="Buscar por nome ou telefone" oninput="renderClients('colab')" />
+            </div>
+          </div>
+          <button class="secondary" onclick="openAppointmentModal()">Novo agendamento</button>
+        </div>
+        <div id="clients-grid-colab" class="clients-grid"></div>
+      </div>
     </section>
 
   </main>
@@ -1933,6 +2270,9 @@
   let currentCommissionIndex = null;
   let currentCollabStatusIndex = null;
   let currentEditingServiceId = null;
+  let currentClientDetailId = null;
+  let activeClientTab = 'data';
+  let appointmentPrefillClient = null;
 
   const calendarYear = 2025;
   let selectedMonthIndex = new Date().getMonth();
@@ -2162,8 +2502,75 @@
     { name: 'Laura', username: 'laura', password: '456', permissions: 'Agenda própria, estoque consulta', device: 'Tablet manicure' },
   ];
 
+  let clients = [
+    {
+      id: 'cli-maria',
+      name: 'Maria Souza',
+      phone: '55999900001',
+      lastService: 'Manutenção fibra',
+      lastDate: '12/04',
+      owners: ['Glecie'],
+      notes: 'Prefere nude clássico',
+      extra: 'Instagram @maria',
+      history: ['Alongamento inicial 10/01', 'Manutenção fibra 12/04'],
+      consume: ['Água sem gás', 'Suco verde'],
+      future: [{ date: '2025-05-10', time: '15:00', service: 'Manutenção fibra', professional: 'Glecie' }],
+      nextAppointment: { date: '2025-05-10', time: '15:00', service: 'Manutenção fibra' }
+    },
+    {
+      id: 'cli-ana',
+      name: 'Ana Paula',
+      phone: '55999900002',
+      lastService: 'Spa mãos',
+      lastDate: '02/04',
+      owners: ['Camila'],
+      notes: 'Alergia a acetona forte',
+      extra: 'Indicada por Laura',
+      history: ['Spa mãos 02/04'],
+      consume: ['Energético', 'Água com gás'],
+      future: [{ date: '2025-04-22', time: '14:30', service: 'Spa mãos', professional: 'Camila' }],
+      nextAppointment: { date: '2025-04-22', time: '14:30', service: 'Spa mãos' }
+    },
+    {
+      id: 'cli-luisa',
+      name: 'Luísa Martins',
+      phone: '55999900003',
+      lastService: 'Alongamento novo',
+      lastDate: '28/03',
+      owners: ['Laura'],
+      notes: 'Gosta de formatos mais quadrados',
+      extra: '',
+      history: ['Alongamento novo 28/03'],
+      consume: ['Coca lata'],
+      future: [],
+      nextAppointment: { date: '2025-05-02', time: '10:00', service: 'Manutenção alongamento' }
+    }
+  ];
+
+  let appointments = [
+    { id: 'appt-1', clientId: 'cli-maria', professional: 'Glecie', service: 'Manutenção fibra', date: '2025-05-10', time: '15:00', notes: 'Rever cutícula' },
+    { id: 'appt-2', clientId: 'cli-ana', professional: 'Camila', service: 'Spa mãos', date: '2025-04-22', time: '14:30', notes: 'Chega 10min antes' }
+  ];
+
   function formatCurrency(value) {
     return 'R$ ' + Number(value || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+  }
+
+  function formatDateLabel(dateStr) {
+    if (!dateStr) return 'data a combinar';
+    const [y, m, d] = dateStr.split('-');
+    if (!y || !m || !d) return dateStr;
+    return `${d}/${m}/${y}`;
+  }
+
+  function buildWhatsAppLink(client, payload = {}) {
+    const number = (client.phone || '').replace(/\D/g, '') || '55';
+    const appt = payload.appointment || client.nextAppointment || {};
+    const service = payload.service || appt.service || client.lastService || 'seu atendimento';
+    const dateLabel = payload.dateLabel || (appt.date ? formatDateLabel(appt.date) : (client.lastDate || 'data a combinar'));
+    const time = payload.time || appt.time || 'horário a combinar';
+    const text = `Olá, tudo bem? Seu agendamento para ${service} está confirmado para o dia ${dateLabel} às ${time}. Qualquer necessidade de ajuste, estou à disposição.`;
+    return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
   }
 
   function setupMonthSelects() {
@@ -2423,6 +2830,214 @@
     currentCollabStatusIndex = null;
   }
 
+  function openClientModal() {
+    document.getElementById('client-name').value = '';
+    document.getElementById('client-phone').value = '';
+    document.getElementById('client-notes').value = '';
+    document.getElementById('client-extra').value = '';
+    openDialog('client-add-modal');
+  }
+
+  function saveClient() {
+    const name = document.getElementById('client-name').value.trim();
+    const phone = document.getElementById('client-phone').value.trim();
+    const notes = document.getElementById('client-notes').value.trim();
+    const extra = document.getElementById('client-extra').value.trim();
+    if (!name || !phone) return;
+    const owner = currentRole === 'colab' && currentColabAccount ? currentColabAccount.name : 'Glecie';
+    const newClient = {
+      id: `cli-${Date.now()}`,
+      name,
+      phone,
+      lastService: 'Novo cadastro',
+      lastDate: '',
+      owners: [owner],
+      notes,
+      extra,
+      history: [],
+      consume: [],
+      future: [],
+      nextAppointment: {}
+    };
+    clients.push(newClient);
+    renderClients('ceo');
+    renderClients('colab');
+    closeDialog('client-add-modal');
+  }
+
+  function openClientDetails(id) {
+    currentClientDetailId = id;
+    activeClientTab = 'data';
+    const client = clients.find(c => c.id === id);
+    const nameEl = document.getElementById('client-detail-name');
+    const phoneEl = document.getElementById('client-detail-phone');
+    if (nameEl) nameEl.textContent = client?.name || 'Cliente';
+    if (phoneEl && client) phoneEl.innerHTML = `<a href="${buildWhatsAppLink(client)}" target="_blank" rel="noopener">${client.phone}</a>`;
+    document.querySelectorAll('.client-detail-tabs button').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('tab-detail-data').classList.add('active');
+    renderClientDetailTab();
+    openDialog('client-detail-modal');
+  }
+
+  function switchClientTab(tab) {
+    activeClientTab = tab;
+    document.querySelectorAll('.client-detail-tabs button').forEach(btn => btn.classList.remove('active'));
+    const btn = document.getElementById(`tab-detail-${tab}`);
+    if (btn) btn.classList.add('active');
+    renderClientDetailTab();
+  }
+
+  function renderClientDetailTab() {
+    const container = document.getElementById('client-detail-content');
+    if (!container) return;
+    const client = clients.find(c => c.id === currentClientDetailId);
+    if (!client) return;
+    if (activeClientTab === 'data') {
+      container.innerHTML = `
+        <div class="client-detail-section">
+          <h4>Informações</h4>
+          <div class="client-detail-list">
+            <span>Telefone: <a href="${buildWhatsAppLink(client)}" target="_blank" rel="noopener">${client.phone}</a></span>
+            <span>Observações: ${client.notes || '—'}</span>
+            <span>Extras: ${client.extra || '—'}</span>
+            <span>Último serviço: ${client.lastService || '—'} ${client.lastDate ? '(' + client.lastDate + ')' : ''}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    if (activeClientTab === 'history') {
+      const hist = (client.history || []).map(h => `<li>${h}</li>`).join('') || '<li>Sem histórico</li>';
+      container.innerHTML = `
+        <div class="client-detail-section">
+          <h4>Histórico de serviços</h4>
+          <ul class="client-detail-list">${hist}</ul>
+        </div>
+      `;
+    }
+
+    if (activeClientTab === 'consume') {
+      const cons = (client.consume || []).map(h => `<li>${h}</li>`).join('') || '<li>Sem consumos</li>';
+      container.innerHTML = `
+        <div class="client-detail-section">
+          <h4>Consumos no salão</h4>
+          <ul class="client-detail-list">${cons}</ul>
+        </div>
+      `;
+    }
+
+    if (activeClientTab === 'future') {
+      const fut = (client.future || []).map(f => `<li>${formatDateLabel(f.date)} • ${f.time} • ${f.service} (${f.professional || 'Equipe'})</li>`).join('') || '<li>Nenhum agendamento futuro</li>';
+      container.innerHTML = `
+        <div class="client-detail-section">
+          <h4>Próximos horários</h4>
+          <ul class="client-detail-list">${fut}</ul>
+          <button class="secondary" style="align-self:flex-start;" onclick="openAppointmentModal('${client.id}')">Agendar novamente</button>
+        </div>
+      `;
+    }
+  }
+
+  function bindClientFromInput() {
+    const input = document.getElementById('appointment-client');
+    const hidden = document.getElementById('appointment-client-id');
+    const match = clients.find(c => c.name.toLowerCase() === (input.value || '').toLowerCase());
+    hidden.value = match ? match.id : '';
+  }
+
+  function openAppointmentModal(clientId = null) {
+    appointmentPrefillClient = clientId;
+    const client = clients.find(c => c.id === clientId);
+    const clientInput = document.getElementById('appointment-client');
+    const hidden = document.getElementById('appointment-client-id');
+    const profSelect = document.getElementById('appointment-professional');
+    const serviceSelect = document.getElementById('appointment-service');
+    const dateInput = document.getElementById('appointment-date');
+    const timeInput = document.getElementById('appointment-time');
+    const notes = document.getElementById('appointment-notes');
+
+    if (clientInput) clientInput.value = client ? client.name : '';
+    if (hidden) hidden.value = client ? client.id : '';
+    if (notes) notes.value = '';
+    if (dateInput) dateInput.value = client?.nextAppointment?.date || '';
+    if (timeInput) timeInput.value = client?.nextAppointment?.time || '';
+
+    if (profSelect) {
+      profSelect.innerHTML = '';
+      collaborators.forEach(col => {
+        const opt = document.createElement('option');
+        opt.value = col.name;
+        opt.textContent = col.name;
+        profSelect.appendChild(opt);
+      });
+      if (currentRole === 'colab' && currentColabAccount) {
+        profSelect.value = currentColabAccount.name;
+      }
+    }
+
+    if (serviceSelect) {
+      serviceSelect.innerHTML = '';
+      kioskServices.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.name;
+        opt.textContent = `${s.name} • R$ ${s.price}`;
+        serviceSelect.appendChild(opt);
+      });
+    }
+
+    renderClientsDatalist();
+    openDialog('appointment-modal');
+  }
+
+  function saveAppointment() {
+    const clientInput = document.getElementById('appointment-client');
+    const hidden = document.getElementById('appointment-client-id');
+    const professional = document.getElementById('appointment-professional').value;
+    const service = document.getElementById('appointment-service').value;
+    const date = document.getElementById('appointment-date').value;
+    const time = document.getElementById('appointment-time').value;
+    const notes = document.getElementById('appointment-notes').value;
+
+    let client = clients.find(c => c.id === hidden.value) || clients.find(c => c.name.toLowerCase() === (clientInput.value || '').toLowerCase());
+    if (!client) {
+      client = {
+        id: `cli-${Date.now()}`,
+        name: clientInput.value,
+        phone: '55',
+        lastService: service,
+        lastDate: formatDateLabel(date),
+        owners: [currentRole === 'colab' && currentColabAccount ? currentColabAccount.name : 'Glecie'],
+        notes: '',
+        extra: '',
+        history: [],
+        consume: [],
+        future: [],
+        nextAppointment: {}
+      };
+      clients.push(client);
+    }
+
+    client.lastService = service;
+    client.lastDate = date ? formatDateLabel(date) : client.lastDate;
+    client.nextAppointment = { date, time, service };
+    client.future = client.future || [];
+    client.future.push({ date, time, service, professional });
+    if (currentRole === 'colab' && currentColabAccount && !client.owners.includes(currentColabAccount.name)) {
+      client.owners.push(currentColabAccount.name);
+    }
+
+    const appt = { id: `appt-${Date.now()}`, clientId: client.id, professional, service, date, time, notes };
+    appointments.push(appt);
+
+    renderClients('ceo');
+    renderClients('colab');
+    if (currentClientDetailId === client.id) renderClientDetailTab();
+
+    closeDialog('appointment-modal');
+    const link = buildWhatsAppLink(client, { appointment: { date, time, service } });
+    window.open(link, '_blank');
+  }
+
   function openDialog(id) {
     const modal = document.getElementById(id);
     if (modal) modal.classList.remove('hidden');
@@ -2450,6 +3065,7 @@
         const items = [
           { id: 'dashboard', label: 'Dashboard' },
           { id: 'agenda', label: 'Agenda' },
+          { id: 'clients', label: 'Clientes' },
           { id: 'inventory', label: 'Estoque' },
           { id: 'investments', label: 'Investimentos' },
           { id: 'finance', label: 'Financeiro' },
@@ -2470,6 +3086,7 @@
       const items = [
         { id: 'dashboard', label: 'Dashboard' },
         { id: 'agenda', label: 'Agenda' },
+        { id: 'clients', label: 'Clientes' },
         { id: 'commission', label: 'Minhas comissões' },
       ];
       items.forEach(item => {
@@ -2501,12 +3118,14 @@
       inventory: ['Estoque', 'Esmaltes e geladeira'],
       investments: ['Investimentos', 'Compras, reformas e melhorias'],
       finance: ['Financeiro', 'Resumo de receitas e custos'],
+      clients: ['Clientes', 'Busca, fichas e agendamentos'],
       settings: ['Configurações', 'Serviços, comissão, etc.']
     };
 
     const titleMapColab = {
       dashboard: ['Dashboard', 'Resumo do seu dia'],
       agenda: ['Agenda', 'Sua agenda + CEO'],
+      clients: ['Clientes', 'Somente os seus contatos'],
       commission: ['Minhas comissões', 'Detalhamento por serviço']
     };
 
@@ -2584,6 +3203,69 @@
     if (alertDesc) alertDesc.textContent = stats.alertsDesc;
   }
 
+  function filterClientsByRole(scope) {
+    if (scope === 'ceo') return clients;
+    const colabName = currentColabAccount?.name || 'colab';
+    return clients.filter(c => (c.owners || []).some(o => o.toLowerCase() === colabName.toLowerCase()));
+  }
+
+  function renderClients(scope = 'ceo') {
+    const listEl = document.getElementById(scope === 'ceo' ? 'clients-grid-ceo' : 'clients-grid-colab');
+    const searchEl = document.getElementById(scope === 'ceo' ? 'client-search-ceo' : 'client-search-colab');
+    if (!listEl) return;
+    listEl.innerHTML = '';
+    const search = (searchEl?.value || '').toLowerCase();
+    const filtered = filterClientsByRole(scope)
+      .filter(c => c.name.toLowerCase().includes(search) || (c.phone || '').includes(search));
+
+    filtered.forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'client-card';
+      const badge = `<span class="badge-soft">${c.lastService || '—'}${c.lastDate ? ' • ' + c.lastDate : ''}</span>`;
+      const whatsapp = buildWhatsAppLink(c);
+      card.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.4rem;">
+          <div>
+            <div class="client-name">${c.name}</div>
+            <div class="client-meta">${badge}</div>
+            <div class="client-meta">${c.notes || 'Sem observações'}</div>
+          </div>
+          <div class="client-pill">${c.nextAppointment?.time || '--:--'} • ${c.nextAppointment?.date ? formatDateLabel(c.nextAppointment.date) : 'agenda'}</div>
+        </div>
+        <div class="client-meta" style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
+          <a href="${whatsapp}" target="_blank" rel="noopener">${c.phone}</a>
+          <span class="badge-soft">Último: ${c.lastService || '—'}</span>
+        </div>
+        <div class="client-actions">
+          <div class="inline-actions">
+            <button class="secondary" onclick="openClientDetails('${c.id}')">Ver ficha</button>
+            <button class="secondary" onclick="openAppointmentModal('${c.id}')">Agendar</button>
+          </div>
+          <span class="client-pill">${(c.owners || ['CEO'])[0]}</span>
+        </div>
+      `;
+      listEl.appendChild(card);
+    });
+
+    if (!filtered.length) {
+      listEl.innerHTML = '<div class="client-meta">Nenhuma cliente encontrada.</div>';
+    }
+
+    renderClientsDatalist();
+  }
+
+  function renderClientsDatalist() {
+    const datalist = document.getElementById('clients-datalist');
+    if (!datalist) return;
+    datalist.innerHTML = '';
+    clients.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.name;
+      opt.dataset.id = c.id;
+      datalist.appendChild(opt);
+    });
+  }
+
   function setAgendaView(mode, scope = 'ceo') {
     if (scope === 'ceo') {
       agendaViewMode = mode;
@@ -2616,6 +3298,7 @@
     renderCollaborators();
     renderServicesTable();
     renderInvestments();
+    renderClients('ceo');
   }
 
   function renderColabContent() {
@@ -2623,6 +3306,7 @@
     renderYearCalendar('colab');
     setAgendaView(agendaViewModeColab, 'colab');
     renderAgendaMonthSummary('colab');
+    renderClients('colab');
   }
 
   function renderYearCalendar(scope = 'ceo') {
