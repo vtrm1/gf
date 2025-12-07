@@ -668,50 +668,196 @@
       background: rgba(255,255,255,0.9);
     }
 
-    .collab-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 0.8rem;
-      margin-top: 0.6rem;
+    .dialog-layer {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 10;
     }
 
-    .collab-card {
+    .dialog-card {
       background: var(--bg-card);
-      border-radius: 14px;
-      padding: 0.9rem 1rem;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      border-radius: 16px;
+      box-shadow: 0 14px 38px rgba(0,0,0,0.12);
+      border: 1px solid rgba(255,255,255,0.9);
+      padding: 1.05rem 1.2rem;
+      max-width: 540px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .dialog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 0.6rem;
+    }
+
+    .dialog-card label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .dialog-card input,
+    .dialog-card select,
+    .dialog-card textarea {
+      width: 100%;
+      padding: 0.55rem 0.65rem;
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      background: rgba(255,255,255,0.95);
+    }
+
+    .dialog-card textarea {
+      min-height: 60px;
+      resize: vertical;
+    }
+
+    .dialog-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      margin-top: 0.2rem;
+    }
+
+    .section-caption {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .settings-block {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 1rem 1.1rem;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
       border: 1px solid rgba(255,255,255,0.9);
       display: flex;
       flex-direction: column;
-      gap: 0.4rem;
+      gap: 0.75rem;
     }
 
-    .collab-headline {
+    .block-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+
+    .block-header h3 {
+      margin-bottom: 0.25rem;
+    }
+
+    .block-actions {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .collab-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      border: 1px solid rgba(0,0,0,0.03);
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,250,243,0.9));
+    }
+
+    .collab-row {
+      display: grid;
+      grid-template-columns: 1.3fr 1.6fr 1fr;
+      gap: 0.8rem;
+      padding: 0.7rem 0.9rem;
+      align-items: center;
+    }
+
+    .collab-row + .collab-row {
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .collab-id {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.6rem;
+      min-width: 0;
     }
 
     .collab-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
       display: grid;
       place-items: center;
       color: white;
       font-weight: 700;
       background: linear-gradient(135deg, #e5c676, #b58c25);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+      flex-shrink: 0;
+    }
+
+    .collab-info strong {
+      font-size: 0.95rem;
     }
 
     .collab-meta {
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       color: var(--text-muted);
+      line-height: 1.3;
+    }
+
+    .collab-meta .tagline {
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .collab-permissions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      color: var(--text-muted);
+      font-size: 0.82rem;
     }
 
     .collab-actions {
       display: flex;
-      gap: 0.35rem;
+      gap: 0.3rem;
+      justify-content: flex-end;
       flex-wrap: wrap;
+    }
+
+    .ghost-btn {
+      border-radius: 10px;
+      padding: 0.35rem 0.55rem;
+      background: rgba(212,175,55,0.08);
+      color: var(--text-main);
+      box-shadow: none;
+      border: 1px solid rgba(212,175,55,0.18);
+      font-size: 0.78rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      height: 32px;
+    }
+
+    .ghost-btn.secondary {
+      background: rgba(0,0,0,0.02);
+      border-color: rgba(0,0,0,0.06);
+      color: var(--text-muted);
+    }
+
+    .ghost-btn:hover {
+      transform: translateY(-1px);
+      background: rgba(212,175,55,0.14);
+    }
+
+    .ghost-btn.secondary:hover {
+      background: rgba(0,0,0,0.05);
     }
 
     .kiosk-wrapper {
@@ -1357,52 +1503,33 @@
       <div class="section-title">
         <h2>Configurações do salão</h2>
       </div>
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+      <div class="settings-block">
+        <div class="block-header">
           <div>
-            <h3>Colaboradoras e permissões</h3>
-            <div class="subtext">Adicione novas profissionais, ajuste comissões e controle o que cada uma pode ver.</div>
+            <h3>Colaboradoras</h3>
+            <div class="section-caption">Lista compacta para gerenciar permissões, comissão e logins dedicados.</div>
           </div>
-          <div style="display:flex;gap:0.4rem;">
-            <button class="secondary" style="font-size:0.85rem;" onclick="alert('Fluxo de convite mockado')">Adicionar colaboradora</button>
-            <button style="font-size:0.85rem;" onclick="alert('Importação mockada')">Importar da ficha</button>
+          <div class="block-actions">
+            <button class="ghost-btn secondary" onclick="alert('Fluxo de convite mockado')">+ Colaboradora</button>
+            <button class="ghost-btn" onclick="openDedicatedLoginModal()">🔑 Criar login dedicado</button>
+            <button class="ghost-btn secondary" onclick="alert('Importação mockada')">⤓ Importar</button>
           </div>
         </div>
-        <div id="collaborators-list" class="collab-grid"></div>
+        <div id="collaborators-list" class="collab-list"></div>
       </div>
 
-      <div class="card" style="margin-top:0.8rem;">
-        <h3>Criar login dedicado para colaboradora</h3>
-        <div class="subtext">A CEO registra usuário e senha. A colaboradora só enxerga o próprio login e o botão do tablet.</div>
-        <div class="collab-form">
+      <div class="settings-block" style="margin-top:1rem;">
+        <div class="block-header">
           <div>
-            <label class="subtext">Nome da colaboradora</label>
-            <input id="new-colab-name" placeholder="Ex: Camila" />
+            <h3>Serviços</h3>
+            <div class="section-caption">Valores utilizados no app e no tablet, com edição via modal.</div>
           </div>
-          <div>
-            <label class="subtext">Usuário</label>
-            <input id="new-colab-username" placeholder="Ex: camila" />
+          <div class="block-actions">
+            <button class="ghost-btn" onclick="openServiceAddModal()">➕ Adicionar serviço</button>
+            <button class="ghost-btn secondary" onclick="openServiceEditModal()">✏️ Editar valores</button>
           </div>
-          <div>
-            <label class="subtext">Senha inicial</label>
-            <input id="new-colab-password" placeholder="Ex: 123" />
-          </div>
-          <div>
-            <label class="subtext">Permissões</label>
-            <input id="new-colab-permissions" placeholder="Agenda compartilhada, comissões" />
-          </div>
-          <small>Ela poderá alterar a senha depois. Copie este login dedicado para entregar apenas a esta colaboradora.</small>
         </div>
-        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.6rem;">
-          <button onclick="createCollaboratorAccount()">Gerar usuário e senha</button>
-          <button class="secondary" onclick="switchLoginMode('colab')">Ver tela que ela recebe</button>
-        </div>
-      </div>
-
-      <div class="card" style="margin-top:0.8rem;">
-        <h3>Tabela de serviços</h3>
-        <div class="subtext">Valores utilizados no app.</div>
-        <table class="table" style="margin-top:0.4rem;">
+        <table class="table" style="margin-top:0.2rem;">
           <thead>
             <tr>
               <th>Serviço</th>
@@ -1410,21 +1537,154 @@
               <th>Preço</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>Manutenção fibra</td>
-              <td>1h30</td>
-              <td>R$ 120</td>
-            </tr>
-            <tr>
-              <td>Alongamento novo</td>
-              <td>2h</td>
-              <td>R$ 180</td>
-            </tr>
-          </tbody>
+          <tbody id="services-table"></tbody>
         </table>
       </div>
     </section>
+
+    <div id="login-dedicated-modal" class="dialog-layer hidden">
+      <div class="dialog-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h3>Criar login dedicado</h3>
+          <button class="secondary" style="height:32px;padding:0.35rem 0.8rem;" onclick="closeDialog('login-dedicated-modal')">Fechar</button>
+        </div>
+        <div class="dialog-grid">
+          <div>
+            <label>Nome da colaboradora</label>
+            <input id="new-colab-name" placeholder="Ex: Camila" />
+          </div>
+          <div>
+            <label>Usuário</label>
+            <input id="new-colab-username" placeholder="Ex: camila" />
+          </div>
+          <div>
+            <label>Senha inicial</label>
+            <input id="new-colab-password" placeholder="Ex: 123" />
+          </div>
+          <div>
+            <label>Permissões</label>
+            <input id="new-colab-permissions" placeholder="Agenda compartilhada, comissões" />
+          </div>
+        </div>
+        <div class="dialog-actions">
+          <button class="secondary" onclick="closeDialog('login-dedicated-modal')">Cancelar</button>
+          <button onclick="createCollaboratorAccount()">Gerar usuário e senha</button>
+        </div>
+        <div class="section-caption">A colaboradora verá apenas o próprio login e o acesso ao tablet.</div>
+      </div>
+    </div>
+
+    <div id="edit-collab-modal" class="dialog-layer hidden">
+      <div class="dialog-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h3>Editar colaboradora</h3>
+          <button class="secondary" style="height:32px;padding:0.35rem 0.8rem;" onclick="closeDialog('edit-collab-modal')">Fechar</button>
+        </div>
+        <div class="dialog-grid">
+          <div>
+            <label>Nome</label>
+            <input id="edit-collab-name" />
+          </div>
+          <div>
+            <label>Cargo</label>
+            <input id="edit-collab-role" />
+          </div>
+          <div>
+            <label>Login</label>
+            <input id="edit-collab-login" placeholder="Usuário" />
+          </div>
+          <div>
+            <label>Permissões</label>
+            <div style="display:flex;flex-direction:column;gap:0.3rem;padding:0.4rem 0;">
+              <label style="display:flex;align-items:center;gap:0.4rem;">
+                <input type="checkbox" id="perm-agenda" /> Agenda
+              </label>
+              <label style="display:flex;align-items:center;gap:0.4rem;">
+                <input type="checkbox" id="perm-estoque" /> Estoque
+              </label>
+              <label style="display:flex;align-items:center;gap:0.4rem;">
+                <input type="checkbox" id="perm-comissao" /> Comissão
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="dialog-actions">
+          <button class="secondary" onclick="closeDialog('edit-collab-modal')">Cancelar</button>
+          <button onclick="saveCollaboratorProfile()">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="commission-modal" class="dialog-layer hidden">
+      <div class="dialog-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h3>Comissão</h3>
+          <button class="secondary" style="height:32px;padding:0.35rem 0.8rem;" onclick="closeDialog('commission-modal')">Fechar</button>
+        </div>
+        <div>
+          <label>Percentual de comissão</label>
+          <input id="commission-value" type="number" min="0" max="100" step="1" placeholder="Ex: 40" />
+        </div>
+        <div class="dialog-actions">
+          <button class="secondary" onclick="closeDialog('commission-modal')">Cancelar</button>
+          <button onclick="saveCommission()">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="service-add-modal" class="dialog-layer hidden">
+      <div class="dialog-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h3>Adicionar serviço</h3>
+          <button class="secondary" style="height:32px;padding:0.35rem 0.8rem;" onclick="closeDialog('service-add-modal')">Fechar</button>
+        </div>
+        <div class="dialog-grid">
+          <div>
+            <label>Serviço</label>
+            <input id="add-service-name" placeholder="Ex: Spa mãos" />
+          </div>
+          <div>
+            <label>Duração</label>
+            <input id="add-service-duration" placeholder="Ex: 40min" />
+          </div>
+          <div>
+            <label>Preço</label>
+            <input id="add-service-price" type="number" placeholder="Ex: 80" />
+          </div>
+        </div>
+        <div class="dialog-actions">
+          <button class="secondary" onclick="closeDialog('service-add-modal')">Cancelar</button>
+          <button onclick="saveNewService()">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="service-edit-modal" class="dialog-layer hidden">
+      <div class="dialog-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h3>Editar valores</h3>
+          <button class="secondary" style="height:32px;padding:0.35rem 0.8rem;" onclick="closeDialog('service-edit-modal')">Fechar</button>
+        </div>
+        <div class="dialog-grid">
+          <div>
+            <label>Serviço</label>
+            <select id="edit-service-select" onchange="prefillServiceFields()"></select>
+          </div>
+          <div>
+            <label>Duração</label>
+            <input id="edit-service-duration" placeholder="Ex: 1h30" />
+          </div>
+          <div>
+            <label>Preço</label>
+            <input id="edit-service-price" type="number" placeholder="Ex: 120" />
+          </div>
+        </div>
+        <div class="dialog-actions">
+          <button class="secondary" onclick="closeDialog('service-edit-modal')">Cancelar</button>
+          <button onclick="saveServiceEdit()">Salvar</button>
+        </div>
+      </div>
+    </div>
 
     <!-- Páginas da COLABORADORA -->
     <section id="page-colab-dashboard" class="page-colab hidden">
@@ -1607,6 +1867,9 @@
   let loginMode = 'ceo';
   let currentColabAccount = null;
   let currentInventoryTab = 'polish';
+  let currentEditingCollabIndex = null;
+  let currentCommissionIndex = null;
+  let currentEditingServiceId = null;
 
   const calendarYear = 2025;
   let selectedMonthIndex = new Date().getMonth();
@@ -1863,10 +2126,10 @@
 
   let kioskDrinks = [];
 
-  const kioskServices = [
-    { id: 'manutencao', name: 'Manutenção fibra', price: 120, icon: '💅' },
-    { id: 'alongamento', name: 'Alongamento novo', price: 180, icon: '✨' },
-    { id: 'esmalta', name: 'Esmaltação simples', price: 50, icon: '🎨' },
+  let kioskServices = [
+    { id: 'manutencao', name: 'Manutenção fibra', duration: '1h30', price: 120, icon: '💅' },
+    { id: 'alongamento', name: 'Alongamento novo', duration: '2h', price: 180, icon: '✨' },
+    { id: 'esmalta', name: 'Esmaltação simples', duration: '40min', price: 50, icon: '🎨' },
   ];
 
   let cart = [];
@@ -1974,7 +2237,73 @@
     document.getElementById('new-colab-username').value = '';
     document.getElementById('new-colab-password').value = '';
     document.getElementById('new-colab-permissions').value = '';
+    closeDialog('login-dedicated-modal');
     alert(`Login criado para ${name}. Usuário: ${username} | Senha: ${password}`);
+  }
+
+  function openDedicatedLoginModal(name = '') {
+    document.getElementById('new-colab-name').value = name || '';
+    document.getElementById('new-colab-username').value = name ? name.toLowerCase() : '';
+    document.getElementById('new-colab-password').value = '';
+    document.getElementById('new-colab-permissions').value = '';
+    openDialog('login-dedicated-modal');
+  }
+
+  function openEditCollab(index) {
+    currentEditingCollabIndex = index;
+    const col = collaborators[index];
+    document.getElementById('edit-collab-name').value = col.name;
+    document.getElementById('edit-collab-role').value = col.role;
+    document.getElementById('edit-collab-login').value = col.username || '';
+    document.getElementById('perm-agenda').checked = col.permissions?.toLowerCase().includes('agenda');
+    document.getElementById('perm-estoque').checked = col.permissions?.toLowerCase().includes('estoque');
+    document.getElementById('perm-comissao').checked = col.permissions?.toLowerCase().includes('comissão') || col.permissions?.toLowerCase().includes('comissao');
+    openDialog('edit-collab-modal');
+  }
+
+  function saveCollaboratorProfile() {
+    if (currentEditingCollabIndex === null) return;
+    const name = document.getElementById('edit-collab-name').value.trim();
+    const role = document.getElementById('edit-collab-role').value.trim();
+    const username = document.getElementById('edit-collab-login').value.trim();
+    const permissions = [
+      document.getElementById('perm-agenda').checked ? 'Agenda' : null,
+      document.getElementById('perm-estoque').checked ? 'Estoque' : null,
+      document.getElementById('perm-comissao').checked ? 'Comissão' : null,
+    ].filter(Boolean).join(', ');
+    const updated = { ...collaborators[currentEditingCollabIndex], name: name || collaborators[currentEditingCollabIndex].name, role: role || 'Colaboradora', username, permissions: permissions || 'Permissões ajustadas no perfil' };
+    collaborators[currentEditingCollabIndex] = updated;
+    const accountIdx = collaboratorAccounts.findIndex(acc => acc.name === updated.name || acc.username === updated.username);
+    if (accountIdx >= 0) {
+      collaboratorAccounts[accountIdx] = { ...collaboratorAccounts[accountIdx], name: updated.name, username: updated.username, permissions: updated.permissions };
+    }
+    renderCollaborators();
+    closeDialog('edit-collab-modal');
+  }
+
+  function openCommissionModal(index) {
+    currentCommissionIndex = index;
+    const value = parseInt(collaborators[index].commission, 10) || 0;
+    document.getElementById('commission-value').value = value;
+    openDialog('commission-modal');
+  }
+
+  function saveCommission() {
+    if (currentCommissionIndex === null) return;
+    const value = parseInt(document.getElementById('commission-value').value, 10) || 0;
+    collaborators[currentCommissionIndex].commission = `${value}% serviços`;
+    renderCollaborators();
+    closeDialog('commission-modal');
+  }
+
+  function openDialog(id) {
+    const modal = document.getElementById(id);
+    if (modal) modal.classList.remove('hidden');
+  }
+
+  function closeDialog(id) {
+    const modal = document.getElementById(id);
+    if (modal) modal.classList.add('hidden');
   }
 
   function updateRoleLabel(role) {
@@ -2153,6 +2482,7 @@
     switchInventoryTab(currentInventoryTab);
     renderInventoryLists();
     renderCollaborators();
+    renderServicesTable();
     renderInvestments();
   }
 
@@ -2558,27 +2888,31 @@
     const container = document.getElementById('collaborators-list');
     if (!container) return;
     container.innerHTML = '';
-    collaborators.forEach(col => {
-      const card = document.createElement('div');
-      card.className = 'collab-card';
-      card.innerHTML = `
-        <div class="collab-headline">
+    collaborators.forEach((col, index) => {
+      const row = document.createElement('div');
+      row.className = 'collab-row';
+      const permLine = col.permissions ? col.permissions.split(',').map(p => p.trim()).slice(0, 2).join(' • ') : 'Ajuste no modal';
+      row.innerHTML = `
+        <div class="collab-id">
           <div class="collab-avatar" style="background:${col.color}">${col.name[0]}</div>
-          <div>
+          <div class="collab-info">
             <strong>${col.name}</strong>
             <div class="collab-meta">${col.role} • ${col.commission}</div>
           </div>
         </div>
-        <div class="collab-meta">Permissões: ${col.permissions}</div>
-        ${col.username ? `<div class="collab-meta">Login: <strong>${col.username}</strong></div>` : ''}
+        <div class="collab-permissions">
+          <span class="collab-meta tagline">${permLine}</span>
+          <span class="collab-meta">Login: <strong>${col.username || 'definir no modal'}</strong></span>
+          <span class="collab-meta">Permissões detalhadas no modal</span>
+        </div>
         <div class="collab-actions">
-          <button class="secondary" style="font-size:0.75rem;" onclick="alert('Editar ${col.name}')">Editar perfil</button>
-          <button style="font-size:0.75rem;" onclick="alert('Ajustar comissão de ${col.name}')">Comissão</button>
-          <button class="secondary" style="font-size:0.75rem;" onclick="alert('Desativar ${col.name}')">Desativar</button>
-          ${col.username ? `<button style="font-size:0.75rem;" onclick="openCollaboratorLogin('${col.username}')">Login dedicado</button>` : ''}
+          <button class="ghost-btn secondary" onclick="openEditCollab(${index})">✏️ Editar</button>
+          <button class="ghost-btn" onclick="openCommissionModal(${index})">💰 Comissão</button>
+          <button class="ghost-btn secondary" onclick="alert('Desativar ${col.name}')">🚫 Desativar</button>
+          ${col.username ? `<button class="ghost-btn" onclick="openCollaboratorLogin('${col.username}')">🔑 Login</button>` : `<button class="ghost-btn" onclick="openDedicatedLoginModal('${col.name}')">🔑 Criar login</button>`}
         </div>
       `;
-      container.appendChild(card);
+      container.appendChild(row);
     });
   }
 
@@ -2626,6 +2960,77 @@
   function removeInvestment(id) {
     investments = investments.filter(inv => inv.id !== id);
     renderInvestments();
+  }
+
+  function renderServicesTable() {
+    const tbody = document.getElementById('services-table');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    kioskServices.forEach(service => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${service.name}</td>
+        <td>${service.duration || '-'}</td>
+        <td>${formatCurrency(service.price)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function openServiceAddModal() {
+    document.getElementById('add-service-name').value = '';
+    document.getElementById('add-service-duration').value = '';
+    document.getElementById('add-service-price').value = '';
+    openDialog('service-add-modal');
+  }
+
+  function saveNewService() {
+    const name = document.getElementById('add-service-name').value.trim();
+    const duration = document.getElementById('add-service-duration').value.trim();
+    const price = parseFloat(document.getElementById('add-service-price').value) || 0;
+    if (!name || !duration || !price) {
+      alert('Preencha nome, duração e preço do serviço.');
+      return;
+    }
+    const id = `svc-${Date.now()}`;
+    kioskServices.push({ id, name, duration, price, icon: '✨' });
+    renderServicesTable();
+    renderKiosk();
+    closeDialog('service-add-modal');
+  }
+
+  function openServiceEditModal() {
+    const select = document.getElementById('edit-service-select');
+    select.innerHTML = '';
+    kioskServices.forEach(svc => {
+      const opt = document.createElement('option');
+      opt.value = svc.id;
+      opt.textContent = svc.name;
+      select.appendChild(opt);
+    });
+    currentEditingServiceId = kioskServices[0]?.id || null;
+    select.value = currentEditingServiceId || '';
+    prefillServiceFields();
+    openDialog('service-edit-modal');
+  }
+
+  function prefillServiceFields() {
+    const select = document.getElementById('edit-service-select');
+    currentEditingServiceId = select.value;
+    const svc = kioskServices.find(s => s.id === currentEditingServiceId);
+    if (!svc) return;
+    document.getElementById('edit-service-duration').value = svc.duration || '';
+    document.getElementById('edit-service-price').value = svc.price || '';
+  }
+
+  function saveServiceEdit() {
+    const svc = kioskServices.find(s => s.id === currentEditingServiceId);
+    if (!svc) return;
+    svc.duration = document.getElementById('edit-service-duration').value || svc.duration;
+    svc.price = parseFloat(document.getElementById('edit-service-price').value) || svc.price;
+    renderServicesTable();
+    renderKiosk();
+    closeDialog('service-edit-modal');
   }
 
   function syncKioskFromInventory() {
