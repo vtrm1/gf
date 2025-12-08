@@ -1506,60 +1506,36 @@
 </head>
 <body>
 
-<!-- LOGIN / SELEÇÃO DE PAPEL (SIMULAÇÃO) -->
+<!-- LOGIN / AUTENTICAÇÃO FIREBASE -->
 <section id="login-screen" class="login-screen">
   <h1 id="login-title">Salão Glecie • Painel</h1>
-  <p id="login-subtitle">Escolha como deseja acessar o sistema. Depois você pode trocar isso por login real com Firebase.</p>
+  <p id="login-subtitle">Acesse com seu e-mail ou usuário. O sistema identifica automaticamente seu perfil.</p>
 
-  <div class="login-mode-toggle">
-    <div class="login-tab active" id="tab-ceo" onclick="switchLoginMode('ceo')">Sou a CEO</div>
-    <div class="login-tab" id="tab-colab" onclick="switchLoginMode('colab')">Sou colaboradora</div>
-  </div>
-
-  <div class="card" id="login-ceo-card" style="margin-top:0.4rem;">
-    <h3>Acesso principal (dona do espaço)</h3>
-    <p class="subtext">Controle total: agenda, estoque, financeiro e comissões.</p>
-    <button style="margin-top:0.5rem;" onclick="setRole('ceo')">Entrar como CEO</button>
-  </div>
-
-  <div class="card hidden" id="login-colab-card" style="margin-top:0.4rem;">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;flex-wrap:wrap;">
-      <div>
-        <h3>Login dedicado da colaboradora</h3>
-        <p class="subtext">Tela enxuta: apenas o login desta colaboradora e o acesso ao tablet.</p>
-      </div>
-      <div class="chip">Criado pela CEO</div>
-    </div>
+  <div class="card" id="login-universal" style="margin-top:0.4rem;">
     <div class="collab-form">
       <div>
-        <label class="subtext">Usuário</label>
-        <input id="collab-login-username" placeholder="ex: camila" />
+        <label class="subtext">Email ou usuário</label>
+        <input id="login-identifier" placeholder="ex: camila ou camila@email.com" />
       </div>
       <div>
         <label class="subtext">Senha</label>
-        <input id="collab-login-password" type="password" placeholder="••••••" />
+        <input id="login-password" type="password" placeholder="••••••" />
       </div>
-      <div>
-        <label class="subtext">Dispositivo</label>
-        <input id="collab-login-device" placeholder="Tablet da recepção" />
-      </div>
-      <small>Use o usuário e senha criados na Configuração &gt; Colaboradoras.</small>
     </div>
-    <button style="margin-top:0.5rem;" onclick="loginCollaboratorAccount()">Entrar como colaboradora</button>
+    <div style="display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:flex-start;margin-top:0.4rem;">
+      <button onclick="handleEmailLogin()">Entrar</button>
+      <button class="secondary" onclick="handleGoogleLogin()">Entrar com Google (CEO)</button>
+    </div>
   </div>
 
   <div class="card" style="margin-top:0.8rem;">
     <h3>Tablet do cliente (Kiosk)</h3>
     <p class="subtext">Tela fixa para o cliente registrar consumação e o serviço.</p>
-    <button style="margin-top:0.5rem;" class="secondary" onclick="setRole('kiosk')">
+    <button style="margin-top:0.5rem;" class="secondary" onclick="openKioskDirect()">
       Acessar modo tablet
     </button>
     <div class="chip">Ideal para ficar aberto em tela cheia no salão</div>
   </div>
-
-  <p class="hint">
-    ⚙️ <strong>Depois</strong>, aqui você troca por autenticação Firebase (email/senha, etc.)
-  </p>
 </section>
 
 <!-- SHELL PRINCIPAL (CEO / COLAB) -->
@@ -1997,36 +1973,48 @@
     </div>
 
     <div id="add-collab-modal" class="dialog-layer hidden">
-      <div class="dialog-card">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <h3>Adicionar colaboradora</h3>
-          <button class="secondary" style="height:32px;padding:0.35rem 0.8rem;" onclick="closeDialog('add-collab-modal')">Fechar</button>
-        </div>
-        <div class="dialog-grid">
-          <div>
-            <label>Nome</label>
-            <input id="add-collab-name" placeholder="Ex: Camilia" />
+        <div class="dialog-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <h3>Adicionar colaboradora</h3>
+            <button class="secondary" style="height:32px;padding:0.35rem 0.8rem;" onclick="closeDialog('add-collab-modal')">Fechar</button>
           </div>
-          <div>
-            <label>Cargo</label>
-            <input id="add-collab-role" placeholder="Ex: Colaboradora" />
+          <div class="dialog-grid">
+            <div>
+              <label>Nome</label>
+              <input id="add-collab-name" placeholder="Ex: Camilia" />
+            </div>
+            <div>
+              <label>Cargo</label>
+              <input id="add-collab-role" placeholder="Ex: Colaboradora" />
+            </div>
+            <div>
+              <label>Email</label>
+              <input id="add-collab-email" placeholder="Email corporativo" />
+            </div>
+            <div>
+              <label>Usuário</label>
+              <input id="add-collab-login" placeholder="Usuário opcional" />
+            </div>
+            <div>
+              <label>Comissão</label>
+              <input id="add-collab-commission" placeholder="Ex: 40% serviços" />
+            </div>
+            <div>
+              <label>Senha inicial</label>
+              <input id="add-collab-password" placeholder="Senha provisória" type="password" />
+            </div>
+            <div style="grid-column:1 / span 2; display:flex; gap:1rem; align-items:center;">
+              <label style="display:flex;align-items:center;gap:0.4rem;">
+                <input type="checkbox" id="add-collab-perm-agenda" checked /> Agenda compartilhada
+              </label>
+              <label style="display:flex;align-items:center;gap:0.4rem;">
+                <input type="checkbox" id="add-collab-perm-comissao" checked /> Comissões
+              </label>
+            </div>
           </div>
-          <div>
-            <label>Comissão</label>
-            <input id="add-collab-commission" placeholder="Ex: 40% serviços" />
-          </div>
-          <div>
-            <label>Login</label>
-            <input id="add-collab-login" placeholder="Usuário opcional" />
-          </div>
-          <div style="grid-column:1 / span 2;">
-            <label>Permissões (resumo)</label>
-            <input id="add-collab-permissions" placeholder="Agenda, estoque, comissões" />
-          </div>
-        </div>
-        <div class="dialog-actions">
-          <button class="secondary" onclick="closeDialog('add-collab-modal')">Cancelar</button>
-          <button onclick="saveNewCollaborator()">Salvar colaboradora</button>
+          <div class="dialog-actions">
+            <button class="secondary" onclick="closeDialog('add-collab-modal')">Cancelar</button>
+            <button onclick="saveNewCollaborator()">Salvar colaboradora</button>
         </div>
       </div>
     </div>
@@ -2622,6 +2610,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script>
   // -----------------------------
   // ESTADO GLOBAL (simples)
@@ -2629,7 +2618,7 @@
   let currentRole = null; // 'ceo' | 'colab' | 'kiosk'
   let currentPageCEO = 'dashboard';
   let currentPageColab = 'dashboard';
-  let loginMode = 'ceo';
+  let appInitialized = false;
   let currentColabAccount = null;
   let currentInventoryTab = 'polish';
   let currentEditingCollabIndex = null;
@@ -2662,6 +2651,8 @@
 
   let firebaseApp = null;
   let firestore = null;
+  let firebaseAuth = null;
+  let currentUserDoc = null;
   let globalMonthUnsub = null;
 
   const calendarYear = 2025;
@@ -3069,6 +3060,126 @@
   let cart = [];
 
   // -----------------------------
+  // AUTENTICAÇÃO E TROCA DE PAPEL
+  // -----------------------------
+  function openKioskDirect() {
+    window.location.href = '/kiosk.html';
+    setRole('kiosk');
+  }
+
+  async function resolveLoginEmail(identifier) {
+    if (!identifier) return null;
+    if (identifier.includes('@')) return identifier;
+    initFirebaseApp();
+    if (!firestore) return null;
+    const snap = await firestore
+      .collection('users')
+      .where('username', '==', identifier)
+      .limit(1)
+      .get()
+      .catch(() => null);
+    if (!snap || snap.empty) return null;
+    const data = snap.docs[0].data();
+    return data?.email || null;
+  }
+
+  async function fetchUserDoc(uid) {
+    if (!uid || !firestore) return null;
+    const doc = await firestore.collection('users').doc(uid).get().catch(() => null);
+    return doc?.exists ? { id: uid, ...doc.data() } : null;
+  }
+
+  function applyUserRole(userData) {
+    currentUserDoc = userData;
+    if (!appInitialized) {
+      postLoginInit();
+      appInitialized = true;
+    }
+    const role = (userData?.role || '').toUpperCase() === 'CEO' ? 'ceo' : 'colab';
+    const account = role === 'colab' ? { id: userData.id, name: userData.name || userData.username } : null;
+    setRole(role, account);
+  }
+
+  async function handleEmailLogin() {
+    const identifier = document.getElementById('login-identifier').value.trim();
+    const password = document.getElementById('login-password').value.trim();
+    if (!identifier || !password) {
+      alert('Informe usuário/email e senha.');
+      return;
+    }
+    initFirebaseApp();
+    const email = await resolveLoginEmail(identifier);
+    if (!email) {
+      alert('Não encontramos esse usuário/email.');
+      return;
+    }
+    try {
+      const cred = await firebaseAuth.signInWithEmailAndPassword(email, password);
+      const userData = await fetchUserDoc(cred.user.uid);
+      if (!userData) {
+        alert('Conta sem perfil configurado no Firestore.');
+        return;
+      }
+      applyUserRole(userData);
+    } catch (err) {
+      alert('Falha no login. Confira as credenciais.');
+    }
+  }
+
+  async function handleGoogleLogin() {
+    initFirebaseApp();
+    if (!firebaseAuth) return;
+    const provider = new firebase.auth.GoogleAuthProvider();
+    try {
+      const cred = await firebaseAuth.signInWithPopup(provider);
+      const data = await fetchUserDoc(cred.user.uid);
+      if (!data || (data.role || '').toUpperCase() !== 'CEO') {
+        await firebaseAuth.signOut();
+        alert('Apenas CEO pode usar login Google.');
+        return;
+      }
+      applyUserRole(data);
+    } catch (err) {
+      alert('Login Google cancelado ou inválido.');
+    }
+  }
+
+  function postLoginInit() {
+    initFirebaseApp();
+    buildGlobalMonthOptions();
+    listenGlobalMonth();
+    subscribeCoreCollections();
+    refreshMonthlyConsumers();
+  }
+
+  function subscribeCoreCollections() {
+    if (!firestore) return;
+    firestore.collection('investments').onSnapshot(snap => {
+      if (!snap.empty) {
+        investments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderInvestments();
+        renderDashboardCards();
+        buildGlobalMonthOptions();
+      }
+    });
+    firestore.collection('financial').onSnapshot(snap => {
+      if (!snap.empty) {
+        const mapped = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        financialEntries.splice(0, financialEntries.length, ...mapped);
+        renderFinance();
+        renderDashboardCards();
+        buildGlobalMonthOptions();
+      }
+    });
+    firestore.collection('stock').onSnapshot(snap => {
+      if (!snap.empty) {
+        stockMovements.splice(0, stockMovements.length, ...snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        buildGlobalMonthOptions();
+      }
+    });
+  }
+
+  // -----------------------------
   // TROCA DE PAPEL / TELAS
   // -----------------------------
   function setRole(role, account = null) {
@@ -3102,57 +3213,21 @@
     document.getElementById('login-screen').classList.remove('hidden');
     document.getElementById('app-shell').classList.add('hidden');
     document.getElementById('kiosk-screen').classList.add('hidden');
-    switchLoginMode(loginMode);
   }
 
   function openKioskFromDashboard() {
     setRole('kiosk');
   }
 
-  function switchLoginMode(mode) {
-    loginMode = mode;
-    const ceoCard = document.getElementById('login-ceo-card');
-    const colabCard = document.getElementById('login-colab-card');
-    const tabCeo = document.getElementById('tab-ceo');
-    const tabColab = document.getElementById('tab-colab');
-    const title = document.getElementById('login-title');
-    const subtitle = document.getElementById('login-subtitle');
-
-    if (!ceoCard || !colabCard) return;
-
-    const isCeo = mode === 'ceo';
-    ceoCard.classList.toggle('hidden', !isCeo);
-    colabCard.classList.toggle('hidden', isCeo);
-    tabCeo.classList.toggle('active', isCeo);
-    tabColab.classList.toggle('active', !isCeo);
-    title.textContent = isCeo ? 'Salão Glecie • Painel' : 'Login exclusivo da colaboradora';
-    subtitle.textContent = isCeo
-      ? 'Escolha como deseja acessar o sistema. Depois você pode trocar isso por login real com Firebase.'
-      : 'Use apenas o usuário e senha que a CEO criou para você. Aqui não aparece a opção de entrar como CEO.';
-  }
-
   function openCollaboratorLogin(username) {
-    const account = collaboratorAccounts.find(acc => acc.username === username);
     backToLogin();
-    switchLoginMode('colab');
-    if (account) {
-      document.getElementById('collab-login-username').value = account.username;
-      document.getElementById('collab-login-password').value = account.password;
-      document.getElementById('collab-login-device').value = account.device || '';
+    const account = collaboratorAccounts.find(acc => acc.username === username);
+    const idInput = document.getElementById('login-identifier');
+    const passInput = document.getElementById('login-password');
+    if (account && idInput && passInput) {
+      idInput.value = account.username || account.email || '';
+      passInput.value = account.password || '';
     }
-  }
-
-  function loginCollaboratorAccount() {
-    const username = document.getElementById('collab-login-username').value.trim();
-    const password = document.getElementById('collab-login-password').value.trim();
-    const device = document.getElementById('collab-login-device').value.trim();
-    const account = collaboratorAccounts.find(acc => acc.username === username && acc.password === password);
-    if (!account) {
-      alert('Usuário ou senha inválidos. Confira o login entregue pela CEO.');
-      return;
-    }
-    currentColabAccount = { ...account, device };
-    setRole('colab', currentColabAccount);
   }
 
   function createCollaboratorAccount() {
@@ -3190,24 +3265,58 @@
     document.getElementById('add-collab-name').value = '';
     document.getElementById('add-collab-role').value = 'Colaboradora';
     document.getElementById('add-collab-commission').value = '40% serviços';
+    document.getElementById('add-collab-email').value = '';
     document.getElementById('add-collab-login').value = '';
-    document.getElementById('add-collab-permissions').value = 'Agenda compartilhada, comissões';
+    document.getElementById('add-collab-password').value = '';
+    document.getElementById('add-collab-perm-agenda').checked = true;
+    document.getElementById('add-collab-perm-comissao').checked = true;
     openDialog('add-collab-modal');
   }
 
-  function saveNewCollaborator() {
+  async function saveNewCollaborator() {
     const name = document.getElementById('add-collab-name').value.trim();
     const role = document.getElementById('add-collab-role').value.trim() || 'Colaboradora';
     const commission = document.getElementById('add-collab-commission').value.trim() || '40% serviços';
+    const email = document.getElementById('add-collab-email').value.trim();
     const username = document.getElementById('add-collab-login').value.trim();
-    const permissions = document.getElementById('add-collab-permissions').value.trim() || 'Agenda compartilhada, comissões';
-    if (!name) return;
+    const password = document.getElementById('add-collab-password').value.trim();
+    const permAgenda = document.getElementById('add-collab-perm-agenda').checked;
+    const permComissao = document.getElementById('add-collab-perm-comissao').checked;
+    if (!name || !email || !password) {
+      alert('Preencha nome, email e senha para criar a colaboradora.');
+      return;
+    }
     const palette = ['#f1c76d', '#d4af37', '#f3c06b', '#b58c25'];
     const color = palette[Math.floor(Math.random() * palette.length)];
-    collaborators.push({ name, role, commission, permissions, username, color, active: true });
-    if (username) {
-      collaboratorAccounts.push({ name, username, password: '123', permissions, device: 'Tablet dedicado' });
+    const permissions = {
+      agenda: permAgenda,
+      comissoes: permComissao
+    };
+    const collaboratorDoc = {
+      name,
+      role: 'COLAB',
+      commission,
+      permissions,
+      username,
+      email,
+      status: 'active',
+      createdBy: currentUserDoc?.id || 'ceo',
+      createdAt: new Date().toISOString(),
+    };
+
+    try {
+      initFirebaseApp();
+      if (firebaseAuth && firestore) {
+        const cred = await firebaseAuth.createUserWithEmailAndPassword(email, password);
+        await firestore.collection('users').doc(cred.user.uid).set(collaboratorDoc, { merge: true });
+        collaboratorAccounts.push({ name, username: username || email, password, permissions: 'Agenda compartilhada, comissões', device: 'Tablet dedicado', email, id: cred.user.uid });
+        collaborators.push({ id: cred.user.uid, name, role, commission, permissions: 'Agenda compartilhada, comissões', username, color, active: true, email });
+      }
+    } catch (err) {
+      collaborators.push({ name, role, commission, permissions: 'Agenda compartilhada, comissões', username, color, active: true, email });
+      collaboratorAccounts.push({ name, username: username || email, password, permissions: 'Agenda compartilhada, comissões', device: 'Tablet dedicado', email });
     }
+
     renderCollaborators();
     closeDialog('add-collab-modal');
   }
@@ -4939,12 +5048,13 @@
     if (firebaseApp || !window.firebase) return;
     firebaseApp = firebase.initializeApp(firebaseConfig);
     firestore = firebase.firestore();
+    firebaseAuth = firebase.auth();
   }
 
   function currentUserConfigDoc() {
     if (!firestore) return null;
-    const userId = currentRole === 'colab' ? (currentColabAccount?.id || 'colab') : 'ceo';
-    return firestore.collection('settings').doc(`global-month-${userId}`);
+    const userId = currentUserDoc?.id || 'anon';
+    return firestore.collection('settings').doc('globalFilters').collection('users').doc(userId);
   }
 
   function monthKeyFromDate(dateStr) {
@@ -5625,18 +5735,40 @@
     clearCart();
   }
 
+  async function migrateLocalDataToFirestore() {
+    initFirebaseApp();
+    if (!firestore) return;
+    const keys = ['appointments', 'investments', 'financial', 'stock', 'clients'];
+    for (const key of keys) {
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          for (const item of parsed) {
+            const id = item.id || `${key}-${Date.now()}-${Math.random().toString(16).slice(2, 7)}`;
+            await firestore.collection(key).doc(id).set(item, { merge: true }).catch(() => {});
+          }
+        }
+      } catch (e) {
+        // ignore parsing errors
+      }
+    }
+    localStorage.clear();
+  }
+
   // Inicialização
   // (poderia detectar login real do Firebase aqui)
   normalizeAppointmentsData();
   normalizeInvestments();
   initFirebaseApp();
+  migrateLocalDataToFirestore();
   buildGlobalMonthOptions();
   listenGlobalMonth();
   refreshAgendaFromAppointments();
   syncKioskFromInventory();
   refreshMonthlyConsumers();
   renderFinance();
-  switchLoginMode('ceo');
 </script>
 
 </body>
