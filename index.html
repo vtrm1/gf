@@ -1524,7 +1524,7 @@
     </div>
     <div style="display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:flex-start;margin-top:0.4rem;">
       <button onclick="handleEmailLogin()">Entrar</button>
-      <button class="secondary" onclick="handleGoogleLogin()">Entrar com Google (CEO)</button>
+      <button class="secondary" onclick="handleGoogleLogin()">Entrar com Google</button>
     </div>
   </div>
 
@@ -2655,6 +2655,15 @@
   let currentUserDoc = null;
   let globalMonthUnsub = null;
 
+  const adminOverrides = {
+    'mJ3hkcBr5kT83iTgJROR811X0WP2': {
+      role: 'CEO',
+      name: 'Administrador',
+      permissions: { agenda: true, comissoes: true },
+      status: 'active'
+    }
+  };
+
   const calendarYear = 2025;
   const monthNamesFull = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
   const monthNamesShort = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
@@ -3085,8 +3094,27 @@
 
   async function fetchUserDoc(uid) {
     if (!uid || !firestore) return null;
-    const doc = await firestore.collection('users').doc(uid).get().catch(() => null);
-    return doc?.exists ? { id: uid, ...doc.data() } : null;
+    const docRef = firestore.collection('users').doc(uid);
+    const doc = await docRef.get().catch(() => null);
+    const override = adminOverrides[uid];
+
+    if (doc?.exists) {
+      const data = { id: uid, ...doc.data() };
+      if (override && (data.role || '').toUpperCase() !== 'CEO') {
+        const merged = { ...data, ...override };
+        await docRef.set(merged, { merge: true });
+        return merged;
+      }
+      return data;
+    }
+
+    if (override) {
+      const defaultDoc = { ...override, createdAt: new Date().toISOString() };
+      await docRef.set(defaultDoc, { merge: true });
+      return { id: uid, ...defaultDoc };
+    }
+
+    return null;
   }
 
   function applyUserRole(userData) {
