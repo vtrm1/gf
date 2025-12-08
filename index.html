@@ -1636,18 +1636,7 @@
         </thead>
         <tbody>
           <tr>
-            <td>14:00</td>
-            <td>Maria Souza</td>
-            <td>Glecie</td>
-            <td>Manutenção fibra</td>
-            <td><span class="badge">Confirmado</span></td>
-          </tr>
-          <tr>
-            <td>16:00</td>
-            <td>Ana Paula</td>
-            <td>Colaboradora</td>
-            <td>Alongamento</td>
-            <td><span class="badge">Confirmado</span></td>
+            <td colspan="5" class="subtext">Nenhum agendamento para exibir.</td>
           </tr>
         </tbody>
       </table>
@@ -1910,7 +1899,7 @@
           <div class="block-actions">
             <button class="ghost-btn secondary" onclick="openCollabAddModal()">+ Colaboradora</button>
             <button class="ghost-btn" onclick="openDedicatedLoginModal()">🔑 Criar login dedicado</button>
-            <button class="ghost-btn secondary" onclick="alert('Importação mockada')">⤓ Importar</button>
+            <button class="ghost-btn secondary" onclick="alert('Importe seus dados reais a partir das integrações disponíveis.')">⤓ Importar</button>
           </div>
         </div>
         <div id="collaborators-list" class="collab-list"></div>
@@ -2424,16 +2413,7 @@
         </thead>
         <tbody>
           <tr>
-            <td>14:00</td>
-            <td>Maria Souza</td>
-            <td>Manutenção</td>
-            <td><span class="badge">Confirmado</span></td>
-          </tr>
-          <tr>
-            <td>16:00</td>
-            <td>Ana Paula</td>
-            <td>Alongamento</td>
-            <td><span class="badge">Confirmado</span></td>
+            <td colspan="4" class="subtext">Nenhum agendamento para exibir.</td>
           </tr>
         </tbody>
       </table>
@@ -2673,7 +2653,6 @@
     fullName,
     tags: []
   }));
-  let mockYearDetailed = JSON.parse(JSON.stringify(baseYearDetailed));
   let selectedMonthIndex = new Date().getMonth();
   let selectedMonthIndexColab = new Date().getMonth();
   let agendaViewMode = 'year';
@@ -2682,255 +2661,33 @@
   let selectedDashboardYear = new Date().getFullYear();
   let selectedGlobalMonthKey = 'all';
 
-  let mockPolish = [
-    { name: 'Nude Elegante', brand: 'Marca X', current: 30, total: 50, low: false, addedAt: '2025-01-05' },
-    { name: 'Vermelho Clássico', brand: 'Marca Y', current: 10, total: 50, low: true, addedAt: '2025-02-10' },
-    { name: 'Top Coat Brilho', brand: 'Marca Z', current: 12, total: 30, low: true, addedAt: '2025-03-02' }
-  ];
+  let mockPolish = [];
 
-  let mockFridge = [
-    { id: 'fridge-coca', name: 'Coca lata', stock: 8, price: 7, low: false, paused: false, addedAt: '2025-01-08' },
-    { id: 'fridge-energetico', name: 'Energético', stock: 3, price: 10, low: true, paused: false, addedAt: '2025-02-12' },
-    { id: 'fridge-agua', name: 'Água sem gás', stock: 15, price: 4, low: false, paused: false, addedAt: '2025-03-12' }
-  ];
+  let mockFridge = [];
 
   let inventoryFormMode = 'add';
   let inventoryEditingType = 'polish';
   let inventoryEditingIndex = null;
 
-  const monthlyDashboardStats = [
-    { monthIndex: 0, revenue: 12340, commission: 3250, consumption: 640, alerts: 3, alertsDesc: 'Esmalte nude, top coat, energético', delta: '+18% contra Dez' },
-    { monthIndex: 1, revenue: 11000, commission: 2980, consumption: 520, alerts: 2, alertsDesc: 'Energético, Coca', delta: '+5% contra Jan' },
-    { monthIndex: 2, revenue: 14000, commission: 3650, consumption: 700, alerts: 1, alertsDesc: 'Top coat', delta: '+12% contra Fev' },
-    { monthIndex: 3, revenue: 11800, commission: 3100, consumption: 590, alerts: 2, alertsDesc: 'Esmalte vermelho, água', delta: '-8% contra Mar' },
-    { monthIndex: 4, revenue: 15000, commission: 4020, consumption: 780, alerts: 1, alertsDesc: 'Top coat', delta: '+9% contra Abr' },
-    { monthIndex: 5, revenue: 9800, commission: 2500, consumption: 420, alerts: 3, alertsDesc: 'Esmalte nude, energético, água', delta: '-15% contra Mai' },
-    { monthIndex: 6, revenue: 16000, commission: 4300, consumption: 820, alerts: 2, alertsDesc: 'Top coat, Coca', delta: '+18% contra Jun' },
-    { monthIndex: 7, revenue: 15800, commission: 4260, consumption: 790, alerts: 2, alertsDesc: 'Top coat, água', delta: '-1% contra Jul' },
-    { monthIndex: 8, revenue: 12000, commission: 3200, consumption: 580, alerts: 2, alertsDesc: 'Esmalte nude, energético', delta: '-5% contra Ago' },
-    { monthIndex: 9, revenue: 13000, commission: 3350, consumption: 610, alerts: 1, alertsDesc: 'Água', delta: '+3% contra Set' },
-    { monthIndex: 10, revenue: 17500, commission: 4700, consumption: 900, alerts: 2, alertsDesc: 'Top coat, energético', delta: '+12% contra Out' },
-    { monthIndex: 11, revenue: 19000, commission: 5100, consumption: 980, alerts: 3, alertsDesc: 'Esmalte nude, top coat, energético', delta: '+8% contra Nov' }
-  ];
+  const monthlyDashboardStats = [];
 
-  const financialEntries = [
-    { id: 'fin-1', type: 'receita', amount: 5800, date: '2025-01-12', description: 'Serviços' },
-    { id: 'fin-2', type: 'despesa', amount: 1200, date: '2025-01-18', description: 'Produtos' },
-    { id: 'fin-3', type: 'receita', amount: 6400, date: '2025-02-10', description: 'Serviços' },
-    { id: 'fin-4', type: 'despesa', amount: 1500, date: '2025-02-22', description: 'Reposição' }
-  ];
+  const financialEntries = [];
 
-  const stockMovements = [
-    { id: 'stk-1', type: 'entrada', category: 'esmalte', quantity: 10, date: '2025-01-05' },
-    { id: 'stk-2', type: 'entrada', category: 'geladeira', quantity: 6, date: '2025-02-12' },
-    { id: 'stk-3', type: 'saida', category: 'geladeira', quantity: 3, date: '2025-02-18' },
-    { id: 'stk-4', type: 'entrada', category: 'esmalte', quantity: 5, date: '2025-03-02' }
-  ];
+  const stockMovements = [];
 
-  let investments = [
-    {
-      id: 'inv-1',
-      title: 'Poltrona reclinável',
-      category: 'Equipamento',
-      valorTotal: 850,
-      valorParcela: 850,
-      parcelasTotais: 1,
-      mesReferencia: `${new Date().getFullYear()}-01`,
-      status: 'Planejado',
-      parcelado: false,
-      observacoes: 'Conforto na recepção',
-      createdAt: `${new Date().toISOString()}`,
-      updatedAt: `${new Date().toISOString()}`,
-      lastPaymentAt: null,
-      payments: [],
-      history: [{ type: 'criado', date: `${new Date().toISOString()}`, detail: 'Investimento criado' }]
-    },
-    {
-      id: 'inv-2',
-      title: 'Reforma da recepção',
-      category: 'Obra',
-      valorTotal: 2500,
-      valorParcela: 500,
-      parcelasTotais: 5,
-      mesReferencia: `${new Date().getFullYear()}-02`,
-      status: 'Em andamento',
-      parcelado: true,
-      observacoes: 'Dividido em 5x com fornecedor',
-      createdAt: `${new Date().toISOString()}`,
-      updatedAt: `${new Date().toISOString()}`,
-      lastPaymentAt: `${new Date().getFullYear()}-02-05T12:00:00Z`,
-      payments: [
-        { year: new Date().getFullYear(), monthIndex: 1, amount: 500, date: `${new Date().getFullYear()}-02-05T12:00:00Z` },
-        { year: new Date().getFullYear(), monthIndex: 2, amount: 500, date: `${new Date().getFullYear()}-03-05T12:00:00Z` }
-      ],
-      history: [
-        { type: 'criado', date: `${new Date().toISOString()}`, detail: 'Investimento criado' },
-        { type: 'pagamento', date: `${new Date().getFullYear()}-02-05T12:00:00Z`, detail: 'Parcela 1/5 paga' },
-        { type: 'pagamento', date: `${new Date().getFullYear()}-03-05T12:00:00Z`, detail: 'Parcela 2/5 paga' }
-      ]
-    },
-    {
-      id: 'inv-3',
-      title: 'Kit iluminação',
-      category: 'Melhoria',
-      valorTotal: 600,
-      valorParcela: 200,
-      parcelasTotais: 3,
-      mesReferencia: `${new Date().getFullYear()}-03`,
-      status: 'Pago',
-      parcelado: true,
-      observacoes: 'Upgrade de ring lights',
-      createdAt: `${new Date().toISOString()}`,
-      updatedAt: `${new Date().toISOString()}`,
-      lastPaymentAt: `${new Date().getFullYear()}-05-01T12:00:00Z`,
-      payments: [
-        { year: new Date().getFullYear(), monthIndex: 2, amount: 200, date: `${new Date().getFullYear()}-03-01T12:00:00Z` },
-        { year: new Date().getFullYear(), monthIndex: 3, amount: 200, date: `${new Date().getFullYear()}-04-01T12:00:00Z` },
-        { year: new Date().getFullYear(), monthIndex: 4, amount: 200, date: `${new Date().getFullYear()}-05-01T12:00:00Z` }
-      ],
-      history: [
-        { type: 'criado', date: `${new Date().toISOString()}`, detail: 'Investimento criado' },
-        { type: 'pagamento', date: `${new Date().getFullYear()}-03-01T12:00:00Z`, detail: 'Parcela 1/3 paga' },
-        { type: 'pagamento', date: `${new Date().getFullYear()}-04-01T12:00:00Z`, detail: 'Parcela 2/3 paga' },
-        { type: 'pagamento', date: `${new Date().getFullYear()}-05-01T12:00:00Z`, detail: 'Parcela 3/3 paga' }
-      ]
-    }
-  ];
+  let investments = [];
   const investmentHistoryStore = {};
 
-  const collaborators = [
-    { id: 'glecie', name: 'Glecie', role: 'CEO', commission: 'Recebe total', permissions: 'Agenda, estoque, financeiro', color: '#d4af37', username: 'glecie', active: true },
-    { id: 'camila', name: 'Camila', role: 'Colaboradora', commission: '40% serviços', permissions: 'Agenda compartilhada, comissões', color: '#f3c06b', username: 'camila', active: true },
-    { id: 'laura', name: 'Laura', role: 'Colaboradora', commission: '35% serviços', permissions: 'Agenda própria, estoque consulta', color: '#b58c25', username: 'laura', active: true }
-  ];
+  const collaborators = [];
 
-  let collaboratorAccounts = [
-    { name: 'Camila', username: 'camila', password: '123', permissions: 'Agenda compartilhada, comissões', device: 'Tablet da recepção' },
-    { name: 'Laura', username: 'laura', password: '456', permissions: 'Agenda própria, estoque consulta', device: 'Tablet manicure' },
-  ];
+  let collaboratorAccounts = [];
 
-  let clients = [
-    {
-      id: 'cli-maria',
-      name: 'Maria Souza',
-      phone: '55999900001',
-      instagram: '@maria',
-      birthday: '1995-04-12',
-      prefColor: 'Nude clássico',
-      prefShape: 'Quadrada',
-      prefExtension: 'Fibra',
-      allergies: 'Nenhuma',
-      responsible: 'Glecie',
-      lastService: 'Manutenção fibra',
-      lastDate: '12/04',
-      owners: ['Glecie'],
-      notes: 'Prefere nude clássico',
-      extra: 'Instagram @maria',
-      history: ['Alongamento inicial 10/01', 'Manutenção fibra 12/04'],
-      consume: ['Água sem gás', 'Suco verde'],
-      future: [{ date: '2025-05-10', time: '15:00', service: 'Manutenção fibra', serviceName: 'Manutenção fibra', professional: 'Glecie', professionalName: 'Glecie', professionalId: 'glecie' }],
-      nextAppointment: { date: '2025-05-10', time: '15:00', service: 'Manutenção fibra', serviceName: 'Manutenção fibra' }
-    },
-    {
-      id: 'cli-ana',
-      name: 'Ana Paula',
-      phone: '55999900002',
-      instagram: '@anap',
-      birthday: '1992-08-02',
-      prefColor: 'Rosé',
-      prefShape: 'Amendoada',
-      prefExtension: 'Fibra',
-      allergies: 'Alergia a acetona forte',
-      responsible: 'Camila',
-      lastService: 'Spa mãos',
-      lastDate: '02/04',
-      owners: ['Camila'],
-      notes: 'Alergia a acetona forte',
-      extra: 'Indicada por Laura',
-      history: ['Spa mãos 02/04'],
-      consume: ['Energético', 'Água com gás'],
-      future: [{ date: '2025-04-22', time: '14:30', service: 'Spa mãos', serviceName: 'Spa mãos', professional: 'Camila', professionalName: 'Camila', professionalId: 'camila' }],
-      nextAppointment: { date: '2025-04-22', time: '14:30', service: 'Spa mãos', serviceName: 'Spa mãos' }
-    },
-    {
-      id: 'cli-luisa',
-      name: 'Luísa Martins',
-      phone: '55999900003',
-      instagram: '@luisam',
-      birthday: '1994-03-28',
-      prefColor: 'Vermelho',
-      prefShape: 'Quadrada',
-      prefExtension: 'Gel',
-      allergies: 'Nenhuma',
-      responsible: 'Laura',
-      lastService: 'Alongamento novo',
-      lastDate: '28/03',
-      owners: ['Laura'],
-      notes: 'Gosta de formatos mais quadrados',
-      extra: '',
-      history: ['Alongamento novo 28/03'],
-      consume: ['Coca lata'],
-      future: [{ date: '2025-05-02', time: '10:00', service: 'Manutenção alongamento', serviceName: 'Manutenção alongamento', professional: 'Laura', professionalName: 'Laura', professionalId: 'laura' }],
-      nextAppointment: { date: '2025-05-02', time: '10:00', service: 'Manutenção alongamento', serviceName: 'Manutenção alongamento' }
-    }
-  ];
+  let clients = [];
 
   let currentClientEditingId = null;
   let pendingRemoveClientId = null;
 
-  let appointments = [
-    {
-      id: 'appt-1',
-      clientId: 'cli-maria',
-      clientName: 'Maria Souza',
-      professionalId: 'glecie',
-      professionalName: 'Glecie',
-      professional: 'Glecie',
-      serviceId: 'manutencao',
-      serviceName: 'Manutenção fibra',
-      service: 'Manutenção fibra',
-      date: '2025-05-10',
-      time: '15:00',
-      status: 'scheduled',
-      notes: 'Rever cutícula',
-      createdAt: '2025-03-15T10:00:00Z',
-      updatedAt: '2025-03-15T10:00:00Z'
-    },
-    {
-      id: 'appt-2',
-      clientId: 'cli-ana',
-      clientName: 'Ana Paula',
-      professionalId: 'camila',
-      professionalName: 'Camila',
-      professional: 'Camila',
-      serviceId: 'spa-maos',
-      serviceName: 'Spa mãos',
-      service: 'Spa mãos',
-      date: '2025-04-22',
-      time: '14:30',
-      status: 'scheduled',
-      notes: 'Chega 10min antes',
-      createdAt: '2025-03-10T09:00:00Z',
-      updatedAt: '2025-03-10T09:00:00Z'
-    },
-    {
-      id: 'appt-3',
-      clientId: 'cli-luisa',
-      clientName: 'Luísa Martins',
-      professionalId: 'laura',
-      professionalName: 'Laura',
-      professional: 'Laura',
-      serviceId: 'manutencao-alongamento',
-      serviceName: 'Manutenção alongamento',
-      service: 'Manutenção alongamento',
-      date: '2025-05-02',
-      time: '10:00',
-      status: 'scheduled',
-      notes: 'Prefere formato quadrado',
-      createdAt: '2025-03-05T12:00:00Z',
-      updatedAt: '2025-03-05T12:00:00Z'
-    }
-  ];
+  let appointments = [];
 
   function formatCurrency(value) {
     return 'R$ ' + Number(value || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
@@ -3002,12 +2759,7 @@
 
   let kioskDrinks = [];
 
-  let kioskServices = [
-    { id: 'manutencao', name: 'Manutenção fibra', duration: '1h30', price: 120, icon: '💅' },
-    { id: 'alongamento', name: 'Alongamento novo', duration: '2h', price: 180, icon: '✨' },
-    { id: 'spa-maos', name: 'Spa mãos', duration: '50min', price: 90, icon: '🧴' },
-    { id: 'esmalta', name: 'Esmaltação simples', duration: '40min', price: 50, icon: '🎨' },
-  ];
+  let kioskServices = [];
 
   function normalizeAppointmentsData() {
     appointments = appointments.map(appt => {
@@ -3182,27 +2934,21 @@
   function subscribeCoreCollections() {
     if (!firestore) return;
     firestore.collection('investments').onSnapshot(snap => {
-      if (!snap.empty) {
-        investments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        renderInvestments();
-        renderDashboardCards();
-        buildGlobalMonthOptions();
-      }
+      investments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderInvestments();
+      renderDashboardCards();
+      buildGlobalMonthOptions();
     });
     firestore.collection('financial').onSnapshot(snap => {
-      if (!snap.empty) {
-        const mapped = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        financialEntries.splice(0, financialEntries.length, ...mapped);
-        renderFinance();
-        renderDashboardCards();
-        buildGlobalMonthOptions();
-      }
+      const mapped = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      financialEntries.splice(0, financialEntries.length, ...mapped);
+      renderFinance();
+      renderDashboardCards();
+      buildGlobalMonthOptions();
     });
     firestore.collection('stock').onSnapshot(snap => {
-      if (!snap.empty) {
-        stockMovements.splice(0, stockMovements.length, ...snap.docs.map(d => ({ id: d.id, ...d.data() })));
-        buildGlobalMonthOptions();
-      }
+      stockMovements.splice(0, stockMovements.length, ...snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      buildGlobalMonthOptions();
     });
   }
 
@@ -3447,12 +3193,19 @@
 
     if (fields.responsible) {
       fields.responsible.innerHTML = '';
-      collaborators.forEach(col => {
+      if (!collaborators.length) {
         const opt = document.createElement('option');
-        opt.value = col.name;
-        opt.textContent = col.name;
+        opt.value = '';
+        opt.textContent = 'Defina um responsável';
         fields.responsible.appendChild(opt);
-      });
+      } else {
+        collaborators.forEach(col => {
+          const opt = document.createElement('option');
+          opt.value = col.name;
+          opt.textContent = col.name;
+          fields.responsible.appendChild(opt);
+        });
+      }
     }
 
     if (title) title.textContent = isEdit ? 'Editar cliente' : 'Adicionar cliente';
@@ -3468,7 +3221,8 @@
     if (fields.prefExtension) fields.prefExtension.value = client?.prefExtension || '';
     if (fields.allergies) fields.allergies.value = client?.allergies || '';
     if (fields.notes) fields.notes.value = client?.notes || '';
-    if (fields.responsible) fields.responsible.value = client?.responsible || (currentRole === 'colab' && currentColabAccount ? currentColabAccount.name : collaborators[0].name);
+    const responsibleFallback = currentRole === 'colab' && currentColabAccount ? currentColabAccount.name : (collaborators[0]?.name || '');
+    if (fields.responsible) fields.responsible.value = client?.responsible || responsibleFallback;
 
     openDialog('client-form-modal');
   }
@@ -4127,7 +3881,6 @@
   }
 
   function renderDashboardCards() {
-    const stats = monthlyDashboardStats.find(s => s.monthIndex === selectedDashboardMonth) || monthlyDashboardStats[0];
     const target = getDashboardFilterTarget();
     const revenueEl = document.getElementById('dashboard-revenue');
     const revenueDelta = document.getElementById('dashboard-revenue-delta');
@@ -4137,16 +3890,27 @@
     const consDelta = document.getElementById('dashboard-consumption-delta');
     const alertEl = document.getElementById('dashboard-stock-alerts');
     const alertDesc = document.getElementById('dashboard-stock-alerts-desc');
-    const monthLabel = `${monthNamesFull[stats.monthIndex]} ${target.year}`;
+    const targetLabel = target ? `${monthNamesFull[target.monthIndex]} ${target.year}` : '—';
+    const filteredFin = selectedGlobalMonthKey === 'all'
+      ? financialEntries
+      : financialEntries.filter(e => matchesTargetMonth(e.date, target));
+    const revenue = filteredFin.filter(f => f.type === 'receita').reduce((acc, cur) => acc + (cur.amount || 0), 0);
+    const commission = filteredFin.filter(f => f.type === 'comissao').reduce((acc, cur) => acc + (cur.amount || 0), 0);
+    const consumption = selectedGlobalMonthKey === 'all'
+      ? 0
+      : stockMovements.filter(m => matchesTargetMonth(m.date || m.createdAt, target) && m.type === 'saida')
+          .reduce((acc, cur) => acc + (cur.quantity || 0), 0);
+    const alertsCount = mockPolish.filter(p => p.low).length + mockFridge.filter(f => f.low).length;
+    const alertText = alertsCount > 0 ? 'Itens com estoque baixo' : 'Nenhum alerta de estoque';
 
-    if (revenueEl) revenueEl.textContent = formatCurrency(stats.revenue);
-    if (revenueDelta) revenueDelta.textContent = `${stats.delta} • ${monthLabel}`;
-    if (commEl) commEl.textContent = formatCurrency(stats.commission);
-    if (commDelta) commDelta.textContent = `Comissão prevista em ${monthLabel}`;
-    if (consEl) consEl.textContent = formatCurrency(stats.consumption);
-    if (consDelta) consDelta.textContent = 'Geladeira e consumo interno';
-    if (alertEl) alertEl.textContent = `${stats.alerts} itens`;
-    if (alertDesc) alertDesc.textContent = stats.alertsDesc;
+    if (revenueEl) revenueEl.textContent = formatCurrency(revenue);
+    if (revenueDelta) revenueDelta.textContent = targetLabel;
+    if (commEl) commEl.textContent = formatCurrency(commission);
+    if (commDelta) commDelta.textContent = commission ? `Comissões registradas em ${targetLabel}` : 'Sem comissões registradas';
+    if (consEl) consEl.textContent = formatCurrency(consumption);
+    if (consDelta) consDelta.textContent = 'Consumo filtrado pelo mês selecionado';
+    if (alertEl) alertEl.textContent = `${alertsCount} itens`;
+    if (alertDesc) alertDesc.textContent = alertText;
 
     const invStats = computeInvestmentDashboardStats(target);
     const invMonth = document.getElementById('dashboard-invest-month');
@@ -4681,25 +4445,6 @@
     return `${existing} + ${professional}`;
   }
 
-  function addAppointmentToAgenda(dateStr, service, professional) {
-    if (!dateStr) return;
-    const [year, month, day] = dateStr.split('-').map(Number);
-    if (!month || !day) return;
-    const monthEntry = mockYearDetailed.find(m => m.monthIndex === (month - 1));
-    if (!monthEntry) return;
-    if (!monthEntry.highlightDays.includes(day)) monthEntry.highlightDays.push(day);
-    const label = `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}`;
-    const existing = monthEntry.daysSummary.find(d => d.day.startsWith(String(day).padStart(2, '0')));
-    if (existing) {
-      existing.count += 1;
-      existing.highlight = service || existing.highlight;
-      existing.pros = mergePros(existing.pros, professional);
-    } else {
-      monthEntry.daysSummary.push({ day: label, count: 1, pros: professional || 'Equipe', highlight: service || 'Agendado' });
-    }
-    monthEntry.bookings = (monthEntry.bookings || 0) + 1;
-  }
-
   function refreshAgendaFromAppointments() {
     clients.forEach(c => rebuildClientAppointments(c.id));
     renderYearCalendar('ceo');
@@ -4965,6 +4710,10 @@
     const container = document.getElementById('collaborators-list');
     if (!container) return;
     container.innerHTML = '';
+    if (!collaborators.length) {
+      container.innerHTML = '<div class="collab-meta">Nenhuma colaboradora cadastrada.</div>';
+      return;
+    }
     collaborators.forEach((col, index) => {
       const row = document.createElement('div');
       row.className = 'collab-row';
@@ -5121,8 +4870,6 @@
     if (!select) return;
     initFirebaseApp();
     const map = new Map();
-    const today = new Date();
-    addMonthToMap(map, today.getFullYear(), today.getMonth());
 
     investments.forEach(inv => deriveMonthsFromInvestment(inv, map));
     financialEntries.forEach(fin => {
@@ -5582,6 +5329,11 @@
       `;
       tbody.appendChild(tr);
     });
+    if (!kioskServices.length) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td colspan="3" class="subtext">Nenhum serviço cadastrado.</td>';
+      tbody.appendChild(tr);
+    }
   }
 
   function openServiceAddModal() {
@@ -5609,6 +5361,11 @@
   function openServiceEditModal() {
     const select = document.getElementById('edit-service-select');
     select.innerHTML = '';
+    if (!kioskServices.length) {
+      select.innerHTML = '<option>Cadastre um serviço primeiro</option>';
+      openDialog('service-edit-modal');
+      return;
+    }
     kioskServices.forEach(svc => {
       const opt = document.createElement('option');
       opt.value = svc.id;
@@ -5762,19 +5519,10 @@
     clearCart();
   }
 
-  function clearLegacyLocalData() {
-    try {
-      localStorage.clear();
-    } catch (e) {
-      console.warn('Local storage not available to clear legacy data');
-    }
-  }
-
   // Inicialização
   // (poderia detectar login real do Firebase aqui)
   normalizeAppointmentsData();
   normalizeInvestments();
-  clearLegacyLocalData();
   initFirebaseApp();
   buildGlobalMonthOptions();
   listenGlobalMonth();
