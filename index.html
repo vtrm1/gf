@@ -3072,7 +3072,6 @@
   // AUTENTICAÇÃO E TROCA DE PAPEL
   // -----------------------------
   function openKioskDirect() {
-    window.location.href = '/kiosk.html';
     setRole('kiosk');
   }
 
@@ -5763,34 +5762,20 @@
     clearCart();
   }
 
-  async function migrateLocalDataToFirestore() {
-    initFirebaseApp();
-    if (!firestore) return;
-    const keys = ['appointments', 'investments', 'financial', 'stock', 'clients'];
-    for (const key of keys) {
-      const raw = localStorage.getItem(key);
-      if (!raw) continue;
-      try {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) {
-          for (const item of parsed) {
-            const id = item.id || `${key}-${Date.now()}-${Math.random().toString(16).slice(2, 7)}`;
-            await firestore.collection(key).doc(id).set(item, { merge: true }).catch(() => {});
-          }
-        }
-      } catch (e) {
-        // ignore parsing errors
-      }
+  function clearLegacyLocalData() {
+    try {
+      localStorage.clear();
+    } catch (e) {
+      console.warn('Local storage not available to clear legacy data');
     }
-    localStorage.clear();
   }
 
   // Inicialização
   // (poderia detectar login real do Firebase aqui)
   normalizeAppointmentsData();
   normalizeInvestments();
+  clearLegacyLocalData();
   initFirebaseApp();
-  migrateLocalDataToFirestore();
   buildGlobalMonthOptions();
   listenGlobalMonth();
   refreshAgendaFromAppointments();
