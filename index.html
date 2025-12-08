@@ -1781,13 +1781,6 @@
     </div>
 
       <section id="page-ceo-investments" class="page-ceo hidden">
-        <div class="section-title">
-          <div>
-            <h2>Investimentos</h2>
-            <div class="subtext">Compras, reformas e melhorias</div>
-          </div>
-        </div>
-
       <div class="card investment-controls">
         <div class="filter-line">
           <div>
@@ -5307,11 +5300,15 @@
     openDialog('investment-remove-modal');
   }
 
-  function confirmRemoveInvestment() {
+  async function confirmRemoveInvestment() {
     if (!investmentEditingId) return;
-    investments = investments.filter(inv => inv.id !== investmentEditingId);
+    const targetId = investmentEditingId;
+    investments = investments.filter(inv => inv.id !== targetId);
     investmentEditingId = null;
     closeDialog('investment-remove-modal');
+    if (firestore) {
+      await firestore.collection('investments').doc(targetId).delete().catch(() => {});
+    }
     renderInvestments();
     renderDashboardCards();
   }
