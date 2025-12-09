@@ -15,6 +15,16 @@
       --btn-primary-hover: #87ad80;
       --btn-secondary-bg: #ffffff;
       --btn-secondary-hover: #e9f6e5;
+      --btn-neutral-bg: var(--gray-2);
+      --btn-neutral-text: #3b3b3b;
+      --btn-edit-bg: #a9c4e5;
+      --btn-edit-hover: #96b4db;
+      --btn-entry-bg: #e6f6e4;
+      --btn-entry-text: #3f6a46;
+      --btn-exit-bg: #f6e7d6;
+      --btn-exit-text: #7a5a2c;
+      --btn-danger-bg: #f7b7b7;
+      --btn-danger-hover: #f39c9c;
       --pastel-beige: #FFF7F3;
       --pastel-peach: #FCE9DD;
       --text-dark: #2F2F2F;
@@ -1161,6 +1171,62 @@
     .ghost-btn.secondary:hover {
       background: rgba(0,0,0,0.05);
     }
+
+    .action-btn {
+      padding: 0.35rem 0.7rem;
+      height: 32px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      border: 1px solid transparent;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      white-space: nowrap;
+      background: var(--btn-neutral-bg) !important;
+      color: var(--btn-neutral-text) !important;
+    }
+
+    .action-btn.neutral {
+      background: var(--btn-neutral-bg) !important;
+      color: var(--btn-neutral-text) !important;
+      border-color: rgba(0,0,0,0.06);
+    }
+
+    .action-btn.edit {
+      background: var(--btn-edit-bg) !important;
+      color: #fff !important;
+      border-color: rgba(0,0,0,0.05);
+    }
+
+    .action-btn.entry {
+      background: var(--btn-entry-bg) !important;
+      color: var(--btn-entry-text) !important;
+      border-color: rgba(63,106,70,0.25);
+    }
+
+    .action-btn.exit {
+      background: var(--btn-exit-bg) !important;
+      color: var(--btn-exit-text) !important;
+      border-color: rgba(122,90,44,0.18);
+    }
+
+    .action-btn.danger {
+      background: var(--btn-danger-bg) !important;
+      color: #fff !important;
+      border-color: rgba(0,0,0,0.05);
+    }
+
+    .action-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .action-btn.edit:hover { background: var(--btn-edit-hover) !important; }
+    .action-btn.entry:hover { filter: brightness(0.98); }
+    .action-btn.exit:hover { filter: brightness(0.98); }
+    .action-btn.danger:hover { background: var(--btn-danger-hover) !important; }
 
     .clients-header {
       display: flex;
@@ -5489,10 +5555,10 @@
           <div class="history-row"><span>Última entrada: ${entryLabel}</span><span>Última saída: ${exitLabel}</span></div>
           <div class="inventory-foot">
             <div class="inventory-actions-icons">
-              <button onclick="openInventoryModal('${item.id}')">✎ Editar</button>
-              <button onclick="openStockDetailModal('${item.id}')">👁 Detalhes</button>
-              <button onclick="openStockExitModal('${item.id}')">➖ Registrar saída</button>
-              <button class="danger" onclick="promptRemoveStockItem('${item.id}')">🗑 Excluir</button>
+              <button class="action-btn edit" onclick="openInventoryModal('${item.id}')">✎ Editar</button>
+              <button class="action-btn neutral" onclick="openStockDetailModal('${item.id}')">👁 Detalhes</button>
+              <button class="action-btn exit" onclick="openStockExitModal('${item.id}')">➖ Registrar saída</button>
+              <button class="action-btn danger" onclick="promptRemoveStockItem('${item.id}')">🗑 Excluir</button>
             </div>
           </div>
         `;
@@ -6138,7 +6204,7 @@
           <span class="investment-status ${investmentBadge(displayStatus)}">${displayStatus}</span>
         </div>
         <div class="investment-card-actions compact">
-          <button class="ghost-btn investment-toggle" onclick="toggleInvestmentDetails('${item.id}')">Ver detalhes</button>
+          <button class="action-btn neutral investment-toggle" onclick="toggleInvestmentDetails('${item.id}')">Ver detalhes</button>
         </div>
         <div class="investment-card-body">
           <div class="investment-card-left">
@@ -6154,9 +6220,9 @@
           </div>
           <div class="investment-card-actions">
               <div class="investment-actions">
-                <button class="ghost-btn" title="Editar" onclick="openInvestmentModal('edit', '${item.id}')">✏️</button>
-                <button class="ghost-btn secondary" title="Marcar parcela paga" onclick="markInvestmentPaid('${item.id}')">✔️</button>
-                <button class="ghost-btn secondary" style="color:var(--danger);border-color:var(--danger);" title="Remover" onclick="openInvestmentRemoveModal('${item.id}')">🗑</button>
+                <button class="action-btn edit" title="Editar" onclick="openInvestmentModal('edit', '${item.id}')">✏️</button>
+                <button class="action-btn exit" title="Marcar parcela paga" onclick="markInvestmentPaid('${item.id}')">✔️</button>
+                <button class="action-btn danger" title="Remover" onclick="openInvestmentRemoveModal('${item.id}')">🗑</button>
               </div>
             </div>
           </div>
