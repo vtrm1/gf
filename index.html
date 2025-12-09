@@ -593,48 +593,87 @@
     .inventory-list {
       margin-top: 0.6rem;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 0.9rem;
     }
 
     .inventory-card {
       position: relative;
       background: var(--bg-card);
-      border-radius: 18px;
-      padding: 1rem 1rem 0.9rem;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-      border: 1px solid rgba(255,255,255,0.95);
+      border-radius: 14px;
+      padding: 0.95rem 1rem 0.85rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.07);
+      border: 1px solid var(--border-soft);
       display: flex;
       flex-direction: column;
+      gap: 0.45rem;
+      min-height: 140px;
+    }
+
+    .inventory-card .line-top {
+      display: flex;
+      align-items: center;
       gap: 0.65rem;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .inventory-card .title-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.12rem;
     }
 
     .inventory-badge {
-      position: absolute;
-      top: 0.8rem;
-      right: 0.9rem;
       padding: 0.25rem 0.65rem;
       border-radius: 999px;
       font-size: 0.75rem;
-      background: rgba(0,0,0,0.04);
-      color: var(--text-muted);
+      background: rgba(var(--accent-gold-rgb), 0.08);
+      color: var(--accent-gold-dark);
+      border: 1px solid rgba(var(--accent-gold-rgb), 0.18);
     }
 
     .inventory-badge.low {
       background: rgba(217, 83, 79, 0.08);
       color: var(--danger);
+      border-color: rgba(217, 83, 79, 0.2);
+    }
+
+    .inventory-badge.warn {
+      background: rgba(255, 193, 7, 0.16);
+      color: #8a5b00;
+      border-color: rgba(255, 193, 7, 0.25);
     }
 
     .inventory-card-title {
       font-size: 1rem;
       font-weight: 700;
       letter-spacing: 0.01em;
+      color: var(--text-main);
     }
 
     .inventory-meta {
       font-size: 0.82rem;
       color: var(--text-muted);
       margin-top: 0.1rem;
+    }
+
+    .inventory-mini-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.4rem;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+    }
+
+    .inventory-mini-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.32rem;
+      padding: 0.35rem 0.5rem;
+      background: rgba(0,0,0,0.02);
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
     }
 
     .inventory-progress {
@@ -652,74 +691,35 @@
       width: 70%;
     }
 
-    .inventory-visibility {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.4rem;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    .inventory-toggle {
-      padding: 0.25rem 0.65rem;
-      border-radius: 12px;
-      border: 1px solid transparent;
-      background: rgba(0,0,0,0.04);
-      color: var(--text-muted);
-      box-shadow: none;
-      font-size: 0.78rem;
-    }
-
-    .inventory-toggle.active {
-      background: rgba(var(--accent-gold-rgb), 0.12);
-      color: var(--accent-gold-dark);
-      border-color: rgba(var(--accent-gold-rgb), 0.35);
-    }
-
     .inventory-foot {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 0.6rem;
-    }
-
-    .quantity-actions {
-      display: inline-flex;
+      justify-content: flex-end;
       gap: 0.35rem;
-    }
-
-    .quantity-actions button {
-      width: 32px;
-      height: 32px;
-      padding: 0;
-      border-radius: 10px;
-      background: rgba(0,0,0,0.04);
-      color: var(--text-main);
-      box-shadow: none;
-      border: 1px solid rgba(0,0,0,0.04);
+      flex-wrap: wrap;
     }
 
     .inventory-actions-icons {
       display: inline-flex;
       gap: 0.35rem;
       align-items: center;
-    }
-
-    .icon-button {
-      width: 32px;
-      height: 32px;
-      padding: 0;
-      border-radius: 10px;
-      background: rgba(0,0,0,0.04);
+      font-size: 0.82rem;
       color: var(--text-muted);
-      box-shadow: none;
-      border: 1px solid rgba(0,0,0,0.04);
-      font-size: 0.95rem;
     }
 
-    .icon-button.danger {
-      color: var(--danger);
+    .inventory-actions-icons button {
+      width: auto;
+      min-width: 0;
+      padding: 0.35rem 0.55rem;
+      border-radius: 10px;
+      background: var(--bg-soft);
+      color: var(--text-main);
+      box-shadow: none;
+      border: 1px solid var(--border-soft);
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
     }
 
     .inventory-tabpanel {
@@ -744,31 +744,55 @@
     }
 
     .inventory-modal .card {
-      max-width: 520px;
+      max-width: 760px;
       width: 100%;
-      padding: 1.2rem 1.3rem;
+      padding: 1.25rem 1.35rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
     }
 
     .inventory-modal .modal-actions {
       display: flex;
       justify-content: flex-end;
       gap: 0.5rem;
-      margin-top: 0.8rem;
+      margin-top: 0.4rem;
+      border-top: 1px solid var(--border-soft);
+      padding-top: 0.6rem;
     }
 
     .inventory-modal .modal-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 0.6rem;
-      margin-top: 0.4rem;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 0.75rem 0.9rem;
+      margin-top: 0.35rem;
     }
 
-    .inventory-modal input {
+    .inventory-modal input,
+    .inventory-modal select,
+    .inventory-modal textarea {
       width: 100%;
-      padding: 0.55rem 0.65rem;
+      padding: 0.55rem 0.7rem;
       border-radius: 10px;
       border: 1px solid var(--border-soft);
       background: rgba(255,255,255,0.9);
+    }
+
+    .modal-section-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-top: 0.1rem;
+    }
+
+    .modal-section {
+      border: 1px solid var(--border-soft);
+      border-radius: 12px;
+      padding: 0.75rem 0.85rem;
+      background: var(--bg-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
     }
 
     .inventory-templates {
@@ -784,6 +808,55 @@
       flex-wrap: wrap;
       gap: 0.4rem;
       margin-top: 0.35rem;
+    }
+
+    .template-chip-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.45rem;
+    }
+
+    .template-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.55rem 0.65rem;
+      border-radius: 12px;
+      background: var(--bg-soft);
+      border: 1px solid var(--border-soft);
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.2s ease;
+    }
+
+    .template-chip:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+    }
+
+    .template-chip .icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: rgba(var(--accent-gold-rgb), 0.12);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      color: var(--accent-gold-dark);
+    }
+
+    .template-chip .meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.08rem;
+      font-size: 0.85rem;
+      color: var(--text-main);
+    }
+
+    .template-chip .meta span {
+      font-size: 0.78rem;
+      color: var(--text-muted);
     }
 
     .inventory-card .meta-row {
@@ -817,6 +890,36 @@
       width: 100%;
       max-width: 320px;
       height: 200px;
+    }
+
+    .stock-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.65rem;
+      margin: 0.35rem 0 0.5rem;
+    }
+
+    .summary-chip {
+      background: var(--bg-soft);
+      border: 1px solid var(--border-soft);
+      border-radius: 12px;
+      padding: 0.65rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      color: var(--text-main);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.05);
+    }
+
+    .summary-chip span {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    button.danger {
+      background: rgba(217,83,79,0.1);
+      color: var(--danger);
+      border-color: rgba(217,83,79,0.35);
     }
 
     .dialog-layer {
@@ -1695,8 +1798,36 @@
 
       <div class="card" id="dashboard-stock-card">
         <div class="section-title" style="margin-top:0;">
-          <h2>Resumo do Estoque e Custos Operacionais</h2>
-          <div class="pill-row" id="dashboard-stock-tags"></div>
+          <div>
+            <h2>Resumo do Estoque e Custos Operacionais</h2>
+            <div class="pill-row" id="dashboard-stock-tags"></div>
+          </div>
+        </div>
+        <div class="stock-summary-grid">
+          <div class="summary-chip">
+            <span>💅 Custo esmaltes</span>
+            <strong id="dashboard-stock-esmaltes">R$ 0,00</strong>
+          </div>
+          <div class="summary-chip">
+            <span>🥤 Custo geladeira</span>
+            <strong id="dashboard-stock-geladeira">R$ 0,00</strong>
+          </div>
+          <div class="summary-chip">
+            <span>🧰 Custo manutenção</span>
+            <strong id="dashboard-stock-manutencao">R$ 0,00</strong>
+          </div>
+          <div class="summary-chip">
+            <span>⚠️ Itens em alerta</span>
+            <strong id="dashboard-stock-low">0</strong>
+          </div>
+          <div class="summary-chip">
+            <span>🏷️ Lucro bruto geladeira</span>
+            <strong id="dashboard-stock-profit">R$ 0,00</strong>
+          </div>
+          <div class="summary-chip">
+            <span>📦 Consumo no mês</span>
+            <strong id="dashboard-stock-consumption-month">0</strong>
+          </div>
         </div>
         <div class="chart-row">
           <div class="chart-card">
@@ -1799,13 +1930,10 @@
     </section>
 
     <section id="page-ceo-inventory" class="page-ceo hidden">
-      <div class="inventory-header">
+      <div class="section-title" style="margin-top:0; align-items:flex-start;">
         <div>
-          <div class="inventory-tabs">
-            <button id="inventory-tab-btn-polish" class="inventory-tab active" onclick="switchInventoryTab('esmaltes')">Esmaltes</button>
-            <button id="inventory-tab-btn-fridge" class="inventory-tab" onclick="switchInventoryTab('geladeira')">Geladeira</button>
-            <button id="inventory-tab-btn-maint" class="inventory-tab" onclick="switchInventoryTab('manutencao')">Manutenção</button>
-          </div>
+          <h2>Estoque inteligente</h2>
+          <div class="subtext">Controle visual por categorias e templates recorrentes</div>
         </div>
         <div class="inventory-actions">
           <button class="secondary" onclick="openTemplateManager()">Catálogo de produtos</button>
@@ -1813,9 +1941,17 @@
         </div>
       </div>
 
+      <div class="inventory-header">
+        <div class="inventory-tabs">
+          <button id="inventory-tab-btn-polish" class="inventory-tab active" onclick="switchInventoryTab('esmaltes')">Esmaltes</button>
+          <button id="inventory-tab-btn-fridge" class="inventory-tab" onclick="switchInventoryTab('geladeira')">Geladeira</button>
+          <button id="inventory-tab-btn-maint" class="inventory-tab" onclick="switchInventoryTab('manutencao')">Manutenção</button>
+        </div>
+      </div>
+
       <div class="inventory-templates">
-        <div class="subtext">Produtos recorrentes por categoria</div>
-        <div class="pill-row" id="inventory-template-chips"></div>
+        <div class="subtext">Catálogo rápido por categoria</div>
+        <div class="template-chip-row" id="inventory-template-chips"></div>
       </div>
 
       <div id="inventory-panel-esmaltes" class="inventory-tabpanel">
@@ -1851,102 +1987,114 @@
         </div>
 
         <div class="modal-grid">
-          <div>
+          <div class="modal-section">
+            <div class="modal-section-title">Categoria & visibilidade</div>
             <label class="subtext">Categoria</label>
             <select id="inventory-category" onchange="handleInventoryDestinationChange(this.value)">
               <option value="esmaltes">Esmaltes</option>
               <option value="geladeira">Geladeira</option>
               <option value="manutencao">Manutenção</option>
             </select>
-          </div>
-          <div>
             <label class="subtext">Visibilidade no tablet</label>
             <select id="inventory-kiosk-flag">
               <option value="active">Colocar no consumo</option>
               <option value="paused">Manter oculto</option>
             </select>
+            <div class="subtext">Sugestões se adaptam à categoria escolhida.</div>
+          </div>
+          <div class="modal-section">
+            <div class="modal-section-title">Produtos recorrentes</div>
+            <div class="subtext">Use templates ou edite-os rapidamente.</div>
+            <div class="template-chip-row" id="inventory-template-row"></div>
           </div>
         </div>
 
-        <div class="quick-templates">
-          <div class="subtext" style="margin-bottom:0.35rem;">Produtos recorrentes</div>
-          <div class="pill-row" id="inventory-template-row"></div>
-        </div>
-
-        <div id="inventory-fields-esmaltes" class="modal-grid">
-          <div>
-            <label class="subtext">Nome</label>
-            <input id="stock-polish-name" placeholder="Ex: Nude clássico" />
+        <div id="inventory-fields-esmaltes" class="modal-section">
+          <div class="modal-section-title">Dados do item</div>
+          <div class="modal-grid">
+            <div>
+              <label class="subtext">Nome</label>
+              <input id="stock-polish-name" placeholder="Ex: Nude clássico" />
+            </div>
+            <div>
+              <label class="subtext">Marca</label>
+              <input id="stock-polish-brand" placeholder="Marca" />
+            </div>
+            <div>
+              <label class="subtext">Volume total (ml)</label>
+              <input id="stock-polish-total" type="number" min="0" />
+            </div>
+            <div>
+              <label class="subtext">Volume atual (ml)</label>
+              <input id="stock-polish-current" type="number" min="0" />
+            </div>
           </div>
-          <div>
-            <label class="subtext">Marca</label>
-            <input id="stock-polish-brand" placeholder="Marca" />
-          </div>
-          <div>
-            <label class="subtext">Volume total (ml)</label>
-            <input id="stock-polish-total" type="number" min="0" />
-          </div>
-          <div>
-            <label class="subtext">Volume atual (ml)</label>
-            <input id="stock-polish-current" type="number" min="0" />
-          </div>
-          <div>
-            <label class="subtext">Custo total</label>
-            <input id="stock-polish-cost" type="number" min="0" step="0.01" />
-          </div>
-          <div>
-            <label class="subtext">Consumo estimado por uso (ml)</label>
-            <input id="stock-polish-consumption" type="number" min="0" step="0.1" />
-          </div>
-          <div>
-            <label class="subtext">Data da compra</label>
-            <input id="stock-polish-date" type="date" />
-          </div>
-          <div>
-            <label class="subtext">Previsão automática</label>
-            <input id="stock-polish-forecast" disabled />
-          </div>
-        </div>
-
-        <div id="inventory-fields-geladeira" class="modal-grid hidden">
-          <div>
-            <label class="subtext">Nome</label>
-            <input id="stock-fridge-name" placeholder="Ex: Água com gás" />
-          </div>
-          <div>
-            <label class="subtext">Quantidade adicionada</label>
-            <input id="stock-fridge-qty" type="number" min="0" />
-          </div>
-          <div>
-            <label class="subtext">Custo total da compra</label>
-            <input id="stock-fridge-cost" type="number" min="0" step="0.01" />
-          </div>
-          <div>
-            <label class="subtext">Preço de venda</label>
-            <input id="stock-fridge-price" type="number" min="0" step="0.01" />
-          </div>
-          <div>
-            <label class="subtext">Data da compra</label>
-            <input id="stock-fridge-date" type="date" />
+          <div class="modal-section-title">Configurações de consumo</div>
+          <div class="modal-grid">
+            <div>
+              <label class="subtext">Custo total</label>
+              <input id="stock-polish-cost" type="number" min="0" step="0.01" />
+            </div>
+            <div>
+              <label class="subtext">Consumo estimado por uso (ml)</label>
+              <input id="stock-polish-consumption" type="number" min="0" step="0.1" />
+            </div>
+            <div>
+              <label class="subtext">Data da compra</label>
+              <input id="stock-polish-date" type="date" />
+            </div>
+            <div>
+              <label class="subtext">Previsão automática</label>
+              <input id="stock-polish-forecast" disabled />
+            </div>
           </div>
         </div>
 
-        <div id="inventory-fields-manutencao" class="modal-grid hidden">
-          <div>
-            <label class="subtext">Nome</label>
-            <input id="stock-maint-name" placeholder="Ex: Papel higiênico" />
+        <div id="inventory-fields-geladeira" class="modal-section hidden">
+          <div class="modal-section-title">Dados do item</div>
+          <div class="modal-grid">
+            <div>
+              <label class="subtext">Nome</label>
+              <input id="stock-fridge-name" placeholder="Ex: Água com gás" />
+            </div>
+            <div>
+              <label class="subtext">Quantidade adicionada</label>
+              <input id="stock-fridge-qty" type="number" min="0" />
+            </div>
+            <div>
+              <label class="subtext">Custo total da compra</label>
+              <input id="stock-fridge-cost" type="number" min="0" step="0.01" />
+            </div>
+            <div>
+              <label class="subtext">Preço de venda</label>
+              <input id="stock-fridge-price" type="number" min="0" step="0.01" />
+            </div>
+            <div>
+              <label class="subtext">Data da compra</label>
+              <input id="stock-fridge-date" type="date" />
+            </div>
           </div>
-          <div>
-            <label class="subtext">Quantidade</label>
-            <input id="stock-maint-qty" type="number" min="0" />
-          </div>
-          <div>
-            <label class="subtext">Custo total da compra</label>
-            <input id="stock-maint-cost" type="number" min="0" step="0.01" />
-          </div>
-          <div>
-            <label class="subtext">Data da compra</label>
-            <input id="stock-maint-date" type="date" />
+        </div>
+
+        <div id="inventory-fields-manutencao" class="modal-section hidden">
+          <div class="modal-section-title">Dados do item</div>
+          <div class="modal-grid">
+            <div>
+              <label class="subtext">Nome</label>
+              <input id="stock-maint-name" placeholder="Ex: Papel higiênico" />
+            </div>
+            <div>
+              <label class="subtext">Quantidade</label>
+              <input id="stock-maint-qty" type="number" min="0" />
+            </div>
+            <div>
+              <label class="subtext">Custo total da compra</label>
+              <input id="stock-maint-cost" type="number" min="0" step="0.01" />
+            </div>
+            <div>
+              <label class="subtext">Data da compra</label>
+              <input id="stock-maint-date" type="date" />
+            </div>
           </div>
         </div>
 
@@ -1996,6 +2144,61 @@
         <div class="modal-actions">
           <button class="secondary" onclick="closeDialog('template-modal')">Cancelar</button>
           <button onclick="saveTemplate()">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="stock-detail-modal" class="dialog-layer hidden">
+      <div class="dialog-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h3>Detalhes do item</h3>
+          <button class="secondary" onclick="closeDialog('stock-detail-modal')">Fechar</button>
+        </div>
+        <div class="dialog-grid">
+          <div><label>Item</label><div id="stock-detail-name" class="value" style="font-size:1rem;">—</div></div>
+          <div><label>Categoria</label><div id="stock-detail-cat" class="subtext">—</div></div>
+          <div><label>Última entrada</label><div id="stock-detail-entry" class="subtext">—</div></div>
+          <div><label>Última saída</label><div id="stock-detail-exit" class="subtext">—</div></div>
+          <div><label>Previsão</label><div id="stock-detail-forecast" class="subtext">—</div></div>
+          <div><label>Custo/uso</label><div id="stock-detail-cost" class="subtext">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="stock-exit-modal" class="dialog-layer hidden">
+      <div class="dialog-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h3>Registrar saída</h3>
+          <button class="secondary" onclick="closeDialog('stock-exit-modal')">Fechar</button>
+        </div>
+        <div>
+          <label>Item</label>
+          <div id="stock-exit-name" class="subtext">—</div>
+        </div>
+        <div class="dialog-grid">
+          <div>
+            <label>Quantidade/volume</label>
+            <input id="stock-exit-qty" type="number" min="0" />
+          </div>
+          <div>
+            <label>Observações</label>
+            <input id="stock-exit-notes" placeholder="Opcional" />
+          </div>
+        </div>
+        <div class="dialog-actions" style="justify-content:flex-end;">
+          <button class="secondary" onclick="closeDialog('stock-exit-modal')">Cancelar</button>
+          <button onclick="confirmStockExit()">Registrar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="stock-remove-modal" class="dialog-layer hidden">
+      <div class="dialog-card">
+        <h3>Remover item</h3>
+        <p class="subtext">Essa ação removerá o item do estoque.</p>
+        <div class="dialog-actions" style="justify-content:space-between;">
+          <button class="secondary" onclick="closeDialog('stock-remove-modal')">Cancelar</button>
+          <button class="danger" onclick="confirmRemoveStockItem()">Excluir</button>
         </div>
       </div>
     </div>
@@ -2884,6 +3087,8 @@
   let inventoryEditingId = null;
   let currentInventoryCategory = 'esmaltes';
   let templateEditingId = null;
+  let pendingRemoveStockId = null;
+  let pendingExitStockId = null;
 
   const monthlyDashboardStats = [];
 
@@ -4249,6 +4454,12 @@
         <span>Manutenção: <strong>${formatCurrency(totals.manutencao)}</strong></span>
       `;
     }
+    const esmalteVal = document.getElementById('dashboard-stock-esmaltes');
+    const gelVal = document.getElementById('dashboard-stock-geladeira');
+    const manVal = document.getElementById('dashboard-stock-manutencao');
+    if (esmalteVal) esmalteVal.textContent = formatCurrency(totals.esmaltes);
+    if (gelVal) gelVal.textContent = formatCurrency(totals.geladeira);
+    if (manVal) manVal.textContent = formatCurrency(totals.manutencao);
     const tags = document.getElementById('dashboard-stock-tags');
     if (tags) {
       tags.innerHTML = '';
@@ -4278,6 +4489,20 @@
       const pct = item.volumeTotal_ml ? (item.volumeAtual_ml / item.volumeTotal_ml) : null;
       return (item.previsaoDuracaoDias && item.previsaoDuracaoDias < 15) || (pct != null && pct < 0.3);
     }).length;
+    const lowEl = document.getElementById('dashboard-stock-low');
+    if (lowEl) lowEl.textContent = `${lowCount}`;
+    const profitEl = document.getElementById('dashboard-stock-profit');
+    const fridgeProfit = stockItems
+      .filter(i => (i.categoria || i.category) === 'geladeira')
+      .reduce((acc, cur) => acc + ((cur.precoVenda || 0) * (cur.quantidade || 0) - (cur.custoCompra || 0)), 0);
+    if (profitEl) profitEl.textContent = formatCurrency(fridgeProfit);
+    const historyEntries = Object.values(stockHistories).flat();
+    const monthConsumption = selectedGlobalMonthKey === 'all'
+      ? 0
+      : historyEntries.filter(m => (m.tipo === 'saida' || m.tipo === 'baixa') && matchesTargetMonth(m.data, target))
+          .reduce((acc, cur) => acc + (cur.quantity || cur.quantidade || cur.volume || 0), 0);
+    const consEl = document.getElementById('dashboard-stock-consumption-month');
+    if (consEl) consEl.textContent = `${monthConsumption}`;
     const fridgeLow = stockItems.filter(item => (item.categoria || item.category) === 'geladeira' && item.quantidade && item.quantidade <= (item.unidadesPorPack || item.quantidade) * 0.2).length;
     const indicators = document.getElementById('stock-indicators');
     if (indicators) {
@@ -4960,32 +5185,31 @@
         chips.innerHTML = '<span class="subtext">Nenhum template salvo.</span>';
       } else {
         filtered.forEach(t => {
-          const wrap = document.createElement('div');
-          wrap.style.display = 'inline-flex';
-          wrap.style.gap = '0.25rem';
-          const btn = document.createElement('button');
-          btn.className = 'secondary';
-          btn.textContent = t.nome || t.name;
-          btn.onclick = () => applyInventoryTemplate(t.id);
-          const edit = document.createElement('button');
-          edit.className = 'icon-button';
-          edit.textContent = '✎';
-          edit.onclick = () => openTemplateManager(t.id);
-          const remove = document.createElement('button');
-          remove.className = 'icon-button danger';
-          remove.textContent = '🗑';
-          remove.onclick = () => deleteTemplate(t.id);
-          wrap.append(btn, edit, remove);
-          chips.appendChild(wrap);
+          const chip = document.createElement('div');
+          chip.className = 'template-chip';
+          chip.onclick = () => openTemplateManager(t.id);
+          const icon = document.createElement('div');
+          icon.className = 'icon';
+          icon.textContent = currentInventoryCategory === 'geladeira' ? '🥤' : currentInventoryCategory === 'manutencao' ? '🧰' : '💅';
+          const meta = document.createElement('div');
+          meta.className = 'meta';
+          meta.innerHTML = `<strong>${t.nome || t.name}</strong><span>${t.unidadesPorPack ? `${t.unidadesPorPack} por pack` : 'Template rápido'}</span>`;
+          const quick = document.createElement('button');
+          quick.className = 'secondary';
+          quick.textContent = 'Usar';
+          quick.style.padding = '0.35rem 0.6rem';
+          quick.onclick = (ev) => { ev.stopPropagation(); applyInventoryTemplate(t.id); };
+          chip.append(icon, meta, quick);
+          chips.appendChild(chip);
         });
       }
     }
     if (modalRow) {
       modalRow.innerHTML = '';
       filtered.forEach(t => {
-        const btn = document.createElement('button');
-        btn.className = 'secondary';
-        btn.textContent = t.nome || t.name;
+        const btn = document.createElement('div');
+        btn.className = 'template-chip';
+        btn.innerHTML = `<div class="icon">⭐</div><div class="meta"><strong>${t.nome || t.name}</strong><span>${t.unidadesPorPack ? t.unidadesPorPack + ' por pack' : 'Sugestão'}</span></div>`;
         btn.onclick = () => applyInventoryTemplate(t.id);
         modalRow.appendChild(btn);
       });
@@ -5035,34 +5259,43 @@
         const hist = buildStockHistoryInfo(item.id);
         const pct = item.volumeTotal_ml ? Math.round((item.volumeAtual_ml / item.volumeTotal_ml) * 100) : null;
         const badgeLow = item.previsaoDuracaoDias && item.previsaoDuracaoDias < 15;
+        const warnFlag = item.previsaoDuracaoDias && item.previsaoDuracaoDias < 7;
         const lowFlag = badgeLow || (pct != null && pct < 30) || (item.quantidade && item.quantidade <= (item.unidadesPorPack || item.quantidade) * 0.2);
+        const statusLabel = lowFlag ? 'Baixo' : warnFlag ? 'Expirando' : 'OK';
+        const badgeClass = lowFlag ? 'low' : warnFlag ? 'warn' : '';
         const div = document.createElement('div');
         div.className = 'inventory-card';
-        let metaBlock = '';
-        if (category === 'esmaltes') {
-          metaBlock = `<div class="meta-row"><span>${item.marca || 'Marca não informada'}</span><span>${item.volumeAtual_ml || 0} ml de ${item.volumeTotal_ml || 0} ml</span><span>Custo/uso ${formatCurrency(item.custoPorUso || 0)}</span></div>`;
-        } else if (category === 'geladeira') {
-          metaBlock = `<div class="meta-row"><span>Qtd: ${item.quantidade || 0}</span><span>Venda ${formatCurrency(item.precoVenda || 0)}</span><span>Custo ${formatCurrency(item.custoCompra || 0)}</span></div>`;
-        } else {
-          metaBlock = `<div class="meta-row"><span>Qtd: ${item.quantidade || 0}</span><span>Custo ${formatCurrency(item.custoCompra || 0)}</span></div>`;
-        }
+        const entryLabel = hist.lastEntry ? formatDateLabel((hist.lastEntry || '').split('T')[0] || hist.lastEntry) : '—';
+        const exitLabel = hist.lastExit ? formatDateLabel((hist.lastExit || '').split('T')[0] || hist.lastExit) : '—';
         const progress = pct != null ? `<div class="inventory-progress"><div class="fill" style="width:${Math.max(0, Math.min(100, pct))}%;${pct < 10 ? 'background:#d9534f;' : ''}"></div></div>` : '';
-        const forecastTag = item.previsaoDuracaoDias ? `<span class="pill">Duração ~${item.previsaoDuracaoDias} dias</span>` : '';
-        const costTag = item.custoPorUso ? `<span class="pill">Custo/uso ${formatCurrency(item.custoPorUso)}</span>` : '';
+        const unitCost = category === 'geladeira' || category === 'manutencao'
+          ? (item.custoCompra ? (item.custoCompra / Math.max(1, item.quantidade || 1)) : 0)
+          : (item.custoPorUso || 0);
+        const miniMeta = `
+          <div class="inventory-mini-meta">
+            <span>📦 ${category === 'esmaltes' ? `${item.volumeAtual_ml || 0} ml` : `${item.quantidade || 0} un.`}</span>
+            <span>💰 Custo ${formatCurrency(unitCost)}</span>
+            ${category === 'geladeira' ? `<span>🏷️ Venda ${formatCurrency(item.precoVenda || 0)}</span>` : ''}
+            <span>📅 Entrada ${entryLabel}</span>
+            ${category === 'esmaltes' ? `<span>⏳ Consumo ${item.consumoEstimadoPorUso || 0}ml</span>` : ''}
+          </div>`;
         div.innerHTML = `
-          <span class="inventory-badge ${lowFlag ? 'low' : ''}">${lowFlag ? 'Baixo estoque' : 'OK'}</span>
-          <div class="inventory-card-title">${item.nome || item.name || 'Item sem nome'}</div>
-          <div class="inventory-meta">${category === 'esmaltes' ? (item.marca || '') : ''} ${item.dataCompra ? '• Comprado em ' + formatDateLabel(item.dataCompra) : ''}</div>
-          ${metaBlock}
+          <div class="line-top">
+            <div class="title-stack">
+              <div class="inventory-card-title">${item.nome || item.name || 'Item sem nome'}</div>
+              <div class="inventory-meta">${category === 'esmaltes' ? (item.marca || 'Marca não informada') : (item.categoria || item.category)} ${item.dataCompra ? '• Comprado em ' + formatDateLabel(item.dataCompra) : ''}</div>
+            </div>
+            <span class="inventory-badge ${badgeClass}">${statusLabel}</span>
+          </div>
+          ${miniMeta}
           ${progress}
-          <div class="pill-row">${forecastTag || ''}${costTag || ''}</div>
-          <div class="history-row"><span>Última entrada: ${hist.lastEntry ? formatDateLabel(hist.lastEntry.split('T')[0]) : '—'}</span><span>Última saída: ${hist.lastExit ? formatDateLabel(hist.lastExit.split('T')[0]) : '—'}</span></div>
+          <div class="history-row"><span>Última entrada: ${entryLabel}</span><span>Última saída: ${exitLabel}</span></div>
           <div class="inventory-foot">
-            <small>${item.paused ? 'Oculto no tablet' : 'Disponível no consumo'}</small>
             <div class="inventory-actions-icons">
-              <button class="icon-button" onclick="openInventoryModal('${item.id}')">✎</button>
-              <button class="icon-button" onclick="toggleStockVisibility('${item.id}')">👁</button>
-              <button class="icon-button danger" onclick="removeStockItem('${item.id}')">🗑</button>
+              <button onclick="openInventoryModal('${item.id}')">✎ Editar</button>
+              <button onclick="openStockDetailModal('${item.id}')">👁 Detalhes</button>
+              <button onclick="openStockExitModal('${item.id}')">➖ Registrar saída</button>
+              <button class="danger" onclick="promptRemoveStockItem('${item.id}')">🗑 Excluir</button>
             </div>
           </div>
         `;
@@ -5138,6 +5371,63 @@
   async function removeStockItem(itemId) {
     if (!firestore || !itemId) return;
     await firestore.collection('stock').doc(itemId).delete();
+  }
+
+  function promptRemoveStockItem(itemId) {
+    pendingRemoveStockId = itemId;
+    openDialog('stock-remove-modal');
+  }
+
+  async function confirmRemoveStockItem() {
+    if (!pendingRemoveStockId) return;
+    await removeStockItem(pendingRemoveStockId);
+    pendingRemoveStockId = null;
+    closeDialog('stock-remove-modal');
+  }
+
+  function openStockDetailModal(itemId) {
+    const item = stockItems.find(i => i.id === itemId);
+    if (!item) return;
+    const hist = buildStockHistoryInfo(itemId);
+    document.getElementById('stock-detail-name').textContent = item.nome || item.name || 'Item';
+    document.getElementById('stock-detail-cat').textContent = item.categoria || item.category || '—';
+    document.getElementById('stock-detail-entry').textContent = hist.lastEntry ? formatDateLabel((hist.lastEntry || '').split('T')[0] || hist.lastEntry) : '—';
+    document.getElementById('stock-detail-exit').textContent = hist.lastExit ? formatDateLabel((hist.lastExit || '').split('T')[0] || hist.lastExit) : '—';
+    document.getElementById('stock-detail-forecast').textContent = item.previsaoDuracaoDias ? `${item.previsaoDuracaoDias} dias` : '—';
+    document.getElementById('stock-detail-cost').textContent = item.custoPorUso ? formatCurrency(item.custoPorUso) : '—';
+    openDialog('stock-detail-modal');
+  }
+
+  function openStockExitModal(itemId) {
+    pendingExitStockId = itemId;
+    const item = stockItems.find(i => i.id === itemId);
+    const input = document.getElementById('stock-exit-qty');
+    const nameEl = document.getElementById('stock-exit-name');
+    if (nameEl) nameEl.textContent = item?.nome || item?.name || 'Item';
+    if (input) input.value = item?.consumoEstimadoPorUso || 1;
+    openDialog('stock-exit-modal');
+  }
+
+  async function confirmStockExit() {
+    if (!pendingExitStockId || !firestore) return;
+    const item = stockItems.find(i => i.id === pendingExitStockId);
+    if (!item) return;
+    const qty = parseFloat(document.getElementById('stock-exit-qty')?.value || '0');
+    const now = new Date().toISOString();
+    let payload = { updatedAt: now };
+    if (item.categoria === 'esmaltes') {
+      const remaining = Math.max(0, (item.volumeAtual_ml || 0) - qty);
+      const usesPerDay = 3;
+      const previsao = (item.consumoEstimadoPorUso || 0) > 0 ? Math.round(remaining / ((item.consumoEstimadoPorUso || 0) * usesPerDay)) : item.previsaoDuracaoDias || 0;
+      payload = { volumeAtual_ml: remaining, previsaoDuracaoDias: previsao };
+    } else {
+      const remaining = Math.max(0, (item.quantidade || 0) - qty);
+      payload = { quantidade: remaining };
+    }
+    await firestore.collection('stock').doc(pendingExitStockId).set(payload, { merge: true });
+    await saveStockHistory(pendingExitStockId, { tipo: 'saida', quantidade: qty, volume: item.categoria === 'esmaltes' ? qty : null, data: now });
+    closeDialog('stock-exit-modal');
+    pendingExitStockId = null;
   }
 
   function openTemplateManager(id = null) {
