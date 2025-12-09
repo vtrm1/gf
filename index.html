@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Salão - Painel</title>
+  <title>Studio Nails - Painel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -1508,7 +1508,7 @@
 
 <!-- LOGIN / AUTENTICAÇÃO FIREBASE -->
 <section id="login-screen" class="login-screen">
-  <h1 id="login-title">Salão Glecie • Painel</h1>
+  <h1 id="login-title">Studio Nails • Painel</h1>
   <p id="login-subtitle">Acesse com seu e-mail ou usuário. O sistema identifica automaticamente seu perfil.</p>
 
   <div class="card" id="login-universal" style="margin-top:0.4rem;">
@@ -1534,7 +1534,7 @@
     <button style="margin-top:0.5rem;" class="secondary" onclick="openKioskDirect()">
       Acessar modo tablet
     </button>
-    <div class="chip">Ideal para ficar aberto em tela cheia no salão</div>
+    <div class="chip">Ideal para ficar aberto em tela cheia no Studio</div>
   </div>
 </section>
 
@@ -1544,7 +1544,7 @@
     <div class="sidebar-header">
       <div class="logo-circle"></div>
       <div>
-        <div style="font-size:0.9rem;font-weight:600;">Salão Glecie</div>
+        <div style="font-size:0.9rem;font-weight:600;">Studio Nails</div>
         <div id="sidebar-role-label" style="font-size:0.75rem;color:var(--text-muted);">
           —
         </div>
@@ -1570,7 +1570,7 @@
     <header class="topbar">
       <div>
         <h1 id="page-title">Dashboard</h1>
-        <div class="tag" id="page-subtitle">Visão geral do salão</div>
+        <div class="tag" id="page-subtitle">Visão geral do Studio Nails</div>
       </div>
       <div class="topbar-actions"></div>
     </header>
@@ -1708,6 +1708,7 @@
         <div class="inventory-tabs">
           <button id="inventory-tab-btn-polish" class="inventory-tab active" onclick="switchInventoryTab('polish')">Esmaltes</button>
           <button id="inventory-tab-btn-fridge" class="inventory-tab" onclick="switchInventoryTab('fridge')">Geladeira</button>
+          <button id="inventory-tab-btn-maint" class="inventory-tab" onclick="switchInventoryTab('maintenance')">Manutenção</button>
         </div>
       </div>
 
@@ -1730,6 +1731,16 @@
           <!-- Itens via JS mock -->
         </div>
       </div>
+
+      <div id="inventory-panel-maintenance" class="inventory-tabpanel hidden">
+        <div class="section-title">
+          <h2>Manutenção</h2>
+          <button onclick="openInventoryModal('maintenance')">Adicionar</button>
+        </div>
+        <div class="inventory-list" id="inventory-maintenance-list">
+          <!-- Itens via JS mock -->
+        </div>
+      </div>
     </section>
 
     <div id="inventory-modal" class="inventory-modal hidden">
@@ -1737,6 +1748,34 @@
         <div class="section-title" style="margin-top:0;">
           <h2 id="inventory-modal-title">Adicionar item</h2>
           <button class="secondary" onclick="closeInventoryModal()">Fechar</button>
+        </div>
+
+        <div class="modal-grid">
+          <div>
+            <label class="subtext">Para qual aba?</label>
+            <select id="inventory-destination" onchange="handleInventoryDestinationChange(this.value)">
+              <option value="polish">Esmaltes</option>
+              <option value="fridge">Geladeira</option>
+              <option value="maintenance">Manutenção</option>
+            </select>
+          </div>
+          <div>
+            <label class="subtext">Visibilidade no consumo</label>
+            <select id="inventory-kiosk-flag">
+              <option value="active">Colocar no consumo</option>
+              <option value="paused">Manter oculto no tablet</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="quick-templates">
+          <div class="subtext" style="margin-bottom:0.5rem;">Itens recorrentes</div>
+          <div class="pill-row" id="inventory-template-row">
+            <button class="secondary" onclick="applyInventoryTemplate('Cápsula de café', 10)">Cápsula de café (10)</button>
+            <button class="secondary" onclick="applyInventoryTemplate('Red Bull', 6)">Red Bull (6)</button>
+            <button class="secondary" onclick="applyInventoryTemplate('Papel higiênico', 12)">Papel higiênico</button>
+            <button class="secondary" onclick="applyInventoryTemplate('Absorventes', 8)">Absorventes</button>
+          </div>
         </div>
 
         <div id="inventory-modal-polish" class="modal-grid">
@@ -1773,6 +1812,21 @@
           </div>
         </div>
 
+        <div id="inventory-modal-maintenance" class="modal-grid hidden">
+          <div>
+            <label class="subtext">Item</label>
+            <input id="new-maint-name" placeholder="Ex: Papel higiênico" />
+          </div>
+          <div>
+            <label class="subtext">Quantidade</label>
+            <input id="new-maint-qty" type="number" placeholder="Ex: 12" />
+          </div>
+          <div>
+            <label class="subtext">Observação</label>
+            <input id="new-maint-note" placeholder="Ex: pacote 12 rolos" />
+          </div>
+        </div>
+
         <div class="modal-actions">
           <button class="secondary" onclick="closeInventoryModal()">Cancelar</button>
           <button id="inventory-modal-save" onclick="submitInventoryForm()">Salvar</button>
@@ -1782,19 +1836,15 @@
 
       <section id="page-ceo-investments" class="page-ceo hidden">
       <div class="card investment-controls">
-        <div class="filter-line">
+        <div class="control-actions" style="justify-content: space-between; gap:1rem;">
           <div>
-            <div class="subtext">Filtro mensal inteligente</div>
-            <label class="filter-label" for="investment-month-filter">Selecione o mês (ou Todos)</label>
-          </div>
-          <select id="investment-month-filter" class="month-dropdown" onchange="handleInvestmentMonthChange(this.value)"></select>
-        </div>
-        <div class="control-actions">
-          <div class="segmented compact">
-            <button id="invest-filter-all" class="active" onclick="setInvestmentFilter('Todos')">Todos</button>
-            <button id="invest-filter-plan" onclick="setInvestmentFilter('Planejado')">Planejado</button>
-            <button id="invest-filter-progress" onclick="setInvestmentFilter('Em andamento')">Em andamento</button>
-            <button id="invest-filter-paid" onclick="setInvestmentFilter('Pago')">Pago</button>
+            <div class="subtext">Filtrando pelo mês selecionado acima</div>
+            <div class="segmented compact">
+              <button id="invest-filter-all" class="active" onclick="setInvestmentFilter('Todos')">Todos</button>
+              <button id="invest-filter-plan" onclick="setInvestmentFilter('Planejado')">Planejado</button>
+              <button id="invest-filter-progress" onclick="setInvestmentFilter('Em andamento')">Em andamento</button>
+              <button id="invest-filter-paid" onclick="setInvestmentFilter('Pago')">Pago</button>
+            </div>
           </div>
           <button class="secondary" onclick="openInvestmentModal()">+ Adicionar investimento</button>
         </div>
@@ -1881,7 +1931,7 @@
 
     <section id="page-ceo-settings" class="page-ceo hidden">
       <div class="section-title">
-        <h2>Configurações do salão</h2>
+        <h2>Configurações do Studio</h2>
       </div>
       <div class="settings-block">
         <div class="block-header">
@@ -2574,7 +2624,7 @@
           Finalizar e avisar a profissional
         </button>
         <div class="hint">
-          Depois você paga normalmente no caixa. Este registro ajuda o salão a controlar estoque e comissão.
+          Depois você paga normalmente no caixa. Este registro ajuda o Studio a controlar estoque e comissão.
         </div>
       </div>
     </div>
@@ -2627,11 +2677,12 @@
   let firebaseAuth = null;
   let currentUserDoc = null;
   let globalMonthUnsub = null;
+  let authListenerAttached = false;
 
   const adminOverrides = {
     'mJ3hkcBr5kT83iTgJROR811X0WP2': {
       role: 'CEO',
-      name: 'Administrador',
+      name: 'Gleice',
       permissions: { agenda: true, comissoes: true },
       status: 'active'
     }
@@ -2657,6 +2708,8 @@
   let mockPolish = [];
 
   let mockFridge = [];
+
+  let maintenanceItems = [];
 
   let inventoryFormMode = 'add';
   let inventoryEditingType = 'polish';
@@ -2922,6 +2975,22 @@
     listenGlobalMonth();
     subscribeCoreCollections();
     refreshMonthlyConsumers();
+  }
+
+  function attachAuthListener() {
+    initFirebaseApp();
+    if (!firebaseAuth || authListenerAttached) return;
+    authListenerAttached = true;
+    firebaseAuth.onAuthStateChanged(async (user) => {
+      if (user) {
+        const data = await fetchUserDoc(user.uid);
+        if (data) {
+          applyUserRole(data);
+          document.getElementById('login-screen')?.classList.add('hidden');
+          document.getElementById('app-shell')?.classList.remove('hidden');
+        }
+      }
+    });
   }
 
   function subscribeCoreCollections() {
@@ -3343,7 +3412,7 @@
       const cons = (client.consume || []).map(h => `<li>${h}</li>`).join('') || '<li>Sem consumos</li>';
       container.innerHTML = `
         <div class="client-detail-section">
-          <h4>Consumos no salão</h4>
+          <h4>Consumos no Studio</h4>
           <ul class="client-detail-list">${cons}</ul>
         </div>
       `;
@@ -3675,9 +3744,9 @@
 
   function updateRoleLabel(role) {
     const el = document.getElementById('sidebar-role-label');
-    if (role === 'ceo') el.textContent = 'Acesso CEO (total)';
+    if (role === 'ceo') el.textContent = 'Administradora Gleice';
     if (role === 'colab') {
-      const label = currentColabAccount ? `${currentColabAccount.name} (colab)` : 'Colaboradora (comissão)';
+      const label = currentColabAccount ? `${currentColabAccount.name} (profissional)` : 'Profissional (comissão)';
       el.textContent = label;
     }
   }
@@ -3748,7 +3817,7 @@
     });
 
     const titleMapCEO = {
-      dashboard: ['Dashboard', 'Visão geral do salão'],
+      dashboard: ['Dashboard', 'Visão geral do Studio Nails'],
       agenda: ['Agenda', 'Visão anual e mensal'],
       inventory: ['Estoque', 'Esmaltes e geladeira'],
       investments: ['Investimentos', 'Compras, reformas e melhorias'],
@@ -3768,7 +3837,7 @@
     const subtitleEl = document.getElementById('page-subtitle');
 
     if (role === 'ceo') {
-      const arr = titleMapCEO[pageId] || ['Dashboard', 'Visão geral do salão'];
+      const arr = titleMapCEO[pageId] || ['Dashboard', 'Visão geral do Studio Nails'];
       titleEl.textContent = arr[0];
       subtitleEl.textContent = arr[1];
     } else if (role === 'colab') {
@@ -4453,15 +4522,19 @@
     currentInventoryTab = tab;
     const polishPanel = document.getElementById('inventory-panel-polish');
     const fridgePanel = document.getElementById('inventory-panel-fridge');
+    const maintenancePanel = document.getElementById('inventory-panel-maintenance');
     const polishBtn = document.getElementById('inventory-tab-btn-polish');
     const fridgeBtn = document.getElementById('inventory-tab-btn-fridge');
-    if (polishPanel && fridgePanel) {
+    const maintBtn = document.getElementById('inventory-tab-btn-maint');
+    if (polishPanel && fridgePanel && maintenancePanel) {
       polishPanel.classList.toggle('hidden', tab !== 'polish');
       fridgePanel.classList.toggle('hidden', tab !== 'fridge');
+      maintenancePanel.classList.toggle('hidden', tab !== 'maintenance');
     }
-    if (polishBtn && fridgeBtn) {
+    if (polishBtn && fridgeBtn && maintBtn) {
       polishBtn.classList.toggle('active', tab === 'polish');
       fridgeBtn.classList.toggle('active', tab === 'fridge');
+      maintBtn.classList.toggle('active', tab === 'maintenance');
     }
   }
 
@@ -4473,6 +4546,13 @@
     document.getElementById('new-fridge-name').value = '';
     document.getElementById('new-fridge-price').value = '';
     document.getElementById('new-fridge-stock').value = '';
+    document.getElementById('new-maint-name').value = '';
+    document.getElementById('new-maint-qty').value = '';
+    document.getElementById('new-maint-note').value = '';
+    const dest = document.getElementById('inventory-destination');
+    if (dest) dest.value = inventoryEditingType || 'polish';
+    const kioskFlag = document.getElementById('inventory-kiosk-flag');
+    if (kioskFlag) kioskFlag.value = 'active';
   }
 
   function openInventoryModal(type, mode = 'add', index = null) {
@@ -4484,7 +4564,9 @@
     const save = document.getElementById('inventory-modal-save');
     const polishFields = document.getElementById('inventory-modal-polish');
     const fridgeFields = document.getElementById('inventory-modal-fridge');
+    const maintFields = document.getElementById('inventory-modal-maintenance');
     resetInventoryForm();
+    handleInventoryDestinationChange(type);
     const isEdit = mode === 'edit';
     if (isEdit && index !== null) {
       if (type === 'polish') {
@@ -4496,25 +4578,32 @@
           document.getElementById('new-polish-current').value = item.current;
         }
       } else {
-        const item = mockFridge[index];
+        const item = type === 'fridge' ? mockFridge[index] : maintenanceItems[index];
         if (item) {
-          document.getElementById('new-fridge-name').value = item.name;
-          document.getElementById('new-fridge-price').value = item.price;
-          document.getElementById('new-fridge-stock').value = item.stock;
+          if (type === 'fridge') {
+            document.getElementById('new-fridge-name').value = item.name;
+            document.getElementById('new-fridge-price').value = item.price;
+            document.getElementById('new-fridge-stock').value = item.stock;
+          } else {
+            document.getElementById('new-maint-name').value = item.name;
+            document.getElementById('new-maint-qty').value = item.quantity;
+            document.getElementById('new-maint-note').value = item.note || '';
+          }
         }
       }
     }
     if (modal) modal.classList.remove('hidden');
     if (title) title.textContent = isEdit
-      ? (type === 'polish' ? 'Editar esmalte' : 'Editar item da geladeira')
-      : (type === 'polish' ? 'Adicionar esmalte' : 'Adicionar item da geladeira');
+      ? (type === 'polish' ? 'Editar esmalte' : type === 'fridge' ? 'Editar item da geladeira' : 'Editar item de manutenção')
+      : (type === 'polish' ? 'Adicionar esmalte' : type === 'fridge' ? 'Adicionar item da geladeira' : 'Adicionar item de manutenção');
     if (save) {
       save.textContent = isEdit ? 'Salvar alterações' : 'Salvar';
       save.onclick = submitInventoryForm;
     }
-    if (polishFields && fridgeFields) {
+    if (polishFields && fridgeFields && maintFields) {
       polishFields.classList.toggle('hidden', type !== 'polish');
       fridgeFields.classList.toggle('hidden', type !== 'fridge');
+      maintFields.classList.toggle('hidden', type !== 'maintenance');
     }
   }
 
@@ -4524,6 +4613,33 @@
     inventoryEditingIndex = null;
     inventoryEditingType = 'polish';
     if (modal) modal.classList.add('hidden');
+  }
+
+  function handleInventoryDestinationChange(value) {
+    inventoryEditingType = value;
+    const dest = document.getElementById('inventory-destination');
+    if (dest) dest.value = value;
+    ['inventory-modal-polish', 'inventory-modal-fridge', 'inventory-modal-maintenance'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('hidden', !id.includes(value));
+    });
+  }
+
+  function applyInventoryTemplate(name, qty) {
+    const dest = document.getElementById('inventory-destination')?.value || 'fridge';
+    if (dest === 'polish') {
+      document.getElementById('new-polish-name').value = name;
+      document.getElementById('new-polish-brand').value = 'Studio Nails';
+      document.getElementById('new-polish-total').value = qty || 10;
+      document.getElementById('new-polish-current').value = qty || 10;
+    } else if (dest === 'fridge') {
+      document.getElementById('new-fridge-name').value = name;
+      document.getElementById('new-fridge-price').value = '';
+      document.getElementById('new-fridge-stock').value = qty || 1;
+    } else {
+      document.getElementById('new-maint-name').value = name;
+      document.getElementById('new-maint-qty').value = qty || 1;
+    }
   }
 
   function getFridgeIcon(name) {
@@ -4537,9 +4653,11 @@
   function renderInventoryLists() {
     const polishEl = document.getElementById('inventory-polish-list');
     const fridgeEl = document.getElementById('inventory-fridge-list');
+    const maintEl = document.getElementById('inventory-maintenance-list');
     const target = getDashboardFilterTarget();
     const polishSource = selectedGlobalMonthKey === 'all' ? mockPolish : mockPolish.filter(p => matchesTargetMonth(p.addedAt, target));
     const fridgeSource = selectedGlobalMonthKey === 'all' ? mockFridge : mockFridge.filter(f => matchesTargetMonth(f.addedAt, target));
+    const maintSource = selectedGlobalMonthKey === 'all' ? maintenanceItems : maintenanceItems.filter(m => matchesTargetMonth(m.addedAt, target));
     if (polishEl) {
       polishEl.innerHTML = '';
       polishSource.forEach(p => {
@@ -4588,7 +4706,7 @@
           </div>
           <div class="inventory-visibility">
             <span>${f.paused ? 'Pausado no tablet' : 'Visível no tablet'}</span>
-            <button class="inventory-toggle ${f.paused ? '' : 'active'}" onclick="toggleFridgeVisibility(${mockFridge.indexOf(f)})">${f.paused ? 'Pausado' : 'Ativo'}</button>
+            <button class="inventory-toggle ${f.paused ? '' : 'active'}" onclick="toggleFridgeVisibility(${mockFridge.indexOf(f)}, 'fridge')">${f.paused ? 'Pausado' : 'Ativo'}</button>
           </div>
           <div class="inventory-progress">
             <div class="fill" style="width:${stockPct}%;"></div>
@@ -4608,6 +4726,42 @@
       });
       if (!fridgeSource.length) {
         fridgeEl.innerHTML = '<div class="inventory-empty">Nenhum item na geladeira.</div>';
+      }
+    }
+
+    if (maintEl) {
+      maintEl.innerHTML = '';
+      maintSource.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'inventory-card';
+        div.innerHTML = `
+          <span class="inventory-badge ${item.low ? 'low' : ''}">${item.low ? 'Baixo estoque' : 'OK'}</span>
+          <div>
+            <div class="inventory-card-title">🧾 ${item.name}</div>
+            <div class="inventory-meta">${item.quantity || 0} unidades ${item.note ? '• ' + item.note : ''}</div>
+          </div>
+          <div class="inventory-visibility">
+            <span>${item.paused ? 'Oculto no tablet' : 'Disponível para consumo'}</span>
+            <button class="inventory-toggle ${item.paused ? '' : 'active'}" onclick="toggleFridgeVisibility(${maintenanceItems.indexOf(item)}, 'maintenance')">${item.paused ? 'Pausado' : 'Ativo'}</button>
+          </div>
+          <div class="inventory-progress">
+            <div class="fill" style="width:${Math.min(100, Math.max(10, Math.round(((item.quantity||0) / 20) * 100)))}%;"></div>
+          </div>
+          <div class="inventory-foot">
+            <div class="quantity-actions">
+              <button onclick="adjustMaintenance(${maintenanceItems.indexOf(item)}, -1)">−</button>
+              <button onclick="adjustMaintenance(${maintenanceItems.indexOf(item)}, 1)">+</button>
+            </div>
+            <div class="inventory-actions-icons">
+              <button class="icon-button" onclick="editMaintenance(${maintenanceItems.indexOf(item)})">✎</button>
+              <button class="icon-button danger" onclick="removeMaintenance(${maintenanceItems.indexOf(item)})">🗑</button>
+            </div>
+          </div>
+        `;
+        maintEl.appendChild(div);
+      });
+      if (!maintSource.length) {
+        maintEl.innerHTML = '<div class="inventory-empty">Nenhum item de manutenção.</div>';
       }
     }
   }
@@ -4635,7 +4789,20 @@
     return { name, price, stock, low: stock < 5 };
   }
 
+  function getMaintenanceFormData() {
+    const name = document.getElementById('new-maint-name').value.trim();
+    const quantity = parseInt(document.getElementById('new-maint-qty').value, 10) || 0;
+    const note = document.getElementById('new-maint-note').value.trim();
+    if (!name || !quantity) {
+      alert('Informe o nome e quantidade.');
+      return null;
+    }
+    return { name, quantity, note, low: quantity < 3 };
+  }
+
   function submitInventoryForm() {
+    const kioskFlag = document.getElementById('inventory-kiosk-flag')?.value || 'active';
+    const now = new Date().toISOString();
     if (inventoryEditingType === 'polish') {
       const data = getPolishFormData();
       if (!data) return;
@@ -4643,17 +4810,26 @@
         const existing = mockPolish[inventoryEditingIndex];
         mockPolish[inventoryEditingIndex] = { ...existing, ...data };
       } else {
-        mockPolish.push(data);
+        mockPolish.push({ ...data, addedAt: now, paused: kioskFlag === 'paused' });
       }
-    } else {
+    } else if (inventoryEditingType === 'fridge') {
       const data = getFridgeFormData();
       if (!data) return;
       if (inventoryFormMode === 'edit' && inventoryEditingIndex !== null) {
         const existing = mockFridge[inventoryEditingIndex];
-        mockFridge[inventoryEditingIndex] = { ...existing, ...data, paused: existing.paused, id: existing.id };
+        mockFridge[inventoryEditingIndex] = { ...existing, ...data, paused: kioskFlag === 'paused', id: existing.id };
       } else {
         const id = 'fridge-' + Date.now();
-        mockFridge.push({ ...data, paused: false, id });
+        mockFridge.push({ ...data, paused: kioskFlag === 'paused', id, addedAt: now });
+      }
+    } else {
+      const data = getMaintenanceFormData();
+      if (!data) return;
+      if (inventoryFormMode === 'edit' && inventoryEditingIndex !== null) {
+        const existing = maintenanceItems[inventoryEditingIndex];
+        maintenanceItems[inventoryEditingIndex] = { ...existing, ...data, paused: kioskFlag === 'paused' };
+      } else {
+        maintenanceItems.push({ ...data, id: 'maint-' + Date.now(), paused: kioskFlag === 'paused', addedAt: now });
       }
     }
     renderInventoryLists();
@@ -4683,8 +4859,12 @@
     syncKioskFromInventory();
   }
 
-  function toggleFridgeVisibility(index) {
-    mockFridge[index].paused = !mockFridge[index].paused;
+  function toggleFridgeVisibility(index, type = 'fridge') {
+    if (type === 'fridge') {
+      mockFridge[index].paused = !mockFridge[index].paused;
+    } else {
+      maintenanceItems[index].paused = !maintenanceItems[index].paused;
+    }
     renderInventoryLists();
     syncKioskFromInventory();
   }
@@ -4695,6 +4875,22 @@
 
   function removeFridge(index) {
     mockFridge.splice(index, 1);
+    renderInventoryLists();
+    syncKioskFromInventory();
+  }
+
+  function adjustMaintenance(index, delta) {
+    maintenanceItems[index].quantity = Math.max(0, (maintenanceItems[index].quantity || 0) + delta);
+    maintenanceItems[index].low = (maintenanceItems[index].quantity || 0) < 3;
+    renderInventoryLists();
+  }
+
+  function editMaintenance(index) {
+    openInventoryModal('maintenance', 'edit', index);
+  }
+
+  function removeMaintenance(index) {
+    maintenanceItems.splice(index, 1);
     renderInventoryLists();
     syncKioskFromInventory();
   }
@@ -4738,7 +4934,6 @@
   }
 
   let investmentFilter = 'Todos';
-  let selectedInvestmentMonth = 'all';
   let investmentEditingId = null;
 
   function formatMonthSelectLabel(target) {
@@ -4759,30 +4954,6 @@
       if (btn) btn.classList.toggle('active', value === status);
     });
     renderInvestments();
-  }
-
-  function buildInvestmentMonthOptions() {
-    const select = document.getElementById('investment-month-filter');
-    if (!select) return;
-    const months = new Map();
-    investments.forEach(inv => {
-      const ref = parseMonthRef(inv.mesReferencia);
-      if (!ref) return;
-      const total = inv.parcelasTotais || 1;
-      for (let i = 0; i < total; i++) {
-        const date = new Date(ref.year, ref.monthIndex + i, 1);
-        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-        if (!months.has(key)) {
-          months.set(key, { year: date.getFullYear(), monthIndex: date.getMonth() });
-        }
-      }
-    });
-    const sorted = Array.from(months.entries()).sort((a, b) => (a[1].year - b[1].year) || (a[1].monthIndex - b[1].monthIndex));
-    select.innerHTML = '<option value="all">Todos</option>' + sorted.map(([key, target]) => `<option value="${key}">${formatMonthSelectLabel(target)}</option>`).join('');
-    if (selectedInvestmentMonth !== 'all' && !months.has(selectedInvestmentMonth)) {
-      selectedInvestmentMonth = 'all';
-    }
-    select.value = selectedInvestmentMonth;
   }
 
   function getInvestmentFilterTarget() {
@@ -4835,8 +5006,18 @@
 
   function addMonthToMap(map, year, monthIndex) {
     if (year == null || monthIndex == null || Number.isNaN(year) || Number.isNaN(monthIndex)) return;
-    const key = `${year}-${String(monthIndex + 1).padStart(2, '0')}`;
-    if (!map.has(key)) map.set(key, { year, monthIndex });
+    let y = year;
+    let m = monthIndex;
+    while (m > 11) {
+      m -= 12;
+      y += 1;
+    }
+    while (m < 0) {
+      m += 12;
+      y -= 1;
+    }
+    const key = `${y}-${String(m + 1).padStart(2, '0')}`;
+    if (!map.has(key)) map.set(key, { year: y, monthIndex: m });
   }
 
   function deriveMonthsFromInvestment(inv, map) {
@@ -5134,7 +5315,6 @@
     const container = document.getElementById('investment-groups');
     if (!container) return;
     investments = investments.map(syncInvestmentStatus);
-    buildInvestmentMonthOptions();
     container.innerHTML = '';
 
     const target = getInvestmentFilterTarget();
@@ -5395,9 +5575,13 @@
   }
 
   function syncKioskFromInventory() {
-    kioskDrinks = mockFridge
+    const fridgeDrinks = mockFridge
       .filter(item => !item.paused)
       .map(item => ({ id: item.id, name: item.name, price: item.price, icon: getFridgeIcon(item.name) }));
+    const maintConsumables = maintenanceItems
+      .filter(item => !item.paused)
+      .map(item => ({ id: item.id, name: item.name, price: item.price || 0, icon: '🧾' }));
+    kioskDrinks = fridgeDrinks.concat(maintConsumables);
     cart = cart.filter(entry => entry.type !== 'drink' || kioskDrinks.some(d => d.id === entry.id));
     renderKiosk();
   }
@@ -5525,6 +5709,8 @@
   listenGlobalMonth();
   refreshAgendaFromAppointments();
   syncKioskFromInventory();
+
+  document.addEventListener('DOMContentLoaded', attachAuthListener);
   refreshMonthlyConsumers();
   renderFinance();
 </script>
