@@ -200,6 +200,14 @@
       gap: 1.5rem;
     }
 
+    .sidebar-collapsed .sidebar {
+      display: none;
+    }
+
+    .sidebar-collapsed .content {
+      padding: 1.25rem;
+    }
+
     .sidebar-header {
       display: flex;
       align-items: center;
@@ -647,53 +655,68 @@
       color: var(--text-muted);
       border: 1px solid transparent;
       border-radius: 12px;
-      padding: 0.4rem 0.9rem;
-      font-weight: 600;
+      padding: 0.45rem 1rem;
+      font-weight: 700;
       box-shadow: none;
+      transition: all 0.18s ease;
+    }
+
+    .inventory-tab:hover {
+      background: rgba(var(--accent-gold-rgb), 0.1);
     }
 
     .inventory-tab.active {
-      background: var(--bg-card);
       color: var(--text-main);
-      border-color: rgba(var(--accent-gold-rgb), 0.4);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      border-color: rgba(var(--accent-gold-rgb), 0.5);
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
     }
 
     #inventory-tab-btn-polish {
-      background: rgba(244, 217, 210, 0.65);
+      background: rgba(244, 217, 210, 0.4);
       color: var(--tab-polish-text);
     }
 
     #inventory-tab-btn-fridge {
-      background: rgba(230, 239, 230, 0.75);
+      background: rgba(230, 239, 230, 0.45);
       color: var(--tab-fridge-text);
     }
 
     #inventory-tab-btn-maint {
-      background: rgba(232, 238, 244, 0.75);
+      background: rgba(232, 238, 244, 0.5);
       color: var(--tab-maint-text);
     }
 
     #inventory-tab-btn-polish.active {
-      border-color: rgba(122, 90, 80, 0.35);
-      box-shadow: 0 4px 12px rgba(122, 90, 80, 0.12);
+      background: rgba(244, 217, 210, 0.9);
+      border-color: rgba(122, 90, 80, 0.45);
+      box-shadow: 0 6px 14px rgba(122, 90, 80, 0.16);
     }
 
     #inventory-tab-btn-fridge.active {
-      border-color: rgba(63, 106, 70, 0.25);
-      box-shadow: 0 4px 12px rgba(63, 106, 70, 0.12);
+      background: rgba(230, 239, 230, 0.95);
+      border-color: rgba(63, 106, 70, 0.35);
+      box-shadow: 0 6px 14px rgba(63, 106, 70, 0.14);
     }
 
     #inventory-tab-btn-maint.active {
-      border-color: rgba(75, 97, 127, 0.25);
-      box-shadow: 0 4px 12px rgba(75, 97, 127, 0.12);
+      background: rgba(232, 238, 244, 0.95);
+      border-color: rgba(75, 97, 127, 0.35);
+      box-shadow: 0 6px 14px rgba(75, 97, 127, 0.14);
     }
 
     .inventory-list {
       margin-top: 0.6rem;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(1, minmax(260px, 1fr));
       gap: 0.9rem;
+    }
+
+    @media (min-width: 900px) {
+      .inventory-list { grid-template-columns: repeat(2, minmax(260px, 1fr)); }
+    }
+
+    @media (min-width: 1200px) {
+      .inventory-list { grid-template-columns: repeat(3, minmax(260px, 1fr)); }
     }
 
     .inventory-card {
@@ -807,18 +830,20 @@
     }
 
     .inventory-actions-icons button {
-      width: auto;
-      min-width: 0;
-      padding: 0.3rem 0.5rem;
+      width: 36px;
+      height: 32px;
+      min-width: 32px;
+      padding: 0.3rem;
       border-radius: 10px;
       background: var(--bg-soft);
       color: var(--text-main);
       box-shadow: none;
       border: 1px solid var(--border-soft);
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       display: inline-flex;
       align-items: center;
-      gap: 0.2rem;
+      justify-content: center;
+      gap: 0;
     }
 
     .inventory-tabpanel {
@@ -1908,7 +1933,9 @@
         <label class="text-sm font-medium text-slate-600 block mb-1">Filtro mensal</label>
         <select id="global-month-filter" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-sm focus:border-[var(--accent-gold)] focus:ring-[var(--accent-gold)]"></select>
       </div>
-      <div class="topbar-actions"></div>
+      <div class="topbar-actions flex items-center gap-2 justify-end w-full md:w-auto">
+        <button id="sidebar-toggle-btn" class="secondary" onclick="toggleSidebar()">Ocultar menu</button>
+      </div>
     </header>
 
     <!-- Páginas da CEO -->
@@ -3335,6 +3362,7 @@
   let selectedDashboardMonth = new Date().getMonth();
   let selectedDashboardYear = new Date().getFullYear();
   let selectedGlobalMonthKey = 'all';
+  let sidebarCollapsed = false;
 
   let stockItems = [];
   let productTemplates = [];
@@ -4524,6 +4552,14 @@
     highlightSidebarActive(role, pageId);
   }
 
+  function toggleSidebar() {
+    sidebarCollapsed = !sidebarCollapsed;
+    const shell = document.getElementById('app-shell');
+    if (shell) shell.classList.toggle('sidebar-collapsed', sidebarCollapsed);
+    const btn = document.getElementById('sidebar-toggle-btn');
+    if (btn) btn.textContent = sidebarCollapsed ? 'Mostrar menu' : 'Ocultar menu';
+  }
+
   function updateVisiblePage() {
     const ceoPages = document.querySelectorAll('.page-ceo');
     const colabPages = document.querySelectorAll('.page-colab');
@@ -5630,10 +5666,10 @@
           <div class="history-row"><span>Última entrada: ${entryLabel}</span><span>Última saída: ${exitLabel}</span></div>
           <div class="inventory-foot">
             <div class="inventory-actions-icons">
-              <button class="action-btn edit" onclick="openInventoryModal('${item.id}')">✎ Editar</button>
-              <button class="action-btn neutral" onclick="openStockDetailModal('${item.id}')">👁 Detalhes</button>
-              <button class="action-btn exit" onclick="openStockExitModal('${item.id}')">➖ Registrar saída</button>
-              <button class="action-btn danger" onclick="promptRemoveStockItem('${item.id}')">🗑 Excluir</button>
+              <button class="action-btn edit" title="Editar" aria-label="Editar" onclick="openInventoryModal('${item.id}')">✎</button>
+              <button class="action-btn neutral" title="Detalhes" aria-label="Detalhes" onclick="openStockDetailModal('${item.id}')">👁</button>
+              <button class="action-btn exit" title="Registrar saída" aria-label="Registrar saída" onclick="openStockExitModal('${item.id}')">➖</button>
+              <button class="action-btn danger" title="Excluir" aria-label="Excluir" onclick="promptRemoveStockItem('${item.id}')">🗑</button>
             </div>
           </div>
         `;
