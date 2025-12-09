@@ -4,11 +4,17 @@
   <meta charset="UTF-8" />
   <title>Studio Nails - Painel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
+      --pastel-green: #E3F4E1;
+      --pastel-green-dark: #AACFA3;
+      --pastel-beige: #FFF7F3;
+      --pastel-peach: #FCE9DD;
+      --text-dark: #2F2F2F;
+
       --pastel-rose: #F4D9D2;
-      --pastel-peach: #F6E4D6;
-      --pastel-green: #E6EFE6;
       --pastel-blue: #E8EEF4;
 
       --wood-1: #EEDFCB;
@@ -24,7 +30,7 @@
       --gray-3: #DCDCDC;
       --gray-4: #CFCFCF;
 
-      --bg-body: radial-gradient(circle at 25% 20%, #F6E4D6 0, #E8EEF4 45%, #E6EFE6 100%);
+      --bg-body: linear-gradient(180deg, #F6E4D6 0%, #E6EFE6 60%, #E8EEF4 100%);
       --bg-card: var(--pastel-peach);
       --bg-card-alt: var(--pastel-blue);
       --bg-sidebar: var(--wood-1);
@@ -32,7 +38,7 @@
       --accent-gold-dark: var(--wood-6);
       --accent-gold-deep: var(--wood-7);
       --accent-gold-rgb: 183, 160, 106;
-      --text-main: #4b3c2f;
+      --text-main: var(--text-dark);
       --text-muted: #6f5d4c;
       --border-soft: var(--gray-3);
       --danger: #d9534f;
@@ -1743,129 +1749,237 @@
   </aside>
 
   <main class="content">
-    <header class="topbar">
-      <div>
-        <h1 id="page-title">Dashboard</h1>
-        <div class="tag" id="page-subtitle">Visão geral do Studio Nails</div>
+    <header class="topbar flex flex-col gap-4 md:flex-row md:items-center md:justify-between bg-white/80 backdrop-blur rounded-2xl shadow-md p-5">
+      <div class="space-y-1">
+        <p class="text-sm text-slate-600">Visão rápida do Studio Nails</p>
+        <h1 id="page-title" class="text-2xl font-semibold text-[color:var(--text-main)]">Dashboard – Visão Geral do Studio</h1>
+        <div id="page-subtitle" class="text-sm text-slate-500">Visão geral do Studio Nails</div>
+      </div>
+      <div class="w-full md:w-72">
+        <label class="text-sm font-medium text-slate-600 block mb-1">Filtro mensal</label>
+        <select id="global-month-filter" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-sm focus:border-[var(--accent-gold)] focus:ring-[var(--accent-gold)]"></select>
       </div>
       <div class="topbar-actions"></div>
     </header>
 
-    <div class="global-filter-bar">
-      <div class="label">Filtro mensal:</div>
-      <select id="global-month-filter" class="global-filter-select"></select>
-    </div>
-
     <!-- Páginas da CEO -->
-    <section id="page-ceo-dashboard" class="page-ceo">
-      <div class="card-grid">
-        <div class="card">
-          <h3>Faturamento do mês</h3>
-          <div class="value" id="dashboard-revenue">R$ 0,00</div>
-          <div class="subtext" id="dashboard-revenue-delta">--</div>
+    <section id="page-ceo-dashboard" class="page-ceo space-y-6">
+      <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div class="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition transform hover:-translate-y-0.5">
+          <div class="flex items-center justify-between text-sm text-slate-500">
+            <span>Faturamento do mês</span>
+            <span class="inline-flex h-9 w-9 items-center justify-center rounded-full" style="background-color: var(--pastel-green);">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[color:var(--accent-gold-dark)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v12m-6-6h12" />
+              </svg>
+            </span>
+          </div>
+          <div class="text-2xl font-semibold text-[color:var(--text-main)]" id="dashboard-revenue">R$ 0,00</div>
+          <div class="text-sm text-slate-500" id="dashboard-revenue-delta">--</div>
         </div>
-        <div class="card">
-          <h3>Comissão colaboradora</h3>
-          <div class="value" id="dashboard-commission">R$ 0,00</div>
-          <div class="subtext" id="dashboard-commission-delta">--</div>
+        <div class="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition transform hover:-translate-y-0.5">
+          <div class="flex items-center justify-between text-sm text-slate-500">
+            <span>Comissão colaboradora</span>
+            <span class="inline-flex h-9 w-9 items-center justify-center rounded-full" style="background-color: var(--pastel-peach);">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[color:var(--accent-gold-dark)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 12h14M5 12l4-4m-4 4 4 4" />
+              </svg>
+            </span>
+          </div>
+          <div class="text-2xl font-semibold text-[color:var(--text-main)]" id="dashboard-commission">R$ 0,00</div>
+          <div class="text-sm text-slate-500" id="dashboard-commission-delta">--</div>
         </div>
-        <div class="card">
-          <h3>Consumo vendido</h3>
-          <div class="value" id="dashboard-consumption">R$ 0,00</div>
-          <div class="subtext" id="dashboard-consumption-delta">--</div>
+        <div class="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition transform hover:-translate-y-0.5">
+          <div class="flex items-center justify-between text-sm text-slate-500">
+            <span>Consumo vendido</span>
+            <span class="inline-flex h-9 w-9 items-center justify-center rounded-full" style="background-color: var(--pastel-blue);">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[color:var(--accent-gold-dark)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 12h16m0 0-4-4m4 4-4 4" />
+              </svg>
+            </span>
+          </div>
+          <div class="text-2xl font-semibold text-[color:var(--text-main)]" id="dashboard-consumption">R$ 0,00</div>
+          <div class="text-sm text-slate-500" id="dashboard-consumption-delta">--</div>
         </div>
-        <div class="card">
-          <h3>Alertas de estoque</h3>
-          <div class="value" id="dashboard-stock-alerts">0</div>
-          <div class="subtext" id="dashboard-stock-alerts-desc">Nenhum alerta</div>
-        </div>
-        <div class="card">
-          <h3>Investimentos do mês</h3>
-          <div class="value" id="dashboard-invest-month">R$ 0,00</div>
-          <div class="subtext" id="dashboard-invest-month-desc">Planejados para o mês selecionado</div>
-        </div>
-        <div class="card">
-          <h3>Parcelas pagas</h3>
-          <div class="value" id="dashboard-invest-paid">R$ 0,00</div>
-          <div class="subtext" id="dashboard-invest-paid-desc">Pagamentos registrados no mês</div>
-        </div>
-        <div class="card">
-          <h3>Planejado para próximos meses</h3>
-          <div class="value" id="dashboard-invest-future">R$ 0,00</div>
-          <div class="subtext" id="dashboard-invest-future-desc">Investimentos agendados para frente</div>
+        <div class="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition transform hover:-translate-y-0.5">
+          <div class="flex items-center justify-between text-sm text-slate-500">
+            <span>Investimentos do mês</span>
+            <span class="inline-flex h-9 w-9 items-center justify-center rounded-full" style="background-color: var(--pastel-rose);">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[color:var(--accent-gold-dark)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.5v15m-6-7.5h12" />
+              </svg>
+            </span>
+          </div>
+          <div class="text-2xl font-semibold text-[color:var(--text-main)]" id="dashboard-invest-month">R$ 0,00</div>
+          <div class="text-sm text-slate-500" id="dashboard-invest-month-desc">Planejados para o mês selecionado</div>
         </div>
       </div>
 
-      <div class="card" id="dashboard-stock-card">
-        <div class="section-title" style="margin-top:0;">
+      <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div class="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition transform hover:-translate-y-0.5">
+          <div class="flex items-center justify-between text-sm text-slate-500">
+            <span>Parcelas pagas</span>
+            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full" style="background-color: var(--pastel-green);">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[color:var(--accent-gold-dark)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m5 13 4 4L19 7" />
+              </svg>
+            </span>
+          </div>
+          <div class="text-2xl font-semibold text-[color:var(--text-main)]" id="dashboard-invest-paid">R$ 0,00</div>
+          <div class="text-sm text-slate-500" id="dashboard-invest-paid-desc">Pagamentos registrados no mês</div>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition transform hover:-translate-y-0.5">
+          <div class="flex items-center justify-between text-sm text-slate-500">
+            <span>Planejado para próximos meses</span>
+            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full" style="background-color: var(--pastel-peach);">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[color:var(--accent-gold-dark)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6l3 3" />
+              </svg>
+            </span>
+          </div>
+          <div class="text-2xl font-semibold text-[color:var(--text-main)]" id="dashboard-invest-future">R$ 0,00</div>
+          <div class="text-sm text-slate-500" id="dashboard-invest-future-desc">Investimentos agendados para frente</div>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition transform hover:-translate-y-0.5">
+          <div class="flex items-center justify-between text-sm text-slate-500">
+            <span>Itens em alerta</span>
+            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full" style="background-color: var(--pastel-rose);">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[color:var(--accent-gold-dark)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a1 1 0 0 0 .86 1.5h18.64a1 1 0 0 0 .86-1.5L13.71 3.86a1 1 0 0 0-1.72 0Z" />
+              </svg>
+            </span>
+          </div>
+          <div class="text-2xl font-semibold text-[color:var(--text-main)]" id="dashboard-stock-alerts">0</div>
+          <div class="text-sm text-slate-500" id="dashboard-stock-alerts-desc">Nenhum alerta</div>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition transform hover:-translate-y-0.5">
+          <div class="flex items-center justify-between text-sm text-slate-500">
+            <span>Consumo no mês</span>
+            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full" style="background-color: var(--pastel-blue);">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[color:var(--accent-gold-dark)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 7h16M4 12h10m-6 5h12" />
+              </svg>
+            </span>
+          </div>
+          <div class="text-2xl font-semibold text-[color:var(--text-main)]" id="dashboard-stock-consumption-month">0</div>
+          <div class="text-sm text-slate-500">Atualizado pelo mês filtrado</div>
+        </div>
+      </div>
+
+      <div id="dashboard-stock-card" class="rounded-3xl shadow-md p-6" style="background-color: var(--pastel-beige);">
+        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2>Resumo do Estoque e Custos Operacionais</h2>
-            <div class="pill-row" id="dashboard-stock-tags"></div>
+            <h2 class="text-xl font-semibold text-[color:var(--text-main)]">Estoque e Custos Operacionais</h2>
+            <p class="text-sm text-slate-600">Custos, lucro da geladeira e alertas por categoria</p>
+          </div>
+          <div id="dashboard-stock-tags" class="flex flex-wrap gap-2 text-sm"></div>
+        </div>
+        <div id="dashboard-stock-totals" class="mt-3 flex flex-wrap gap-3 text-sm text-slate-700"></div>
+        <div class="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div class="bg-white rounded-2xl shadow-sm p-4 flex flex-col gap-2">
+            <div class="flex items-center justify-between text-sm text-slate-500">
+              <span>Custo esmaltes</span>
+              <span class="px-2 py-1 rounded-full text-xs font-medium" style="background-color: var(--pastel-rose); color: var(--accent-gold-dark);">Categoria</span>
+            </div>
+            <div class="text-xl font-semibold" id="dashboard-stock-esmaltes">R$ 0,00</div>
+            <p class="text-xs text-slate-500">No mês filtrado</p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm p-4 flex flex-col gap-2">
+            <div class="flex items-center justify-between text-sm text-slate-500">
+              <span>Custo geladeira</span>
+              <span class="px-2 py-1 rounded-full text-xs font-medium" style="background-color: var(--pastel-peach); color: var(--accent-gold-dark);">Categoria</span>
+            </div>
+            <div class="text-xl font-semibold" id="dashboard-stock-geladeira">R$ 0,00</div>
+            <p class="text-xs text-slate-500">No mês filtrado</p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm p-4 flex flex-col gap-2">
+            <div class="flex items-center justify-between text-sm text-slate-500">
+              <span>Custo manutenção</span>
+              <span class="px-2 py-1 rounded-full text-xs font-medium" style="background-color: var(--pastel-blue); color: var(--accent-gold-dark);">Categoria</span>
+            </div>
+            <div class="text-xl font-semibold" id="dashboard-stock-manutencao">R$ 0,00</div>
+            <p class="text-xs text-slate-500">No mês filtrado</p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm p-4 flex flex-col gap-2">
+            <div class="flex items-center justify-between text-sm text-slate-500">
+              <span>Itens em alerta</span>
+              <span class="px-2 py-1 rounded-full text-xs font-medium bg-rose-100 text-rose-700">Atenção</span>
+            </div>
+            <div class="text-xl font-semibold" id="dashboard-stock-low">0</div>
+            <p class="text-xs text-slate-500">Previsão baixa ou pouca quantidade</p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm p-4 flex flex-col gap-2">
+            <div class="flex items-center justify-between text-sm text-slate-500">
+              <span>Lucro bruto geladeira</span>
+              <span class="px-2 py-1 rounded-full text-xs font-medium" style="background-color: var(--pastel-green); color: var(--accent-gold-dark);">Vendas</span>
+            </div>
+            <div class="text-xl font-semibold" id="dashboard-stock-profit">R$ 0,00</div>
+            <p class="text-xs text-slate-500">Com base no estoque atual</p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm p-4 flex flex-col gap-2">
+            <div class="flex items-center justify-between text-sm text-slate-500">
+              <span>Consumo no mês</span>
+              <span class="px-2 py-1 rounded-full text-xs font-medium" style="background-color: var(--pastel-peach); color: var(--accent-gold-dark);">Movimentação</span>
+            </div>
+            <div class="text-xl font-semibold" id="dashboard-stock-consumption-month">0</div>
+            <p class="text-xs text-slate-500">Saídas registradas</p>
           </div>
         </div>
-        <div class="stock-summary-grid">
-          <div class="summary-chip">
-            <span>💅 Custo esmaltes</span>
-            <strong id="dashboard-stock-esmaltes">R$ 0,00</strong>
+
+        <div class="mt-4 grid gap-4 lg:grid-cols-2">
+          <div class="bg-white rounded-2xl shadow-sm p-4 flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="text-base font-semibold text-[color:var(--text-main)]">Distribuição de gastos</h4>
+                <p class="text-xs text-slate-500">Gastos por categoria</p>
+              </div>
+            </div>
+            <div class="h-72">
+              <canvas id="stock-pie"></canvas>
+            </div>
           </div>
-          <div class="summary-chip">
-            <span>🥤 Custo geladeira</span>
-            <strong id="dashboard-stock-geladeira">R$ 0,00</strong>
-          </div>
-          <div class="summary-chip">
-            <span>🧰 Custo manutenção</span>
-            <strong id="dashboard-stock-manutencao">R$ 0,00</strong>
-          </div>
-          <div class="summary-chip">
-            <span>⚠️ Itens em alerta</span>
-            <strong id="dashboard-stock-low">0</strong>
-          </div>
-          <div class="summary-chip">
-            <span>🏷️ Lucro bruto geladeira</span>
-            <strong id="dashboard-stock-profit">R$ 0,00</strong>
-          </div>
-          <div class="summary-chip">
-            <span>📦 Consumo no mês</span>
-            <strong id="dashboard-stock-consumption-month">0</strong>
-          </div>
-        </div>
-        <div class="chart-row">
-          <div class="chart-card">
-            <h4>Totais por categoria (mês filtrado)</h4>
-            <div class="meta-row" id="dashboard-stock-totals"></div>
-          </div>
-          <div class="chart-card">
-            <h4>Distribuição de gastos</h4>
-            <canvas id="stock-pie"></canvas>
-          </div>
-          <div class="chart-card">
-            <h4>Evolução mensal</h4>
-            <canvas id="stock-bars"></canvas>
+          <div class="bg-white rounded-2xl shadow-sm p-4 flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="text-base font-semibold text-[color:var(--text-main)]">Evolução mensal</h4>
+                <p class="text-xs text-slate-500">Últimos meses filtrados</p>
+              </div>
+            </div>
+            <div class="h-72">
+              <canvas id="stock-bars"></canvas>
+            </div>
           </div>
         </div>
-        <div class="pill-row" style="margin-top:0.5rem;" id="stock-indicators"></div>
+        <div class="mt-4 flex flex-wrap gap-2" id="stock-indicators"></div>
       </div>
 
-      <div class="section-title" style="margin-top:1rem;">
-        <h2>Próximos horários</h2>
-        <button class="secondary" onclick="navigatePage('ceo', 'agenda')">Abrir agenda</button>
+      <div class="bg-white rounded-2xl shadow-md p-4">
+        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 class="text-xl font-semibold text-[color:var(--text-main)]">Próximos horários</h2>
+            <p class="text-sm text-slate-500">Acompanhe rapidamente os atendimentos mais próximos.</p>
+          </div>
+          <button class="px-4 py-2 rounded-full text-sm font-semibold shadow-sm" style="background-color: var(--pastel-green); color: var(--text-main);" onclick="navigatePage('ceo', 'agenda')">Abrir agenda</button>
+        </div>
+        <div class="mt-4 overflow-hidden rounded-xl border border-slate-100">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-50 text-slate-600">
+              <tr>
+                <th class="px-4 py-3 text-left">Horário</th>
+                <th class="px-4 py-3 text-left">Cliente</th>
+                <th class="px-4 py-3 text-left">Profissional</th>
+                <th class="px-4 py-3 text-left">Serviço</th>
+                <th class="px-4 py-3 text-left">Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr>
+                <td colspan="5" class="px-4 py-4 text-center text-slate-500">Nenhum agendamento para exibir.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Horário</th>
-            <th>Cliente</th>
-            <th>Profissional</th>
-            <th>Serviço</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td colspan="5" class="subtext">Nenhum agendamento para exibir.</td>
-          </tr>
-        </tbody>
-      </table>
     </section>
 
     <section id="page-ceo-agenda" class="page-ceo hidden">
@@ -3082,6 +3196,7 @@
   let stockItems = [];
   let productTemplates = [];
   let stockHistories = {};
+  const chartInstances = {};
 
   let inventoryFormMode = 'add';
   let inventoryEditingId = null;
@@ -4342,47 +4457,100 @@
 
   function drawPieChart(canvasId, dataMap) {
     const canvas = document.getElementById(canvasId);
-    if (!canvas || !canvas.getContext) return;
-    const ctx = canvas.getContext('2d');
-    const total = Object.values(dataMap).reduce((a, b) => a + b, 0) || 1;
-    let start = -Math.PI / 2;
+    if (!canvas) return;
+    const labels = Object.keys(dataMap);
+    const data = Object.values(dataMap);
     const colors = [
       getCssVar('--chart-green', '#E6EFE6'),
       getCssVar('--chart-gold', '#B7A06A'),
       getCssVar('--chart-pink', '#F4D9D2')
     ];
-    const entries = Object.entries(dataMap);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    entries.forEach(([_, value], idx) => {
-      const angle = (value / total) * Math.PI * 2;
-      ctx.beginPath();
-      ctx.moveTo(canvas.width / 2, canvas.height / 2);
-      ctx.arc(canvas.width / 2, canvas.height / 2, Math.min(canvas.width, canvas.height) / 2 - 6, start, start + angle);
-      ctx.closePath();
-      ctx.fillStyle = colors[idx % colors.length];
-      ctx.fill();
-      start += angle;
+
+    if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
+
+    chartInstances[canvasId] = new Chart(canvas, {
+      type: 'doughnut',
+      data: {
+        labels,
+        datasets: [
+          {
+            data,
+            backgroundColor: colors,
+            borderWidth: 1,
+            borderColor: '#fff',
+            hoverOffset: 8
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '60%',
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: { color: getCssVar('--text-main', '#2F2F2F') }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(0,0,0,0.75)',
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            borderWidth: 0
+          }
+        }
+      }
     });
   }
 
   function drawBarChart(canvasId, series) {
     const canvas = document.getElementById(canvasId);
-    if (!canvas || !canvas.getContext) return;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const maxVal = Math.max(...series.map(s => s.value), 1);
-    const barWidth = (canvas.width - 40) / Math.max(series.length, 1);
-    const barColor = getCssVar('--chart-gold', '#B7A06A');
-    const labelColor = getCssVar('--text-main', '#4b3c2f');
-    series.forEach((item, idx) => {
-      const height = (item.value / maxVal) * (canvas.height - 30);
-      const x = 20 + idx * barWidth;
-      const y = canvas.height - height - 10;
-      ctx.fillStyle = barColor;
-      ctx.fillRect(x, y, barWidth * 0.6, height);
-      ctx.fillStyle = labelColor;
-      ctx.font = '10px sans-serif';
-      ctx.fillText(item.label, x, canvas.height - 2);
+    if (!canvas) return;
+    const labels = series.map(s => s.label);
+    const data = series.map(s => s.value);
+
+    if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
+
+    chartInstances[canvasId] = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Custo',
+            data,
+            fill: true,
+            tension: 0.35,
+            borderColor: 'rgba(170, 207, 163, 1)',
+            backgroundColor: 'rgba(227, 244, 225, 0.35)',
+            pointBackgroundColor: 'rgba(170, 207, 163, 1)',
+            pointRadius: 4,
+            pointHoverRadius: 6
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            ticks: { color: getCssVar('--text-main', '#2F2F2F') },
+            grid: { display: false }
+          },
+          y: {
+            ticks: { color: getCssVar('--text-main', '#2F2F2F') },
+            grid: { color: 'rgba(0,0,0,0.05)' },
+            beginAtZero: true
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(0,0,0,0.75)',
+            titleColor: '#fff',
+            bodyColor: '#fff'
+          }
+        }
+      }
     });
   }
 
