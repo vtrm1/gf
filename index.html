@@ -11,6 +11,10 @@
     :root {
       --pastel-green: #E3F4E1;
       --pastel-green-dark: #AACFA3;
+      --btn-primary: #9bbf92;
+      --btn-primary-hover: #87ad80;
+      --btn-secondary-bg: #ffffff;
+      --btn-secondary-hover: #e9f6e5;
       --pastel-beige: #FFF7F3;
       --pastel-peach: #FCE9DD;
       --text-dark: #2F2F2F;
@@ -74,42 +78,43 @@
       align-items: center;
       justify-content: center;
       gap: 0.35rem;
-      padding: 0.5rem 1.25rem;
+      padding: 0.55rem 1.35rem;
       font-size: 0.95rem;
       font-weight: 600;
       border-radius: 999px;
-      background: var(--pastel-green-dark);
+      background: var(--btn-primary);
       color: #fff;
       white-space: nowrap;
       transition: all 0.2s ease;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
     }
 
     .btn-primary,
     button:not(.secondary):not(.btn-secondary):not(.nav) {
-      background: var(--pastel-green-dark);
+      background: var(--btn-primary);
       color: #fff;
     }
 
     button:hover,
     .btn-primary:hover {
-      opacity: 0.9;
+      background: var(--btn-primary-hover);
+      color: #fff;
       transform: translateY(-1px) scale(1.01);
-      box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.12);
     }
 
     button.secondary,
     .btn-secondary {
-      background: transparent;
-      border: 1px solid var(--pastel-green-dark);
-      color: var(--pastel-green-dark);
+      background: var(--btn-secondary-bg);
+      border: 1px solid var(--btn-primary);
+      color: var(--btn-primary);
       box-shadow: 0 2px 6px rgba(0,0,0,0.06);
     }
 
     button.secondary:hover,
     .btn-secondary:hover {
-      background: var(--pastel-green);
-      color: #fff;
+      background: var(--btn-secondary-hover);
+      color: var(--btn-primary-hover);
       transform: translateY(-1px) scale(1.01);
     }
 
@@ -1339,36 +1344,6 @@
       border: 1px solid rgba(0,0,0,0.05);
     }
 
-    .floating-cta {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      padding: 0.7rem 1rem;
-      border-radius: 14px;
-      box-shadow: 0 10px 28px rgba(0,0,0,0.14);
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-dark));
-      color: white;
-      z-index: 8;
-    }
-
-    .floating-cta.secondary {
-      background: rgba(0,0,0,0.08);
-      color: var(--text-main);
-      border: 1px solid var(--border-soft);
-      box-shadow: 0 8px 18px rgba(0,0,0,0.08);
-    }
-
-    @media (min-width: 900px) {
-      .floating-cta { display: none; }
-    }
-
-    @media (max-width: 899px) {
-      .floating-cta { display: inline-flex; }
-    }
-
     .client-detail-tabs {
       display: inline-flex;
       gap: 0.3rem;
@@ -1992,7 +1967,7 @@
             <h2 class="text-xl font-semibold text-[color:var(--text-main)]">Próximos horários</h2>
             <p class="text-sm text-slate-500">Acompanhe rapidamente os atendimentos mais próximos.</p>
           </div>
-          <button class="px-4 py-2 rounded-full text-sm font-semibold shadow-sm" style="background-color: var(--pastel-green); color: var(--text-main);" onclick="navigatePage('ceo', 'agenda')">Abrir agenda</button>
+          <button class="secondary" onclick="navigatePage('ceo', 'agenda')">Abrir agenda</button>
         </div>
         <div class="mt-4 overflow-hidden rounded-xl border border-slate-100">
           <table class="w-full text-sm">
@@ -2071,9 +2046,6 @@
         </table>
       </div>
 
-      <button class="floating-cta" onclick="openAppointmentModal()">
-        ✚ Novo agendamento
-      </button>
     </section>
 
     <section id="page-ceo-inventory" class="page-ceo hidden">
@@ -3030,9 +3002,6 @@
         </table>
       </div>
 
-      <button class="floating-cta secondary" onclick="openAppointmentModal()">
-        ✚ Novo agendamento
-      </button>
     </section>
 
     <section id="page-colab-commission" class="page-colab hidden">
@@ -4289,8 +4258,8 @@
     }
   }
 
-  const primaryButtonClasses = ['px-5', 'py-2', 'rounded-full', 'bg-[var(--pastel-green-dark)]', 'text-white', 'font-semibold', 'flex', 'items-center', 'justify-center', 'whitespace-nowrap', 'hover:opacity-80', 'hover:scale-[1.02]', 'transition-all', 'shadow-sm'];
-  const secondaryButtonClasses = ['px-5', 'py-2', 'rounded-full', 'border', 'border-[var(--pastel-green-dark)]', 'text-[var(--pastel-green-dark)]', 'font-medium', 'flex', 'items-center', 'justify-center', 'whitespace-nowrap', 'hover:bg-[var(--pastel-green)]', 'hover:text-white', 'transition-all', 'shadow-sm'];
+  const primaryButtonClasses = ['px-5', 'py-2', 'rounded-full', 'bg-[var(--btn-primary)]', 'text-white', 'font-semibold', 'flex', 'items-center', 'justify-center', 'whitespace-nowrap', 'hover:bg-[var(--btn-primary-hover)]', 'hover:scale-[1.02]', 'transition-all', 'shadow-sm'];
+  const secondaryButtonClasses = ['px-5', 'py-2', 'rounded-full', 'border', 'border-[var(--btn-primary)]', 'bg-[var(--btn-secondary-bg)]', 'text-[var(--btn-primary)]', 'font-medium', 'flex', 'items-center', 'justify-center', 'whitespace-nowrap', 'hover:bg-[var(--btn-secondary-hover)]', 'hover:text-[var(--btn-primary-hover)]', 'transition-all', 'shadow-sm'];
 
   function normalizeButtons() {
     document.querySelectorAll('button').forEach(btn => {
