@@ -6,15 +6,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
-      --bg-body: #f7f1e8;
-      --bg-card: #fffaf3;
-      --bg-sidebar: #f0e2cf;
-      --accent-gold: #d4af37;
-      --accent-gold-dark: #b38f1f;
+      --pastel-rose: #F4D9D2;
+      --pastel-peach: #F6E4D6;
+      --pastel-green: #E6EFE6;
+      --pastel-blue: #E8EEF4;
+
+      --wood-1: #EEDFCB;
+      --wood-2: #E4D4BD;
+      --wood-3: #D9C7AC;
+      --wood-4: #CBB79A;
+      --wood-5: #B7A06A;
+      --wood-6: #9F8958;
+      --wood-7: #897447;
+
+      --gray-1: #F2F2F2;
+      --gray-2: #EAEAEA;
+      --gray-3: #DCDCDC;
+      --gray-4: #CFCFCF;
+
+      --bg-body: radial-gradient(circle at 25% 20%, #F6E4D6 0, #E8EEF4 45%, #E6EFE6 100%);
+      --bg-card: var(--pastel-peach);
+      --bg-card-alt: var(--pastel-blue);
+      --bg-sidebar: var(--wood-1);
+      --accent-gold: var(--wood-5);
+      --accent-gold-dark: var(--wood-6);
+      --accent-gold-deep: var(--wood-7);
+      --accent-gold-rgb: 183, 160, 106;
       --text-main: #4b3c2f;
-      --text-muted: #8a7a69;
-      --border-soft: #e3d3c0;
+      --text-muted: #6f5d4c;
+      --border-soft: var(--gray-3);
       --danger: #d9534f;
+      --chart-pink: #F4D9D2;
+      --chart-gold: #B7A06A;
+      --chart-green: #E6EFE6;
     }
 
     * {
@@ -25,7 +49,7 @@
     }
 
     body {
-      background: radial-gradient(circle at top, #fff8ee 0, #f7f1e8 40%, #f3e9dc 100%);
+      background: var(--bg-body);
       color: var(--text-main);
       min-height: 100vh;
     }
@@ -43,7 +67,7 @@
       font-size: 0.9rem;
       transition: all 0.2s ease;
       background: var(--accent-gold);
-      color: white;
+      color: #2f2419;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
@@ -51,22 +75,23 @@
       background: var(--accent-gold-dark);
       transform: translateY(-1px);
       box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      color: white;
     }
 
     button.secondary {
-      background: transparent;
-      color: var(--accent-gold-dark);
+      background: var(--bg-card-alt);
+      color: var(--accent-gold-deep);
       border: 1px solid var(--accent-gold);
       box-shadow: none;
     }
 
     button.secondary:hover {
-      background: rgba(212, 175, 55, 0.08);
+      background: rgba(var(--accent-gold-rgb), 0.08);
     }
 
     .segmented {
       display: inline-flex;
-      background: rgba(212, 175, 55, 0.1);
+      background: rgba(var(--accent-gold-rgb), 0.1);
       border-radius: 999px;
       padding: 0.15rem;
       gap: 0.15rem;
@@ -83,8 +108,8 @@
     }
 
     .segmented button.active {
-      background: #fffaf3;
-      border-color: rgba(212, 175, 55, 0.6);
+      background: var(--bg-card);
+      border-color: rgba(var(--accent-gold-rgb), 0.6);
       color: var(--text-main);
       box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     }
@@ -101,8 +126,8 @@
       padding: 0.1rem 0.6rem;
       border-radius: 999px;
       font-size: 0.75rem;
-      background: rgba(212, 175, 55, 0.1);
-      color: var(--accent-gold-dark);
+      background: rgba(var(--accent-gold-rgb), 0.14);
+      color: var(--accent-gold-deep);
     }
 
     .app-shell {
@@ -112,7 +137,7 @@
 
     .sidebar {
       width: 250px;
-      background: linear-gradient(180deg, #f0e2cf 0%, #e7d5c0 100%);
+      background: linear-gradient(180deg, var(--bg-sidebar) 0%, var(--wood-3) 100%);
       border-right: 1px solid var(--border-soft);
       padding: 1.5rem 1rem;
       display: flex;
@@ -130,7 +155,7 @@
       width: 32px;
       height: 32px;
       border-radius: 999px;
-      background: radial-gradient(circle at 30% 30%, #fff7e0, #d4af37);
+      background: radial-gradient(circle at 30% 30%, #fffdf7, var(--accent-gold));
       box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
 
@@ -154,13 +179,13 @@
     }
 
     .sidebar button.nav.active {
-      background: rgba(212, 175, 55, 0.18);
-      border-color: rgba(212, 175, 55, 0.7);
+      background: rgba(var(--accent-gold-rgb), 0.2);
+      border-color: rgba(var(--accent-gold-rgb), 0.7);
       color: var(--accent-gold-dark);
     }
 
     .sidebar button.nav:hover {
-      background: rgba(212, 175, 55, 0.12);
+      background: rgba(var(--accent-gold-rgb), 0.12);
     }
 
     .sidebar-footer {
@@ -196,7 +221,7 @@
       justify-content: space-between;
       gap: 0.75rem;
       padding: 0.8rem 1rem;
-      background: #fffaf3;
+      background: var(--bg-card);
       border: 1px solid var(--border-soft);
       border-radius: 14px;
       box-shadow: 0 6px 12px rgba(0,0,0,0.06);
@@ -216,13 +241,13 @@
       padding: 0.6rem 0.75rem;
       border-radius: 12px;
       border: 1px solid var(--border-soft);
-      background: white;
+      background: var(--bg-card-alt);
       color: var(--text-main);
       box-shadow: inset 0 1px 0 rgba(0,0,0,0.04);
     }
 
     .global-filter-select:focus {
-      outline: 1px solid rgba(212,175,55,0.5);
+      outline: 1px solid rgba(var(--accent-gold-rgb),0.5);
     }
 
     .card-grid {
@@ -242,7 +267,7 @@
     .card h3 {
       font-size: 0.9rem;
       margin-bottom: 0.2rem;
-      color: var(--text-muted);
+      color: var(--accent-gold-deep);
     }
 
     .card .value {
@@ -310,7 +335,7 @@
       background: rgba(0,0,0,0.04);
     }
 
-    .badge.status-plan { background: rgba(212, 175, 55, 0.1); color: var(--accent-gold-dark); }
+    .badge.status-plan { background: rgba(var(--accent-gold-rgb), 0.1); color: var(--accent-gold-dark); }
     .badge.status-progress { background: rgba(46, 204, 113, 0.12); color: #1e824c; }
     .badge.status-paid { background: rgba(52, 152, 219, 0.12); color: #1f6fa5; }
 
@@ -325,7 +350,7 @@
     .investment-card-title { font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
     .investment-tag { background: rgba(0,0,0,0.03); border-radius: 10px; padding: 0.15rem 0.55rem; font-size: 0.78rem; color: var(--text-muted); }
     .investment-status { padding: 0.25rem 0.6rem; border-radius: 999px; font-weight: 700; font-size: 0.78rem; }
-    .status-plan { background: rgba(212, 175, 55, 0.12); color: #a67c00; }
+    .status-plan { background: rgba(var(--accent-gold-rgb), 0.12); color: var(--accent-gold-deep); }
     .status-progress { background: rgba(46, 204, 113, 0.12); color: #1e824c; }
     .status-paid { background: rgba(52, 152, 219, 0.12); color: #1f6fa5; }
     .investment-meta-line { display: flex; flex-wrap: wrap; gap: 0.8rem; color: var(--text-muted); font-size: 0.9rem; align-items: center; }
@@ -336,7 +361,7 @@
     .investment-actions button { height: 34px; }
     .investment-note { color: var(--text-muted); font-size: 0.86rem; }
     .investment-history-list { display: flex; flex-direction: column; gap: 0.45rem; margin-top: 0.6rem; }
-    .investment-history-item { padding: 0.55rem 0.65rem; border-radius: 12px; background: #fffaf3; border: 1px solid var(--border-soft); box-shadow: 0 4px 12px rgba(0,0,0,0.04); display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+    .investment-history-item { padding: 0.55rem 0.65rem; border-radius: 12px; background: var(--bg-card); border: 1px solid var(--border-soft); box-shadow: 0 4px 12px rgba(0,0,0,0.04); display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
     .investment-history-item .subtext { margin: 0; }
     .investment-toggle { background: transparent; color: var(--text-main); font-weight: 700; box-shadow: none; padding: 0.25rem 0; }
 
@@ -375,8 +400,8 @@
     }
 
     .month-card.active {
-      border-color: rgba(212, 175, 55, 0.6);
-      box-shadow: 0 4px 16px rgba(212, 175, 55, 0.12);
+      border-color: rgba(var(--accent-gold-rgb), 0.6);
+      box-shadow: 0 4px 16px rgba(var(--accent-gold-rgb), 0.12);
     }
 
     .month-card:hover {
@@ -413,7 +438,7 @@
     .month-bar-fill {
       height: 100%;
       border-radius: 999px;
-      background: linear-gradient(90deg, #f7de9e, #d4af37);
+      background: linear-gradient(90deg, var(--wood-2), var(--accent-gold));
       width: 40%;
     }
 
@@ -434,7 +459,7 @@
       grid-template-columns: repeat(7, 1fr);
       gap: 0.35rem;
       margin-top: 0.65rem;
-      background: #fff;
+      background: var(--bg-card-alt);
       padding: 0.75rem;
       border-radius: 14px;
       border: 1px solid var(--border-soft);
@@ -452,7 +477,7 @@
       height: 80px;
       border-radius: 12px;
       border: 1px solid var(--border-soft);
-      background: linear-gradient(180deg, #fffaf3 0%, #fff 100%);
+      background: linear-gradient(180deg, var(--bg-card) 0%, #fff 100%);
       padding: 0.4rem;
       display: flex;
       flex-direction: column;
@@ -462,7 +487,7 @@
     }
 
     .full-month-calendar .month-day.has-booking {
-      box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.35);
+      box-shadow: 0 0 0 2px rgba(var(--accent-gold-rgb), 0.35);
     }
 
     .full-month-calendar .month-day .day-number {
@@ -474,7 +499,7 @@
       font-size: 0.7rem;
       padding: 0.2rem 0.4rem;
       border-radius: 8px;
-      background: rgba(212, 175, 55, 0.12);
+      background: rgba(var(--accent-gold-rgb), 0.12);
       color: var(--accent-gold-dark);
     }
 
@@ -504,11 +529,11 @@
     }
 
     .mini-day.has-booking {
-      border: 1px solid rgba(212, 175, 55, 0.8);
-      background: rgba(212, 175, 55, 0.08);
+      border: 1px solid rgba(var(--accent-gold-rgb), 0.8);
+      background: rgba(var(--accent-gold-rgb), 0.08);
       font-weight: 700;
       color: var(--accent-gold-dark);
-      box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.15) inset;
+      box-shadow: 0 0 0 2px rgba(var(--accent-gold-rgb), 0.15) inset;
     }
 
     .mini-day .dot {
@@ -542,7 +567,7 @@
 
     .inventory-tabs {
       display: inline-flex;
-      background: rgba(212, 175, 55, 0.12);
+      background: rgba(var(--accent-gold-rgb), 0.12);
       border-radius: 14px;
       padding: 0.2rem;
       gap: 0.2rem;
@@ -559,9 +584,9 @@
     }
 
     .inventory-tab.active {
-      background: #fffaf3;
+      background: var(--bg-card);
       color: var(--text-main);
-      border-color: rgba(212, 175, 55, 0.4);
+      border-color: rgba(var(--accent-gold-rgb), 0.4);
       box-shadow: 0 2px 10px rgba(0,0,0,0.06);
     }
 
@@ -623,7 +648,7 @@
     .inventory-progress .fill {
       height: 100%;
       border-radius: 999px;
-      background: linear-gradient(90deg, #f6e3b8, #d4af37);
+      background: linear-gradient(90deg, var(--wood-2), var(--accent-gold));
       width: 70%;
     }
 
@@ -647,9 +672,9 @@
     }
 
     .inventory-toggle.active {
-      background: rgba(212, 175, 55, 0.12);
+      background: rgba(var(--accent-gold-rgb), 0.12);
       color: var(--accent-gold-dark);
-      border-color: rgba(212, 175, 55, 0.35);
+      border-color: rgba(var(--accent-gold-rgb), 0.35);
     }
 
     .inventory-foot {
@@ -747,7 +772,7 @@
     }
 
     .inventory-templates {
-      background: #fffaf3;
+      background: var(--bg-card);
       border: 1px solid var(--border-soft);
       border-radius: 14px;
       padding: 0.75rem 0.9rem;
@@ -926,7 +951,7 @@
       place-items: center;
       color: white;
       font-weight: 700;
-      background: linear-gradient(135deg, #e5c676, #b58c25);
+      background: linear-gradient(135deg, var(--wood-2), var(--accent-gold-dark));
       box-shadow: 0 2px 6px rgba(0,0,0,0.12);
       flex-shrink: 0;
     }
@@ -964,10 +989,10 @@
     .ghost-btn {
       border-radius: 10px;
       padding: 0.35rem 0.55rem;
-      background: rgba(212,175,55,0.08);
+      background: rgba(var(--accent-gold-rgb),0.08);
       color: var(--text-main);
       box-shadow: none;
-      border: 1px solid rgba(212,175,55,0.18);
+      border: 1px solid rgba(var(--accent-gold-rgb),0.18);
       font-size: 0.78rem;
       display: inline-flex;
       align-items: center;
@@ -983,7 +1008,7 @@
 
     .ghost-btn:hover {
       transform: translateY(-1px);
-      background: rgba(212,175,55,0.14);
+      background: rgba(var(--accent-gold-rgb),0.14);
     }
 
     .ghost-btn.secondary:hover {
@@ -1080,7 +1105,7 @@
     }
 
     .client-pill {
-      background: rgba(212,175,55,0.12);
+      background: rgba(var(--accent-gold-rgb),0.12);
       color: var(--text-main);
       border-radius: 10px;
       padding: 0.2rem 0.55rem;
@@ -1182,7 +1207,7 @@
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      background: linear-gradient(135deg, #d4af37, #b58c25);
+      background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-dark));
       color: white;
       z-index: 8;
     }
@@ -1205,7 +1230,7 @@
     .client-detail-tabs {
       display: inline-flex;
       gap: 0.3rem;
-      background: rgba(212,175,55,0.1);
+      background: rgba(var(--accent-gold-rgb),0.1);
       padding: 0.2rem;
       border-radius: 12px;
       margin: 0.4rem 0;
@@ -1222,8 +1247,8 @@
     }
 
     .client-detail-tabs button.active {
-      background: #fffaf3;
-      border-color: rgba(212,175,55,0.5);
+      background: var(--bg-card);
+      border-color: rgba(var(--accent-gold-rgb),0.5);
       box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     }
 
@@ -1342,7 +1367,7 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(135deg, rgba(212, 175, 55, 0.09), transparent 50%);
+      background: linear-gradient(135deg, rgba(var(--accent-gold-rgb), 0.09), transparent 50%);
       pointer-events: none;
     }
 
@@ -1425,10 +1450,10 @@
     }
 
     .login-tab.active {
-      background: rgba(212, 175, 55, 0.15);
+      background: rgba(var(--accent-gold-rgb), 0.15);
       color: var(--accent-gold-dark);
-      border-color: rgba(212, 175, 55, 0.5);
-      box-shadow: 0 2px 10px rgba(212, 175, 55, 0.15);
+      border-color: rgba(var(--accent-gold-rgb), 0.5);
+      box-shadow: 0 2px 10px rgba(var(--accent-gold-rgb), 0.15);
     }
 
     .agenda-filter-select {
@@ -2803,6 +2828,11 @@
   let agendaProfessionalFilter = 'all';
   let agendaProfessionalFilterColab = 'all';
 
+  const getCssVar = (key, fallback = '') => {
+    const val = getComputedStyle(document.documentElement).getPropertyValue(key);
+    return val ? val.trim() : fallback;
+  };
+
   const firebaseConfig = {
     apiKey: "AIzaSyBje0Zy_NKLc8tMOIuR4wEc-qHW-9UJsGw",
     authDomain: "gleicef-naildesigner.firebaseapp.com",
@@ -3222,7 +3252,7 @@
     }
 
     collaboratorAccounts.push({ name, username, password, permissions, device: 'Tablet dedicado' });
-    collaborators.push({ name, username, role: 'Colaboradora', commission: '40% serviços', permissions: permissions || 'Agenda compartilhada, comissões', color: '#f1c76d' });
+    collaborators.push({ name, username, role: 'Colaboradora', commission: '40% serviços', permissions: permissions || 'Agenda compartilhada, comissões', color: getCssVar('--chart-gold', '#B7A06A') });
 
     renderCollaborators();
     document.getElementById('new-colab-name').value = '';
@@ -3266,7 +3296,12 @@
       alert('Preencha nome, email e senha para criar a colaboradora.');
       return;
     }
-    const palette = ['#f1c76d', '#d4af37', '#f3c06b', '#b58c25'];
+    const palette = [
+      getCssVar('--pastel-rose', '#F4D9D2'),
+      getCssVar('--pastel-peach', '#F6E4D6'),
+      getCssVar('--pastel-green', '#E6EFE6'),
+      getCssVar('--chart-gold', '#B7A06A')
+    ];
     const color = palette[Math.floor(Math.random() * palette.length)];
     const permissions = {
       agenda: permAgenda,
@@ -4106,7 +4141,11 @@
     const ctx = canvas.getContext('2d');
     const total = Object.values(dataMap).reduce((a, b) => a + b, 0) || 1;
     let start = -Math.PI / 2;
-    const colors = ['#F6C453', '#EFAF4C', '#D69F2E'];
+    const colors = [
+      getCssVar('--chart-green', '#E6EFE6'),
+      getCssVar('--chart-gold', '#B7A06A'),
+      getCssVar('--chart-pink', '#F4D9D2')
+    ];
     const entries = Object.entries(dataMap);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     entries.forEach(([_, value], idx) => {
@@ -4128,13 +4167,15 @@
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const maxVal = Math.max(...series.map(s => s.value), 1);
     const barWidth = (canvas.width - 40) / Math.max(series.length, 1);
+    const barColor = getCssVar('--chart-gold', '#B7A06A');
+    const labelColor = getCssVar('--text-main', '#4b3c2f');
     series.forEach((item, idx) => {
       const height = (item.value / maxVal) * (canvas.height - 30);
       const x = 20 + idx * barWidth;
       const y = canvas.height - height - 10;
-      ctx.fillStyle = '#EFAF4C';
+      ctx.fillStyle = barColor;
       ctx.fillRect(x, y, barWidth * 0.6, height);
-      ctx.fillStyle = '#4b3c2f';
+      ctx.fillStyle = labelColor;
       ctx.font = '10px sans-serif';
       ctx.fillText(item.label, x, canvas.height - 2);
     });
@@ -4359,7 +4400,7 @@
 
   function getProfessionalColor(name) {
     const match = collaborators.find(c => c.name.toLowerCase() === (name || '').toLowerCase());
-    return match?.color || '#d4af37';
+    return match?.color || getCssVar('--chart-gold', '#B7A06A');
   }
 
   function getAppointmentsForScope(scope = 'ceo') {
