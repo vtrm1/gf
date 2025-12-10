@@ -279,6 +279,15 @@
       min-height: 100vh;
     }
 
+    /* Navegação responsiva: mantém menus independentes por breakpoint */
+    .desktop-only { display: none !important; }
+    .mobile-only { display: flex !important; }
+
+    @media (min-width: 1024px) {
+      .desktop-only { display: flex !important; }
+      .mobile-only { display: none !important; }
+    }
+
     .sidebar {
       background: linear-gradient(180deg, var(--bg-sidebar) 0%, var(--wood-3) 100%);
       border-right: 1px solid var(--border-soft);
@@ -2076,9 +2085,9 @@
 </section>
 
 <!-- SHELL PRINCIPAL (CEO / COLAB) -->
-<div id="app-shell" class="app-shell hidden">
+  <div id="app-shell" class="app-shell hidden">
   <!-- Sidebar desktop -->
-  <aside id="sidebar-desktop" class="sidebar sidebar-desktop sidebar-collapsed hidden lg:flex">
+  <aside id="sidebar-desktop" class="sidebar sidebar-desktop sidebar-collapsed desktop-only">
     <button id="desktop-sidebar-toggle" class="sidebar-toggle-btn" aria-label="Alternar navegação">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16" />
@@ -2110,7 +2119,7 @@
   </aside>
   <main class="content">
     <!-- Mobile menu -->
-    <nav class="mobile-nav flex items-center justify-between lg:hidden" id="mobile-nav">
+    <nav class="mobile-nav flex items-center justify-between mobile-only" id="mobile-nav">
       <div class="flex items-center gap-2">
         <button id="mobile-menu-toggle" class="mobile-nav-trigger" aria-label="Abrir menu">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
