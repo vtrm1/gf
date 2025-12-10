@@ -210,58 +210,21 @@
       padding: 1.5rem 1.75rem;
     }
 
-    .sidebar-handle {
-      width: 38px;
-      height: 44px;
-      border-radius: 12px 0 0 12px;
-      background: var(--bg-card-alt);
-      border: 1px solid var(--border-soft);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    .nav-toggle {
+      background: #fff;
       color: var(--text-main);
-      padding: 0;
-      transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-      position: absolute;
-      right: -18px;
-      top: 72px;
-      display: none;
-      z-index: 30;
+      padding: 0.55rem;
+      border: 1px solid var(--border-soft);
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+      height: 44px;
+      width: 44px;
     }
 
-    @media (min-width: 1024px) {
-      .sidebar-handle {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-      }
-    }
-
-    .sidebar-handle:hover {
+    .nav-toggle:hover {
       background: var(--bg-card);
       transform: translateY(-1px);
-      box-shadow: 0 8px 16px rgba(0,0,0,0.08);
-    }
-
-    .sidebar-reopen {
-      position: fixed;
-      top: 18px;
-      left: 18px;
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-soft);
-      box-shadow: 0 8px 16px rgba(0,0,0,0.12);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-main);
-      z-index: 60;
-    }
-
-    @media (max-width: 1023px) {
-      .sidebar-reopen {
-        display: none !important;
-      }
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
     }
 
     .sidebar-header {
@@ -1969,9 +1932,6 @@
 <!-- SHELL PRINCIPAL (CEO / COLAB) -->
 <div id="app-shell" class="app-shell hidden">
   <aside class="sidebar">
-    <button id="sidebar-toggle" class="sidebar-handle" onclick="toggleSidebar()" aria-label="Alternar menu" aria-pressed="false">
-      <span id="sidebar-toggle-icon" class="text-lg">◀</span>
-    </button>
     <div class="sidebar-header">
       <div class="logo-circle"></div>
       <div>
@@ -1996,13 +1956,12 @@
       </div>
     </div>
   </aside>
-  <button id="sidebar-reopen" class="sidebar-reopen" onclick="toggleSidebar(true)" aria-label="Reabrir menu" aria-pressed="false">
-    ▶
-  </button>
-
   <main class="content">
     <header class="topbar flex flex-col gap-4 md:flex-row md:items-center md:justify-between bg-white/80 backdrop-blur rounded-2xl shadow-md p-5">
       <div class="flex items-start gap-3 w-full md:w-auto">
+        <button id="sidebar-toggle" class="nav-toggle hidden lg:inline-flex items-center justify-center" onclick="toggleSidebar()" aria-label="Alternar menu" aria-pressed="false">
+          <span id="sidebar-toggle-icon" class="text-lg">☰</span>
+        </button>
         <div class="space-y-1">
           <p class="text-sm text-slate-600">Visão rápida do Studio Nails</p>
           <h1 id="page-title" class="text-2xl font-semibold text-[color:var(--text-main)]">Dashboard – Visão Geral do Studio</h1>
@@ -4630,6 +4589,7 @@
   }
 
   function toggleSidebar(forceOpen = false) {
+    if (window.innerWidth < 1024) return;
     sidebarCollapsed = forceOpen ? false : !sidebarCollapsed;
     const shell = document.getElementById('app-shell');
     if (shell) shell.classList.toggle('sidebar-hidden', sidebarCollapsed);
@@ -4637,12 +4597,7 @@
     const handle = document.getElementById('sidebar-toggle');
     const icon = document.getElementById('sidebar-toggle-icon');
     if (handle) handle.setAttribute('aria-pressed', String(!sidebarCollapsed));
-    if (icon) icon.textContent = sidebarCollapsed ? '▶' : '◀';
-
-    const reopen = document.getElementById('sidebar-reopen');
-    if (reopen) {
-      reopen.style.display = sidebarCollapsed ? 'inline-flex' : 'none';
-    }
+    if (icon) icon.textContent = sidebarCollapsed ? '☰' : '✕';
   }
 
   function updateVisiblePage() {
