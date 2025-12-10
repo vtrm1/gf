@@ -185,6 +185,95 @@
       color: #b91c1c;
     }
 
+    /* FAB mobile */
+    .fab-container {
+      position: fixed;
+      right: 1.1rem;
+      bottom: calc(1.2rem + env(safe-area-inset-bottom, 0));
+      z-index: 80;
+      display: none;
+      align-items: flex-end;
+      gap: 0.6rem;
+    }
+
+    .fab-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.12);
+      backdrop-filter: blur(2px);
+      z-index: 70;
+      display: none;
+    }
+
+    .fab-main {
+      width: 58px;
+      height: 58px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #d8b66a, #cbb79a);
+      color: #fff;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    }
+
+    .fab-main:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.24);
+    }
+
+    .fab-hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(18px);
+    }
+
+    .fab-speed-dial {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: flex-end;
+      position: relative;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px);
+    }
+
+    .fab-speed-dial.open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    .fab-speed-btn {
+      background: #fffaf3;
+      border: 1px solid #d8b66a;
+      color: #7a6030;
+      padding: 0.55rem 0.9rem;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      white-space: nowrap;
+      font-weight: 600;
+      font-size: 0.9rem;
+      min-width: 0;
+    }
+
+    .fab-speed-btn span {
+      font-size: 1rem;
+    }
+
+    @media (max-width: 767px) {
+      .fab-container {
+        display: inline-flex;
+      }
+    }
+
     .app-shell {
       display: flex;
       min-height: 100vh;
@@ -200,31 +289,6 @@
       gap: 1.5rem;
       position: relative;
       transition: width 0.25s ease, padding 0.25s ease;
-    }
-
-    .sidebar-hidden .sidebar {
-      display: none;
-    }
-
-    .sidebar-hidden .content {
-      padding: 1.5rem 1.75rem;
-    }
-
-    .nav-toggle {
-      background: #fff;
-      color: var(--text-main);
-      padding: 0.55rem;
-      border: 1px solid var(--border-soft);
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-      height: 44px;
-      width: 44px;
-    }
-
-    .nav-toggle:hover {
-      background: var(--bg-card);
-      transform: translateY(-1px);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
     }
 
     .sidebar-header {
@@ -1959,9 +2023,6 @@
   <main class="content">
     <header class="topbar flex flex-col gap-4 md:flex-row md:items-center md:justify-between bg-white/80 backdrop-blur rounded-2xl shadow-md p-5">
       <div class="flex items-start gap-3 w-full md:w-auto">
-        <button id="sidebar-toggle" class="nav-toggle hidden lg:inline-flex items-center justify-center" onclick="toggleSidebar()" aria-label="Alternar menu" aria-pressed="false">
-          <span id="sidebar-toggle-icon" class="text-lg">☰</span>
-        </button>
         <div class="space-y-1">
           <p class="text-sm text-slate-600">Visão rápida do Studio Nails</p>
           <h1 id="page-title" class="text-2xl font-semibold text-[color:var(--text-main)]">Dashboard – Visão Geral do Studio</h1>
@@ -3320,6 +3381,14 @@
   </div>
 </section>
 
+<div id="fab-backdrop" class="fab-backdrop hidden"></div>
+<div id="fab-container" class="fab-container hidden" aria-live="polite">
+  <div id="fab-speed-dial" class="fab-speed-dial"></div>
+  <button id="fab-main" class="fab-main" aria-label="Ações rápidas">
+    <span id="fab-icon">＋</span>
+  </button>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -3350,6 +3419,8 @@
   let dayModalScope = 'ceo';
   let agendaProfessionalFilter = 'all';
   let agendaProfessionalFilterColab = 'all';
+  let fabMenuOpen = false;
+  let fabScrollLast = 0;
 
   const getCssVar = (key, fallback = '') => {
     const val = getComputedStyle(document.documentElement).getPropertyValue(key);
@@ -3398,7 +3469,6 @@
   let selectedDashboardMonth = new Date().getMonth();
   let selectedDashboardYear = new Date().getFullYear();
   let selectedGlobalMonthKey = 'all';
-  let sidebarCollapsed = false;
 
   let stockItems = [];
   let productTemplates = [];
@@ -3743,6 +3813,8 @@
       document.getElementById('kiosk-screen').classList.remove('hidden');
       renderKiosk();
     }
+
+    refreshFab();
   }
 
   function backToLogin() {
@@ -4441,6 +4513,7 @@
 
   function openDialog(id) {
     const modal = document.getElementById(id);
+    closeFabMenu();
     if (modal) {
       modal.classList.remove('hidden');
       modal.style.display = 'flex';
@@ -4582,22 +4655,11 @@
   }
 
   function navigatePage(role, pageId) {
+    closeFabMenu();
     if (role === 'ceo') currentPageCEO = pageId;
     if (role === 'colab') currentPageColab = pageId;
     updateVisiblePage();
     highlightSidebarActive(role, pageId);
-  }
-
-  function toggleSidebar(forceOpen = false) {
-    if (window.innerWidth < 1024) return;
-    sidebarCollapsed = forceOpen ? false : !sidebarCollapsed;
-    const shell = document.getElementById('app-shell');
-    if (shell) shell.classList.toggle('sidebar-hidden', sidebarCollapsed);
-
-    const handle = document.getElementById('sidebar-toggle');
-    const icon = document.getElementById('sidebar-toggle-icon');
-    if (handle) handle.setAttribute('aria-pressed', String(!sidebarCollapsed));
-    if (icon) icon.textContent = sidebarCollapsed ? '☰' : '✕';
   }
 
   function updateVisiblePage() {
@@ -4620,6 +4682,115 @@
       if (el) el.classList.remove('hidden');
       renderColabContent();
     }
+
+    refreshFab();
+  }
+
+  function shouldShowFab() {
+    const isMobile = window.innerWidth < 768;
+    const roleAllowed = currentRole === 'ceo' || currentRole === 'colab';
+    return isMobile && roleAllowed;
+  }
+
+  function refreshFab() {
+    const fab = document.getElementById('fab-container');
+    const backdrop = document.getElementById('fab-backdrop');
+    const kioskVisible = !(document.getElementById('kiosk-screen')?.classList.contains('hidden') ?? true);
+    const show = shouldShowFab() && !kioskVisible;
+    if (fab) fab.classList.toggle('hidden', !show);
+    if (backdrop) backdrop.classList.add('hidden');
+    if (!show) {
+      fabMenuOpen = false;
+      closeFabMenu();
+      return;
+    }
+    renderFabActions();
+  }
+
+  function closeFabMenu() {
+    const menu = document.getElementById('fab-speed-dial');
+    const backdrop = document.getElementById('fab-backdrop');
+    if (menu) menu.classList.remove('open');
+    if (backdrop) backdrop.style.display = 'none';
+    if (backdrop) backdrop.classList.add('hidden');
+    fabMenuOpen = false;
+  }
+
+  function toggleFabMenu() {
+    const menu = document.getElementById('fab-speed-dial');
+    const backdrop = document.getElementById('fab-backdrop');
+    if (!menu) return;
+    fabMenuOpen = !fabMenuOpen;
+    menu.classList.toggle('open', fabMenuOpen);
+    if (backdrop) {
+      backdrop.style.display = fabMenuOpen ? 'block' : 'none';
+      backdrop.classList.toggle('hidden', !fabMenuOpen);
+    }
+  }
+
+  function fabActionsForRole() {
+    const actions = [];
+    if (currentRole === 'ceo') {
+      actions.push({ label: 'Novo agendamento', icon: '📅', handler: () => openAppointmentModal() });
+      actions.push({ label: 'Adicionar cliente', icon: '👤➕', handler: () => openClientModal() });
+      actions.push({ label: 'Adicionar item ao estoque', icon: '📦', handler: () => openInventoryModalFromFab() });
+      actions.push({ label: 'Registrar investimento', icon: '💰', handler: () => openInvestmentModal() });
+      actions.push({ label: 'Registrar consumo/venda', icon: '🥤', handler: () => openFabFridgeExit() });
+    }
+    if (currentRole === 'colab') {
+      actions.push({ label: 'Novo agendamento', icon: '📅', handler: () => openAppointmentModal() });
+      actions.push({ label: 'Registrar serviço realizado', icon: '💅', handler: () => openAppointmentModal() });
+      actions.push({ label: 'Registrar consumo do cliente', icon: '🥤', handler: () => openFabFridgeExit() });
+    }
+    return actions;
+  }
+
+  function renderFabActions() {
+    const menu = document.getElementById('fab-speed-dial');
+    const fab = document.getElementById('fab-container');
+    if (!menu || !fab) return;
+    menu.innerHTML = '';
+    const actions = fabActionsForRole();
+    if (!shouldShowFab() || actions.length === 0) {
+      fab.classList.add('hidden');
+      closeFabMenu();
+      return;
+    }
+    fab.classList.remove('hidden');
+    actions.forEach(action => {
+      const btn = document.createElement('button');
+      btn.className = 'fab-speed-btn';
+      btn.innerHTML = `<span>${action.icon}</span> ${action.label}`;
+      btn.onclick = () => {
+        action.handler?.();
+        closeFabMenu();
+      };
+      menu.appendChild(btn);
+    });
+  }
+
+  function openInventoryModalFromFab() {
+    openInventoryModal();
+  }
+
+  function openFabFridgeExit() {
+    const fridgeItem = stockItems.find(i => (i.categoria || i.category) === 'geladeira');
+    if (!fridgeItem) {
+      alert('Adicione um item da geladeira para registrar consumo.');
+      return;
+    }
+    openStockExitModal(fridgeItem.id);
+  }
+
+  function handleFabScroll() {
+    const fab = document.getElementById('fab-container');
+    if (!fab || fab.classList.contains('hidden')) return;
+    const current = window.scrollY;
+    const goingDown = current > fabScrollLast + 6;
+    const goingUp = current < fabScrollLast - 6;
+    if (goingDown) fab.classList.add('fab-hidden');
+    if (goingUp) fab.classList.remove('fab-hidden');
+    fabScrollLast = current;
   }
 
   // -----------------------------
@@ -5480,6 +5651,8 @@
     const select = document.getElementById('inventory-category');
     if (select) select.value = category;
     renderInventoryTemplates();
+    renderInventory();
+    renderFabActions();
   }
 
   function resetInventoryFields() {
@@ -5548,6 +5721,7 @@
   }
 
   function openInventoryModal(itemId = null) {
+    closeFabMenu();
     inventoryFormMode = itemId ? 'edit' : 'add';
     inventoryEditingId = itemId;
     resetInventoryFields();
@@ -6702,6 +6876,13 @@
   document.addEventListener('DOMContentLoaded', () => {
     normalizeButtons();
     buttonObserver.observe(document.body, { childList: true, subtree: true });
+    const fabMain = document.getElementById('fab-main');
+    const fabBackdrop = document.getElementById('fab-backdrop');
+    if (fabMain) fabMain.addEventListener('click', toggleFabMenu);
+    if (fabBackdrop) fabBackdrop.addEventListener('click', closeFabMenu);
+    window.addEventListener('resize', refreshFab);
+    window.addEventListener('scroll', handleFabScroll, { passive: true });
+    refreshFab();
   });
 
   // Inicialização
