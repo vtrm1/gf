@@ -3481,7 +3481,7 @@
           <span class="kiosk-pill">3️⃣ Confirme e avisa a profissional</span>
         </div>
       </div>
-      <button class="secondary" onclick="backToLogin()">Sair do modo tablet</button>
+      <button class="secondary" onclick="exitKiosk()">Sair do modo tablet</button>
     </div>
 
     <div class="kiosk-grid">
@@ -3562,6 +3562,7 @@
   let agendaProfessionalFilterColab = 'all';
   let fabMenuOpen = false;
   let fabScrollLast = 0;
+  let previousRoleContext = null;
 
   const getCssVar = (key, fallback = '') => {
     const val = getComputedStyle(document.documentElement).getPropertyValue(key);
@@ -3931,6 +3932,10 @@
   // TROCA DE PAPEL / TELAS
   // -----------------------------
   function setRole(role, account = null) {
+    if (role === 'kiosk' && currentRole !== 'kiosk') {
+      previousRoleContext = { role: currentRole, account: currentColabAccount, pageCEO: currentPageCEO, pageColab: currentPageColab };
+    }
+
     currentRole = role;
     if (role === 'colab') {
       currentColabAccount = account;
@@ -3940,6 +3945,8 @@
       agendaProfessionalFilterColab = 'all';
     }
     if (role === 'ceo') agendaProfessionalFilter = 'all';
+
+    if (role === 'ceo' || role === 'colab') previousRoleContext = null;
 
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('app-shell').classList.add('hidden');
@@ -3963,6 +3970,23 @@
     document.getElementById('login-screen').classList.remove('hidden');
     document.getElementById('app-shell').classList.add('hidden');
     document.getElementById('kiosk-screen').classList.add('hidden');
+  }
+
+  function enterKioskFromShell() {
+    setRole('kiosk');
+  }
+
+  function exitKiosk() {
+    if (previousRoleContext?.role === 'ceo' || previousRoleContext?.role === 'colab') {
+      const ctx = previousRoleContext;
+      previousRoleContext = null;
+      setRole(ctx.role, ctx.account || null);
+      if (ctx.role === 'ceo' && ctx.pageCEO) currentPageCEO = ctx.pageCEO;
+      if (ctx.role === 'colab' && ctx.pageColab) currentPageColab = ctx.pageColab;
+      updateVisiblePage();
+      return;
+    }
+    backToLogin();
   }
 
   function openKioskFromDashboard() {
@@ -4729,7 +4753,13 @@
           <span class="nav-icon">${iconMap[item.id] || '•'}</span>
           <span class="nav-label">${item.label}</span>
         `;
-        btn.onclick = () => navigatePage(roleKey, item.id);
+        btn.onclick = () => {
+          if (item.id === 'kiosk') {
+            enterKioskFromShell();
+            return;
+          }
+          navigatePage(roleKey, item.id);
+        };
         desktopNav.appendChild(btn);
       });
     };
@@ -4745,7 +4775,11 @@
           <span>${item.label}</span>
         `;
         btn.onclick = () => {
-          navigatePage(roleKey, item.id);
+          if (item.id === 'kiosk') {
+            enterKioskFromShell();
+          } else {
+            navigatePage(roleKey, item.id);
+          }
           toggleMobileNav(false);
         };
         mobileNav.appendChild(btn);
