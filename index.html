@@ -202,41 +202,30 @@
       transition: width 0.25s ease, padding 0.25s ease;
     }
 
+    .sidebar-hidden .sidebar {
+      display: none;
+    }
+
+    .sidebar-hidden .content {
+      padding: 1.5rem 1.75rem;
+    }
+
     .sidebar-handle {
-      position: absolute;
-      top: 50%;
-      right: -14px;
-      transform: translateY(-50%);
-      width: 26px;
-      height: 52px;
-      background: var(--pastel-blue);
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: var(--bg-card-alt);
       border: 1px solid var(--border-soft);
-      border-radius: 999px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      z-index: 5;
+      color: var(--text-main);
+      padding: 0;
+      transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
     }
 
     .sidebar-handle:hover {
       background: var(--bg-card);
-    }
-
-    .sidebar-collapsed .sidebar {
-      width: 72px;
-      padding: 1.5rem 0.5rem;
-    }
-
-    .sidebar-collapsed .content {
-      padding: 1.5rem 1.75rem;
-    }
-
-    @media (max-width: 1023px) {
-      .sidebar-handle {
-        display: none;
-      }
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.08);
     }
 
     .sidebar-header {
@@ -1954,10 +1943,6 @@
       </div>
     </div>
 
-    <button id="sidebar-handle" class="sidebar-handle" onclick="toggleSidebar()" aria-label="Alternar menu">
-      <span style="font-size:0.9rem;color:var(--text-main);">◀</span>
-    </button>
-
     <div class="sidebar-nav" id="sidebar-nav">
       <!-- Botões injectados via JS conforme papel -->
     </div>
@@ -1975,10 +1960,15 @@
 
   <main class="content">
     <header class="topbar flex flex-col gap-4 md:flex-row md:items-center md:justify-between bg-white/80 backdrop-blur rounded-2xl shadow-md p-5">
-      <div class="space-y-1">
-        <p class="text-sm text-slate-600">Visão rápida do Studio Nails</p>
-        <h1 id="page-title" class="text-2xl font-semibold text-[color:var(--text-main)]">Dashboard – Visão Geral do Studio</h1>
-        <div id="page-subtitle" class="text-sm text-slate-500">Visão geral do Studio Nails</div>
+      <div class="flex items-start gap-3 w-full md:w-auto">
+        <button id="sidebar-toggle" class="sidebar-handle hidden lg:inline-flex items-center justify-center" onclick="toggleSidebar()" aria-label="Alternar menu" aria-pressed="false">
+          <span id="sidebar-toggle-icon" class="text-lg">◀</span>
+        </button>
+        <div class="space-y-1">
+          <p class="text-sm text-slate-600">Visão rápida do Studio Nails</p>
+          <h1 id="page-title" class="text-2xl font-semibold text-[color:var(--text-main)]">Dashboard – Visão Geral do Studio</h1>
+          <div id="page-subtitle" class="text-sm text-slate-500">Visão geral do Studio Nails</div>
+        </div>
       </div>
       <div class="w-full md:w-72">
         <label class="text-sm font-medium text-slate-600 block mb-1">Filtro mensal</label>
@@ -4603,12 +4593,11 @@
   function toggleSidebar() {
     sidebarCollapsed = !sidebarCollapsed;
     const shell = document.getElementById('app-shell');
-    if (shell) shell.classList.toggle('sidebar-collapsed', sidebarCollapsed);
-    const handle = document.getElementById('sidebar-handle');
-    if (handle) {
-      const icon = handle.querySelector('span');
-      if (icon) icon.textContent = sidebarCollapsed ? '▶' : '◀';
-    }
+    if (shell) shell.classList.toggle('sidebar-hidden', sidebarCollapsed);
+    const handle = document.getElementById('sidebar-toggle');
+    const icon = document.getElementById('sidebar-toggle-icon');
+    if (handle) handle.setAttribute('aria-pressed', String(!sidebarCollapsed));
+    if (icon) icon.textContent = sidebarCollapsed ? '☰' : '◀';
   }
 
   function updateVisiblePage() {
