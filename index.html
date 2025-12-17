@@ -4280,7 +4280,7 @@
   // Função modular (v9) para iniciar atendimento e abrir comanda automaticamente
   import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, doc, getDoc, updateDoc, addDoc, collection, serverTimestamp, arrayUnion, onSnapshot, getDocs, query, where, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, updateDoc, addDoc, collection, serverTimestamp, arrayUnion, onSnapshot, getDocs, query, where, limit, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   // Reutiliza app existente ou cria um para este módulo
   const firebaseConfigAtendimento = {
@@ -4345,7 +4345,7 @@
         tipo: itemInicial.tipo || "servico",
         preco: Number(itemInicial.preco) || 0,
         quantidade: Number(itemInicial.quantidade) || 1,
-        criadoEm: serverTimestamp()
+        criadoEm: Timestamp.now()
       });
     }
 
@@ -4362,7 +4362,7 @@
       codigoPareamento,
       codigoCriadoEm: serverTimestamp(),
       kioskFinalizado: false,
-      criadoEm: serverTimestamp(),
+      criadoEm: Timestamp.now(),
       atualizadoEm: serverTimestamp()
     });
 
@@ -4430,7 +4430,7 @@
       tipo: item.tipo,
       preco,
       quantidade: qtd,
-      criadoEm: serverTimestamp()
+      criadoEm: Timestamp.now()
     };
 
     await updateDoc(comandaRef, {
@@ -4482,7 +4482,7 @@
       tipo,
       preco,
       quantidade: qtd,
-      criadoEm: serverTimestamp()
+      criadoEm: Timestamp.now()
     };
 
     await updateDoc(comandaRef, {
@@ -4522,7 +4522,7 @@
             tipo: it.tipo,
             preco: it.preco,
             quantidade: it.quantidade,
-            criadoEm: serverTimestamp()
+            criadoEm: Timestamp.now()
           }))
         ),
         kioskFinalizado: true,
