@@ -2435,6 +2435,32 @@
       margin-top: 1rem;
     }
 
+    .kiosk-pairing {
+      background: #fff;
+      border: 1px dashed var(--border-soft);
+      border-radius: 16px;
+      padding: 1rem 1.2rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.08);
+    }
+
+    .kiosk-pairing-row {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+      margin-top: 0.6rem;
+    }
+
+    .kiosk-pairing-row input {
+      flex: 1;
+      padding: 0.55rem 0.75rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-soft);
+      font-size: 1rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
     .kiosk-section-title {
       font-size: 1rem;
       margin-bottom: 0.3rem;
@@ -4125,17 +4151,33 @@
     <div class="kiosk-hero">
       <div>
         <h1 style="font-size:1.4rem;">Consumo & Serviço</h1>
-        <div class="tag" style="margin-top:0.2rem;">Selecione o que você está consumindo agora</div>
-        <div class="kiosk-steps">
-          <span class="kiosk-pill">1️⃣ Escolha a bebida</span>
-          <span class="kiosk-pill">2️⃣ Marque o serviço</span>
-          <span class="kiosk-pill">3️⃣ Confirme e avisa a profissional</span>
+        <div class="tag" style="margin-top:0.2rem;">Informe o código que a profissional exibiu para você</div>
+        <div class="kiosk-steps" id="kiosk-steps">
+          <span class="kiosk-pill">1️⃣ Digite o código</span>
+          <span class="kiosk-pill">2️⃣ Selecione os itens</span>
+          <span class="kiosk-pill">3️⃣ Finalize e avise</span>
         </div>
       </div>
       <button class="secondary" onclick="backToLogin()">Sair do modo tablet</button>
     </div>
 
-    <div class="kiosk-grid">
+    <div class="kiosk-pairing" id="kiosk-pairing-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+        <div>
+          <div style="font-weight:600;">Parear com seu atendimento</div>
+          <div class="subtext">Digite o código de 4 a 6 caracteres informado pela profissional.</div>
+        </div>
+        <div id="kiosk-session-status" class="badge" style="background:#fff0f0;color:#b91c1c;">Aguardando código</div>
+      </div>
+      <div class="kiosk-pairing-row">
+        <input id="kiosk-codigo-input" maxlength="6" autocomplete="off" placeholder="Ex: A1B2" />
+        <button onclick="handleKioskPairing()">Conectar</button>
+        <button class="secondary" onclick="resetKioskSession()">Limpar</button>
+      </div>
+      <div class="hint" id="kiosk-pairing-hint">O código é criado quando a comanda é aberta.</div>
+    </div>
+
+    <div id="kiosk-content" class="kiosk-grid hidden">
       <div>
         <h2 class="kiosk-section-title">Bebidas e consumação</h2>
         <div class="kiosk-items" id="kiosk-drinks">
@@ -4192,6 +4234,7 @@
     <div>
       <strong>Comanda em atendimento</strong>
       <div class="subtext" id="comanda-panel-info">Cliente / Profissional</div>
+      <div class="badge" id="comanda-panel-codigo" style="margin-top:0.25rem;">Código do kiosk: --</div>
     </div>
     <div style="display:flex;gap:0.35rem;">
       <button class="secondary" style="padding:0.25rem 0.6rem;border-radius:10px;" onclick="minimizeComandaPanel()">Minimizar</button>
@@ -4237,7 +4280,7 @@
   // Função modular (v9) para iniciar atendimento e abrir comanda automaticamente
   import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, doc, getDoc, updateDoc, addDoc, collection, serverTimestamp, arrayUnion, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, updateDoc, addDoc, collection, serverTimestamp, arrayUnion, onSnapshot, getDocs, query, where, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   // Reutiliza app existente ou cria um para este módulo
   const firebaseConfigAtendimento = {
@@ -4262,6 +4305,16 @@
         resolve(user);
       });
     });
+
+  function generateCodigoPareamento() {
+    const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const size = 4 + Math.floor(Math.random() * 3); // 4 a 6 caracteres
+    let code = '';
+    for (let i = 0; i < size; i++) {
+      code += alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+    }
+    return code;
+  }
 
   /**
    * Inicia um atendimento: cria comanda e atualiza o atendimento.
@@ -4296,6 +4349,8 @@
       });
     }
 
+    const codigoPareamento = generateCodigoPareamento();
+
     // 3) Cria comanda vinculada
     const comandaRef = await addDoc(collection(atendimentoDb, "comandas"), {
       atendimentoId,
@@ -4303,6 +4358,10 @@
       profissionalId: atendimentoData.profissionalId || null,
       status: "aberta",
       itensProfissional: itensProf,
+      itensCliente: [],
+      codigoPareamento,
+      codigoCriadoEm: serverTimestamp(),
+      kioskFinalizado: false,
       criadoEm: serverTimestamp(),
       atualizadoEm: serverTimestamp()
     });
@@ -4318,7 +4377,8 @@
     return {
       atendimentoId,
       comandaId: comandaRef.id,
-      status: "em_atendimento"
+      status: "em_atendimento",
+      codigoPareamento
     };
   }
 
@@ -4383,6 +4443,98 @@
     return { ok: true, comandaId };
   }
 
+  async function kioskFetchComandaByCodigo(codigoPareamento) {
+    if (!codigoPareamento) return null;
+    const sanitized = codigoPareamento.trim().toUpperCase();
+    const q = query(
+      collection(atendimentoDb, "comandas"),
+      where("codigoPareamento", "==", sanitized),
+      where("status", "==", "aberta"),
+      limit(1)
+    );
+    const snap = await getDocs(q);
+    if (snap.empty) return null;
+    return snap.docs[0].id;
+  }
+
+  async function kioskAddItem(comandaId, item) {
+    if (!comandaId) throw new Error("comandaId é obrigatório.");
+    const comandaRef = doc(atendimentoDb, "comandas", comandaId);
+    const snap = await getDoc(comandaRef);
+    if (!snap.exists()) throw new Error(COMANDA_ERRORS.notFound);
+    const data = snap.data();
+    if (data.status !== "aberta") throw new Error(COMANDA_ERRORS.notOpen);
+    if (data.kioskFinalizado) throw new Error("Consumo já finalizado pelo kiosk.");
+
+    if (!item?.nome || typeof item.nome !== 'string' || !item.nome.trim()) {
+      throw new Error(COMANDA_ERRORS.invalidItem + ' (nome obrigatório)');
+    }
+    const qtd = Number(item.quantidade || 1);
+    const preco = Number(item.preco || 0);
+    const tipo = item.tipo === 'consumo' ? 'consumo' : 'servico';
+    if (!Number.isFinite(qtd) || qtd <= 0) throw new Error(COMANDA_ERRORS.invalidItem + ' (quantidade > 0)');
+    if (!Number.isFinite(preco) || preco < 0) throw new Error(COMANDA_ERRORS.invalidItem + ' (preço >= 0)');
+
+    const newItem = {
+      itemId: (crypto?.randomUUID ? crypto.randomUUID() : `item-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`),
+      origem: "cliente",
+      nome: item.nome,
+      tipo,
+      preco,
+      quantidade: qtd,
+      criadoEm: serverTimestamp()
+    };
+
+    await updateDoc(comandaRef, {
+      itensCliente: arrayUnion(newItem),
+      atualizadoEm: serverTimestamp()
+    });
+
+    return { ok: true, comandaId };
+  }
+
+  async function kioskFinalizarConsumo(comandaId, itens = []) {
+    if (!comandaId) throw new Error("comandaId é obrigatório.");
+    const comandaRef = doc(atendimentoDb, "comandas", comandaId);
+    const snap = await getDoc(comandaRef);
+    if (!snap.exists()) throw new Error(COMANDA_ERRORS.notFound);
+    const data = snap.data();
+    if (data.status !== "aberta") throw new Error(COMANDA_ERRORS.notOpen);
+    if (data.kioskFinalizado) throw new Error("Consumo já finalizado pelo kiosk.");
+
+    const parsedItems = (itens || [])
+      .filter(Boolean)
+      .map((item) => ({
+        nome: item.nome,
+        tipo: item.tipo === 'consumo' ? 'consumo' : 'servico',
+        preco: Number(item.preco) || 0,
+        quantidade: Number(item.quantidade) || 1
+      }))
+      .filter(it => it.nome && Number.isFinite(it.preco) && Number.isFinite(it.quantidade));
+
+    if (parsedItems.length) {
+      await updateDoc(comandaRef, {
+        itensCliente: arrayUnion(
+          ...parsedItems.map(it => ({
+            itemId: (crypto?.randomUUID ? crypto.randomUUID() : `item-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`),
+            origem: "cliente",
+            nome: it.nome,
+            tipo: it.tipo,
+            preco: it.preco,
+            quantidade: it.quantidade,
+            criadoEm: serverTimestamp()
+          }))
+        ),
+        kioskFinalizado: true,
+        atualizadoEm: serverTimestamp()
+      });
+    } else {
+      await updateDoc(comandaRef, { kioskFinalizado: true, atualizadoEm: serverTimestamp() });
+    }
+
+    return { ok: true, comandaId };
+  }
+
   /**
    * Escuta comanda em tempo real e retorna unsubscribe.
    * @param {string} comandaId
@@ -4398,6 +4550,9 @@
   // Disponibiliza no escopo global para uso no restante do app
   window.startAtendimento = startAtendimento;
   window.addItemProfissional = addItemProfissional;
+  window.kioskFetchComandaByCodigo = kioskFetchComandaByCodigo;
+  window.kioskAddItem = kioskAddItem;
+  window.kioskFinalizarConsumo = kioskFinalizarConsumo;
   window.listenComanda = listenComanda;
 </script>
 <script>
@@ -4693,6 +4848,10 @@
   }
 
   let cart = [];
+  let kioskComandaId = null;
+  let kioskComandaStatus = 'desconectado';
+  let kioskComandaUnsub = null;
+  let kioskComandaData = null;
 
   // -----------------------------
   // AUTENTICAÇÃO E TROCA DE PAPEL
@@ -4911,8 +5070,10 @@
       setupSidebar(role);
       updateRoleLabel(role);
       updateVisiblePage();
+      resetKioskSession();
     } else if (role === 'kiosk') {
       document.getElementById('kiosk-screen').classList.remove('hidden');
+      resetKioskSession();
       renderKiosk();
     }
 
@@ -5633,7 +5794,9 @@
       comandaUnsub = window.listenComanda(comandaId, (data) => {
         comandaAtualStatus = data?.status || 'aberta';
         toggleComandaFormAvailability(comandaAtualStatus);
-        renderComandaItems(data?.itensProfissional || [], comandaAtualStatus);
+        renderComandaItems(data || {}, comandaAtualStatus);
+        const codigo = document.getElementById('comanda-panel-codigo');
+        if (codigo) codigo.textContent = `Código do kiosk: ${data?.codigoPareamento || '--'}`;
       });
     }
   }
@@ -5650,10 +5813,12 @@
     }
     const mini = document.getElementById('comanda-mini');
     if (mini) mini.classList.add('hidden');
-    renderComandaItems([]);
+    const codigo = document.getElementById('comanda-panel-codigo');
+    if (codigo) codigo.textContent = 'Código do kiosk: --';
+    renderComandaItems({});
   }
 
-  function renderComandaItems(items = [], status = 'aberta') {
+  function renderComandaItems(comanda = {}, status = 'aberta') {
     const list = document.getElementById('comanda-items');
     if (!list) return;
     list.innerHTML = '';
@@ -5663,6 +5828,9 @@
       locked.textContent = `Comanda ${status}`;
       list.appendChild(locked);
     }
+    const itensProf = comanda.itensProfissional || [];
+    const itensCliente = comanda.itensCliente || [];
+    const items = itensProf.concat(itensCliente);
     if (!items.length) {
       const empty = document.createElement('div');
       empty.className = 'subtext';
@@ -5690,7 +5858,7 @@
         li.innerHTML = `
           <div>
             <strong>${it.nome || 'Item'}</strong>
-            <div class="subtext">${it.tipo === 'servico' ? 'Serviço' : 'Consumo'} • Qtd: ${it.quantidade || 1}</div>
+            <div class="subtext">${it.tipo === 'servico' ? 'Serviço' : 'Consumo'} • Qtd: ${it.quantidade || 1} • Origem: ${it.origem === 'cliente' ? 'Kiosk' : 'Profissional'}</div>
           </div>
           <div style="text-align:right;">
             <div>${formatCurrency(total)}</div>
@@ -5815,7 +5983,10 @@
 
   // Utilitário: totalização de comanda
   function calculateComandaTotal(comanda = {}) {
-    const items = comanda.itensProfissional || [];
+    const prof = comanda.itensProfissional || [];
+    const cliente = comanda.itensCliente || [];
+    const livres = comanda.itens || comanda.items || [];
+    const items = prof.concat(cliente).concat(livres);
     const totals = items.reduce(
       (acc, it) => {
         const val = (it.preco || 0) * (it.quantidade || 1);
@@ -6884,7 +7055,9 @@
       const comandaSnap = await firestore.collection('comandas').doc(appt.comandaId).get();
       if (comandaSnap.exists) {
         const comanda = comandaSnap.data() || {};
-        const itens = comanda.itens || comanda.items || [];
+        const itens = (comanda.itensProfissional || [])
+          .concat(comanda.itensCliente || [])
+          .concat(comanda.itens || comanda.items || []);
         consumoTotal = itens.reduce((acc, item) => {
           const preco = item.preco || item.valor || 0;
           const qtd = item.quantidade || item.qtd || 1;
@@ -8533,6 +8706,111 @@
     populateComandaSelect();
   }
 
+  function updateKioskSessionStatus(text, tone = 'waiting') {
+    const el = document.getElementById('kiosk-session-status');
+    if (!el) return;
+    el.textContent = text;
+    if (tone === 'success') {
+      el.style.background = '#e6f6e4';
+      el.style.color = '#256029';
+    } else if (tone === 'locked') {
+      el.style.background = '#fff3cd';
+      el.style.color = '#92400e';
+    } else {
+      el.style.background = '#fff0f0';
+      el.style.color = '#b91c1c';
+    }
+  }
+
+  function setKioskHint(text) {
+    const hint = document.getElementById('kiosk-pairing-hint');
+    if (hint) hint.textContent = text;
+  }
+
+  function kioskActionsLocked() {
+    return !kioskComandaId || kioskComandaStatus !== 'aberta' || Boolean(kioskComandaData?.kioskFinalizado);
+  }
+
+  function resetKioskSession() {
+    kioskComandaId = null;
+    kioskComandaStatus = 'desconectado';
+    kioskComandaData = null;
+    if (kioskComandaUnsub) kioskComandaUnsub();
+    kioskComandaUnsub = null;
+    cart = [];
+    renderCart();
+    const content = document.getElementById('kiosk-content');
+    if (content) content.classList.add('hidden');
+    updateKioskSessionStatus('Aguardando código', 'waiting');
+    setKioskHint('O código é criado quando a comanda é aberta.');
+  }
+
+  function handleKioskSnapshot(data) {
+    kioskComandaData = data;
+    kioskComandaStatus = data?.status || 'aberta';
+    const content = document.getElementById('kiosk-content');
+    if (content) content.classList.toggle('hidden', !kioskComandaId);
+    const steps = document.getElementById('kiosk-steps');
+    if (steps) steps.classList.toggle('hidden', !kioskComandaId);
+
+    if (!kioskComandaId) {
+      updateKioskSessionStatus('Aguardando código', 'waiting');
+      return;
+    }
+
+    if (kioskComandaStatus !== 'aberta') {
+      updateKioskSessionStatus('Comanda não está mais aberta', 'locked');
+      setKioskHint('Peça à profissional para abrir uma nova comanda.');
+      return;
+    }
+
+    if (data?.kioskFinalizado) {
+      updateKioskSessionStatus('Consumo finalizado no kiosk', 'locked');
+      setKioskHint('A profissional foi avisada. Aguarde o atendimento.');
+      return;
+    }
+
+    updateKioskSessionStatus(`Pareado (${data?.codigoPareamento || ''})`, 'success');
+    setKioskHint('Adicione os itens e finalize para avisar a profissional.');
+  }
+
+  async function handleKioskPairing() {
+    const input = document.getElementById('kiosk-codigo-input');
+    const codigo = input?.value?.trim().toUpperCase();
+    if (!codigo) {
+      setKioskHint('Digite o código informado pela profissional.');
+      return;
+    }
+    updateKioskSessionStatus('Conferindo código...', 'waiting');
+    try {
+      const comandaId = await window.kioskFetchComandaByCodigo(codigo);
+      if (!comandaId) {
+        updateKioskSessionStatus('Código inválido ou atendimento não iniciado', 'locked');
+        setKioskHint('Peça para a profissional iniciar o atendimento e gerar um novo código.');
+        return;
+      }
+      kioskComandaId = comandaId;
+      kioskComandaStatus = 'aberta';
+      if (kioskComandaUnsub) kioskComandaUnsub();
+      kioskComandaUnsub = window.listenComanda(comandaId, handleKioskSnapshot);
+      handleKioskSnapshot({ status: 'aberta', codigoPareamento: codigo });
+      setKioskHint('Pareado com sucesso. Adicione os itens e finalize.');
+    } catch (err) {
+      console.error(err);
+      updateKioskSessionStatus('Erro ao buscar comanda', 'locked');
+      setKioskHint('Tente novamente em instantes.');
+    }
+  }
+
+  function ensureKioskReady() {
+    if (kioskActionsLocked()) {
+      setKioskHint('Conecte-se a um atendimento aberto para lançar itens.');
+      alert('Digite o código informado pela profissional para liberar o carrinho.');
+      return false;
+    }
+    return true;
+  }
+
   // -----------------------------
   // KIOSK (CLIENTE) - CARRINHO
   // -----------------------------
@@ -8573,6 +8851,7 @@
   }
 
   function addDrinkToCart(drinkId) {
+    if (!ensureKioskReady()) return;
     const drink = kioskDrinks.find(d => d.id === drinkId);
     if (!drink) return;
     cart.push({ type: 'drink', id: drink.id, name: drink.name, price: drink.price });
@@ -8580,6 +8859,7 @@
   }
 
   function selectService(serviceId) {
+    if (!ensureKioskReady()) return;
     const service = kioskServices.find(s => s.id === serviceId);
     if (!service) return;
     // Remove serviços anteriores do carrinho
@@ -8608,6 +8888,12 @@
     if (!listEl || !totalEl) return;
 
     listEl.innerHTML = '';
+    if (kioskActionsLocked()) {
+      const warn = document.createElement('div');
+      warn.className = 'subtext';
+      warn.textContent = kioskComandaId ? 'Comanda fechada para lançamentos.' : 'Informe o código para liberar o carrinho.';
+      listEl.appendChild(warn);
+    }
     cart.forEach((item, index) => {
       const div = document.createElement('div');
       div.className = 'kiosk-cart-item';
@@ -8631,20 +8917,29 @@
     totalEl.textContent = 'R$ ' + calcTotalCart().toFixed(2).replace('.', ',');
   }
 
-  function sendOrder() {
+  async function sendOrder() {
+    if (!ensureKioskReady()) return;
     if (cart.length === 0) {
       alert('Adicione pelo menos um item ao carrinho.');
       return;
     }
 
-    // TODO: aqui você envia o cart para o Firestore:
-    // - criar documento em "orders" com items, horário, etc.
-    // - atualizar estoque (via Cloud Function)
-    // Exemplo (pseudo):
-    // await addDoc(collection(db, "orders"), { items: cart, createdAt: serverTimestamp(), ... })
+    const itens = cart.map(item => ({
+      nome: item.name,
+      tipo: item.type === 'drink' ? 'consumo' : 'servico',
+      preco: Number(item.price) || 0,
+      quantidade: 1
+    }));
 
-    alert('Pedido registrado! A profissional será avisada.');
-    clearCart();
+    try {
+      await window.kioskFinalizarConsumo(kioskComandaId, itens);
+      alert('Pedido registrado! A profissional será avisada.');
+      clearCart();
+      updateKioskSessionStatus('Consumo finalizado no kiosk', 'locked');
+    } catch (err) {
+      console.error(err);
+      alert('Não foi possível registrar o consumo. Tente novamente.');
+    }
   }
 
   // ---------- Overrides de renderização para incluir botões de atendimento ----------
@@ -8832,6 +9127,7 @@
   listenGlobalMonth();
   refreshAgendaFromAppointments();
   syncKioskFromInventory();
+  resetKioskSession();
 
   document.addEventListener('DOMContentLoaded', attachAuthListener);
   refreshMonthlyConsumers();
