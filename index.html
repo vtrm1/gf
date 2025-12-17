@@ -1893,6 +1893,11 @@
       z-index: 50;
     }
 
+    /* dialogos que precisam ficar acima de overlays como a timeline */
+    .dialog-layer.topmost {
+      z-index: 160;
+    }
+
     .dialog-layer.hidden {
       display: none !important;
     }
@@ -1910,6 +1915,30 @@
       gap: 0.65rem;
       max-height: 90vh;
       overflow-y: auto;
+    }
+
+    /* tabelas da agenda no mobile */
+    .agenda-table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+    }
+    .agenda-table-wrapper table {
+      min-width: 680px;
+    }
+    @media (max-width: 720px) {
+      #agenda-month-card,
+      #agenda-day-card,
+      #agenda-month-card-colab,
+      #agenda-day-card-colab {
+        padding: 0.9rem;
+        border-radius: 16px;
+      }
+      .agenda-table-wrapper table {
+        min-width: 520px;
+      }
+      .agenda-appointments .appointment-card {
+        align-items: flex-start;
+      }
     }
 
     .dialog-grid {
@@ -3098,21 +3127,23 @@
         <div class="pill-row" id="selected-month-tags"></div>
       </div>
       <div id="agenda-month-card" class="card" style="margin-top:0.2rem;">
-        <table class="table" style="margin:0;">
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Hora</th>
-              <th>Cliente</th>
-              <th>Serviço</th>
-              <th>Profissional</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="agenda-month-summary">
-            <!-- Populado via JS mock -->
-          </tbody>
-        </table>
+        <div class="agenda-table-wrapper">
+          <table class="table" style="margin:0;">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Hora</th>
+                <th>Cliente</th>
+                <th>Serviço</th>
+                <th>Profissional</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="agenda-month-summary">
+              <!-- Populado via JS mock -->
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div id="agenda-day-card" class="card hidden" style="margin-top:0.4rem;">
@@ -3996,10 +4027,20 @@
   </div>
 </div>
 
-<div id="move-appointment-modal" class="dialog-layer hidden">
-  <div class="dialog-card" style="max-width:460px;">
+<div id="move-appointment-modal" class="dialog-layer topmost hidden">
+  <div class="dialog-card" style="max-width:500px;">
     <h3>Confirmar novo horário</h3>
-    <div id="move-appointment-summary" class="subtext" style="margin:0.35rem 0 0.75rem 0;">Selecione um horário.</div>
+    <div id="move-appointment-summary" class="subtext" style="margin:0.35rem 0 0.65rem 0;">Selecione um horário.</div>
+    <div class="dialog-grid" style="grid-template-columns:1fr 1fr;gap:0.6rem;">
+      <div>
+        <label class="subtext">Dia</label>
+        <input id="move-appointment-date" type="date" />
+      </div>
+      <div>
+        <label class="subtext">Horário</label>
+        <input id="move-appointment-time" type="time" />
+      </div>
+    </div>
     <div class="dialog-actions" style="justify-content:space-between;">
       <button class="secondary" onclick="closeMoveAppointmentModal()">Cancelar</button>
       <button onclick="confirmMoveAppointment()">Salvar mudança</button>
@@ -5835,12 +5876,16 @@
       targetTime
     };
     const summary = document.getElementById('move-appointment-summary');
+    const dateInput = document.getElementById('move-appointment-date');
+    const timeInput = document.getElementById('move-appointment-time');
     if (summary) {
       const clientName = appt.clientName || appt.cliente || clients.find(c => c.id === appt.clientId)?.name || 'Cliente';
       const service = appt.serviceName || appt.service || 'Serviço';
       const pro = appt.professionalName || appt.professional || 'Equipe';
       summary.textContent = `${clientName} • ${service} • ${formatDateLabel(targetDate)} às ${targetTime} • ${pro}`;
     }
+    if (dateInput) dateInput.value = targetDate;
+    if (timeInput) timeInput.value = targetTime;
     openDialog('move-appointment-modal');
   }
 
@@ -5848,16 +5893,18 @@
     if (!pendingMoveData) { closeMoveAppointmentModal(); return; }
     const appt = appointments.find(a => a.id === pendingMoveData.apptId);
     if (!appt) { closeMoveAppointmentModal(); return; }
+    const chosenDate = document.getElementById('move-appointment-date')?.value || pendingMoveData.targetDate;
+    const chosenTime = document.getElementById('move-appointment-time')?.value || pendingMoveData.targetTime;
     const conflict = appointments.some(a =>
       a.id !== appt.id &&
-      a.date === pendingMoveData.targetDate &&
-      a.time === pendingMoveData.targetTime
+      a.date === chosenDate &&
+      a.time === chosenTime
     );
     if (conflict) { alert('Horário já ocupado.'); return; }
     const updated = {
       ...appt,
-      time: pendingMoveData.targetTime,
-      date: pendingMoveData.targetDate,
+      time: chosenTime,
+      date: chosenDate,
       updatedAt: new Date().toISOString(),
       atualizadoEm: new Date().toISOString()
     };
