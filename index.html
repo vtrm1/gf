@@ -68,7 +68,7 @@
       --tab-maint: #e8eef4;
       --tab-maint-text: #4b617f;
 
-      --day-slot-height: 72px;
+      --day-slot-height: 60px;
     }
 
     * {
@@ -1220,9 +1220,9 @@
 
     .day-agenda-body {
       display: grid;
-      grid-template-columns: 80px 1fr;
-      gap: 0.6rem;
-      padding: 0.75rem 1rem 1rem;
+      grid-template-columns: 86px 1fr;
+      gap: 0.5rem;
+      padding: 0.65rem 1rem 0.85rem;
       overflow: hidden;
       min-height: 60vh;
     }
@@ -1230,9 +1230,10 @@
     .day-hours {
       display: grid;
       grid-auto-rows: var(--day-slot-height);
+      gap: 0;
       color: var(--text-muted);
       font-weight: 600;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       max-height: 75vh;
       overflow-y: auto;
       scrollbar-gutter: stable;
@@ -1241,11 +1242,13 @@
     }
 
     .day-hour {
+      height: var(--day-slot-height);
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: flex-end;
-      padding: 0.35rem 0.25rem 0 0.35rem;
+      padding: 0 0.35rem 0 0.25rem;
       border-bottom: 1px dashed rgba(0,0,0,0.06);
+      letter-spacing: 0.01em;
     }
 
     .day-slots {
@@ -1258,25 +1261,50 @@
       scrollbar-gutter: stable;
       display: grid;
       grid-auto-rows: minmax(var(--day-slot-height), auto);
-      gap: 0.4rem;
+      gap: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.04),
+        rgba(0,0,0,0.04) 1px,
+        transparent 1px,
+        transparent var(--day-slot-height)
+      );
     }
 
     .day-slot {
-      border: 1px solid rgba(0,0,0,0.05);
+      border: 1px solid rgba(0,0,0,0.04);
       border-radius: 12px;
-      padding: 0.55rem 0.65rem;
-      background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.92) 100%);
-      box-shadow: 0 10px 24px rgba(0,0,0,0.06);
+      padding: 0.4rem 0.65rem 0.45rem;
+      background: rgba(255,255,255,0.88);
+      box-shadow: inset 0 -1px 0 rgba(0,0,0,0.05);
       display: flex;
       flex-direction: column;
-      gap: 0.45rem;
+      gap: 0.3rem;
       min-height: var(--day-slot-height);
       transition: background 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+      position: relative;
+    }
+
+    .day-slot.empty {
+      background: rgba(255,255,255,0.6);
+      border-color: rgba(0,0,0,0.03);
+      box-shadow: none;
+    }
+
+    .day-slot::after {
+      content: '';
+      position: absolute;
+      left: 0.65rem;
+      right: 0.65rem;
+      bottom: 0.1rem;
+      height: 1px;
+      background: rgba(0,0,0,0.06);
+      pointer-events: none;
     }
 
     .day-slot.hover {
-      border-color: rgba(var(--accent-gold-rgb),0.3);
-      box-shadow: 0 14px 30px rgba(0,0,0,0.12);
+      border-color: rgba(var(--accent-gold-rgb),0.35);
+      box-shadow: 0 12px 26px rgba(0,0,0,0.1);
       background: linear-gradient(180deg, rgba(var(--accent-gold-rgb),0.06) 0%, #fff 100%);
     }
 
@@ -1284,10 +1312,21 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 0.5rem;
+      gap: 0.4rem;
       color: var(--text-muted);
       font-weight: 700;
-      font-size: 0.85rem;
+      font-size: 0.78rem;
+    }
+
+    .day-slot-header .slot-label {
+      opacity: 0.5;
+      letter-spacing: 0.03em;
+    }
+
+    .day-slot-header .slot-status {
+      font-weight: 600;
+      color: var(--accent-gold-dark);
+      font-size: 0.76rem;
     }
 
     .day-slot-body {
@@ -1298,21 +1337,6 @@
       justify-content: center;
     }
 
-    .day-slot-empty {
-      color: var(--text-muted);
-      font-size: 0.82rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-
-    .day-slot-empty::before {
-      content: '•';
-      color: rgba(var(--accent-gold-rgb),0.8);
-      font-size: 1rem;
-      line-height: 1;
-    }
-
     .appt-card {
       position: relative;
       min-height: 46px;
@@ -1320,7 +1344,7 @@
       border-radius: 12px;
       background: #fff;
       border: 1px solid rgba(0,0,0,0.05);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
       display: flex;
       flex-direction: column;
       gap: 0.2rem;
@@ -1382,10 +1406,9 @@
 
     @media (max-width: 900px) {
       .day-agenda-body {
-        grid-template-columns: 64px 1fr;
+        grid-template-columns: 70px 1fr;
       }
-      .day-hour { height: var(--day-slot-height); font-size: 0.8rem; }
-      .day-slot { height: var(--day-slot-height); }
+      .day-hour { font-size: 0.78rem; }
       .appt-card { left: 0.2rem; right: 0.2rem; }
     }
 
@@ -5773,6 +5796,17 @@
   let selectedDayAgendaApptId = null;
   let dayAgendaScrollSyncing = false;
 
+  function syncDayAgendaRowHeights() {
+    const hours = Array.from(document.querySelectorAll('#day-agenda-hours .day-hour'));
+    const slots = Array.from(document.querySelectorAll('#day-agenda-slots .day-slot'));
+    hours.forEach((hourEl, idx) => {
+      const slotEl = slots[idx];
+      if (!slotEl) return;
+      const slotHeight = slotEl.getBoundingClientRect().height;
+      hourEl.style.height = `${slotHeight}px`;
+    });
+  }
+
   function openDayAgenda(dateStr, scope = 'ceo') {
     dayAgendaDate = dateStr;
     dayAgendaScope = scope;
@@ -5852,20 +5886,19 @@
       hoursCol.appendChild(lbl);
 
       const slot = document.createElement('div');
-      slot.className = 'day-slot';
+      slot.className = 'day-slot empty';
       slot.dataset.time = `${String(h).padStart(2, '0')}:00`;
       const slotHeader = document.createElement('div');
       slotHeader.className = 'day-slot-header';
       const status = document.createElement('span');
-      status.className = 'subtext';
-      status.textContent = 'Horário livre';
-      slotHeader.innerHTML = `<span>${slot.dataset.time}</span>`;
+      status.className = 'slot-status';
+      status.textContent = '';
+      slotHeader.innerHTML = `<span class="slot-label">${slot.dataset.time}</span>`;
       slotHeader.appendChild(status);
 
       const slotBody = document.createElement('div');
       slotBody.className = 'day-slot-body';
-      slotBody.innerHTML = '<div class="day-slot-empty">Horário livre</div>';
-      slotBodies[slot.dataset.time] = { body: slotBody, status };
+      slotBodies[slot.dataset.time] = { body: slotBody, status, slot };
 
       const addSlotEvents = (el) => {
         el.addEventListener('dragover', (e) => {
@@ -5905,8 +5938,7 @@
       if (!slot) return;
       const slotBody = slotRefs.body;
       const status = slotRefs.status;
-      const emptyState = slotBody.querySelector('.day-slot-empty');
-      if (emptyState) emptyState.remove();
+      slotRefs.slot.classList.remove('empty');
       const card = document.createElement('div');
       card.className = 'appt-card';
       if (appt.status === 'finalizado') card.classList.add('finalizado');
@@ -5956,7 +5988,7 @@
       }
       slotBody.appendChild(card);
       const count = slotBody.querySelectorAll('.appt-card').length;
-      if (status) status.textContent = count === 1 ? '1 atendimento' : `${count} atendimentos`;
+      if (status) status.textContent = count === 0 ? '' : (count === 1 ? '1 atendimento' : `${count} atendimentos`);
     });
 
     if (selectedDayAgendaApptId && items.some(it => it.id === selectedDayAgendaApptId)) {
@@ -5964,6 +5996,8 @@
     } else {
       clearDayAgendaSelection();
     }
+
+    requestAnimationFrame(syncDayAgendaRowHeights);
   }
 
   async function handleSlotDrop(timeTarget, forcedApptId = null) {
