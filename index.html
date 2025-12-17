@@ -796,6 +796,11 @@
       display: none;
     }
 
+    .agenda-month-cards .agenda-card-mobile {
+      width: 100%;
+      margin: 0 auto;
+    }
+
     .comanda-form input,
     .comanda-form select {
       width: 100%;
@@ -1227,8 +1232,9 @@
       color: var(--text-muted);
       font-weight: 600;
       font-size: 0.85rem;
-      max-height: 70vh;
+      max-height: 75vh;
       overflow-y: auto;
+      scrollbar-gutter: stable;
     }
 
     .day-hour {
@@ -1248,6 +1254,7 @@
       background: rgba(0,0,0,0.02);
       border: 1px solid rgba(0,0,0,0.03);
       border-radius: 14px;
+      scrollbar-gutter: stable;
     }
 
     .day-slot {
@@ -1288,6 +1295,11 @@
       cursor: grab;
       touch-action: none;
       user-select: none;
+    }
+
+    .appt-card.selected {
+      border-color: rgba(var(--accent-gold-rgb), 0.65);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12), 0 0 0 2px rgba(var(--accent-gold-rgb), 0.2);
     }
 
     .appt-card.dragging {
@@ -2302,11 +2314,11 @@
     }
 
     .agenda-card-mobile .row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 0.45rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
       font-size: 0.9rem;
-      align-items: flex-start;
+      align-items: center;
     }
 
     .agenda-card-mobile .row .pill {
@@ -5725,6 +5737,8 @@
   let draggedAppointmentId = null;
   let pendingMoveApptId = null;
   let pendingMoveData = null;
+  let selectedDayAgendaApptId = null;
+  let dayAgendaScrollSyncing = false;
   let dayAgendaSlotHeight = 72; // px
 
   function openDayAgenda(dateStr, scope = 'ceo') {
@@ -5742,10 +5756,46 @@
     if (overlay) overlay.classList.remove('open');
     draggedAppointmentId = null;
     pendingMoveApptId = null;
+    clearDayAgendaSelection();
   }
 
   function refreshDayAgenda() {
     renderDayAgendaTimeline();
+  }
+
+  function clearDayAgendaSelection() {
+    selectedDayAgendaApptId = null;
+    pendingMoveApptId = null;
+    document.querySelectorAll('#day-agenda-slots .appt-card.selected').forEach(card => {
+      card.classList.remove('selected');
+    });
+  }
+
+  function selectDayAgendaCard(apptId) {
+    selectedDayAgendaApptId = apptId;
+    pendingMoveApptId = apptId;
+    const cards = document.querySelectorAll('#day-agenda-slots .appt-card');
+    cards.forEach(card => {
+      card.classList.toggle('selected', card.dataset.apptId === apptId);
+    });
+  }
+
+  function bindDayAgendaScrollSync() {
+    const hoursCol = document.getElementById('day-agenda-hours');
+    const slotsCol = document.getElementById('day-agenda-slots');
+    if (!hoursCol || !slotsCol) return;
+    hoursCol.onscroll = () => {
+      if (dayAgendaScrollSyncing) return;
+      dayAgendaScrollSyncing = true;
+      slotsCol.scrollTop = hoursCol.scrollTop;
+      dayAgendaScrollSyncing = false;
+    };
+    slotsCol.onscroll = () => {
+      if (dayAgendaScrollSyncing) return;
+      dayAgendaScrollSyncing = true;
+      hoursCol.scrollTop = slotsCol.scrollTop;
+      dayAgendaScrollSyncing = false;
+    };
   }
 
   function hourRange() {
@@ -5760,6 +5810,7 @@
     if (!hoursCol || !slotsCol || !dayAgendaDate) return;
     hoursCol.innerHTML = '';
     slotsCol.innerHTML = '';
+    bindDayAgendaScrollSync();
     const hours = hourRange();
     hours.forEach((h) => {
       const lbl = document.createElement('div');
@@ -5796,6 +5847,7 @@
       empty.className = 'day-slot-empty subtext';
       empty.textContent = 'Nenhum atendimento neste dia.';
       slotsCol.appendChild(empty);
+      clearDayAgendaSelection();
       return;
     }
 
@@ -5810,7 +5862,7 @@
       card.className = 'appt-card';
       if (appt.status === 'finalizado') card.classList.add('finalizado');
       card.draggable = appt.status !== 'finalizado';
-      card.dataset.id = appt.id;
+      card.dataset.apptId = appt.id;
       card.style.top = `${(minutes/60) * dayAgendaSlotHeight}px`;
       const client = clients.find(c => c.id === appt.clientId);
       card.innerHTML = `
@@ -5824,9 +5876,18 @@
           <span class="badge-soft">${appt.status || 'agendado'}</span>
         </div>
       `;
+      card.addEventListener('click', (e) => {
+        e.stopPropagation();
+        selectDayAgendaCard(appt.id);
+      });
+      card.addEventListener('dblclick', (e) => {
+        e.stopPropagation();
+        openAppointmentModal(appt.clientId || null, appt.id, appt.date, appt.time);
+      });
       if (appt.status !== 'finalizado') {
         card.addEventListener('dragstart', () => {
           draggedAppointmentId = appt.id;
+          selectDayAgendaCard(appt.id);
           card.classList.add('dragging');
         });
         card.addEventListener('dragend', () => {
@@ -5838,6 +5899,7 @@
         card.addEventListener('touchstart', () => {
           touchTimer = setTimeout(() => {
             pendingMoveApptId = appt.id;
+            selectDayAgendaCard(appt.id);
           }, 250);
         }, { passive: true });
         card.addEventListener('touchend', () => {
@@ -5846,6 +5908,12 @@
       }
       slot.appendChild(card);
     });
+
+    if (selectedDayAgendaApptId && items.some(it => it.id === selectedDayAgendaApptId)) {
+      selectDayAgendaCard(selectedDayAgendaApptId);
+    } else {
+      clearDayAgendaSelection();
+    }
   }
 
   async function handleSlotDrop(timeTarget, forcedApptId = null) {
