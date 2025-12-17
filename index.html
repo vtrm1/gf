@@ -67,6 +67,8 @@
       --tab-fridge-text: #3f6a46;
       --tab-maint: #e8eef4;
       --tab-maint-text: #4b617f;
+
+      --day-slot-height: 72px;
     }
 
     * {
@@ -1228,17 +1230,20 @@
     .day-hours {
       display: flex;
       flex-direction: column;
-      gap: 0.4rem;
+      gap: 0;
       color: var(--text-muted);
       font-weight: 600;
       font-size: 0.85rem;
       max-height: 75vh;
       overflow-y: auto;
       scrollbar-gutter: stable;
+      position: relative;
+      background-image: linear-gradient(to bottom, rgba(0,0,0,0.06) 1px, transparent 1px);
+      background-size: 100% var(--day-slot-height);
     }
 
     .day-hour {
-      height: 72px;
+      height: var(--day-slot-height);
       display: flex;
       align-items: flex-start;
       justify-content: flex-end;
@@ -1255,12 +1260,14 @@
       border: 1px solid rgba(0,0,0,0.03);
       border-radius: 14px;
       scrollbar-gutter: stable;
+      background-image: linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px);
+      background-size: 100% var(--day-slot-height);
     }
 
     .day-slot {
       position: relative;
-      height: 72px;
-      border-bottom: 1px dashed rgba(0,0,0,0.06);
+      height: var(--day-slot-height);
+      border-bottom: none;
       padding: 0.25rem;
       transition: background 0.12s ease, border-color 0.12s ease;
     }
@@ -1351,8 +1358,8 @@
       .day-agenda-body {
         grid-template-columns: 64px 1fr;
       }
-      .day-hour { height: 68px; font-size: 0.8rem; }
-      .day-slot { height: 68px; }
+      .day-hour { height: var(--day-slot-height); font-size: 0.8rem; }
+      .day-slot { height: var(--day-slot-height); }
       .appt-card { left: 0.2rem; right: 0.2rem; }
     }
 
@@ -3968,7 +3975,7 @@
       </div>
     </div>
 
-    <div id="appointment-modal" class="dialog-layer hidden">
+<div id="appointment-modal" class="dialog-layer topmost hidden">
       <div class="dialog-card" style="max-width:640px;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <h3 id="appointment-modal-title">Novo agendamento</h3>
@@ -5739,7 +5746,8 @@
   let pendingMoveData = null;
   let selectedDayAgendaApptId = null;
   let dayAgendaScrollSyncing = false;
-  let dayAgendaSlotHeight = 72; // px
+  const cssSlotHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--day-slot-height'));
+  let dayAgendaSlotHeight = Number.isFinite(cssSlotHeight) ? cssSlotHeight : 72; // px
 
   function openDayAgenda(dateStr, scope = 'ceo') {
     dayAgendaDate = dateStr;
