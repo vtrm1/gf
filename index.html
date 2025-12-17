@@ -4273,6 +4273,30 @@
   </form>
 </div>
 
+<div id="finalizar-comanda-modal" class="dialog-layer hidden">
+  <div class="dialog-card" style="max-width:540px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.75rem;">
+      <div>
+        <h3>Revisar comanda</h3>
+        <div class="subtext" id="finalizar-comanda-caption">Confira os itens antes do pagamento.</div>
+        <div class="subtext" id="finalizar-comanda-registro" style="margin-top:0.25rem;">Resumo ainda não carregado.</div>
+      </div>
+      <button class="secondary" onclick="closeFinalizarComandaModal()">Fechar</button>
+    </div>
+
+    <div id="finalizar-comanda-total" class="badge" style="margin:0.75rem 0; display:inline-flex;">Total estimado: --</div>
+
+    <div id="finalizar-comanda-list" class="flex flex-col gap-2" style="margin-bottom:1rem;">
+      <div class="subtext">Carregando itens da comanda...</div>
+    </div>
+
+    <div class="dialog-actions" style="justify-content:space-between;">
+      <button class="secondary" onclick="closeFinalizarComandaModal()">Voltar</button>
+      <button id="finalizar-comanda-confirm" onclick="confirmFinalizarComanda()">Finalizar e registrar pagamento</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -5999,6 +6023,176 @@
     return { ...totals, totalGeral: totals.totalServicos + totals.totalConsumos };
   }
 
+  const finalizeModalState = {
+    atendimentoId: null,
+    comandaId: null,
+    itens: [],
+    total: 0,
+    cliente: '',
+    profissional: '',
+    resumoGeradoEm: null
+  };
+
+  function resetFinalizarComandaModal() {
+    finalizeModalState.atendimentoId = null;
+    finalizeModalState.comandaId = null;
+    finalizeModalState.itens = [];
+    finalizeModalState.total = 0;
+    finalizeModalState.cliente = '';
+    finalizeModalState.profissional = '';
+    finalizeModalState.resumoGeradoEm = null;
+    const list = document.getElementById('finalizar-comanda-list');
+    if (list) list.innerHTML = '<div class="subtext">Selecione um atendimento para finalizar.</div>';
+    const caption = document.getElementById('finalizar-comanda-caption');
+    if (caption) caption.textContent = 'Confira os itens antes do pagamento.';
+    const registro = document.getElementById('finalizar-comanda-registro');
+    if (registro) registro.textContent = 'Resumo ainda não carregado.';
+    const total = document.getElementById('finalizar-comanda-total');
+    if (total) total.textContent = 'Total estimado: --';
+    const confirmBtn = document.getElementById('finalizar-comanda-confirm');
+    if (confirmBtn) {
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = 'Finalizar e registrar pagamento';
+    }
+  }
+
+  function computeResumoTotals(itens = []) {
+    return itens.reduce(
+      (acc, it) => {
+        const totalItem = (Number(it.preco || it.valor || 0)) * (Number(it.quantidade || it.qtd || 1));
+        if (it.tipo === 'consumo') acc.consumos += totalItem;
+        else acc.servicos += totalItem;
+        acc.total += totalItem;
+        return acc;
+      },
+      { servicos: 0, consumos: 0, total: 0 }
+    );
+  }
+
+  function renderFinalizarComandaResumo() {
+    const list = document.getElementById('finalizar-comanda-list');
+    const caption = document.getElementById('finalizar-comanda-caption');
+    const registro = document.getElementById('finalizar-comanda-registro');
+    const totalEl = document.getElementById('finalizar-comanda-total');
+    if (caption) caption.textContent = `${finalizeModalState.cliente || 'Cliente'} • ${finalizeModalState.profissional || 'Profissional'}`;
+    if (registro && finalizeModalState.resumoGeradoEm) {
+      registro.textContent = `Resumo gerado às ${finalizeModalState.resumoGeradoEm.toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      })}`;
+    }
+
+    const totals = computeResumoTotals(finalizeModalState.itens);
+    finalizeModalState.total = totals.total || (totals.servicos + totals.consumos);
+    if (totalEl) totalEl.textContent = `Total estimado: ${formatCurrency(finalizeModalState.total)}`;
+
+    if (!list) return;
+    list.innerHTML = '';
+    if (!finalizeModalState.itens.length) {
+      list.innerHTML = '<div class="subtext">Nenhum item registrado nesta comanda.</div>';
+      return;
+    }
+
+    finalizeModalState.itens.forEach((it) => {
+      const row = document.createElement('div');
+      row.className = 'flex items-start justify-between gap-3 rounded-2xl bg-white px-4 py-3 shadow-sm';
+      const quantidade = Number(it.quantidade || it.qtd || 1);
+      const unit = Number(it.preco || it.valor || 0);
+      const totalItem = unit * quantidade;
+      const origem = it.origem === 'cliente' ? 'Kiosk' : (it.origem === 'profissional' ? 'Profissional' : (it.origem || 'Agenda'));
+      row.innerHTML = `
+        <div>
+          <strong>${it.nome || 'Item'}</strong>
+          <div class="subtext">${it.tipo === 'consumo' ? 'Consumo' : 'Serviço'} • ${quantidade}x ${formatCurrency(unit)} • Origem: ${origem}</div>
+        </div>
+        <div class="text-right font-semibold">${formatCurrency(totalItem)}</div>
+      `;
+      list.appendChild(row);
+    });
+  }
+
+  async function openFinalizarComandaModal(atendimentoId) {
+    try {
+      if (!atendimentoId) throw new Error('Atendimento inválido para finalizar.');
+      finalizeModalState.atendimentoId = atendimentoId;
+      const list = document.getElementById('finalizar-comanda-list');
+      if (list) list.innerHTML = '<div class="subtext">Carregando itens da comanda...</div>';
+      const confirmBtn = document.getElementById('finalizar-comanda-confirm');
+      if (confirmBtn) confirmBtn.disabled = false;
+      openDialog('finalizar-comanda-modal');
+      if (!firestore) throw new Error('Firestore indisponível');
+
+      const atendSnap = await firestore.collection('atendimentos').doc(atendimentoId).get();
+      const appt = atendSnap.exists ? { id: atendimentoId, ...atendSnap.data() } : (appointments.find(a => a.id === atendimentoId) || {});
+
+      const comandaId = appt.comandaId || null;
+      let comandaData = null;
+      if (comandaId) {
+        const comandaSnap = await firestore.collection('comandas').doc(comandaId).get();
+        comandaData = comandaSnap.exists ? comandaSnap.data() : null;
+      }
+
+      const itensServico = [{
+        nome: appt.serviceName || appt.service || 'Serviço',
+        tipo: 'servico',
+        preco: getServicePriceByAppointment(appt),
+        quantidade: 1,
+        origem: 'Serviço agendado'
+      }];
+
+      const itensComanda = comandaData
+        ? (comandaData.itensProfissional || [])
+          .concat(comandaData.itensCliente || [])
+          .concat(comandaData.itens || comandaData.items || [])
+        : [];
+
+      finalizeModalState.comandaId = comandaId;
+      finalizeModalState.itens = itensServico.concat(itensComanda);
+      finalizeModalState.cliente = appt.clientName || appt.cliente || 'Cliente';
+      finalizeModalState.profissional = appt.professionalName || appt.professional || 'Profissional';
+      finalizeModalState.resumoGeradoEm = new Date();
+      renderFinalizarComandaResumo();
+    } catch (err) {
+      alert('Não foi possível carregar o resumo da comanda.');
+      console.error(err);
+      closeFinalizarComandaModal();
+    }
+  }
+
+  function closeFinalizarComandaModal() {
+    closeDialog('finalizar-comanda-modal');
+    resetFinalizarComandaModal();
+  }
+
+  async function confirmFinalizarComanda() {
+    const confirmBtn = document.getElementById('finalizar-comanda-confirm');
+    if (!finalizeModalState.atendimentoId) {
+      alert('Atendimento não encontrado.');
+      return;
+    }
+    if (confirmBtn) {
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Finalizando...';
+    }
+    try {
+      const result = await finalizeAtendimento(finalizeModalState.atendimentoId);
+      appointments = appointments.map(a => a.id === finalizeModalState.atendimentoId ? { ...a, status: 'finalizado' } : a);
+      refreshAgendaFromAppointments();
+      closeFinalizarComandaModal();
+      alert(`Atendimento finalizado. Total para pagamento: ${formatCurrency(result?.total || finalizeModalState.total || 0)}.`);
+    } catch (err) {
+      alert('Não foi possível finalizar o atendimento.');
+      console.error(err);
+    } finally {
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Finalizar e registrar pagamento';
+      }
+    }
+  }
+
   function openAppointmentModal(clientId = null, appointmentId = null, presetDate = null, presetTime = null) {
     appointmentFormMode = appointmentId ? 'edit' : 'add';
     appointmentEditingId = appointmentId;
@@ -7030,10 +7224,7 @@
 
   async function handleFinalizarAtendimento(atendimentoId) {
     try {
-      await finalizeAtendimento(atendimentoId);
-      appointments = appointments.map(a => a.id === atendimentoId ? { ...a, status: 'finalizado' } : a);
-      refreshAgendaFromAppointments();
-      alert('Atendimento finalizado e comanda fechada.');
+      await openFinalizarComandaModal(atendimentoId);
     } catch (err) {
       alert('Não foi possível finalizar o atendimento.');
       console.error(err);
