@@ -2273,11 +2273,11 @@
     }
 
     .agenda-card-mobile .row {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: 0.45rem;
       font-size: 0.9rem;
-      align-items: center;
+      align-items: flex-start;
     }
 
     .agenda-card-mobile .row .pill {
@@ -2288,6 +2288,12 @@
       display: flex;
       gap: 0.35rem;
       flex-wrap: wrap;
+      width: 100%;
+    }
+
+    .agenda-card-mobile .actions button {
+      flex: 1 1 120px;
+      justify-content: center;
     }
 
     .appointment-card {
@@ -3082,10 +3088,16 @@
       </div>
 
       <div class="section-title" style="margin-top:1rem;">
-        <h2 id="selected-month-title">Agenda do mês</h2>
+        <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
+          <h2 id="selected-month-title" style="margin:0;">Agenda do mês</h2>
+          <div class="segmented small">
+            <button id="agenda-tab-month" class="active" onclick="setAgendaSummaryTab('month', 'ceo')">Resumo do mês</button>
+            <button id="agenda-tab-day" onclick="setAgendaSummaryTab('day', 'ceo')">Agenda do dia</button>
+          </div>
+        </div>
         <div class="pill-row" id="selected-month-tags"></div>
       </div>
-      <div class="card" style="margin-top:0.2rem;">
+      <div id="agenda-month-card" class="card" style="margin-top:0.2rem;">
         <table class="table" style="margin:0;">
           <thead>
             <tr>
@@ -3101,6 +3113,20 @@
             <!-- Populado via JS mock -->
           </tbody>
         </table>
+      </div>
+
+      <div id="agenda-day-card" class="card hidden" style="margin-top:0.4rem;">
+        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+            <label class="subtext" for="agenda-day-picker">Escolha o dia</label>
+            <input id="agenda-day-picker" type="date" onchange="renderAgendaDayList('ceo')" />
+          </div>
+          <div class="pill-row" style="margin:0;">
+            <span class="pill">Arraste na linha do tempo para reagendar</span>
+            <button class="secondary" onclick="openDayAgendaFromTab('ceo')">Ver timeline</button>
+          </div>
+        </div>
+        <div id="agenda-day-list" class="agenda-appointments" style="margin:0;"></div>
       </div>
 
     </section>
@@ -3970,6 +3996,17 @@
   </div>
 </div>
 
+<div id="move-appointment-modal" class="dialog-layer hidden">
+  <div class="dialog-card" style="max-width:460px;">
+    <h3>Confirmar novo horário</h3>
+    <div id="move-appointment-summary" class="subtext" style="margin:0.35rem 0 0.75rem 0;">Selecione um horário.</div>
+    <div class="dialog-actions" style="justify-content:space-between;">
+      <button class="secondary" onclick="closeMoveAppointmentModal()">Cancelar</button>
+      <button onclick="confirmMoveAppointment()">Salvar mudança</button>
+    </div>
+  </div>
+</div>
+
 <!-- Agenda do dia (timeline) -->
 <div id="day-agenda-overlay" class="day-agenda-overlay">
   <div class="day-agenda">
@@ -4062,10 +4099,16 @@
       </div>
 
       <div class="section-title" style="margin-top:1rem;">
-        <h2 id="selected-month-title-colab">Agenda do mês</h2>
+        <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
+          <h2 id="selected-month-title-colab" style="margin:0;">Agenda do mês</h2>
+          <div class="segmented small">
+            <button id="agenda-tab-month-colab" class="active" onclick="setAgendaSummaryTab('month', 'colab')">Resumo do mês</button>
+            <button id="agenda-tab-day-colab" onclick="setAgendaSummaryTab('day', 'colab')">Agenda do dia</button>
+          </div>
+        </div>
         <div class="pill-row" id="selected-month-tags-colab"></div>
       </div>
-      <div class="card" style="margin-top:0.2rem;">
+      <div id="agenda-month-card-colab" class="card" style="margin-top:0.2rem;">
         <div class="agenda-table-wrapper">
           <table class="table" style="margin:0;">
             <thead>
@@ -4082,6 +4125,20 @@
           </table>
         </div>
         <div id="agenda-month-cards-colab" class="agenda-month-cards"></div>
+      </div>
+
+      <div id="agenda-day-card-colab" class="card hidden" style="margin-top:0.4rem;">
+        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+            <label class="subtext" for="agenda-day-picker-colab">Escolha o dia</label>
+            <input id="agenda-day-picker-colab" type="date" onchange="renderAgendaDayList('colab')" />
+          </div>
+          <div class="pill-row" style="margin:0;">
+            <span class="pill">Arraste na linha do tempo para reagendar</span>
+            <button class="secondary" onclick="openDayAgendaFromTab('colab')">Ver timeline</button>
+          </div>
+        </div>
+        <div id="agenda-day-list-colab" class="agenda-appointments" style="margin:0;"></div>
       </div>
 
     </section>
@@ -4633,6 +4690,11 @@
   let selectedMonthIndexColab = new Date().getMonth();
   let agendaViewMode = 'year';
   let agendaViewModeColab = 'year';
+  const agendaSummaryTab = { ceo: 'month', colab: 'month' };
+  const agendaDaySelectedDate = {
+    ceo: new Date().toISOString().split('T')[0],
+    colab: new Date().toISOString().split('T')[0]
+  };
   let selectedDashboardMonth = new Date().getMonth();
   let selectedDashboardYear = new Date().getFullYear();
   let selectedGlobalMonthKey = 'all';
@@ -5621,6 +5683,7 @@
   let dayAgendaDate = null;
   let draggedAppointmentId = null;
   let pendingMoveApptId = null;
+  let pendingMoveData = null;
   let dayAgendaSlotHeight = 72; // px
 
   function openDayAgenda(dateStr, scope = 'ceo') {
@@ -5749,10 +5812,11 @@
     if (!apptId) return;
     const appt = appointments.find(a => a.id === apptId);
     if (!appt || appt.status === 'finalizado') return;
+    const targetDate = dayAgendaDate || appt.date;
     // conflito: outro atendimento no mesmo horário
     const conflict = appointments.some(a =>
       a.id !== apptId &&
-      a.date === (dayAgendaDate || appt.date) &&
+      a.date === targetDate &&
       a.time === timeTarget
     );
     if (conflict) {
@@ -5761,11 +5825,52 @@
       pendingMoveApptId = null;
       return;
     }
-    appt.time = timeTarget;
-    appt.date = dayAgendaDate || appt.date;
-    await persistAppointment(appt);
+    openMoveAppointmentModal(appt, targetDate, timeTarget);
+  }
+
+  function openMoveAppointmentModal(appt, targetDate, targetTime) {
+    pendingMoveData = {
+      apptId: appt.id,
+      targetDate,
+      targetTime
+    };
+    const summary = document.getElementById('move-appointment-summary');
+    if (summary) {
+      const clientName = appt.clientName || appt.cliente || clients.find(c => c.id === appt.clientId)?.name || 'Cliente';
+      const service = appt.serviceName || appt.service || 'Serviço';
+      const pro = appt.professionalName || appt.professional || 'Equipe';
+      summary.textContent = `${clientName} • ${service} • ${formatDateLabel(targetDate)} às ${targetTime} • ${pro}`;
+    }
+    openDialog('move-appointment-modal');
+  }
+
+  async function confirmMoveAppointment() {
+    if (!pendingMoveData) { closeMoveAppointmentModal(); return; }
+    const appt = appointments.find(a => a.id === pendingMoveData.apptId);
+    if (!appt) { closeMoveAppointmentModal(); return; }
+    const conflict = appointments.some(a =>
+      a.id !== appt.id &&
+      a.date === pendingMoveData.targetDate &&
+      a.time === pendingMoveData.targetTime
+    );
+    if (conflict) { alert('Horário já ocupado.'); return; }
+    const updated = {
+      ...appt,
+      time: pendingMoveData.targetTime,
+      date: pendingMoveData.targetDate,
+      updatedAt: new Date().toISOString(),
+      atualizadoEm: new Date().toISOString()
+    };
+    await persistAppointment(updated);
+    appointments = appointments.map(a => a.id === updated.id ? updated : a);
     refreshAgendaFromAppointments();
     renderDayAgendaTimeline();
+    closeMoveAppointmentModal();
+  }
+
+  function closeMoveAppointmentModal() {
+    closeDialog('move-appointment-modal');
+    pendingMoveData = null;
     draggedAppointmentId = null;
     pendingMoveApptId = null;
   }
@@ -6162,19 +6267,19 @@
         comandaData = comandaSnap.exists ? comandaSnap.data() : null;
       }
 
-      const itensServico = [{
+      const itensComanda = comandaData
+        ? (comandaData.itensProfissional || [])
+          .concat(comandaData.itensCliente || [])
+          .concat(comandaData.itens || comandaData.items || [])
+        : [];
+      const comandaJaTemServico = itensComanda.some(it => it.tipo === 'servico');
+      const itensServico = comandaJaTemServico ? [] : [{
         nome: appt.serviceName || appt.service || 'Serviço',
         tipo: 'servico',
         preco: getServicePriceByAppointment(appt),
         quantidade: 1,
         origem: 'Serviço agendado'
       }];
-
-      const itensComanda = comandaData
-        ? (comandaData.itensProfissional || [])
-          .concat(comandaData.itensCliente || [])
-          .concat(comandaData.itens || comandaData.items || [])
-        : [];
 
       finalizeModalState.comandaId = comandaId;
       finalizeModalState.itens = itensServico.concat(itensComanda);
@@ -7794,6 +7899,74 @@
     });
   }
 
+  function ensureAgendaDayPicker(scope = 'ceo') {
+    const picker = document.getElementById(scope === 'ceo' ? 'agenda-day-picker' : 'agenda-day-picker-colab');
+    const fallback = new Date().toISOString().split('T')[0];
+    if (picker && !picker.value) picker.value = agendaDaySelectedDate[scope] || fallback;
+    agendaDaySelectedDate[scope] = picker?.value || agendaDaySelectedDate[scope] || fallback;
+    return agendaDaySelectedDate[scope];
+  }
+
+  function setAgendaSummaryTab(tab, scope = 'ceo') {
+    agendaSummaryTab[scope] = tab;
+    const monthCard = document.getElementById(scope === 'ceo' ? 'agenda-month-card' : 'agenda-month-card-colab');
+    const dayCard = document.getElementById(scope === 'ceo' ? 'agenda-day-card' : 'agenda-day-card-colab');
+    const monthBtn = document.getElementById(scope === 'ceo' ? 'agenda-tab-month' : 'agenda-tab-month-colab');
+    const dayBtn = document.getElementById(scope === 'ceo' ? 'agenda-tab-day' : 'agenda-tab-day-colab');
+    if (monthCard) monthCard.classList.toggle('hidden', tab !== 'month');
+    if (dayCard) dayCard.classList.toggle('hidden', tab !== 'day');
+    if (monthBtn) monthBtn.classList.toggle('active', tab === 'month');
+    if (dayBtn) dayBtn.classList.toggle('active', tab === 'day');
+    if (tab === 'day') renderAgendaDayList(scope);
+  }
+
+  function renderAgendaDayList(scope = 'ceo') {
+    const listEl = document.getElementById(scope === 'ceo' ? 'agenda-day-list' : 'agenda-day-list-colab');
+    if (!listEl) return;
+    const dateStr = ensureAgendaDayPicker(scope);
+    listEl.innerHTML = '';
+    const items = getAppointmentsForScope(scope)
+      .filter(a => a.date === dateStr && a.status !== 'canceled')
+      .map(a => ({ ...a, dateObj: new Date(`${a.date}T${a.time || '00:00'}`) }))
+      .sort((a, b) => a.dateObj - b.dateObj);
+
+    if (!items.length) {
+      listEl.innerHTML = '<div class="subtext">Nenhum agendamento para este dia.</div>';
+      return;
+    }
+
+    items.forEach(appt => {
+      const client = clients.find(c => c.id === appt.clientId);
+      const color = getProfessionalColor(appt.professionalName || appt.professional);
+      const card = document.createElement('div');
+      card.className = 'appointment-card';
+      card.style.setProperty('--appt-color', color);
+      card.innerHTML = `
+        <div class="appointment-meta">
+          <div class="appointment-title" style="font-size:1rem;">
+            ${appt.time || '--:--'} • ${appt.serviceName || appt.service}
+            <span class="appointment-pill" style="background:${color}1a;border-color:${color}33;">${appt.professionalName || appt.professional || 'Equipe'}</span>
+          </div>
+          <div class="appointment-subtext">
+            <span>${client ? client.name : appt.clientName || 'Cliente'}</span>
+            <span>${appt.status === 'done' ? 'Concluído' : 'Agendado'}</span>
+          </div>
+        </div>
+        <div class="appointment-actions">
+          <button class="ghost-btn secondary icon-mini" onclick="openAppointmentModal('${client?.id || ''}','${appt.id}', '${appt.date}', '${appt.time || ''}')">✎ Editar</button>
+          <button class="ghost-btn secondary icon-mini" onclick="openRemoveAppointmentModal('${appt.id}')">🗑 Cancelar</button>
+          ${renderAtendimentoAction(appt)}
+        </div>
+      `;
+      listEl.appendChild(card);
+    });
+  }
+
+  function openDayAgendaFromTab(scope = 'ceo') {
+    const dateStr = ensureAgendaDayPicker(scope);
+    openDayAgenda(dateStr, scope);
+  }
+
   function setSelectedMonth(index, scope = 'ceo') {
     if (scope === 'ceo') {
       selectedMonthIndex = index;
@@ -7873,6 +8046,8 @@
     renderAgendaMonthCalendar('colab');
     renderAgendaMonthSummary('ceo');
     renderAgendaMonthSummary('colab');
+    renderAgendaDayList('ceo');
+    renderAgendaDayList('colab');
     renderDayAppointmentsModal();
   }
 
