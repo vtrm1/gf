@@ -4242,35 +4242,9 @@
     </div>
   </header>
   <div class="comanda-items" id="comanda-items"></div>
-  <form class="comanda-form" id="comanda-form" onsubmit="submitComandaItem(event)">
-    <div>
-      <label class="subtext">Selecionar item</label>
-      <select id="comanda-item-select"></select>
-    </div>
-    <div>
-      <label class="subtext">Nome</label>
-      <input id="comanda-item-nome" required placeholder="Ex: Spa mãos" />
-    </div>
-    <div>
-      <label class="subtext">Tipo</label>
-      <select id="comanda-item-tipo">
-        <option value="servico">Serviço</option>
-        <option value="consumo">Consumo</option>
-      </select>
-    </div>
-    <div>
-      <label class="subtext">Preço</label>
-      <input id="comanda-item-preco" type="number" step="0.01" min="0" required />
-    </div>
-    <div>
-      <label class="subtext">Qtd</label>
-      <input id="comanda-item-quantidade" type="number" step="1" min="1" value="1" required />
-    </div>
-    <div>
-      <label class="subtext" style="opacity:0;">.</label>
-      <button type="submit">Adicionar</button>
-    </div>
-  </form>
+  <div class="comanda-form" id="comanda-form" style="display:none;">
+    <div class="subtext">Os itens extras são adicionados pela cliente no kiosk.</div>
+  </div>
 </div>
 
 <div id="finalizar-comanda-modal" class="dialog-layer hidden">
@@ -5895,6 +5869,21 @@
             <div class="subtext">(${formatCurrency(it.preco || 0)})</div>
           </div>
         `;
+        if (it.origem === 'cliente' && status === 'aberta') {
+          const actions = document.createElement('div');
+          actions.className = 'flex gap-2 text-xs';
+          const editBtn = document.createElement('button');
+          editBtn.className = 'secondary';
+          editBtn.textContent = 'Editar';
+          editBtn.onclick = () => editClienteItem(it.itemId);
+          const removeBtn = document.createElement('button');
+          removeBtn.className = 'secondary';
+          removeBtn.textContent = 'Remover';
+          removeBtn.onclick = () => removeClienteItem(it.itemId);
+          actions.appendChild(editBtn);
+          actions.appendChild(removeBtn);
+          li.appendChild(actions);
+        }
         list.appendChild(li);
       });
     };
@@ -5903,6 +5892,39 @@
     if (!servicos.length && !consumos.length) {
       list.innerHTML = '<div class="subtext">Nenhum item adicionado.</div>';
     }
+  }
+
+  async function editClienteItem(itemId) {
+    if (!itemId || !comandaAtualId || comandaAtualStatus !== 'aberta') return;
+    if (!firestore) { alert('Firestore indisponível.'); return; }
+    const ref = firestore.collection('comandas').doc(comandaAtualId);
+    const snap = await ref.get();
+    if (!snap.exists) return;
+    const data = snap.data() || {};
+    const itens = Array.isArray(data.itensCliente) ? [...data.itensCliente] : [];
+    const idx = itens.findIndex(it => it.itemId === itemId);
+    if (idx < 0) return;
+    const current = itens[idx];
+    const nome = prompt('Nome do item', current.nome || '') ?? current.nome;
+    if (!nome || !nome.trim()) return;
+    const quantidade = parseFloat(prompt('Quantidade', current.quantidade || 1));
+    if (!Number.isFinite(quantidade) || quantidade <= 0) return;
+    const preco = parseFloat(prompt('Preço unitário', current.preco || 0));
+    if (!Number.isFinite(preco) || preco < 0) return;
+    itens[idx] = { ...current, nome: nome.trim(), quantidade, preco };
+    await ref.set({ itensCliente: itens, atualizadoEm: new Date().toISOString() }, { merge: true });
+  }
+
+  async function removeClienteItem(itemId) {
+    if (!itemId || !comandaAtualId || comandaAtualStatus !== 'aberta') return;
+    if (!confirm('Remover este item adicionado no kiosk?')) return;
+    if (!firestore) { alert('Firestore indisponível.'); return; }
+    const ref = firestore.collection('comandas').doc(comandaAtualId);
+    const snap = await ref.get();
+    if (!snap.exists) return;
+    const data = snap.data() || {};
+    const itens = Array.isArray(data.itensCliente) ? data.itensCliente.filter(it => it.itemId !== itemId) : [];
+    await ref.set({ itensCliente: itens, atualizadoEm: new Date().toISOString() }, { merge: true });
   }
 
   async function submitComandaItem(event) {
@@ -7459,13 +7481,20 @@
     openDialog('appointment-remove-modal');
   }
 
-  function confirmRemoveAppointment() {
+  async function confirmRemoveAppointment() {
     if (!pendingRemoveAppointmentId) return;
     const apptIndex = appointments.findIndex(a => a.id === pendingRemoveAppointmentId);
     if (apptIndex >= 0) {
       const appt = appointments[apptIndex];
       appointments.splice(apptIndex, 1);
       rebuildClientAppointments(appt.clientId);
+    }
+    if (firestore) {
+      try {
+        await firestore.collection('atendimentos').doc(pendingRemoveAppointmentId).delete();
+      } catch (err) {
+        console.error('Falha ao remover agendamento no servidor', err);
+      }
     }
     pendingRemoveAppointmentId = null;
     refreshAgendaFromAppointments();
@@ -8060,7 +8089,7 @@
       if (!container) return;
       container.innerHTML = '';
       const scoped = stockItems.filter(i => (i.categoria || i.category) === category)
-        .filter(i => selectedGlobalMonthKey === 'all' || matchesTargetMonth(i.dataCompra || i.addedAt, target));
+        .filter(i => selectedGlobalMonthKey === 'all' || !(i.dataCompra || i.addedAt) || matchesTargetMonth(i.dataCompra || i.addedAt, target));
       if (metrics[category]) {
         metrics[category].innerHTML = scoped.length ? `<span class="pill">${scoped.length} itens</span>` : '';
       }
