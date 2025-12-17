@@ -4506,7 +4506,9 @@
       tipo,
       preco,
       quantidade: qtd,
-      criadoEm: Timestamp.now()
+      criadoEm: Timestamp.now(),
+      estoqueId: item.estoqueId || item.stockId || null,
+      categoriaEstoque: item.categoriaEstoque || null
     };
 
     await updateDoc(comandaRef, {
@@ -4532,7 +4534,9 @@
         nome: item.nome,
         tipo: item.tipo === 'consumo' ? 'consumo' : 'servico',
         preco: Number(item.preco) || 0,
-        quantidade: Number(item.quantidade) || 1
+        quantidade: Number(item.quantidade) || 1,
+        estoqueId: item.estoqueId || item.stockId || null,
+        categoriaEstoque: item.categoriaEstoque || null
       }))
       .filter(it => it.nome && Number.isFinite(it.preco) && Number.isFinite(it.quantidade));
 
@@ -4546,7 +4550,9 @@
             tipo: it.tipo,
             preco: it.preco,
             quantidade: it.quantidade,
-            criadoEm: Timestamp.now()
+            criadoEm: Timestamp.now(),
+            estoqueId: it.estoqueId || it.stockId || null,
+            categoriaEstoque: it.categoriaEstoque || null
           }))
         ),
         kioskFinalizado: true,
@@ -7231,6 +7237,65 @@
     }
   }
 
+  async function applyStockConsumptionFromComanda(itens = []) {
+    if (!firestore || !Array.isArray(itens) || !itens.length) return;
+    const nowISO = new Date().toISOString();
+    for (const item of itens) {
+      const stockId = item.estoqueId || item.stockId;
+      if (!stockId) continue;
+      try {
+        const ref = firestore.collection('stock').doc(stockId);
+        const snap = await ref.get();
+        if (!snap.exists) continue;
+        const data = snap.data() || {};
+        const categoria = data.categoria || data.category || item.categoriaEstoque;
+        const quantidade = Number(item.quantidade || 1);
+        if (categoria === 'esmaltes') {
+          const consumo = data.consumoEstimadoPorUso || quantidade;
+          const remaining = Math.max(0, (data.volumeAtual_ml || data.volumeTotal_ml || 0) - consumo);
+          const usesPerDay = 3;
+          const previsao = (data.consumoEstimadoPorUso || 0) > 0
+            ? Math.round(remaining / ((data.consumoEstimadoPorUso || 0) * usesPerDay))
+            : data.previsaoDuracaoDias || 0;
+          await ref.set({ volumeAtual_ml: remaining, previsaoDuracaoDias: previsao, updatedAt: nowISO }, { merge: true });
+          await saveStockHistory(stockId, {
+            tipo: 'baixa',
+            volume: consumo,
+            quantidade: consumo,
+            data: nowISO,
+            origem: 'comanda',
+            ref: item.itemId || item.nome || 'consumo'
+          });
+        } else {
+          const remaining = Math.max(0, (data.quantidade || 0) - quantidade);
+          await ref.set({ quantidade: remaining, updatedAt: nowISO }, { merge: true });
+          await saveStockHistory(stockId, {
+            tipo: 'saida',
+            quantidade,
+            data: nowISO,
+            origem: 'comanda',
+            ref: item.itemId || item.nome || 'consumo'
+          });
+        }
+      } catch (err) {
+        console.error('Falha ao baixar estoque pelo atendimento', err);
+      }
+    }
+  }
+
+  function buildClientHistoryEntries(appt, itens, total) {
+    const now = new Date();
+    const dateLabel = now.toLocaleDateString('pt-BR');
+    const timeLabel = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const serviceName = appt?.serviceName || appt?.service || 'Serviço';
+    const totalConsumos = itens
+      .filter(it => it.tipo === 'consumo')
+      .reduce((acc, it) => acc + (Number(it.preco || 0) * Number(it.quantidade || 1)), 0);
+    const historyEntry = `${dateLabel} ${timeLabel} • ${serviceName} (${formatCurrency(total - totalConsumos)}) • Consumos: ${formatCurrency(totalConsumos)} • Total: ${formatCurrency(total)}`;
+    const consumeEntry = `${dateLabel} ${timeLabel} • ${itens.length} item(ns) • ${formatCurrency(total)}`;
+    return { historyEntry, consumeEntry };
+  }
+
   async function finalizeAtendimento(atendimentoId) {
     if (!firestore) throw new Error('Firestore indisponível');
     const atendRef = firestore.collection('atendimentos').doc(atendimentoId);
@@ -7238,41 +7303,95 @@
     if (!atendSnap.exists) throw new Error('Atendimento não encontrado');
     const appt = atendSnap.data();
 
-    // Soma serviço + consumos da comanda (se existir)
-    const servicoTotal = getServicePriceByAppointment(appt);
+    const nowISO = new Date().toISOString();
+    let itensRegistrados = [];
     let consumoTotal = 0;
+    let servicoTotal = getServicePriceByAppointment(appt);
 
     if (appt.comandaId) {
       const comandaSnap = await firestore.collection('comandas').doc(appt.comandaId).get();
       if (comandaSnap.exists) {
         const comanda = comandaSnap.data() || {};
-        const itens = (comanda.itensProfissional || [])
+        itensRegistrados = (comanda.itensProfissional || [])
           .concat(comanda.itensCliente || [])
           .concat(comanda.itens || comanda.items || []);
-        consumoTotal = itens.reduce((acc, item) => {
-          const preco = item.preco || item.valor || 0;
-          const qtd = item.quantidade || item.qtd || 1;
+        consumoTotal = itensRegistrados.reduce((acc, item) => {
+          const preco = Number(item.preco || item.valor || 0);
+          const qtd = Number(item.quantidade || item.qtd || 1);
           return acc + (preco * qtd);
         }, 0);
+        if (itensRegistrados.some(it => it.tipo === 'servico')) {
+          servicoTotal = 0;
+        }
+
+        const pagamentos = Array.isArray(comanda.pagamentos) ? [...comanda.pagamentos] : [];
+        pagamentos.push({
+          valor: consumoTotal + servicoTotal,
+          data: nowISO,
+          metodo: 'registrado',
+          profissional: appt.professionalName || appt.professional || 'Equipe'
+        });
+        await firestore.collection('comandas').doc(appt.comandaId).set({
+          status: 'fechada',
+          total: consumoTotal + servicoTotal,
+          pagamentoRegistradoEm: nowISO,
+          pagamentoTotal: consumoTotal + servicoTotal,
+          pagamentos,
+          atualizadoEm: nowISO
+        }, { merge: true });
       }
     }
 
-    const total = servicoTotal + consumoTotal;
-
-    // Fecha comanda se existir
-    if (appt.comandaId) {
-      await firestore.collection('comandas').doc(appt.comandaId).set({
-        status: 'fechada',
-        total,
-        atualizadoEm: new Date().toISOString()
-      }, { merge: true });
-    }
+    const total = (servicoTotal || 0) + consumoTotal;
 
     await atendRef.set({
       status: 'finalizado',
       total,
-      atualizadoEm: new Date().toISOString()
+      atualizadoEm: nowISO
     }, { merge: true });
+
+    if (appt.clientId) {
+      try {
+        const cliRef = firestore.collection('clients').doc(appt.clientId);
+        const cliSnap = await cliRef.get();
+        const cliData = cliSnap.exists ? cliSnap.data() || {} : {};
+        const itensParaHistorico = itensRegistrados.length
+          ? itensRegistrados
+          : [{ tipo: 'servico', preco: servicoTotal, quantidade: 1 }];
+        const { historyEntry, consumeEntry } = buildClientHistoryEntries(appt, itensParaHistorico, total);
+        const history = Array.isArray(cliData.history) ? [...cliData.history, historyEntry] : [historyEntry];
+        const consume = Array.isArray(cliData.consume) ? [...cliData.consume, consumeEntry] : [consumeEntry];
+        await cliRef.set({
+          history,
+          consume,
+          lastService: appt.serviceName || appt.service || 'Serviço',
+          lastDate: nowISO.split('T')[0],
+          updatedAt: nowISO
+        }, { merge: true });
+      } catch (err) {
+        console.error('Falha ao registrar histórico da cliente', err);
+      }
+    }
+
+    try {
+      await firestore.collection('financial').add({
+        type: 'receita',
+        amount: total,
+        date: nowISO,
+        description: `Pagamento atendimento ${appt.clientName || appt.cliente || ''}`.trim(),
+        atendimentoId,
+        comandaId: appt.comandaId || null,
+        clientId: appt.clientId || appt.clienteId || null,
+        professionalId: appt.professionalId || appt.professional || null,
+        serviceName: appt.serviceName || appt.service || 'Serviço'
+      });
+    } catch (err) {
+      console.error('Falha ao registrar financeiro do atendimento', err);
+    }
+
+    if (itensRegistrados.length) {
+      await applyStockConsumptionFromComanda(itensRegistrados);
+    }
 
     return { atendimentoId, status: 'finalizado', total };
   }
@@ -8887,10 +9006,24 @@
   function syncKioskFromInventory() {
     const fridgeDrinks = stockItems
       .filter(item => (item.categoria || item.category) === 'geladeira' && !item.paused)
-      .map(item => ({ id: item.id, name: item.nome || item.name, price: item.precoVenda || 0, icon: stockIconFor(item) }));
+      .map(item => ({
+        id: item.id,
+        stockId: item.id,
+        categoria: item.categoria || item.category,
+        name: item.nome || item.name,
+        price: item.precoVenda || 0,
+        icon: stockIconFor(item)
+      }));
     const maintConsumables = stockItems
       .filter(item => (item.categoria || item.category) === 'manutencao' && !item.paused)
-      .map(item => ({ id: item.id, name: item.nome || item.name, price: item.precoVenda || 0, icon: '🧾' }));
+      .map(item => ({
+        id: item.id,
+        stockId: item.id,
+        categoria: item.categoria || item.category,
+        name: item.nome || item.name,
+        price: item.precoVenda || 0,
+        icon: '🧾'
+      }));
     kioskDrinks = fridgeDrinks.concat(maintConsumables);
     cart = cart.filter(entry => entry.type !== 'drink' || kioskDrinks.some(d => d.id === entry.id));
     renderKiosk();
@@ -9115,12 +9248,19 @@
       return;
     }
 
-    const itens = cart.map(item => ({
-      nome: item.name,
-      tipo: item.type === 'drink' ? 'consumo' : 'servico',
-      preco: Number(item.price) || 0,
-      quantidade: 1
-    }));
+    const itens = cart.map(item => {
+      const drinkMeta = item.type === 'drink'
+        ? kioskDrinks.find(d => d.id === item.id)
+        : null;
+      return {
+        nome: item.name,
+        tipo: item.type === 'drink' ? 'consumo' : 'servico',
+        preco: Number(item.price) || 0,
+        quantidade: 1,
+        estoqueId: drinkMeta?.stockId,
+        categoriaEstoque: drinkMeta?.categoria || null
+      };
+    });
 
     try {
       await window.kioskFinalizarConsumo(kioskComandaId, itens);
