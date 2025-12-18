@@ -222,6 +222,10 @@
       display: none;
     }
 
+    .fab-backdrop.hidden {
+      pointer-events: none;
+    }
+
     .fab-main {
       width: 58px;
       height: 58px;
@@ -234,6 +238,7 @@
       justify-content: center;
       font-size: 1.35rem;
       transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+      pointer-events: auto;
     }
 
     .fab-main:hover {
@@ -248,18 +253,20 @@
     }
 
     .fab-speed-dial {
-      display: flex;
+      display: none;
       flex-direction: column;
       gap: 0.5rem;
       align-items: flex-end;
       position: relative;
       transition: opacity 0.18s ease, transform 0.18s ease;
       opacity: 0;
-      pointer-events: none;
       transform: translateY(10px);
+      pointer-events: none;
+      z-index: 81;
     }
 
     .fab-speed-dial.open {
+      display: flex;
       opacity: 1;
       pointer-events: auto;
       transform: translateY(0);
@@ -279,6 +286,7 @@
       font-weight: 600;
       font-size: 0.9rem;
       min-width: 0;
+      pointer-events: auto;
     }
 
     .fab-speed-btn span {
@@ -819,8 +827,8 @@
 
     .agenda-month-mobile-summary {
       display: none;
-      gap: 0.5rem;
-      margin-bottom: 0.65rem;
+      gap: 0.45rem;
+      margin-bottom: 0.5rem;
     }
 
     .agenda-month-mobile-summary .summary-chip {
@@ -829,10 +837,10 @@
       background: #fff;
       border: 1px solid rgba(0,0,0,0.03);
       border-radius: 10px;
-      padding: 0.35rem 0.5rem;
+      padding: 0.3rem 0.45rem;
       display: flex;
       flex-direction: column;
-      gap: 0.05rem;
+      gap: 0.02rem;
       box-shadow: 0 4px 10px rgba(0,0,0,0.04);
     }
 
@@ -899,9 +907,19 @@
         max-height: 520px;
         overflow-y: auto;
       }
+    }
+
+    @media (max-width: 1023px) {
       .agenda-month-mobile-summary {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        align-items: stretch;
+      }
+      .agenda-month-mobile-summary .summary-chip .label {
+        font-size: 0.68rem;
+      }
+      .agenda-month-mobile-summary .summary-chip .value {
+        font-size: 0.9rem;
       }
     }
 
