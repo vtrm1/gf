@@ -825,25 +825,26 @@
 
     .agenda-month-mobile-summary .summary-chip {
       flex: 1;
-      min-width: 128px;
+      min-width: 112px;
       background: #fff;
-      border: 1px solid rgba(0,0,0,0.04);
+      border: 1px solid rgba(0,0,0,0.03);
       border-radius: 10px;
-      padding: 0.45rem 0.6rem;
+      padding: 0.35rem 0.5rem;
       display: flex;
       flex-direction: column;
-      gap: 0.1rem;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+      gap: 0.05rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.04);
     }
 
     .agenda-month-mobile-summary .summary-chip .label {
-      font-size: 0.76rem;
+      font-size: 0.7rem;
       color: var(--text-muted);
+      font-weight: 500;
     }
 
     .agenda-month-mobile-summary .summary-chip .value {
       font-weight: 700;
-      font-size: 1rem;
+      font-size: 0.9rem;
       color: var(--text-main);
     }
 
@@ -864,7 +865,7 @@
       min-width: 0;
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 900px) {
       .table-action-row {
         flex-direction: column;
         width: 100%;
@@ -1227,6 +1228,28 @@
       color: var(--accent-gold-dark);
     }
 
+    @media (max-width: 768px) {
+      .full-month-calendar {
+        gap: 0.25rem;
+        padding: 0.5rem;
+      }
+      .full-month-calendar .weekday {
+        font-size: 0.72rem;
+      }
+      .full-month-calendar .month-day {
+        height: 64px;
+        padding: 0.3rem;
+        font-size: 0.82rem;
+      }
+      .full-month-calendar .month-day .day-number {
+        font-size: 0.85rem;
+      }
+      .full-month-calendar .month-day .day-badge {
+        font-size: 0.65rem;
+        padding: 0.16rem 0.32rem;
+      }
+    }
+
     /* Agenda do dia (timeline) */
     .day-agenda-overlay {
       position: fixed;
@@ -1405,8 +1428,8 @@
     .agenda-day-mobile {
       display: none;
       flex-direction: column;
-      gap: 0.55rem;
-      max-height: 78vh;
+      gap: 0.45rem;
+      max-height: 74vh;
       overflow: hidden;
       position: relative;
     }
@@ -1414,88 +1437,90 @@
     .day-mobile-header {
       display: flex;
       justify-content: space-between;
-      align-items: flex-end;
-      gap: 0.6rem;
+      align-items: center;
+      gap: 0.5rem;
       flex-wrap: wrap;
       position: sticky;
       top: 0;
       z-index: 4;
-      padding: 0.2rem 0;
-      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85));
-      backdrop-filter: blur(6px);
+      padding: 0.15rem 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.88));
+      backdrop-filter: blur(5px);
     }
 
     .day-mobile-date {
       display: flex;
       flex-direction: column;
-      gap: 0.25rem;
+      gap: 0.18rem;
       flex: 1;
       min-width: 200px;
     }
 
     .day-mobile-date input[type="date"] {
       width: 100%;
-      padding: 0.55rem 0.65rem;
-      border-radius: 10px;
+      padding: 0.45rem 0.55rem;
+      border-radius: 9px;
       border: 1px solid rgba(0,0,0,0.08);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.06);
-      font-size: 0.95rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      font-size: 0.9rem;
       background: #fff;
     }
 
     .day-mobile-summary {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 0.45rem;
+      gap: 0.35rem;
       position: sticky;
-      top: 62px;
+      top: 56px;
       z-index: 3;
-      padding: 0.25rem 0;
+      padding: 0.15rem 0;
       background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.85));
-      backdrop-filter: blur(6px);
+      backdrop-filter: blur(5px);
     }
 
     .day-mobile-chip {
       background: #fff;
-      border: 1px solid rgba(0,0,0,0.04);
+      border: 1px solid rgba(0,0,0,0.03);
       border-radius: 10px;
-      padding: 0.4rem 0.55rem;
+      padding: 0.3rem 0.5rem;
       display: flex;
       flex-direction: column;
-      gap: 0.1rem;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+      gap: 0.06rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     }
 
     .day-mobile-chip .label {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       color: var(--text-muted);
+      font-weight: 500;
     }
 
     .day-mobile-chip .value {
       font-weight: 700;
-      font-size: 0.98rem;
+      font-size: 0.9rem;
       color: var(--text-main);
     }
 
     .day-mobile-list {
       display: flex;
       flex-direction: column;
-      gap: 0.45rem;
+      gap: 0.3rem;
       overflow-y: auto;
-      max-height: calc(78vh - 150px);
-      padding-right: 0.2rem;
-      margin-right: -0.2rem;
+      max-height: calc(74vh - 140px);
+      padding-right: 0.1rem;
+      margin-right: -0.1rem;
+      padding-bottom: 0.25rem;
     }
 
     .day-mobile-card {
       border: 1px solid rgba(0,0,0,0.05);
       border-radius: 10px;
       background: #fff;
-      padding: 0.55rem 0.65rem;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.06);
+      padding: 0.45rem 0.55rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
       display: flex;
       flex-direction: column;
-      gap: 0.2rem;
+      gap: 0.14rem;
     }
 
     .day-mobile-card-head {
@@ -1507,37 +1532,37 @@
 
     .day-mobile-time {
       font-weight: 700;
-      font-size: 1rem;
+      font-size: 0.92rem;
       letter-spacing: 0.01em;
     }
 
     .day-mobile-actions {
       display: inline-flex;
-      gap: 0.2rem;
+      gap: 0.15rem;
       align-items: center;
     }
 
     .day-mobile-line.service {
       font-weight: 600;
       color: var(--text-main);
-      font-size: 0.95rem;
+      font-size: 0.88rem;
     }
 
     .day-mobile-line.meta {
-      font-size: 0.85rem;
+      font-size: 0.78rem;
       color: var(--text-muted);
     }
 
     .day-mobile-status {
-      font-size: 0.78rem;
+      font-size: 0.72rem;
       color: var(--accent-gold-dark);
-      font-weight: 700;
+      font-weight: 600;
     }
 
     @media (max-width: 768px) {
       .agenda-day-desktop { display: none; }
       .agenda-day-mobile { display: flex; }
-      .day-mobile-header button { padding: 0.45rem 0.85rem; }
+      .day-mobile-header button { padding: 0.35rem 0.75rem; font-size: 0.82rem; }
     }
 
     .appt-card .title {
@@ -2378,10 +2403,10 @@
     @media (max-width: 768px) {
       .day-mobile-actions .ghost-btn,
       .day-mobile-actions .ghost-btn.secondary {
-        padding: 0.2rem 0.45rem;
-        height: 28px;
-        font-size: 0.74rem;
-        border-radius: 9px;
+        padding: 0.18rem 0.4rem;
+        height: 26px;
+        font-size: 0.7rem;
+        border-radius: 8px;
       }
     }
 
