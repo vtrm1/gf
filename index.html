@@ -1557,12 +1557,11 @@
     .day-mobile-list {
       display: flex;
       flex-direction: column;
+      align-items: center;
       gap: 0.3rem;
       overflow-y: auto;
       max-height: calc(74vh - 140px);
-      padding-right: 0.1rem;
-      margin-right: -0.1rem;
-      padding-bottom: 0.25rem;
+      padding: 0 0.15rem 0.3rem;
     }
 
     .day-mobile-card {
@@ -1575,6 +1574,8 @@
       flex-direction: column;
       gap: 0.12rem;
       transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      width: 100%;
+      max-width: 540px;
     }
 
     .day-mobile-card.status-agendado {
@@ -3058,6 +3059,13 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.04);
     }
 
+    .agenda-filter-select.inline {
+      padding: 0.25rem 0.5rem;
+      gap: 0.35rem;
+      background: rgba(var(--accent-gold-rgb), 0.08);
+      border-color: rgba(var(--accent-gold-rgb), 0.2);
+    }
+
     .agenda-filter-select label {
       font-size: 0.85rem;
       color: var(--text-muted);
@@ -3492,7 +3500,7 @@
             <button id="agenda-toggle-year" class="active" onclick="setAgendaView('year')">Visão anual</button>
             <button id="agenda-toggle-month" onclick="setAgendaView('month')">Mês a mês</button>
           </div>
-          <div class="agenda-filter-select" style="margin-left:0;">
+          <div class="agenda-filter-select inline">
             <label>Profissional</label>
             <select id="agenda-prof-filter" onchange="setAgendaProfessionalFilter(this.value, 'ceo')"></select>
           </div>
@@ -3554,7 +3562,6 @@
               <input id="agenda-day-picker" type="date" onchange="handleAgendaDayDateChange('ceo', this.value)" />
             </div>
             <div class="pill-row" style="margin:0;">
-              <span class="pill">Arraste na linha do tempo para reagendar</span>
               <button class="secondary" onclick="openDayAgendaFromTab('ceo')">Ver timeline</button>
             </div>
           </div>
@@ -4531,7 +4538,7 @@
             <button id="agenda-toggle-year-colab" class="active" onclick="setAgendaView('year','colab')">Visão anual</button>
             <button id="agenda-toggle-month-colab" onclick="setAgendaView('month','colab')">Mês a mês</button>
           </div>
-          <div class="agenda-filter-select" style="margin-left:0;">
+          <div class="agenda-filter-select inline">
             <label>Profissional</label>
             <select id="agenda-prof-filter-colab" onchange="setAgendaProfessionalFilter(this.value, 'colab')"></select>
           </div>
@@ -4589,7 +4596,6 @@
               <input id="agenda-day-picker-colab" type="date" onchange="handleAgendaDayDateChange('colab', this.value)" />
             </div>
             <div class="pill-row" style="margin:0;">
-              <span class="pill">Arraste na linha do tempo para reagendar</span>
               <button class="secondary" onclick="openDayAgendaFromTab('colab')">Ver timeline</button>
             </div>
           </div>
@@ -6130,8 +6136,8 @@
           </div>
         </div>
         <div class="appointment-actions">
-          <button class="ghost-btn secondary icon-mini" onclick="openAppointmentModal('${client?.id || ''}','${appt.id}')">✎ Editar</button>
-          <button class="ghost-btn secondary icon-mini" onclick="openRemoveAppointmentModal('${appt.id}')">🗑 Cancelar</button>
+          <button class="ghost-btn secondary icon-mini" onclick="openAppointmentModal('${client?.id || ''}','${appt.id}')" aria-label="Editar">✎</button>
+          <button class="ghost-btn secondary icon-mini" onclick="openRemoveAppointmentModal('${appt.id}')" aria-label="Cancelar">🗑</button>
         </div>
       `;
       list.appendChild(row);
@@ -8559,8 +8565,8 @@
             </div>
           </div>
           <div class="appointment-actions">
-            <button class="ghost-btn secondary icon-mini" onclick="openAppointmentModal('${client?.id || ''}','${appt.id}', '${appt.date}', '${appt.time || ''}')">✎ Editar</button>
-            <button class="ghost-btn secondary icon-mini" onclick="openRemoveAppointmentModal('${appt.id}')">🗑 Cancelar</button>
+            <button class="ghost-btn secondary icon-mini" onclick="openAppointmentModal('${client?.id || ''}','${appt.id}', '${appt.date}', '${appt.time || ''}')" aria-label="Editar">✎</button>
+            <button class="ghost-btn secondary icon-mini" onclick="openRemoveAppointmentModal('${appt.id}')" aria-label="Cancelar">🗑</button>
             ${renderAtendimentoAction(appt)}
           </div>
         `;
