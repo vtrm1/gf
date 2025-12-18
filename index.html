@@ -1349,6 +1349,119 @@
       pointer-events: none;
     }
 
+    /* Agenda do dia - mobile stack */
+    .agenda-day-desktop {
+      display: block;
+    }
+
+    .agenda-day-mobile {
+      display: none;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .day-mobile-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .day-mobile-date {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .day-mobile-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.5rem;
+    }
+
+    .day-mobile-chip {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.05);
+      border-radius: 12px;
+      padding: 0.55rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.06);
+    }
+
+    .day-mobile-chip .label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .day-mobile-chip .value {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--text-main);
+    }
+
+    .day-mobile-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .day-mobile-card {
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 12px;
+      background: #fff;
+      padding: 0.75rem 0.8rem;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .day-mobile-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .day-mobile-time {
+      font-weight: 700;
+      font-size: 1.05rem;
+      letter-spacing: 0.01em;
+    }
+
+    .day-mobile-actions {
+      display: inline-flex;
+      gap: 0.25rem;
+      align-items: center;
+    }
+
+    .day-mobile-line.service {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .day-mobile-line.meta {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .day-mobile-status {
+      font-size: 0.82rem;
+      color: var(--accent-gold-dark);
+      font-weight: 700;
+    }
+
+    @media (max-width: 768px) {
+      .agenda-day-desktop { display: none; }
+      .agenda-day-mobile { display: flex; }
+      .day-mobile-header button { padding: 0.45rem 0.85rem; }
+    }
+
     .appt-card .title {
       font-weight: 700;
       color: var(--text-main);
@@ -3198,17 +3311,31 @@
       </div>
 
       <div id="agenda-day-card" class="card hidden" style="margin-top:0.4rem;">
-        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
-          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
-            <label class="subtext" for="agenda-day-picker">Escolha o dia</label>
-            <input id="agenda-day-picker" type="date" onchange="renderAgendaDayList('ceo')" />
+        <div class="agenda-day-desktop">
+          <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+            <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+              <label class="subtext" for="agenda-day-picker">Escolha o dia</label>
+              <input id="agenda-day-picker" type="date" onchange="handleAgendaDayDateChange('ceo', this.value)" />
+            </div>
+            <div class="pill-row" style="margin:0;">
+              <span class="pill">Arraste na linha do tempo para reagendar</span>
+              <button class="secondary" onclick="openDayAgendaFromTab('ceo')">Ver timeline</button>
+            </div>
           </div>
-          <div class="pill-row" style="margin:0;">
-            <span class="pill">Arraste na linha do tempo para reagendar</span>
+          <div id="agenda-day-list" class="agenda-appointments" style="margin:0;"></div>
+        </div>
+
+        <div class="agenda-day-mobile">
+          <div class="day-mobile-header">
+            <div class="day-mobile-date">
+              <label class="subtext" for="agenda-day-picker-mobile">Escolha o dia</label>
+              <input id="agenda-day-picker-mobile" type="date" onchange="handleAgendaDayDateChange('ceo', this.value)" />
+            </div>
             <button class="secondary" onclick="openDayAgendaFromTab('ceo')">Ver timeline</button>
           </div>
+          <div class="day-mobile-summary" id="agenda-day-summary-mobile"></div>
+          <div class="day-mobile-list" id="agenda-day-list-mobile"></div>
         </div>
-        <div id="agenda-day-list" class="agenda-appointments" style="margin:0;"></div>
       </div>
 
     </section>
@@ -4222,17 +4349,31 @@
       </div>
 
       <div id="agenda-day-card-colab" class="card hidden" style="margin-top:0.4rem;">
-        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
-          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
-            <label class="subtext" for="agenda-day-picker-colab">Escolha o dia</label>
-            <input id="agenda-day-picker-colab" type="date" onchange="renderAgendaDayList('colab')" />
+        <div class="agenda-day-desktop">
+          <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+            <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+              <label class="subtext" for="agenda-day-picker-colab">Escolha o dia</label>
+              <input id="agenda-day-picker-colab" type="date" onchange="handleAgendaDayDateChange('colab', this.value)" />
+            </div>
+            <div class="pill-row" style="margin:0;">
+              <span class="pill">Arraste na linha do tempo para reagendar</span>
+              <button class="secondary" onclick="openDayAgendaFromTab('colab')">Ver timeline</button>
+            </div>
           </div>
-          <div class="pill-row" style="margin:0;">
-            <span class="pill">Arraste na linha do tempo para reagendar</span>
+          <div id="agenda-day-list-colab" class="agenda-appointments" style="margin:0;"></div>
+        </div>
+
+        <div class="agenda-day-mobile">
+          <div class="day-mobile-header">
+            <div class="day-mobile-date">
+              <label class="subtext" for="agenda-day-picker-colab-mobile">Escolha o dia</label>
+              <input id="agenda-day-picker-colab-mobile" type="date" onchange="handleAgendaDayDateChange('colab', this.value)" />
+            </div>
             <button class="secondary" onclick="openDayAgendaFromTab('colab')">Ver timeline</button>
           </div>
+          <div class="day-mobile-summary" id="agenda-day-summary-mobile-colab"></div>
+          <div class="day-mobile-list" id="agenda-day-list-mobile-colab"></div>
         </div>
-        <div id="agenda-day-list-colab" class="agenda-appointments" style="margin:0;"></div>
       </div>
 
     </section>
@@ -8070,10 +8211,19 @@
 
   function ensureAgendaDayPicker(scope = 'ceo') {
     const picker = document.getElementById(scope === 'ceo' ? 'agenda-day-picker' : 'agenda-day-picker-colab');
+    const pickerMobile = document.getElementById(scope === 'ceo' ? 'agenda-day-picker-mobile' : 'agenda-day-picker-colab-mobile');
     const fallback = new Date().toISOString().split('T')[0];
-    if (picker && !picker.value) picker.value = agendaDaySelectedDate[scope] || fallback;
-    agendaDaySelectedDate[scope] = picker?.value || agendaDaySelectedDate[scope] || fallback;
-    return agendaDaySelectedDate[scope];
+    const current = agendaDaySelectedDate[scope] || picker?.value || pickerMobile?.value || fallback;
+    agendaDaySelectedDate[scope] = current;
+    if (picker && picker.value !== current) picker.value = current;
+    if (pickerMobile && pickerMobile.value !== current) pickerMobile.value = current;
+    return current;
+  }
+
+  function handleAgendaDayDateChange(scope = 'ceo', value) {
+    agendaDaySelectedDate[scope] = value || agendaDaySelectedDate[scope];
+    ensureAgendaDayPicker(scope);
+    renderAgendaDayList(scope);
   }
 
   function setAgendaSummaryTab(tab, scope = 'ceo') {
@@ -8091,43 +8241,77 @@
 
   function renderAgendaDayList(scope = 'ceo') {
     const listEl = document.getElementById(scope === 'ceo' ? 'agenda-day-list' : 'agenda-day-list-colab');
-    if (!listEl) return;
+    const mobileList = document.getElementById(scope === 'ceo' ? 'agenda-day-list-mobile' : 'agenda-day-list-mobile-colab');
+    const mobileSummary = document.getElementById(scope === 'ceo' ? 'agenda-day-summary-mobile' : 'agenda-day-summary-mobile-colab');
     const dateStr = ensureAgendaDayPicker(scope);
-    listEl.innerHTML = '';
+    if (listEl) listEl.innerHTML = '';
+    if (mobileList) mobileList.innerHTML = '';
     const items = getAppointmentsForScope(scope)
       .filter(a => a.date === dateStr && a.status !== 'canceled')
       .map(a => ({ ...a, dateObj: new Date(`${a.date}T${a.time || '00:00'}`) }))
       .sort((a, b) => a.dateObj - b.dateObj);
 
+    const totalSlots = hourRange().length || 1;
+    const occupancy = Math.min(100, Math.round((items.length / totalSlots) * 100)) || 0;
+
+    if (mobileSummary) {
+      mobileSummary.innerHTML = `
+        <div class="day-mobile-chip"><div class="label">Atendimentos</div><div class="value">${items.length}</div></div>
+        <div class="day-mobile-chip"><div class="label">Ocupação</div><div class="value">${occupancy}%</div></div>
+      `;
+    }
+
     if (!items.length) {
-      listEl.innerHTML = '<div class="subtext">Nenhum agendamento para este dia.</div>';
+      if (listEl) listEl.innerHTML = '<div class="subtext">Nenhum agendamento para este dia.</div>';
+      if (mobileList) mobileList.innerHTML = '<div class="subtext">Nenhum agendamento para este dia.</div>';
       return;
     }
 
     items.forEach(appt => {
       const client = clients.find(c => c.id === appt.clientId);
       const color = getProfessionalColor(appt.professionalName || appt.professional);
-      const card = document.createElement('div');
-      card.className = 'appointment-card';
-      card.style.setProperty('--appt-color', color);
-      card.innerHTML = `
-        <div class="appointment-meta">
-          <div class="appointment-title" style="font-size:1rem;">
-            ${appt.time || '--:--'} • ${appt.serviceName || appt.service}
-            <span class="appointment-pill" style="background:${color}1a;border-color:${color}33;">${appt.professionalName || appt.professional || 'Equipe'}</span>
+      const clientName = client ? client.name : appt.clientName || 'Cliente';
+      const statusLabel = appt.status === 'done' ? 'Concluído' : (appt.status === 'finalizado' ? 'Finalizado' : (appt.status === 'em_atendimento' ? 'Em atendimento' : 'Agendado'));
+
+      if (listEl) {
+        const card = document.createElement('div');
+        card.className = 'appointment-card';
+        card.style.setProperty('--appt-color', color);
+        card.innerHTML = `
+          <div class="appointment-meta">
+            <div class="appointment-title" style="font-size:1rem;">
+              ${appt.time || '--:--'} • ${appt.serviceName || appt.service}
+              <span class="appointment-pill" style="background:${color}1a;border-color:${color}33;">${appt.professionalName || appt.professional || 'Equipe'}</span>
+            </div>
+            <div class="appointment-subtext">
+              <span>${clientName}</span>
+              <span>${statusLabel}</span>
+            </div>
           </div>
-          <div class="appointment-subtext">
-            <span>${client ? client.name : appt.clientName || 'Cliente'}</span>
-            <span>${appt.status === 'done' ? 'Concluído' : 'Agendado'}</span>
+          <div class="appointment-actions">
+            <button class="ghost-btn secondary icon-mini" onclick="openAppointmentModal('${client?.id || ''}','${appt.id}', '${appt.date}', '${appt.time || ''}')">✎ Editar</button>
+            <button class="ghost-btn secondary icon-mini" onclick="openRemoveAppointmentModal('${appt.id}')">🗑 Cancelar</button>
+            ${renderAtendimentoAction(appt)}
           </div>
-        </div>
-        <div class="appointment-actions">
-          <button class="ghost-btn secondary icon-mini" onclick="openAppointmentModal('${client?.id || ''}','${appt.id}', '${appt.date}', '${appt.time || ''}')">✎ Editar</button>
-          <button class="ghost-btn secondary icon-mini" onclick="openRemoveAppointmentModal('${appt.id}')">🗑 Cancelar</button>
-          ${renderAtendimentoAction(appt)}
-        </div>
-      `;
-      listEl.appendChild(card);
+        `;
+        listEl.appendChild(card);
+      }
+
+      if (mobileList) {
+        const mobileCard = document.createElement('div');
+        mobileCard.className = 'day-mobile-card';
+        mobileCard.innerHTML = `
+          <div class="day-mobile-card-head">
+            <div class="day-mobile-time">${appt.time || '--:--'}</div>
+            <div class="day-mobile-actions">${renderAtendimentoAction(appt)}</div>
+          </div>
+          <div class="day-mobile-line service">${appt.serviceName || appt.service || 'Serviço'}</div>
+          <div class="day-mobile-line meta">${appt.professionalName || appt.professional || 'Equipe'}</div>
+          <div class="day-mobile-line meta">${clientName}</div>
+          <div class="day-mobile-status">${statusLabel}</div>
+        `;
+        mobileList.appendChild(mobileCard);
+      }
     });
   }
 
