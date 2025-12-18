@@ -803,6 +803,36 @@
       margin: 0 auto;
     }
 
+    .agenda-month-mobile-summary {
+      display: none;
+      gap: 0.5rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .agenda-month-mobile-summary .summary-chip {
+      flex: 1;
+      min-width: 140px;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.05);
+      border-radius: 12px;
+      padding: 0.55rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.06);
+    }
+
+    .agenda-month-mobile-summary .summary-chip .label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .agenda-month-mobile-summary .summary-chip .value {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--text-main);
+    }
+
     .comanda-form input,
     .comanda-form select {
       width: 100%;
@@ -853,6 +883,10 @@
         gap: 0.55rem;
         max-height: 520px;
         overflow-y: auto;
+      }
+      .agenda-month-mobile-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       }
     }
 
@@ -1486,6 +1520,24 @@
       font-size: 0.75rem;
       background: rgba(var(--accent-gold-rgb),0.15);
       color: var(--accent-gold-dark);
+    }
+
+    .appt-card .actions-inline {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.35rem;
+      margin-top: 0.35rem;
+    }
+
+    .appt-card .actions-inline button {
+      border: 1px solid rgba(0,0,0,0.08);
+      background: #fff;
+      border-radius: 10px;
+      padding: 0.35rem 0.45rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: var(--text-main);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
     }
 
     .appt-card.finalizado {
@@ -3291,6 +3343,7 @@
         <div class="pill-row" id="selected-month-tags"></div>
       </div>
       <div id="agenda-month-card" class="card" style="margin-top:0.2rem;">
+        <div id="agenda-month-mobile-summary" class="agenda-month-mobile-summary"></div>
         <div class="agenda-table-wrapper">
           <table class="table" style="margin:0;">
             <thead>
@@ -4330,6 +4383,7 @@
         <div class="pill-row" id="selected-month-tags-colab"></div>
       </div>
       <div id="agenda-month-card-colab" class="card" style="margin-top:0.2rem;">
+        <div id="agenda-month-mobile-summary-colab" class="agenda-month-mobile-summary"></div>
         <div class="agenda-table-wrapper">
           <table class="table" style="margin:0;">
             <thead>
@@ -6066,6 +6120,10 @@
           <span>${appt.professionalName || appt.professional || 'Equipe'}</span>
           <span class="badge-soft">${appt.status || 'agendado'}</span>
         </div>
+        <div class="actions-inline">
+          <button aria-label="Editar" onclick="event.stopPropagation(); openAppointmentModal('${client?.id || ''}','${appt.id}', '${appt.date}', '${appt.time || ''}')">✎</button>
+          <button aria-label="Remover" onclick="event.stopPropagation(); openRemoveAppointmentModal('${appt.id}')">🗑</button>
+        </div>
       `;
       card.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -6074,6 +6132,13 @@
       card.addEventListener('dblclick', (e) => {
         e.stopPropagation();
         openAppointmentModal(appt.clientId || null, appt.id, appt.date, appt.time);
+      });
+      card.addEventListener('mousedown', (e) => {
+        if (e.detail === 2) {
+          e.preventDefault();
+          e.stopPropagation();
+          openAppointmentModal(appt.clientId || null, appt.id, appt.date, appt.time);
+        }
       });
       if (appt.status !== 'finalizado') {
         card.addEventListener('dragstart', () => {
@@ -8087,9 +8152,11 @@
   function renderAgendaMonthSummary(scope = 'ceo') {
     const tbody = document.getElementById(scope === 'ceo' ? 'agenda-month-summary' : 'agenda-month-summary-colab');
     const cardsDiv = document.getElementById(scope === 'ceo' ? 'agenda-month-cards' : 'agenda-month-cards-colab');
+    const mobileSummary = document.getElementById(scope === 'ceo' ? 'agenda-month-mobile-summary' : 'agenda-month-mobile-summary-colab');
     if (!tbody) return;
     tbody.innerHTML = '';
     if (cardsDiv) cardsDiv.innerHTML = '';
+    if (mobileSummary) mobileSummary.innerHTML = '';
     const selected = scope === 'ceo' ? selectedMonthIndex : selectedMonthIndexColab;
     const month = buildMonthSnapshot(selected, scope);
     const monthTitle = document.getElementById(scope === 'ceo' ? 'selected-month-title' : 'selected-month-title-colab');
@@ -8113,6 +8180,12 @@
       ocup.className = 'pill';
       ocup.textContent = `${month.occupancy}% ocupação`;
       tagContainer.appendChild(ocup);
+    }
+    if (mobileSummary) {
+      mobileSummary.innerHTML = `
+        <div class="summary-chip"><div class="label">Atendimentos</div><div class="value">${month.bookings}</div></div>
+        <div class="summary-chip"><div class="label">Ocupação</div><div class="value">${month.occupancy}%</div></div>
+      `;
     }
     const scopedAppointments = getAppointmentsForScope(scope)
       .filter(a => {
@@ -8303,7 +8376,11 @@
         mobileCard.innerHTML = `
           <div class="day-mobile-card-head">
             <div class="day-mobile-time">${appt.time || '--:--'}</div>
-            <div class="day-mobile-actions">${renderAtendimentoAction(appt)}</div>
+            <div class="day-mobile-actions">
+              <button class="ghost-btn secondary icon-mini" aria-label="Editar" onclick="openAppointmentModal('${client?.id || ''}','${appt.id}', '${appt.date}', '${appt.time || ''}')">✎</button>
+              <button class="ghost-btn secondary icon-mini" aria-label="Remover" onclick="openRemoveAppointmentModal('${appt.id}')">🗑</button>
+              ${renderAtendimentoAction(appt)}
+            </div>
           </div>
           <div class="day-mobile-line service">${appt.serviceName || appt.service || 'Serviço'}</div>
           <div class="day-mobile-line meta">${appt.professionalName || appt.professional || 'Equipe'}</div>
