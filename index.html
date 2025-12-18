@@ -172,10 +172,10 @@
     }
 
     .segmented button.active {
-      background: linear-gradient(135deg, #8fb58a, #6fa36c);
-      border-color: rgba(0, 0, 0, 0.06);
-      color: #f7fff6;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.16);
+      background: linear-gradient(135deg, rgba(104, 153, 142, 0.96), rgba(60, 90, 82, 0.98));
+      border-color: rgba(0, 0, 0, 0.08);
+      color: #f5fffb;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.18);
     }
 
     .segmented button:not(.active):hover {
@@ -1641,6 +1641,24 @@
       display: block;
     }
 
+    .day-header-row {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 0.4rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid rgba(var(--accent-gold-rgb), 0.18);
+    }
+
+    .day-header-picker {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+
     .agenda-day-mobile {
       display: none;
       flex-direction: column;
@@ -1675,11 +1693,11 @@
     .day-date-input,
     .day-mobile-date input[type="date"] {
       width: 100%;
-      padding: 0.42rem 0.75rem;
-      border-radius: 12px;
+      padding: 0.3rem 0.7rem;
+      border-radius: 10px;
       border: 1px solid rgba(0,0,0,0.08);
-      box-shadow: 0 6px 14px rgba(0,0,0,0.06);
-      font-size: 0.9rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      font-size: 0.86rem;
       background: linear-gradient(135deg, rgba(var(--accent-gold-rgb),0.06), #fff);
       color: var(--text-main);
       transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.12s ease;
@@ -1703,6 +1721,24 @@
       padding: 0.15rem 0;
       background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.85));
       backdrop-filter: blur(5px);
+    }
+
+    #agenda-day-card .agenda-day-desktop .pill-row,
+    #agenda-day-card-colab .agenda-day-desktop .pill-row {
+      border-left: 1px solid rgba(var(--accent-gold-rgb), 0.3);
+      padding-left: 0.8rem;
+      margin-left: 0.1rem;
+      align-self: flex-start;
+    }
+
+    .day-header-row .timeline-btn,
+    .day-mobile-header .timeline-btn {
+      margin-top: -0.05rem;
+    }
+
+    .day-mobile-header .timeline-btn {
+      border-left: 1px solid rgba(var(--accent-gold-rgb), 0.28);
+      padding-left: 0.9rem;
     }
 
     .day-mobile-chip {
@@ -3739,8 +3775,8 @@
 
       <div id="agenda-day-card" class="card hidden" style="margin-top:0.4rem;">
         <div class="agenda-day-desktop">
-          <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
-            <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+          <div class="day-header-row">
+            <div class="day-header-picker">
               <label class="subtext" for="agenda-day-picker">Escolha o dia</label>
               <input class="day-date-input" id="agenda-day-picker" type="date" onchange="handleAgendaDayDateChange('ceo', this.value)" />
             </div>
@@ -4772,8 +4808,8 @@
 
       <div id="agenda-day-card-colab" class="card hidden" style="margin-top:0.4rem;">
         <div class="agenda-day-desktop">
-          <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
-            <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+          <div class="day-header-row">
+            <div class="day-header-picker">
               <label class="subtext" for="agenda-day-picker-colab">Escolha o dia</label>
               <input class="day-date-input" id="agenda-day-picker-colab" type="date" onchange="handleAgendaDayDateChange('colab', this.value)" />
             </div>
