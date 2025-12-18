@@ -172,10 +172,10 @@
     }
 
     .segmented button.active {
-      background: linear-gradient(135deg, #b4c8a7, #9bbf92);
-      border-color: rgba(var(--accent-gold-rgb), 0.2);
-      color: #0f1f0f;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+      background: linear-gradient(135deg, #8fb58a, #6fa36c);
+      border-color: rgba(0, 0, 0, 0.06);
+      color: #f7fff6;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.16);
     }
 
     .segmented button:not(.active):hover {
@@ -1586,6 +1586,21 @@
       font-size: 0.76rem;
     }
 
+    .timeline-btn {
+      padding: 0.35rem 0.85rem;
+      font-size: 0.82rem;
+      border-radius: 10px;
+      background: #fff;
+      color: var(--accent-gold-dark);
+      border: 1px solid rgba(var(--accent-gold-rgb), 0.35);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    }
+
+    .timeline-btn:hover {
+      background: rgba(var(--accent-gold-rgb), 0.08);
+      color: #32492c;
+    }
+
     .day-slot-body {
       flex: 1;
       display: flex;
@@ -1657,14 +1672,25 @@
       min-width: 200px;
     }
 
+    .day-date-input,
     .day-mobile-date input[type="date"] {
       width: 100%;
-      padding: 0.45rem 0.55rem;
-      border-radius: 9px;
+      padding: 0.42rem 0.75rem;
+      border-radius: 12px;
       border: 1px solid rgba(0,0,0,0.08);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.06);
       font-size: 0.9rem;
-      background: #fff;
+      background: linear-gradient(135deg, rgba(var(--accent-gold-rgb),0.06), #fff);
+      color: var(--text-main);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.12s ease;
+    }
+
+    .day-date-input:focus,
+    .day-mobile-date input[type="date"]:focus {
+      outline: none;
+      border-color: rgba(var(--accent-gold-rgb), 0.45);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.12);
+      transform: translateY(-1px);
     }
 
     .day-mobile-summary {
@@ -3716,10 +3742,10 @@
           <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
             <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
               <label class="subtext" for="agenda-day-picker">Escolha o dia</label>
-              <input id="agenda-day-picker" type="date" onchange="handleAgendaDayDateChange('ceo', this.value)" />
+              <input class="day-date-input" id="agenda-day-picker" type="date" onchange="handleAgendaDayDateChange('ceo', this.value)" />
             </div>
             <div class="pill-row" style="margin:0;">
-              <button class="secondary" onclick="openDayAgendaFromTab('ceo')">Ver timeline</button>
+              <button class="secondary timeline-btn" onclick="openDayAgendaFromTab('ceo')">Ver timeline</button>
             </div>
           </div>
           <div id="agenda-day-list" class="agenda-appointments" style="margin:0;"></div>
@@ -3729,9 +3755,9 @@
           <div class="day-mobile-header">
             <div class="day-mobile-date">
               <label class="subtext" for="agenda-day-picker-mobile">Escolha o dia</label>
-              <input id="agenda-day-picker-mobile" type="date" onchange="handleAgendaDayDateChange('ceo', this.value)" />
+              <input class="day-date-input" id="agenda-day-picker-mobile" type="date" onchange="handleAgendaDayDateChange('ceo', this.value)" />
             </div>
-            <button class="secondary" onclick="openDayAgendaFromTab('ceo')">Ver timeline</button>
+            <button class="secondary timeline-btn" onclick="openDayAgendaFromTab('ceo')">Ver timeline</button>
           </div>
           <div class="day-mobile-summary" id="agenda-day-summary-mobile"></div>
           <div class="day-mobile-list" id="agenda-day-list-mobile"></div>
@@ -4749,10 +4775,10 @@
           <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
             <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
               <label class="subtext" for="agenda-day-picker-colab">Escolha o dia</label>
-              <input id="agenda-day-picker-colab" type="date" onchange="handleAgendaDayDateChange('colab', this.value)" />
+              <input class="day-date-input" id="agenda-day-picker-colab" type="date" onchange="handleAgendaDayDateChange('colab', this.value)" />
             </div>
             <div class="pill-row" style="margin:0;">
-              <button class="secondary" onclick="openDayAgendaFromTab('colab')">Ver timeline</button>
+              <button class="secondary timeline-btn" onclick="openDayAgendaFromTab('colab')">Ver timeline</button>
             </div>
           </div>
           <div id="agenda-day-list-colab" class="agenda-appointments" style="margin:0;"></div>
@@ -4762,9 +4788,9 @@
           <div class="day-mobile-header">
             <div class="day-mobile-date">
               <label class="subtext" for="agenda-day-picker-colab-mobile">Escolha o dia</label>
-              <input id="agenda-day-picker-colab-mobile" type="date" onchange="handleAgendaDayDateChange('colab', this.value)" />
+              <input class="day-date-input" id="agenda-day-picker-colab-mobile" type="date" onchange="handleAgendaDayDateChange('colab', this.value)" />
             </div>
-            <button class="secondary" onclick="openDayAgendaFromTab('colab')">Ver timeline</button>
+            <button class="secondary timeline-btn" onclick="openDayAgendaFromTab('colab')">Ver timeline</button>
           </div>
           <div class="day-mobile-summary" id="agenda-day-summary-mobile-colab"></div>
           <div class="day-mobile-list" id="agenda-day-list-mobile-colab"></div>
