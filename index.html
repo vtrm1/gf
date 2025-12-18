@@ -7286,6 +7286,7 @@
     if (backdrop) {
       backdrop.classList.add('hidden');
       backdrop.style.display = 'none';
+      backdrop.style.pointerEvents = 'none';
     }
     if (!show) {
       fabMenuOpen = false;
@@ -7300,7 +7301,10 @@
     const backdrop = document.getElementById('fab-backdrop');
     if (menu) menu.classList.remove('open');
     if (backdrop) backdrop.style.display = 'none';
-    if (backdrop) backdrop.classList.add('hidden');
+    if (backdrop) {
+      backdrop.classList.add('hidden');
+      backdrop.style.pointerEvents = 'none';
+    }
     fabMenuOpen = false;
   }
 
@@ -7313,6 +7317,7 @@
     if (backdrop) {
       backdrop.style.display = fabMenuOpen ? 'block' : 'none';
       backdrop.classList.toggle('hidden', !fabMenuOpen);
+      backdrop.style.pointerEvents = fabMenuOpen ? 'auto' : 'none';
     }
   }
 
@@ -10084,75 +10089,6 @@
         </div>
       `;
       listEl.appendChild(card);
-    });
-  }
-
-  function renderAgendaMonthSummary(scope = 'ceo') {
-    const tbody = document.getElementById(scope === 'ceo' ? 'agenda-month-summary' : 'agenda-month-summary-colab');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-    const selected = scope === 'ceo' ? selectedMonthIndex : selectedMonthIndexColab;
-    const month = buildMonthSnapshot(selected, scope);
-    const monthTitle = document.getElementById(scope === 'ceo' ? 'selected-month-title' : 'selected-month-title-colab');
-    const tagContainer = document.getElementById(scope === 'ceo' ? 'selected-month-tags' : 'selected-month-tags-colab');
-    if (monthTitle) monthTitle.textContent = `Agenda de ${month.fullName}`;
-    if (tagContainer) {
-      tagContainer.innerHTML = '';
-      month.tags.forEach(t => {
-        const span = document.createElement('span');
-        span.className = 'pill';
-        span.textContent = t;
-        tagContainer.appendChild(span);
-      });
-      if (!month.tags.length) {
-        const total = document.createElement('span');
-        total.className = 'pill';
-        total.textContent = `${month.bookings} atend.`;
-        tagContainer.appendChild(total);
-      }
-      const ocup = document.createElement('span');
-      ocup.className = 'pill';
-      ocup.textContent = `${month.occupancy}% ocupação`;
-      tagContainer.appendChild(ocup);
-    }
-    const scopedAppointments = getAppointmentsForScope(scope)
-      .filter(a => {
-        if (!a.date) return false;
-        const [year, monthPart] = a.date.split('-').map(Number);
-        if (!monthPart) return false;
-        if (!year) return monthPart - 1 === selected;
-        return monthPart - 1 === selected && year === calendarYear;
-      })
-      .map(a => ({ ...a, dateObj: new Date(`${a.date}T${a.time || '00:00'}`) }))
-      .sort((a, b) => a.dateObj - b.dateObj);
-
-    if (!scopedAppointments.length) {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td colspan="6" class="subtext">Nenhum agendamento neste mês.</td>`;
-      tbody.appendChild(tr);
-      return;
-    }
-
-    scopedAppointments.forEach(appt => {
-      const client = clients.find(c => c.id === appt.clientId);
-      const clientName = client ? client.name : (appt.clientName || 'Cliente');
-      const color = getProfessionalColor(appt.professionalName || appt.professional);
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${formatDateLabel(appt.date)}</td>
-        <td>${appt.time || '--:--'}</td>
-        <td>${clientName}</td>
-        <td>${appt.serviceName || appt.service}</td>
-        <td><span class="appointment-pill" style="background:${color}1a;border-color:${color}33;">${appt.professionalName || appt.professional || 'Equipe'}</span></td>
-        <td>
-          <div class="table-action-row">
-            <button class="ghost-btn secondary icon-mini" aria-label="Editar" onclick="openAppointmentModal('${client?.id || ''}','${appt.id}')">✎</button>
-            <button class="ghost-btn secondary icon-mini" aria-label="Remover" onclick="openRemoveAppointmentModal('${appt.id}')">🗑</button>
-            ${renderAtendimentoAction(appt)}
-          </div>
-        </td>
-      `;
-      tbody.appendChild(tr);
     });
   }
 
