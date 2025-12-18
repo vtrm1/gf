@@ -4478,7 +4478,7 @@
       </div>
     </div>
 
-    <div id="appointment-remove-modal" class="dialog-layer hidden">
+    <div id="appointment-remove-modal" class="dialog-layer topmost hidden">
       <div class="dialog-card" style="max-width:420px;">
         <h3>Remover agendamento</h3>
         <p class="subtext">Confirme para remover este horário e atualizar a agenda.</p>
@@ -6243,6 +6243,11 @@
     renderDayAgendaTimeline();
   }
 
+  function isDayAgendaOpen() {
+    const overlay = document.getElementById('day-agenda-overlay');
+    return overlay?.classList.contains('open');
+  }
+
   function clearDayAgendaSelection() {
     selectedDayAgendaApptId = null;
     pendingMoveApptId = null;
@@ -7109,6 +7114,7 @@
     renderAgendaMonthSummary('ceo');
     renderAgendaMonthCalendar('colab');
     renderAgendaMonthSummary('colab');
+    if (isDayAgendaOpen()) renderDayAgendaTimeline();
 
     closeDialog('appointment-modal');
     if (appointmentOpenedFromDayModal) {
@@ -8236,6 +8242,7 @@
     renderAgendaMonthSummary('ceo');
     renderAgendaMonthCalendar('colab');
     renderAgendaMonthSummary('colab');
+    if (isDayAgendaOpen()) renderDayAgendaTimeline();
     closeDialog('appointment-remove-modal');
   }
 
