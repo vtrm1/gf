@@ -259,6 +259,15 @@
       align-items: center;
     }
 
+    .finance-donut-wrap .finance-chart-area {
+      min-height: 180px;
+    }
+
+    .finance-donut-wrap canvas {
+      max-height: 220px;
+      margin: 0 auto;
+    }
+
     .finance-legend {
       display: grid;
       gap: 0.45rem;
@@ -367,7 +376,7 @@
       }
 
       .finance-chart-area {
-        min-height: 220px;
+        min-height: 200px;
       }
 
       .finance-card-grid {
@@ -8372,19 +8381,57 @@
   }
 
   function deriveStockCostEntries(target) {
+    const targetKey = selectedGlobalMonthKey === 'all' ? null : `${target.year}-${String((target.monthIndex || 0) + 1).padStart(2, '0')}`;
+    const historyEntries = Object.entries(stockHistories).flatMap(([itemId, list]) =>
+      (list || []).map(entry => ({ ...entry, itemId }))
+    );
+
+    const entradas = historyEntries
+      .filter(h => h.tipo === 'entrada' && (!targetKey || matchesTargetMonth(h.data, target)))
+      .map(entry => {
+        const item = stockItems.find(i => i.id === entry.itemId) || {};
+        const rawAmount = Number(entry.custoTotal || entry.custoCompra || entry.valor || entry.amount || 0);
+        const unitCost = Number(item.custoPorUso || item.custoCompra || item.custoTotal || item.precoCompra || item.valor || 0);
+        let amount = rawAmount;
+        if (!amount) {
+          if (entry.quantidade) amount = unitCost * Number(entry.quantidade || 0);
+          else if (entry.volume && (item.volumeTotal_ml || item.volumeAtual_ml)) {
+            const divisor = Number(item.volumeTotal_ml || entry.volume || 1) || 1;
+            amount = unitCost ? (unitCost / divisor) * Number(entry.volume || 0) : 0;
+          } else {
+            amount = unitCost;
+          }
+        }
+        return {
+          type: 'despesa',
+          amount: Number(amount || 0),
+          category: item.categoria || item.category || entry.categoria || 'Estoque',
+          description: item.nome || item.name || entry.descricao || 'Item de estoque',
+          date: entry.data || item.dataCompra || item.addedAt || new Date().toISOString(),
+          isStockCost: true,
+          viaHistory: true
+        };
+      });
+
+    const historyKeys = new Set(entradas.map(e => `${(e.description || '').toLowerCase()}-${monthKeyFromDate(e.date)}`));
+
     const scoped = selectedGlobalMonthKey === 'all'
       ? stockItems
       : stockItems.filter(item => matchesTargetMonth(item.dataCompra || item.addedAt || item.createdAt, target));
-    return scoped
-      .filter(item => item && (item.custoCompra || item.precoCompra || item.valor))
+
+    const baseEntries = scoped
+      .filter(item => item && (item.custoCompra || item.precoCompra || item.valor || item.custoTotal))
+      .filter(item => !historyKeys.has(`${(item.nome || item.name || 'item').toLowerCase()}-${monthKeyFromDate(item.dataCompra || item.addedAt || item.createdAt)}`))
       .map(item => ({
         type: 'despesa',
-        amount: Number(item.custoCompra || item.precoCompra || item.valor || 0),
+        amount: Number(item.custoCompra || item.precoCompra || item.valor || item.custoTotal || 0),
         category: item.categoria || item.category || 'Estoque',
         description: item.nome || item.name || 'Item de estoque',
         date: item.dataCompra || item.addedAt || item.createdAt || new Date().toISOString(),
         isStockCost: true
       }));
+
+    return [...entradas, ...baseEntries];
   }
 
   function openFixedCostModal() {
@@ -8409,7 +8456,7 @@
     if (!amount || amount <= 0) return;
     const date = month ? `${month}-01` : new Date().toISOString();
 
-    await firestore.collection('financial').add({
+    const payload = {
       type: 'despesa',
       amount,
       description: desc,
@@ -8417,7 +8464,18 @@
       date,
       isFixed: true,
       createdAt: new Date().toISOString()
-    }).catch(err => console.error('Falha ao salvar custo fixo', err));
+    };
+
+    const docRef = await firestore.collection('financial').add(payload).catch(err => {
+      console.error('Falha ao salvar custo fixo', err);
+      return null;
+    });
+
+    if (docRef) {
+      financialEntries.push({ id: docRef.id, ...payload });
+      renderFinance();
+      renderDashboardCards();
+    }
 
     closeDialog('finance-fixed-modal');
   }
@@ -9255,8 +9313,9 @@
             backgroundColor: palette,
             borderWidth: 1,
             borderColor: '#fff',
-            hoverOffset: 8,
-            cutout: '60%'
+            hoverOffset: 6,
+            cutout: '70%',
+            radius: '82%'
           }
         ]
       },
@@ -9770,10 +9829,10 @@
     try {
       if (inventoryFormMode === 'edit' && inventoryEditingId) {
         await firestore.collection('stock').doc(inventoryEditingId).set(payload, { merge: true });
-        await saveStockHistory(inventoryEditingId, { tipo: 'edicao', quantidade: payload.quantidade || payload.volumeAtual_ml || 0, volume: payload.volumeAtual_ml || null });
+        await saveStockHistory(inventoryEditingId, { tipo: 'edicao', quantidade: payload.quantidade || payload.volumeAtual_ml || 0, volume: payload.volumeAtual_ml || null, custoTotal: payload.custoTotal || payload.custoCompra || 0, categoria: payload.categoria || category });
       } else {
         const ref = await firestore.collection('stock').add({ ...payload, createdAt: now });
-        await saveStockHistory(ref.id, { tipo: 'entrada', quantidade: payload.quantidade || payload.volumeAtual_ml || 0, volume: payload.volumeAtual_ml || null });
+        await saveStockHistory(ref.id, { tipo: 'entrada', quantidade: payload.quantidade || payload.volumeAtual_ml || 0, volume: payload.volumeAtual_ml || null, custoTotal: payload.custoTotal || payload.custoCompra || 0, categoria: payload.categoria || category, descricao: payload.nome || payload.name });
       }
     } catch (err) {
       console.error('Erro ao salvar estoque', err);
