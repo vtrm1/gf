@@ -243,6 +243,13 @@
     .finance-chart-area {
       min-height: 260px;
       position: relative;
+      overflow: hidden;
+    }
+
+    .finance-chart-area canvas {
+      width: 100% !important;
+      max-width: 100%;
+      height: auto !important;
     }
 
     .finance-donut-wrap {
@@ -287,6 +294,32 @@
       background: linear-gradient(135deg, rgba(155, 191, 146, 0.12), rgba(114, 150, 131, 0.12));
       border: 1px solid rgba(155, 191, 146, 0.35);
       box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    }
+
+    .finance-fixed-mini-list {
+      display: grid;
+      gap: 0.25rem;
+      margin-top: 0.35rem;
+    }
+
+    .finance-fixed-mini-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.35rem 0.55rem;
+      border-radius: 10px;
+      background: rgba(0,0,0,0.02);
+      font-size: 0.9rem;
+      color: var(--text-dark);
+    }
+
+    .finance-fixed-mini-item .label {
+      font-weight: 600;
+    }
+
+    .finance-fixed-mini-item .value {
+      font-weight: 700;
+      color: var(--accent-gold-dark);
     }
 
     .finance-fixed-value {
@@ -4216,6 +4249,31 @@
       </div>
     </div>
 
+    <div id="finance-fixed-modal" class="dialog-layer hidden">
+      <div class="dialog-card" style="max-width:420px;">
+        <h3>Adicionar custo fixo</h3>
+        <p class="subtext">Lance despesas recorrentes para que o resumo financeiro seja atualizado.</p>
+        <div class="form-row">
+          <label>Descrição</label>
+          <input id="fixed-cost-desc" placeholder="Ex.: Aluguel" />
+        </div>
+        <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+          <div>
+            <label>Valor</label>
+            <input id="fixed-cost-amount" type="number" step="0.01" min="0" placeholder="0,00" />
+          </div>
+          <div>
+            <label>Referência (mês)</label>
+            <input id="fixed-cost-month" type="month" />
+          </div>
+        </div>
+        <div class="dialog-actions" style="justify-content:flex-end;">
+          <button class="secondary" onclick="closeDialog('finance-fixed-modal')">Cancelar</button>
+          <button onclick="saveFixedCost()">Salvar</button>
+        </div>
+      </div>
+    </div>
+
       <section id="page-ceo-investments" class="page-ceo hidden">
       <div class="card investment-controls">
         <div class="control-actions" style="justify-content: space-between; gap:1rem;">
@@ -4297,10 +4355,14 @@
                 <h3>Custo fixo mensal</h3>
                 <div class="section-caption">Despesas que existem mesmo sem atendimento</div>
               </div>
-              <span class="pill">Base do mês</span>
+              <div class="pill-row" style="align-items:center;gap:0.35rem;">
+                <button class="ghost-btn secondary icon-mini" onclick="openFixedCostModal()" aria-label="Adicionar custo fixo">➕</button>
+                <span class="pill">Base do mês</span>
+              </div>
             </div>
             <div class="finance-fixed-value" id="finance-fixed-total">R$ 0,00</div>
             <div class="finance-occupancy-hint" id="finance-fixed-hint"></div>
+            <div id="finance-fixed-list" class="finance-fixed-mini-list"></div>
           </div>
         </div>
       </div>
@@ -5990,6 +6052,7 @@
       stockItems.forEach(item => attachStockHistoryListener(item.id));
       renderInventory();
       renderDashboardCards();
+      renderFinance();
       buildGlobalMonthOptions();
     });
   }
@@ -8191,7 +8254,9 @@
     const target = getDashboardFilterTarget();
     const filtered = selectedGlobalMonthKey === 'all' ? financialEntries : financialEntries.filter(e => matchesTargetMonth(e.date, target));
     const revenues = filtered.filter(f => f.type === 'receita');
-    const expenses = filtered.filter(f => f.type === 'despesa');
+    const baseExpenses = filtered.filter(f => f.type === 'despesa');
+    const stockExpenses = deriveStockCostEntries(target);
+    const expenses = [...baseExpenses, ...stockExpenses];
     const revenue = revenues.reduce((acc, cur) => acc + (cur.amount || 0), 0);
     const cost = expenses.reduce((acc, cur) => acc + (cur.amount || 0), 0);
     const profit = revenue - cost;
@@ -8219,6 +8284,7 @@
       else if (rawCat.includes('inter') || rawCat.includes('wifi')) cat = 'Internet';
       else if (rawCat.includes('produto') || rawCat.includes('insumo') || rawCat.includes('consumo') || rawCat.includes('reco')) cat = 'Produtos recorrentes';
       else if (rawCat.includes('manut') || rawCat.includes('reparo')) cat = 'Manutenção';
+      else if (rawCat.includes('fix')) cat = 'Custos fixos';
       const amount = Number(fin.amount || 0);
       acc[cat] = (acc[cat] || 0) + amount;
       return acc;
@@ -8254,15 +8320,30 @@
       });
     }
 
-    const fixedCategories = ['Aluguel', 'Água / luz', 'Internet', 'Produtos recorrentes', 'Manutenção'];
-    const fixedTotal = Object.entries(expenseBuckets)
-      .filter(([label]) => fixedCategories.includes(label))
-      .reduce((acc, [, val]) => acc + val, 0);
+    const fixedEntries = expenses.filter(fin => fin.isFixed || ((fin.category || fin.categoria || '').toLowerCase().includes('fix')));
+    const fixedTotal = fixedEntries.reduce((acc, cur) => acc + (cur.amount || 0), 0);
     if (fixedEl) fixedEl.textContent = formatCurrency(fixedTotal);
     if (fixedHint) {
       fixedHint.textContent = revenue
         ? `Você cobre ${Math.min(100, Math.round((revenue / Math.max(fixedTotal, 1)) * 100))}% do fixo com a receita atual.`
         : 'Acompanhe aqui a base mensal para empatar o mês.';
+    }
+
+    const fixedList = document.getElementById('finance-fixed-list');
+    if (fixedList) {
+      fixedList.innerHTML = '';
+      fixedEntries.slice(0, 4).forEach(entry => {
+        const row = document.createElement('div');
+        row.className = 'finance-fixed-mini-item';
+        row.innerHTML = `
+          <span class="label">${entry.description || entry.descricao || entry.category || 'Fixo'}</span>
+          <span class="value">${formatCurrency(entry.amount || 0)}</span>
+        `;
+        fixedList.appendChild(row);
+      });
+      if (!fixedEntries.length) {
+        fixedList.innerHTML = '<span class="section-caption">Adicione despesas fixas para acompanhar aqui.</span>';
+      }
     }
 
     const salesSummary = {
@@ -8288,6 +8369,57 @@
     if (revenueEl) revenueEl.textContent = formatCurrency(revenue);
     if (costEl) costEl.textContent = formatCurrency(cost);
     if (profitEl) profitEl.textContent = formatCurrency(profit);
+  }
+
+  function deriveStockCostEntries(target) {
+    const scoped = selectedGlobalMonthKey === 'all'
+      ? stockItems
+      : stockItems.filter(item => matchesTargetMonth(item.dataCompra || item.addedAt || item.createdAt, target));
+    return scoped
+      .filter(item => item && (item.custoCompra || item.precoCompra || item.valor))
+      .map(item => ({
+        type: 'despesa',
+        amount: Number(item.custoCompra || item.precoCompra || item.valor || 0),
+        category: item.categoria || item.category || 'Estoque',
+        description: item.nome || item.name || 'Item de estoque',
+        date: item.dataCompra || item.addedAt || item.createdAt || new Date().toISOString(),
+        isStockCost: true
+      }));
+  }
+
+  function openFixedCostModal() {
+    const target = getDashboardFilterTarget();
+    const monthStr = `${target.year}-${String((target.monthIndex || 0) + 1).padStart(2, '0')}`;
+    const desc = document.getElementById('fixed-cost-desc');
+    const val = document.getElementById('fixed-cost-amount');
+    const month = document.getElementById('fixed-cost-month');
+    if (desc) desc.value = '';
+    if (val) val.value = '';
+    if (month) month.value = monthStr;
+    openDialog('finance-fixed-modal');
+  }
+
+  async function saveFixedCost() {
+    initFirebaseApp();
+    if (!firestore) return;
+    const desc = document.getElementById('fixed-cost-desc')?.value?.trim() || 'Custo fixo';
+    const valStr = (document.getElementById('fixed-cost-amount')?.value || '0').toString().replace(',', '.');
+    const month = document.getElementById('fixed-cost-month')?.value;
+    const amount = Number(valStr);
+    if (!amount || amount <= 0) return;
+    const date = month ? `${month}-01` : new Date().toISOString();
+
+    await firestore.collection('financial').add({
+      type: 'despesa',
+      amount,
+      description: desc,
+      category: 'Custo fixo',
+      date,
+      isFixed: true,
+      createdAt: new Date().toISOString()
+    }).catch(err => console.error('Falha ao salvar custo fixo', err));
+
+    closeDialog('finance-fixed-modal');
   }
 
   function filterClientsByRole(scope) {
@@ -9518,6 +9650,7 @@
     firestore.collection('stock').doc(itemId).collection('history').orderBy('data', 'desc').limit(20).onSnapshot(snap => {
       stockHistories[itemId] = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderInventory();
+      renderFinance();
     });
   }
 
