@@ -202,6 +202,146 @@
       white-space: nowrap;
     }
 
+    /* Financeiro */
+    .finance-card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+
+    .finance-card-grid .card h3 {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .finance-card-grid .value {
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+
+    .finance-visual-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .finance-side-stack {
+      display: grid;
+      grid-template-rows: auto auto;
+      gap: 1rem;
+    }
+
+    .finance-card {
+      background: linear-gradient(180deg, rgba(255, 247, 243, 0.75), rgba(232, 238, 244, 0.6));
+      border: 1px solid rgba(0,0,0,0.04);
+    }
+
+    .finance-chart-area {
+      min-height: 260px;
+      position: relative;
+    }
+
+    .finance-donut-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .finance-legend {
+      display: grid;
+      gap: 0.45rem;
+      font-size: 0.9rem;
+    }
+
+    .finance-legend-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.45rem;
+      padding: 0.35rem 0.55rem;
+      border-radius: 10px;
+      background: rgba(0,0,0,0.02);
+    }
+
+    .finance-legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .finance-legend-label {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      color: var(--text-dark);
+      font-weight: 600;
+    }
+
+    .finance-fixed-card {
+      background: linear-gradient(135deg, rgba(155, 191, 146, 0.12), rgba(114, 150, 131, 0.12));
+      border: 1px solid rgba(155, 191, 146, 0.35);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    }
+
+    .finance-fixed-value {
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: var(--accent-gold-dark);
+      margin: 0.25rem 0;
+    }
+
+    .finance-sales-table {
+      margin-top: 0.5rem;
+    }
+
+    .finance-chip-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .finance-chip-row .pill {
+      background: rgba(var(--accent-gold-rgb), 0.12);
+      color: var(--accent-gold-dark);
+      padding: 0.35rem 0.75rem;
+    }
+
+    .finance-occupancy-hint {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    @media (max-width: 1024px) {
+      .finance-visual-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .finance-donut-wrap {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .finance-card-grid .value {
+        font-size: 1.3rem;
+      }
+
+      .finance-chart-area {
+        min-height: 220px;
+      }
+
+      .finance-card-grid {
+        gap: 0.75rem;
+      }
+    }
+
     .tag.attention,
     .badge.attention {
       background: #fecaca;
@@ -4098,54 +4238,103 @@
     <section id="page-ceo-finance" class="page-ceo hidden">
       <div class="section-title">
         <h2>Resumo financeiro</h2>
-        <div class="pill-row">
+        <div class="pill-row finance-chip-row">
           <span class="pill">Mês atual</span>
           <span class="pill">Serviços + consumo</span>
         </div>
       </div>
 
-      <div class="card-grid">
-        <div class="card">
+      <div class="finance-card-grid">
+        <div class="card finance-card">
           <h3>Receita bruta</h3>
           <div class="value" id="finance-revenue">R$ 0,00</div>
           <div class="subtext">Inclui serviços e bebidas</div>
         </div>
-        <div class="card">
+        <div class="card finance-card">
           <h3>Custos (produtos)</h3>
           <div class="value" id="finance-costs">R$ 0,00</div>
           <div class="subtext">Baseado no consumo estimado de esmaltes e itens</div>
         </div>
-        <div class="card">
+        <div class="card finance-card">
           <h3>Lucro estimado</h3>
           <div class="value" id="finance-profit">R$ 0,00</div>
           <div class="subtext">Antes de outras despesas fixas</div>
         </div>
       </div>
 
+      <div class="finance-visual-grid">
+        <div class="card finance-card">
+          <div class="block-header" style="align-items:flex-start;">
+            <div>
+              <h3>Receita x Custos x Lucro</h3>
+              <div class="section-caption">Leitura rápida do desempenho do mês</div>
+            </div>
+          </div>
+          <div class="finance-chart-area">
+            <canvas id="finance-balance-chart"></canvas>
+          </div>
+        </div>
+
+        <div class="finance-side-stack">
+          <div class="card finance-card">
+            <div class="block-header" style="align-items:flex-start;">
+              <div>
+                <h3>Distribuição de custos</h3>
+                <div class="section-caption">Categorias fixas e recorrentes</div>
+              </div>
+            </div>
+            <div class="finance-donut-wrap">
+              <div class="finance-chart-area" style="min-height:220px;">
+                <canvas id="finance-costs-donut"></canvas>
+              </div>
+              <div id="finance-costs-legend" class="finance-legend"></div>
+            </div>
+          </div>
+
+          <div class="card finance-fixed-card">
+            <div class="block-header" style="align-items:flex-start;">
+              <div>
+                <h3>Custo fixo mensal</h3>
+                <div class="section-caption">Despesas que existem mesmo sem atendimento</div>
+              </div>
+              <span class="pill">Base do mês</span>
+            </div>
+            <div class="finance-fixed-value" id="finance-fixed-total">R$ 0,00</div>
+            <div class="finance-occupancy-hint" id="finance-fixed-hint"></div>
+          </div>
+        </div>
+      </div>
+
       <div class="section-title" style="margin-top:1rem;">
         <h2>Vendas por tipo</h2>
       </div>
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Categoria</th>
-            <th>Quantidade</th>
-            <th>Valor</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Serviços</td>
-            <td>120</td>
-            <td>R$ 13.200</td>
-          </tr>
-          <tr>
-            <td>Consumo (geladeira)</td>
-            <td>64</td>
-            <td>R$ 2.600</td>
-          </tr>
-        </tbody>
-      </table>
+
+      <div class="card finance-card">
+        <div class="finance-chart-area" style="min-height:240px;">
+          <canvas id="finance-sales-chart"></canvas>
+        </div>
+        <table class="table finance-sales-table">
+          <thead>
+            <tr>
+              <th>Categoria</th>
+              <th>Quantidade</th>
+              <th>Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Serviços</td>
+              <td id="finance-sales-services-qty">0</td>
+              <td id="finance-sales-services-val">R$ 0,00</td>
+            </tr>
+            <tr>
+              <td>Consumo (geladeira)</td>
+              <td id="finance-sales-consume-qty">0</td>
+              <td id="finance-sales-consume-val">R$ 0,00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </section>
 
     <section id="page-ceo-clients" class="page-ceo hidden">
@@ -7993,13 +8182,112 @@
     const revenueEl = document.getElementById('finance-revenue');
     const costEl = document.getElementById('finance-costs');
     const profitEl = document.getElementById('finance-profit');
+    const fixedEl = document.getElementById('finance-fixed-total');
+    const fixedHint = document.getElementById('finance-fixed-hint');
+    const salesServicesQty = document.getElementById('finance-sales-services-qty');
+    const salesServicesVal = document.getElementById('finance-sales-services-val');
+    const salesConsumeQty = document.getElementById('finance-sales-consume-qty');
+    const salesConsumeVal = document.getElementById('finance-sales-consume-val');
     const target = getDashboardFilterTarget();
     const filtered = selectedGlobalMonthKey === 'all' ? financialEntries : financialEntries.filter(e => matchesTargetMonth(e.date, target));
-    const revenue = filtered.filter(f => f.type === 'receita').reduce((acc, cur) => acc + cur.amount, 0);
-    const cost = filtered.filter(f => f.type === 'despesa').reduce((acc, cur) => acc + cur.amount, 0);
+    const revenues = filtered.filter(f => f.type === 'receita');
+    const expenses = filtered.filter(f => f.type === 'despesa');
+    const revenue = revenues.reduce((acc, cur) => acc + (cur.amount || 0), 0);
+    const cost = expenses.reduce((acc, cur) => acc + (cur.amount || 0), 0);
+    const profit = revenue - cost;
+
+    const balanceSeries = [
+      { label: 'Receita bruta', value: revenue },
+      { label: 'Custos', value: cost },
+      { label: 'Lucro estimado', value: profit }
+    ];
+
+    const palette = [
+      'rgba(155,191,146,0.9)',
+      'rgba(244,217,210,0.9)',
+      'rgba(183,160,106,0.9)',
+      'rgba(232,238,244,0.95)',
+      'rgba(200,212,203,0.9)',
+      'rgba(221,199,177,0.9)'
+    ];
+
+    const expenseBuckets = expenses.reduce((acc, fin) => {
+      const rawCat = (fin.category || fin.categoria || fin.tipo || fin.description || fin.descricao || '').toString().toLowerCase();
+      let cat = 'Outros';
+      if (rawCat.includes('alug')) cat = 'Aluguel';
+      else if (rawCat.includes('luz') || rawCat.includes('água') || rawCat.includes('agua') || rawCat.includes('energia')) cat = 'Água / luz';
+      else if (rawCat.includes('inter') || rawCat.includes('wifi')) cat = 'Internet';
+      else if (rawCat.includes('produto') || rawCat.includes('insumo') || rawCat.includes('consumo') || rawCat.includes('reco')) cat = 'Produtos recorrentes';
+      else if (rawCat.includes('manut') || rawCat.includes('reparo')) cat = 'Manutenção';
+      const amount = Number(fin.amount || 0);
+      acc[cat] = (acc[cat] || 0) + amount;
+      return acc;
+    }, {});
+
+    if (!Object.keys(expenseBuckets).length) {
+      expenseBuckets['Sem custos'] = 0;
+    }
+
+    const donutPalette = palette.slice(0, Object.keys(expenseBuckets).length || 1);
+    drawFinanceBalanceChart('finance-balance-chart', balanceSeries);
+    drawFinanceDonut('finance-costs-donut', expenseBuckets, donutPalette);
+
+    const legendEl = document.getElementById('finance-costs-legend');
+    if (legendEl) {
+      const total = Object.values(expenseBuckets).reduce((a, b) => a + b, 0);
+      legendEl.innerHTML = '';
+      Object.entries(expenseBuckets).forEach(([label, value], idx) => {
+        const pct = total ? Math.round((value / total) * 100) : 0;
+        const row = document.createElement('div');
+        row.className = 'finance-legend-row';
+        row.innerHTML = `
+          <div class="finance-legend-label">
+            <span class="finance-legend-dot" style="background:${donutPalette[idx % donutPalette.length]};"></span>
+            <span>${label}</span>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-weight:700;">${formatCurrency(value)}</div>
+            <div class="section-caption" style="margin:0;">${pct}%</div>
+          </div>
+        `;
+        legendEl.appendChild(row);
+      });
+    }
+
+    const fixedCategories = ['Aluguel', 'Água / luz', 'Internet', 'Produtos recorrentes', 'Manutenção'];
+    const fixedTotal = Object.entries(expenseBuckets)
+      .filter(([label]) => fixedCategories.includes(label))
+      .reduce((acc, [, val]) => acc + val, 0);
+    if (fixedEl) fixedEl.textContent = formatCurrency(fixedTotal);
+    if (fixedHint) {
+      fixedHint.textContent = revenue
+        ? `Você cobre ${Math.min(100, Math.round((revenue / Math.max(fixedTotal, 1)) * 100))}% do fixo com a receita atual.`
+        : 'Acompanhe aqui a base mensal para empatar o mês.';
+    }
+
+    const salesSummary = {
+      servicos: { value: 0, count: 0 },
+      consumo: { value: 0, count: 0 }
+    };
+    revenues.forEach(fin => {
+      const raw = (fin.category || fin.categoria || fin.description || '').toString().toLowerCase();
+      const isConsumo = raw.includes('consumo') || raw.includes('geladeira') || raw.includes('bebida') || raw.includes('produto');
+      const bucket = isConsumo ? 'consumo' : 'servicos';
+      const qty = Number(fin.quantity || fin.quantidade || 1);
+      const amount = Number(fin.amount || 0);
+      salesSummary[bucket].count += qty;
+      salesSummary[bucket].value += amount;
+    });
+
+    drawFinanceSalesChart('finance-sales-chart', salesSummary);
+    if (salesServicesQty) salesServicesQty.textContent = salesSummary.servicos.count;
+    if (salesServicesVal) salesServicesVal.textContent = formatCurrency(salesSummary.servicos.value);
+    if (salesConsumeQty) salesConsumeQty.textContent = salesSummary.consumo.count;
+    if (salesConsumeVal) salesConsumeVal.textContent = formatCurrency(salesSummary.consumo.value);
+
     if (revenueEl) revenueEl.textContent = formatCurrency(revenue);
     if (costEl) costEl.textContent = formatCurrency(cost);
-    if (profitEl) profitEl.textContent = formatCurrency(revenue - cost);
+    if (profitEl) profitEl.textContent = formatCurrency(profit);
   }
 
   function filterClientsByRole(scope) {
@@ -8772,6 +9060,147 @@
           <div class="day-mobile-status ${statusKey}">${statusLabel}</div>
         `;
         mobileList.appendChild(mobileCard);
+      }
+    });
+  }
+
+  function drawFinanceBalanceChart(canvasId, items) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const labels = items.map(i => i.label);
+    const data = items.map(i => i.value);
+    const colors = ['rgba(155,191,146,0.9)', 'rgba(244,217,210,0.85)', 'rgba(183,160,106,0.9)'];
+
+    if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
+
+    chartInstances[canvasId] = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            data,
+            backgroundColor: colors,
+            borderRadius: 12,
+            maxBarThickness: 56,
+            borderWidth: 0
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: { grid: { display: false }, ticks: { color: getCssVar('--text-main', '#2F2F2F') } },
+          y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: getCssVar('--text-main', '#2F2F2F') } }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => formatCurrency(ctx.parsed.y || 0)
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function drawFinanceDonut(canvasId, dataMap, palette) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const labels = Object.keys(dataMap);
+    const data = Object.values(dataMap);
+    if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
+
+    chartInstances[canvasId] = new Chart(canvas, {
+      type: 'doughnut',
+      data: {
+        labels,
+        datasets: [
+          {
+            data,
+            backgroundColor: palette,
+            borderWidth: 1,
+            borderColor: '#fff',
+            hoverOffset: 8,
+            cutout: '60%'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => `${ctx.label}: ${formatCurrency(ctx.parsed)}`
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function drawFinanceSalesChart(canvasId, summary) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const labels = ['Serviços', 'Consumo'];
+    const valores = [summary.servicos.value, summary.consumo.value];
+    const quantidades = [summary.servicos.count, summary.consumo.count];
+
+    if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
+
+    chartInstances[canvasId] = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Valor',
+            data: valores,
+            backgroundColor: 'rgba(155,191,146,0.9)',
+            borderRadius: 10,
+            maxBarThickness: 42,
+            yAxisID: 'y'
+          },
+          {
+            label: 'Quantidade',
+            data: quantidades,
+            backgroundColor: 'rgba(232,238,244,0.95)',
+            borderRadius: 10,
+            maxBarThickness: 42,
+            yAxisID: 'y1'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: { grid: { display: false }, ticks: { color: getCssVar('--text-main', '#2F2F2F') } },
+          y: {
+            beginAtZero: true,
+            ticks: { color: getCssVar('--text-main', '#2F2F2F'), callback: v => formatCurrency(v) },
+            grid: { color: 'rgba(0,0,0,0.05)' }
+          },
+          y1: {
+            position: 'right',
+            beginAtZero: true,
+            grid: { display: false },
+            ticks: { color: getCssVar('--text-muted', '#6f5d4c') }
+          }
+        },
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: ctx => ctx.dataset.label === 'Valor'
+                ? `${ctx.label}: ${formatCurrency(ctx.parsed.y || 0)}`
+                : `${ctx.label}: ${ctx.parsed.y || 0} itens`
+            }
+          }
+        }
       }
     });
   }
