@@ -225,14 +225,16 @@
 
     .finance-visual-grid {
       display: grid;
-      grid-template-columns: 2fr 1.3fr;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
       gap: 1rem;
       margin-top: 1rem;
+      align-items: stretch;
     }
 
     .finance-side-stack {
       display: grid;
       gap: 0.75rem;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     }
 
     .finance-card {
@@ -319,8 +321,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 0.85rem;
-      padding: 0.5rem 0.75rem;
+      gap: 0.75rem;
+      padding: 0.4rem 0.6rem;
       border-radius: 12px;
       background: rgba(255,255,255,0.7);
       border: 1px solid rgba(0,0,0,0.06);
@@ -331,16 +333,23 @@
 
     .finance-fixed-mini-item .label {
       font-weight: 600;
-      display: inline-flex;
+      display: grid;
+      gap: 0.15rem;
       align-items: center;
-      gap: 0.5rem;
-      flex-wrap: wrap;
+      flex: 1;
+      min-width: 160px;
     }
 
     .finance-fixed-mini-item .value {
       font-weight: 700;
       color: var(--accent-gold-dark);
       white-space: nowrap;
+    }
+
+    .finance-fixed-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
     }
 
     .finance-fixed-value {
@@ -367,6 +376,15 @@
       border-radius: 999px;
       transition: width 0.25s ease;
       background: linear-gradient(90deg, rgba(155,191,146,0.9), rgba(183,160,106,0.75));
+    }
+
+    .finance-stock-items-card .finance-stock-legend {
+      display: grid;
+      gap: 0.4rem;
+    }
+
+    .finance-stock-items-card .finance-fixed-bar span {
+      background: linear-gradient(90deg, rgba(170,189,209,0.9), rgba(104,153,142,0.85));
     }
 
     .finance-sales-table {
@@ -4453,6 +4471,19 @@
             <div id="finance-stock-legend" class="finance-stock-legend"></div>
           </div>
 
+          <div class="card finance-stock-card finance-stock-items-card">
+            <div class="block-header" style="align-items:flex-start;">
+              <div>
+                <h3>Itens de estoque</h3>
+                <div class="section-caption">Principais gastos por item</div>
+              </div>
+            </div>
+            <div class="finance-chart-area" style="min-height:200px;">
+              <canvas id="finance-stock-items-chart"></canvas>
+            </div>
+            <div id="finance-stock-items-legend" class="finance-stock-legend"></div>
+          </div>
+
           <div class="card finance-fixed-card">
             <div class="block-header" style="align-items:flex-start;">
               <div>
@@ -5758,6 +5789,7 @@
   const monthlyDashboardStats = [];
 
   const financialEntries = [];
+  let editingFixedCostId = null;
 
   let investments = [];
   const investmentHistoryStore = {};
@@ -8465,6 +8497,41 @@
     const stockChartData = Object.keys(stockBuckets).length ? stockBuckets : { Estoque: { total: 0, items: [] } };
     drawFinanceStockChart('finance-stock-chart', stockChartData);
 
+    const itemBreakdownMap = stockExpenses.reduce((acc, entry) => {
+      const label = (entry.description || entry.descricao || entry.name || entry.nome || 'Item de estoque').toString();
+      const cat = (entry.category || entry.categoria || 'Estoque').toString();
+      if (!acc[label]) acc[label] = { total: 0, category: cat };
+      acc[label].total += Number(entry.amount || 0);
+      acc[label].category = cat;
+      return acc;
+    }, {});
+    const itemEntries = Object.entries(itemBreakdownMap).sort((a, b) => (b[1].total || 0) - (a[1].total || 0)).slice(0, 7);
+    drawFinanceStockItemsChart('finance-stock-items-chart', itemEntries);
+    const itemLegend = document.getElementById('finance-stock-items-legend');
+    if (itemLegend) {
+      itemLegend.innerHTML = '';
+      const totalItems = itemEntries.reduce((acc, [, info]) => acc + (info.total || 0), 0) || 1;
+      itemEntries.forEach(([label, info]) => {
+        const pct = Math.round(((info.total || 0) / totalItems) * 100);
+        const row = document.createElement('div');
+        row.className = 'finance-stock-row';
+        row.innerHTML = `
+          <div class="finance-stock-label">
+            <span>${label}</span>
+            <span class="finance-stock-items">${info.category}</span>
+          </div>
+          <div style="display:grid; gap:0.2rem; min-width:120px;">
+            <div class="finance-fixed-bar"><span style="width:${pct}%"></span></div>
+            <span class="finance-stock-value">${formatCurrency(info.total)}</span>
+          </div>
+        `;
+        itemLegend.appendChild(row);
+      });
+      if (!itemEntries.length) {
+        itemLegend.innerHTML = '<span class="section-caption">Itens de estoque aparecerão aqui.</span>';
+      }
+    }
+
     const fixedEntries = baseExpenses.filter(fin => fin.isFixed || ((fin.category || fin.categoria || '').toLowerCase().includes('fix')));
     const fixedTotal = fixedEntries.reduce((acc, cur) => acc + (cur.amount || 0), 0);
     if (fixedEl) fixedEl.textContent = formatCurrency(fixedTotal);
@@ -8477,46 +8544,32 @@
     const fixedList = document.getElementById('finance-fixed-list');
     if (fixedList) {
       fixedList.innerHTML = '';
-      const categoryBreakdown = fixedEntries.reduce((acc, entry) => {
-        const rawCat = (entry.category || entry.categoria || entry.tipo || entry.description || entry.descricao || 'Custos fixos').toString().toLowerCase();
-        let cat = 'Custos fixos';
-        if (rawCat.includes('esmal')) cat = 'Esmaltes';
-        else if (rawCat.includes('gelad') || rawCat.includes('bebida')) cat = 'Geladeira';
-        else if (rawCat.includes('manut')) cat = 'Manutenção';
-        else if (rawCat.includes('agua') || rawCat.includes('água') || rawCat.includes('luz') || rawCat.includes('energia')) cat = 'Água / Luz';
-        else if (rawCat.includes('inter')) cat = 'Internet';
-        else if (rawCat.includes('alug')) cat = 'Aluguel';
-        else if (rawCat.includes('produto') || rawCat.includes('insumo')) cat = 'Produtos';
-        const key = cat;
-        if (!acc[key]) acc[key] = { total: 0, items: [] };
-        acc[key].total += Number(entry.amount || 0);
-        const label = entry.description || entry.descricao || entry.name || entry.nome;
-        if (label && acc[key].items.length < 3) acc[key].items.push(label);
-        return acc;
-      }, {});
+      const totalCosts = fixedEntries.reduce((acc, cur) => acc + (cur.amount || 0), 0) || 1;
+      const sortedFixed = fixedEntries
+        .slice()
+        .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
-      const totalCosts = Object.values(categoryBreakdown).reduce((acc, cur) => acc + cur.total, 0) || 1;
-      const sortedCats = Object.entries(categoryBreakdown).sort((a, b) => b[1].total - a[1].total);
-
-      sortedCats.forEach(([cat, info]) => {
-        const pct = Math.round((info.total / totalCosts) * 100);
+      sortedFixed.forEach(entry => {
+        const pct = Math.round(((entry.amount || 0) / totalCosts) * 100);
+        const monthLabel = formatMonthRef(monthKeyFromDate(entry.date)) || 'Mês';
         const row = document.createElement('div');
         row.className = 'finance-fixed-mini-item';
-        const samples = info.items.length ? `<span class="section-caption" style="margin:0; display:inline-flex; gap:0.25rem; flex-wrap:wrap;">${info.items.map(i => `<span class="pill" style="padding:0.15rem 0.45rem; background:rgba(0,0,0,0.03); font-weight:600;">${i}</span>`).join('')}</span>` : '';
         row.innerHTML = `
           <div class="label">
-            <span>${cat}</span>
-            ${samples}
+            <span>${entry.description || entry.descricao || 'Custo fixo'}</span>
+            <span class="section-caption" style="margin:0;">${monthLabel} • ${(entry.category || entry.categoria || 'Custo fixo')}</span>
           </div>
-          <div style="display:flex; align-items:center; gap:0.75rem; min-width:180px;">
-            <div class="finance-fixed-bar"><span style="width:${pct}%"></span></div>
-            <span class="value">${formatCurrency(info.total)}</span>
+          <div class="finance-fixed-actions">
+            <div class="finance-fixed-bar" aria-hidden="true"><span style="width:${pct}%"></span></div>
+            <span class="value">${formatCurrency(entry.amount || 0)}</span>
+            <button class="ghost-btn secondary icon-mini" aria-label="Editar custo fixo" onclick="openFixedCostModal('${entry.id}')">✎</button>
+            <button class="ghost-btn danger icon-mini" aria-label="Remover custo fixo" onclick="removeFixedCost('${entry.id}')">🗑</button>
           </div>
         `;
         fixedList.appendChild(row);
       });
 
-      if (!sortedCats.length) {
+      if (!sortedFixed.length) {
         fixedList.innerHTML = '<span class="section-caption">Adicione despesas fixas para acompanhar aqui.</span>';
       }
     }
@@ -8600,15 +8653,21 @@
     return [...entradas, ...baseEntries];
   }
 
-  function openFixedCostModal() {
+  function openFixedCostModal(id = null) {
     const target = getDashboardFilterTarget();
     const monthStr = `${target.year}-${String((target.monthIndex || 0) + 1).padStart(2, '0')}`;
     const desc = document.getElementById('fixed-cost-desc');
     const val = document.getElementById('fixed-cost-amount');
     const month = document.getElementById('fixed-cost-month');
-    if (desc) desc.value = '';
-    if (val) val.value = '';
-    if (month) month.value = monthStr;
+    const modal = document.getElementById('finance-fixed-modal');
+    const entry = id ? financialEntries.find(fin => fin.id === id) : null;
+    editingFixedCostId = id;
+    if (modal) {
+      if (id) modal.dataset.editingId = id; else delete modal.dataset.editingId;
+    }
+    if (desc) desc.value = entry?.description || '';
+    if (val) val.value = entry?.amount != null ? entry.amount : '';
+    if (month) month.value = entry?.date ? monthKeyFromDate(entry.date) : monthStr;
     openDialog('finance-fixed-modal');
   }
 
@@ -8619,7 +8678,7 @@
     const month = document.getElementById('fixed-cost-month')?.value;
     const amount = Number(valStr);
     if (!amount || amount <= 0) return;
-    const date = month ? `${month}-01` : new Date().toISOString();
+    const date = month ? `${month}-15T12:00:00` : new Date().toISOString();
 
     const payload = {
       type: 'despesa',
@@ -8631,21 +8690,55 @@
       createdAt: new Date().toISOString()
     };
 
-    let docId = null;
-    if (firestore) {
-      try {
-        const docRef = await firestore.collection('financial').add(payload);
-        docId = docRef.id;
-      } catch (err) {
-        console.error('Falha ao salvar custo fixo', err);
+    const modal = document.getElementById('finance-fixed-modal');
+    const editingId = editingFixedCostId || modal?.dataset?.editingId || null;
+
+    if (editingId) {
+      const idx = financialEntries.findIndex(fin => fin.id === editingId);
+      const merged = idx >= 0 ? { ...financialEntries[idx], ...payload } : { id: editingId, ...payload };
+      if (idx >= 0) financialEntries[idx] = merged; else financialEntries.push(merged);
+      if (firestore && !editingId.startsWith('local-')) {
+        try {
+          await firestore.collection('financial').doc(editingId).set(merged, { merge: true });
+        } catch (err) {
+          console.error('Falha ao atualizar custo fixo', err);
+        }
       }
+    } else {
+      let docId = null;
+      if (firestore) {
+        try {
+          const docRef = await firestore.collection('financial').add(payload);
+          docId = docRef.id;
+        } catch (err) {
+          console.error('Falha ao salvar custo fixo', err);
+        }
+      }
+      financialEntries.push({ id: docId || `local-${Date.now()}`, ...payload });
     }
 
-    financialEntries.push({ id: docId || `local-${Date.now()}`, ...payload });
+    editingFixedCostId = null;
+    if (modal) delete modal.dataset.editingId;
+
     renderFinance();
     renderDashboardCards();
 
     closeDialog('finance-fixed-modal');
+  }
+
+  async function removeFixedCost(id) {
+    if (!id) return;
+    const idx = financialEntries.findIndex(fin => fin.id === id);
+    if (idx >= 0) financialEntries.splice(idx, 1);
+    if (firestore && !id.startsWith('local-')) {
+      try {
+        await firestore.collection('financial').doc(id).delete();
+      } catch (err) {
+        console.error('Erro ao excluir custo fixo', err);
+      }
+    }
+    renderFinance();
+    renderDashboardCards();
   }
 
   function filterClientsByRole(scope) {
@@ -9605,6 +9698,53 @@
         plugins: {
           legend: { display: false },
           tooltip: { callbacks: { label: ctx => formatCurrency(ctx.parsed.x || ctx.parsed.y || 0) } }
+        }
+      }
+    });
+  }
+
+  function drawFinanceStockItemsChart(canvasId, entries = []) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const labels = entries.map(([label]) => label);
+    const data = entries.map(([, info]) => info.total || 0);
+    const colors = [
+      'rgba(155,191,146,0.85)',
+      'rgba(234,207,194,0.9)',
+      'rgba(170,189,209,0.9)',
+      'rgba(200,212,203,0.9)',
+      'rgba(183,160,106,0.85)',
+      'rgba(232,238,244,0.9)'
+    ];
+
+    if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
+
+    chartInstances[canvasId] = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            data,
+            backgroundColor: labels.map((_, idx) => colors[idx % colors.length]),
+            borderRadius: 10,
+            borderWidth: 0,
+            maxBarThickness: 34,
+            barPercentage: 0.75
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        scales: {
+          x: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { color: getCssVar('--text-main', '#2F2F2F') } },
+          y: { grid: { display: false }, ticks: { color: getCssVar('--text-main', '#2F2F2F') } }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => `${ctx.label}: ${formatCurrency(ctx.parsed.x || ctx.parsed.y || 0)}` } }
         }
       }
     });
