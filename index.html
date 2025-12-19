@@ -225,10 +225,12 @@
 
     .finance-visual-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      grid-template-columns: minmax(380px, 1.05fr) minmax(340px, 0.95fr);
       gap: 1rem;
       margin-top: 1rem;
       align-items: stretch;
+      max-width: 1280px;
+      margin-inline: auto;
     }
 
     .finance-side-stack {
@@ -243,9 +245,14 @@
     }
 
     .finance-chart-area {
-      min-height: 260px;
+      min-height: 240px;
       position: relative;
       overflow: hidden;
+    }
+
+    .finance-balance-card .finance-chart-area {
+      max-width: 720px;
+      margin: 0 auto;
     }
 
     .finance-chart-area canvas {
@@ -381,6 +388,10 @@
     .finance-stock-items-card .finance-stock-legend {
       display: grid;
       gap: 0.4rem;
+    }
+
+    .finance-stock-items-body.hidden {
+      display: none;
     }
 
     .finance-stock-items-card .finance-fixed-bar span {
@@ -4430,7 +4441,7 @@
       </div>
 
       <div class="finance-visual-grid">
-        <div class="card finance-card">
+        <div class="card finance-card finance-balance-card">
           <div class="block-header" style="align-items:flex-start;">
             <div>
               <h3>Receita x Custos x Lucro</h3>
@@ -4477,11 +4488,14 @@
                 <h3>Itens de estoque</h3>
                 <div class="section-caption">Principais gastos por item</div>
               </div>
+              <button class="ghost-btn secondary icon-mini" id="finance-stock-items-toggle" onclick="toggleStockItems()" aria-label="Alternar itens de estoque">▼</button>
             </div>
-            <div class="finance-chart-area" style="min-height:200px;">
-              <canvas id="finance-stock-items-chart"></canvas>
+            <div id="finance-stock-items-body" class="finance-stock-items-body hidden">
+              <div class="finance-chart-area" style="min-height:200px;">
+                <canvas id="finance-stock-items-chart"></canvas>
+              </div>
+              <div id="finance-stock-items-legend" class="finance-stock-legend"></div>
             </div>
-            <div id="finance-stock-items-legend" class="finance-stock-legend"></div>
           </div>
 
           <div class="card finance-fixed-card">
@@ -5790,6 +5804,7 @@
 
   const financialEntries = [];
   let editingFixedCostId = null;
+  let stockItemsExpanded = false;
 
   let investments = [];
   const investmentHistoryStore = {};
@@ -8597,6 +8612,25 @@
     if (revenueEl) revenueEl.textContent = formatCurrency(revenue);
     if (costEl) costEl.textContent = formatCurrency(cost);
     if (profitEl) profitEl.textContent = formatCurrency(profit);
+
+    const stockBody = document.getElementById('finance-stock-items-body');
+    const stockToggle = document.getElementById('finance-stock-items-toggle');
+    if (stockBody && stockToggle) {
+      stockBody.classList.toggle('hidden', !stockItemsExpanded);
+      stockToggle.textContent = stockItemsExpanded ? '▲' : '▼';
+      stockToggle.setAttribute('aria-expanded', stockItemsExpanded ? 'true' : 'false');
+    }
+  }
+
+  function toggleStockItems(forceState = null) {
+    const body = document.getElementById('finance-stock-items-body');
+    const toggle = document.getElementById('finance-stock-items-toggle');
+    if (!body || !toggle) return;
+    const nextState = forceState === null ? !stockItemsExpanded : !!forceState;
+    stockItemsExpanded = nextState;
+    body.classList.toggle('hidden', !stockItemsExpanded);
+    toggle.textContent = stockItemsExpanded ? '▲' : '▼';
+    toggle.setAttribute('aria-expanded', stockItemsExpanded ? 'true' : 'false');
   }
 
   function deriveStockCostEntries(target) {
