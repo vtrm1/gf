@@ -303,11 +303,15 @@
       background: linear-gradient(135deg, rgba(155, 191, 146, 0.12), rgba(114, 150, 131, 0.12));
       border: 1px solid rgba(155, 191, 146, 0.35);
       box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
     }
 
     .finance-fixed-mini-list {
-      display: grid;
-      gap: 0.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
       margin-top: 0.35rem;
     }
 
@@ -315,20 +319,28 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.35rem 0.55rem;
-      border-radius: 10px;
-      background: rgba(0,0,0,0.02);
+      gap: 0.85rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(0,0,0,0.06);
       font-size: 0.9rem;
       color: var(--text-dark);
+      flex-wrap: wrap;
     }
 
     .finance-fixed-mini-item .label {
       font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
     }
 
     .finance-fixed-mini-item .value {
       font-weight: 700;
       color: var(--accent-gold-dark);
+      white-space: nowrap;
     }
 
     .finance-fixed-value {
@@ -336,6 +348,25 @@
       font-weight: 700;
       color: var(--accent-gold-dark);
       margin: 0.25rem 0;
+    }
+
+    .finance-fixed-bar {
+      flex: 1;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.06);
+      overflow: hidden;
+      position: relative;
+      min-width: 120px;
+    }
+
+    .finance-fixed-bar span {
+      position: absolute;
+      inset: 0;
+      width: 0;
+      border-radius: 999px;
+      transition: width 0.25s ease;
+      background: linear-gradient(90deg, rgba(155,191,146,0.9), rgba(183,160,106,0.75));
     }
 
     .finance-sales-table {
@@ -4305,10 +4336,6 @@
     <section id="page-ceo-finance" class="page-ceo hidden">
       <div class="section-title">
         <h2>Resumo financeiro</h2>
-        <div class="pill-row finance-chip-row">
-          <span class="pill">Mês atual</span>
-          <span class="pill">Serviços + consumo</span>
-        </div>
       </div>
 
       <div class="finance-card-grid">
@@ -5098,9 +5125,6 @@
     <section id="page-colab-commission" class="page-colab hidden">
       <div class="section-title">
         <h2>Minhas comissões</h2>
-        <div class="pill-row">
-          <span class="pill">Mês atual</span>
-        </div>
       </div>
       <table class="table">
         <thead>
@@ -8341,17 +8365,47 @@
     const fixedList = document.getElementById('finance-fixed-list');
     if (fixedList) {
       fixedList.innerHTML = '';
-      fixedEntries.slice(0, 4).forEach(entry => {
+      const categoryBreakdown = expenses.reduce((acc, entry) => {
+        const rawCat = (entry.category || entry.categoria || entry.tipo || entry.description || entry.descricao || 'Custos').toString().toLowerCase();
+        let cat = 'Custos fixos';
+        if (rawCat.includes('esmal')) cat = 'Esmaltes';
+        else if (rawCat.includes('gelad') || rawCat.includes('bebida')) cat = 'Geladeira';
+        else if (rawCat.includes('manut')) cat = 'Manutenção';
+        else if (rawCat.includes('agua') || rawCat.includes('água') || rawCat.includes('luz') || rawCat.includes('energia')) cat = 'Água / Luz';
+        else if (rawCat.includes('inter')) cat = 'Internet';
+        else if (rawCat.includes('alug')) cat = 'Aluguel';
+        else if (rawCat.includes('produto') || rawCat.includes('insumo')) cat = 'Produtos';
+        const key = cat;
+        if (!acc[key]) acc[key] = { total: 0, items: [] };
+        acc[key].total += Number(entry.amount || 0);
+        const label = entry.description || entry.descricao || entry.name || entry.nome;
+        if (label && acc[key].items.length < 3) acc[key].items.push(label);
+        return acc;
+      }, {});
+
+      const totalCosts = Object.values(categoryBreakdown).reduce((acc, cur) => acc + cur.total, 0) || 1;
+      const sortedCats = Object.entries(categoryBreakdown).sort((a, b) => b[1].total - a[1].total);
+
+      sortedCats.forEach(([cat, info]) => {
+        const pct = Math.round((info.total / totalCosts) * 100);
         const row = document.createElement('div');
         row.className = 'finance-fixed-mini-item';
+        const samples = info.items.length ? `<span class="section-caption" style="margin:0; display:inline-flex; gap:0.25rem; flex-wrap:wrap;">${info.items.map(i => `<span class="pill" style="padding:0.15rem 0.45rem; background:rgba(0,0,0,0.03); font-weight:600;">${i}</span>`).join('')}</span>` : '';
         row.innerHTML = `
-          <span class="label">${entry.description || entry.descricao || entry.category || 'Fixo'}</span>
-          <span class="value">${formatCurrency(entry.amount || 0)}</span>
+          <div class="label">
+            <span>${cat}</span>
+            ${samples}
+          </div>
+          <div style="display:flex; align-items:center; gap:0.75rem; min-width:180px;">
+            <div class="finance-fixed-bar"><span style="width:${pct}%"></span></div>
+            <span class="value">${formatCurrency(info.total)}</span>
+          </div>
         `;
         fixedList.appendChild(row);
       });
-      if (!fixedEntries.length) {
-        fixedList.innerHTML = '<span class="section-caption">Adicione despesas fixas para acompanhar aqui.</span>';
+
+      if (!sortedCats.length) {
+        fixedList.innerHTML = '<span class="section-caption">Adicione despesas fixas ou custos de estoque para acompanhar aqui.</span>';
       }
     }
 
