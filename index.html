@@ -5513,7 +5513,7 @@
 <script type="module">
   // Função modular (v9) para iniciar atendimento e abrir comanda automaticamente
   import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { getFirestore, doc, getDoc, updateDoc, addDoc, collection, serverTimestamp, arrayUnion, onSnapshot, getDocs, query, where, limit, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   // Reutiliza app existente ou cria um para este módulo
@@ -5530,10 +5530,25 @@
   const atendimentoAuth = getAuth(atendimentoApp);
   const atendimentoDb = getFirestore(atendimentoApp);
 
+  let atendimentoAuthInitPromise = null;
+
+  const ensureAtendimentoAuth = async () => {
+    if (!atendimentoAuth) return null;
+    if (atendimentoAuth.currentUser) return atendimentoAuth.currentUser;
+    if (!atendimentoAuthInitPromise) {
+      atendimentoAuthInitPromise = signInAnonymously(atendimentoAuth).catch(() => null);
+    }
+    await atendimentoAuthInitPromise;
+    return atendimentoAuth.currentUser;
+  };
+
+  ensureAtendimentoAuth();
+
   const waitForAuthUser = () =>
     new Promise((resolve) => {
       const current = atendimentoAuth.currentUser;
       if (current) return resolve(current);
+      ensureAtendimentoAuth();
       const unsub = onAuthStateChanged(atendimentoAuth, (user) => {
         unsub();
         resolve(user);
@@ -5966,6 +5981,14 @@
     try {
       initFirebaseApp();
       if (!firebaseAuth || !firestore || !email || !password) return null;
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        throw new Error('email-invalid');
+      }
+      if (password.length < 6) {
+        const err = new Error('auth/weak-password');
+        err.code = 'auth/weak-password';
+        throw err;
+      }
       const existingMethods = await firebaseAuth.fetchSignInMethodsForEmail(email);
       if (existingMethods && existingMethods.length) {
         const err = new Error('email-in-use');
@@ -5987,6 +6010,15 @@
       return cred.user.uid;
     } catch (err) {
       console.warn('Falha ao provisionar login de colaboradora', err);
+      if (err?.code === 'auth/email-already-in-use') {
+        alert('E-mail já cadastrado no Auth. Use outro ou vincule o existente.');
+      } else if (err?.code === 'auth/weak-password') {
+        alert('Senha muito curta. Use 6 caracteres ou mais.');
+      } else if (err?.message === 'email-invalid') {
+        alert('E-mail inválido. Confira o formato.');
+      } else {
+        alert('Não foi possível criar o login dedicado.');
+      }
       return null;
     }
   }
