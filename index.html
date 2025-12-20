@@ -223,20 +223,19 @@
       font-weight: 700;
     }
 
-    .finance-visual-grid {
-      display: grid;
-      grid-template-columns: minmax(380px, 1.05fr) minmax(340px, 0.95fr);
-      gap: 1rem;
-      margin-top: 1rem;
-      align-items: stretch;
+    .finance-section-wrap {
       max-width: 1280px;
-      margin-inline: auto;
+      margin: 0 auto;
+      display: grid;
+      gap: 1rem;
     }
 
-    .finance-side-stack {
-      display: grid;
-      gap: 0.75rem;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    .finance-main-card {
+      grid-column: 1 / -1;
+    }
+
+    .finance-main-card .finance-chart-area {
+      min-height: 320px;
     }
 
     .finance-card {
@@ -251,8 +250,8 @@
     }
 
     .finance-balance-card .finance-chart-area {
-      max-width: 720px;
-      margin: 0 auto;
+      max-width: 100%;
+      margin: 0;
     }
 
     .finance-chart-area canvas {
@@ -475,12 +474,25 @@
       color: var(--text-dark);
     }
 
+    .finance-secondary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .finance-secondary-column {
+      display: grid;
+      gap: 1rem;
+      align-content: start;
+    }
+
     @media (max-width: 1024px) {
-      .finance-visual-grid {
+      .finance-donut-wrap {
         grid-template-columns: 1fr;
       }
 
-      .finance-donut-wrap {
+      .finance-secondary-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -4422,26 +4434,26 @@
         <h2 aria-hidden="true"></h2>
       </div>
 
-      <div class="finance-card-grid">
-        <div class="card finance-card">
-          <h3>Receita bruta</h3>
-          <div class="value" id="finance-revenue">R$ 0,00</div>
-          <div class="subtext">Inclui serviços e bebidas</div>
+      <div class="finance-section-wrap">
+        <div class="finance-card-grid">
+          <div class="card finance-card">
+            <h3>Receita bruta</h3>
+            <div class="value" id="finance-revenue">R$ 0,00</div>
+            <div class="subtext">Inclui serviços e bebidas</div>
+          </div>
+          <div class="card finance-card">
+            <h3>Custos (produtos)</h3>
+            <div class="value" id="finance-costs">R$ 0,00</div>
+            <div class="subtext">Baseado no consumo estimado de esmaltes e itens</div>
+          </div>
+          <div class="card finance-card">
+            <h3>Lucro estimado</h3>
+            <div class="value" id="finance-profit">R$ 0,00</div>
+            <div class="subtext">Antes de outras despesas fixas</div>
+          </div>
         </div>
-        <div class="card finance-card">
-          <h3>Custos (produtos)</h3>
-          <div class="value" id="finance-costs">R$ 0,00</div>
-          <div class="subtext">Baseado no consumo estimado de esmaltes e itens</div>
-        </div>
-        <div class="card finance-card">
-          <h3>Lucro estimado</h3>
-          <div class="value" id="finance-profit">R$ 0,00</div>
-          <div class="subtext">Antes de outras despesas fixas</div>
-        </div>
-      </div>
 
-      <div class="finance-visual-grid">
-        <div class="card finance-card finance-balance-card">
+        <div class="card finance-card finance-balance-card finance-main-card">
           <div class="block-header" style="align-items:flex-start;">
             <div>
               <h3>Receita x Custos x Lucro</h3>
@@ -4453,65 +4465,69 @@
           </div>
         </div>
 
-        <div class="finance-side-stack">
-          <div class="card finance-card">
-            <div class="block-header" style="align-items:flex-start;">
-              <div>
-                <h3>Distribuição de custos</h3>
-                <div class="section-caption">Categorias fixas e recorrentes</div>
+        <div class="finance-secondary-grid">
+          <div class="finance-secondary-column">
+            <div class="card finance-card">
+              <div class="block-header" style="align-items:flex-start;">
+                <div>
+                  <h3>Distribuição de custos</h3>
+                  <div class="section-caption">Categorias fixas e recorrentes</div>
+                </div>
+              </div>
+              <div class="finance-donut-wrap">
+                <div class="finance-chart-area" style="min-height:220px;">
+                  <canvas id="finance-costs-donut"></canvas>
+                </div>
+                <div id="finance-costs-legend" class="finance-legend"></div>
               </div>
             </div>
-            <div class="finance-donut-wrap">
-              <div class="finance-chart-area" style="min-height:220px;">
-                <canvas id="finance-costs-donut"></canvas>
+
+            <div class="card finance-fixed-card">
+              <div class="block-header" style="align-items:flex-start;">
+                <div>
+                  <h3>Custo fixo mensal</h3>
+                  <div class="section-caption">Despesas que existem mesmo sem atendimento</div>
+                </div>
+                <div class="pill-row" style="align-items:center;gap:0.35rem;">
+                  <button class="ghost-btn secondary icon-mini" onclick="openFixedCostModal()" aria-label="Adicionar custo fixo">➕</button>
+                  <span class="pill">Base do mês</span>
+                </div>
               </div>
-              <div id="finance-costs-legend" class="finance-legend"></div>
+              <div class="finance-fixed-value" id="finance-fixed-total">R$ 0,00</div>
+              <div class="finance-occupancy-hint" id="finance-fixed-hint"></div>
+              <div id="finance-fixed-list" class="finance-fixed-mini-list"></div>
             </div>
           </div>
 
-          <div class="card finance-stock-card">
-            <div class="block-header" style="align-items:flex-start;">
-              <div>
-                <h3>Custos de estoque</h3>
-                <div class="section-caption">Geladeira, esmaltes e insumos</div>
+          <div class="finance-secondary-column">
+            <div class="card finance-stock-card">
+              <div class="block-header" style="align-items:flex-start;">
+                <div>
+                  <h3>Custos de estoque</h3>
+                  <div class="section-caption">Geladeira, esmaltes e insumos</div>
+                </div>
               </div>
-            </div>
-            <div class="finance-chart-area" style="min-height:200px;">
-              <canvas id="finance-stock-chart"></canvas>
-            </div>
-            <div id="finance-stock-legend" class="finance-stock-legend"></div>
-          </div>
-
-          <div class="card finance-stock-card finance-stock-items-card">
-            <div class="block-header" style="align-items:flex-start;">
-              <div>
-                <h3>Itens de estoque</h3>
-                <div class="section-caption">Principais gastos por item</div>
-              </div>
-              <button class="ghost-btn secondary icon-mini" id="finance-stock-items-toggle" onclick="toggleStockItems()" aria-label="Alternar itens de estoque">▼</button>
-            </div>
-            <div id="finance-stock-items-body" class="finance-stock-items-body hidden">
               <div class="finance-chart-area" style="min-height:200px;">
-                <canvas id="finance-stock-items-chart"></canvas>
+                <canvas id="finance-stock-chart"></canvas>
               </div>
-              <div id="finance-stock-items-legend" class="finance-stock-legend"></div>
+              <div id="finance-stock-legend" class="finance-stock-legend"></div>
             </div>
-          </div>
 
-          <div class="card finance-fixed-card">
-            <div class="block-header" style="align-items:flex-start;">
-              <div>
-                <h3>Custo fixo mensal</h3>
-                <div class="section-caption">Despesas que existem mesmo sem atendimento</div>
+            <div class="card finance-stock-card finance-stock-items-card">
+              <div class="block-header" style="align-items:flex-start;">
+                <div>
+                  <h3>Itens de estoque</h3>
+                  <div class="section-caption">Principais gastos por item</div>
+                </div>
+                <button class="ghost-btn secondary icon-mini" id="finance-stock-items-toggle" onclick="toggleStockItems()" aria-label="Alternar itens de estoque">▼</button>
               </div>
-              <div class="pill-row" style="align-items:center;gap:0.35rem;">
-                <button class="ghost-btn secondary icon-mini" onclick="openFixedCostModal()" aria-label="Adicionar custo fixo">➕</button>
-                <span class="pill">Base do mês</span>
+              <div id="finance-stock-items-body" class="finance-stock-items-body hidden">
+                <div class="finance-chart-area" style="min-height:200px;">
+                  <canvas id="finance-stock-items-chart"></canvas>
+                </div>
+                <div id="finance-stock-items-legend" class="finance-stock-legend"></div>
               </div>
             </div>
-            <div class="finance-fixed-value" id="finance-fixed-total">R$ 0,00</div>
-            <div class="finance-occupancy-hint" id="finance-fixed-hint"></div>
-            <div id="finance-fixed-list" class="finance-fixed-mini-list"></div>
           </div>
         </div>
       </div>
