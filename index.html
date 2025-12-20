@@ -5954,6 +5954,20 @@
     return collaborators.find(c => c.id === lowered || c.username === lowered || c.name.toLowerCase() === lowered) || null;
   }
 
+  async function fetchCollaboratorByUid(uid) {
+    if (!uid) return null;
+    const local = collaborators.find(c => c.userId === uid || c.id === uid);
+    if (local) return local;
+    initFirebaseApp();
+    if (!firestore) return null;
+    const snap = await firestore.collection('collaborators').where('userId', '==', uid).limit(1).get().catch(() => null);
+    if (snap && !snap.empty) {
+      const doc = snap.docs[0];
+      return { id: doc.id, ...doc.data() };
+    }
+    return null;
+  }
+
   function formatCollaboratorPermissions(perms) {
     if (!perms) return 'Permissões pendentes';
     if (typeof perms === 'string') return perms;
@@ -5977,7 +5991,19 @@
     }
   }
 
-  async function provisionCollaboratorAuth({ name, email, password, permissions, role = 'COLAB_LIMITED', username }) {
+  function defaultCollaboratorPermissions(perms = {}) {
+    const base = {
+      agenda: true,
+      financeiro: false,
+      configuracoes: false,
+      admin: false,
+      estoque: false,
+      comissoes: false,
+    };
+    return { ...base, ...perms };
+  }
+
+  async function provisionCollaboratorAuth({ name, email, password, permissions, role = 'COLLABORATOR', username }) {
     try {
       initFirebaseApp();
       if (!firebaseAuth || !firestore || !email || !password) return null;
@@ -6000,7 +6026,7 @@
         name,
         email,
         role,
-        permissions,
+        permissions: defaultCollaboratorPermissions(permissions),
         username,
         active: true,
         createdAt: new Date().toISOString(),
@@ -6221,20 +6247,25 @@
     return null;
   }
 
-  function applyUserRole(userData) {
+  function applyUserRole(userData, collabOverride = null) {
     currentUserDoc = userData;
     if (!appInitialized) {
       postLoginInit();
       appInitialized = true;
     }
     const role = (userData?.role || '').toUpperCase() === 'CEO' ? 'ceo' : 'colab';
-    const linkedCollab = collaborators.find(c => c.userId === userData.id || c.id === userData.id);
+    const linkedCollab = collabOverride || collaborators.find(c => c.userId === userData.id || c.id === userData.id);
+    const mergedPerms = defaultCollaboratorPermissions(linkedCollab?.permissions || userData?.permissions);
+    if (role === 'colab' && linkedCollab && linkedCollab.active === false) {
+      alert('Colaboradora desativada. Solicite reativação ao administrador.');
+      return;
+    }
     const account = role === 'colab'
       ? {
           id: linkedCollab?.id || userData.id,
           userId: userData.id,
           name: linkedCollab?.name || userData.name || userData.username,
-          permissions: linkedCollab?.permissions || userData.permissions,
+          permissions: mergedPerms,
           commission: linkedCollab?.commission || userData.commission,
         }
       : null;
@@ -6256,16 +6287,36 @@
     }
     try {
       const cred = await firebaseAuth.signInWithEmailAndPassword(email, password);
-      const userData = await fetchUserDoc(cred.user.uid);
-      if (!userData) {
-        alert('Conta sem perfil configurado no Firestore.');
+      const [userData, collabProfile] = await Promise.all([
+        fetchUserDoc(cred.user.uid),
+        fetchCollaboratorByUid(cred.user.uid)
+      ]);
+
+      if ((userData?.role || '').toUpperCase() === 'CEO') {
+        applyUserRole(userData);
         return;
       }
-      const collabProfile = collaborators.find(c => c.userId === cred.user.uid || c.id === cred.user.uid);
-      const mergedUser = collabProfile
-        ? { ...userData, permissions: collabProfile.permissions || userData.permissions, commission: collabProfile.commission || userData.commission }
-        : userData;
-      applyUserRole(mergedUser);
+
+      if (!collabProfile) {
+        alert('Colaboradora não encontrada para este login.');
+        await firebaseAuth.signOut();
+        return;
+      }
+      if (collabProfile.active === false) {
+        alert('Colaboradora desativada. Solicite reativação ao administrador.');
+        await firebaseAuth.signOut();
+        return;
+      }
+
+      const mergedUser = {
+        id: cred.user.uid,
+        ...(userData || {}),
+        ...collabProfile,
+        role: 'COLLABORATOR',
+        permissions: defaultCollaboratorPermissions(collabProfile.permissions),
+        active: true,
+      };
+      applyUserRole(mergedUser, collabProfile);
     } catch (err) {
       alert('Falha no login. Confira as credenciais.');
     }
@@ -6388,7 +6439,7 @@
     currentRole = role;
     if (role === 'colab') {
       currentColabAccount = account;
-      agendaProfessionalFilterColab = account?.id || slugify(account?.name || '') || 'all';
+      agendaProfessionalFilterColab = 'all';
     } else {
       currentColabAccount = null;
       agendaProfessionalFilterColab = 'all';
@@ -6472,12 +6523,12 @@
     }
 
     const permTokens = permissions ? permissions.split(',').map(p => p.trim().toLowerCase()) : [];
-    const permissionSet = {
-      agenda: permTokens.includes('agenda'),
+    const permissionSet = defaultCollaboratorPermissions({
+      agenda: true,
       comissoes: permTokens.some(p => p.includes('comiss')),
       estoque: permTokens.includes('estoque'),
       custom: permTokens.filter(p => !['agenda','estoque'].includes(p) && !p.includes('comiss')).map(p => p.charAt(0).toUpperCase() + p.slice(1))
-    };
+    });
 
     const linkedCollab = collaborators.find(c => c.id === selectedId) || collaborators.find(c => c.email && c.email.toLowerCase() === email);
     if (linkedCollab?.userId) {
@@ -6491,7 +6542,7 @@
       return;
     }
 
-    provisionCollaboratorAuth({ name, email, password, permissions: permissionSet, role: 'COLAB_LIMITED', username })
+    provisionCollaboratorAuth({ name, email, password, permissions: permissionSet, role: 'COLLABORATOR', username })
       .then(async (uid) => {
         if (!uid) {
           alert('Não foi possível criar o login. Verifique o email e tente novamente.');
@@ -6512,6 +6563,7 @@
           username: username || email,
           email,
           role: 'Colaboradora',
+          roleKey: 'COLLABORATOR',
           commission: linkedCollab?.commission || '40% serviços',
           permissions: permissionSet,
           color,
@@ -6605,13 +6657,10 @@
       getCssVar('--chart-gold', '#B7A06A')
     ];
     const color = palette[Math.floor(Math.random() * palette.length)];
-    const permissionSet = {
-      agenda: permAgenda,
-      comissoes: permComissao,
-    };
+    const permissionSet = defaultCollaboratorPermissions({ agenda: true, comissoes: permComissao });
     const collaboratorDoc = {
       name,
-      role: 'COLAB_LIMITED',
+      role: 'COLLABORATOR',
       commission,
       permissions: permissionSet,
       username,
@@ -6623,26 +6672,26 @@
 
     try {
       initFirebaseApp();
-      let colId = await provisionCollaboratorAuth({ name, email, password, permissions: permissionSet, role: 'COLAB_LIMITED', username });
-      const collabObj = { id: colId || slugify(username || email), userId: colId || undefined, name, role, commission, permissions: permissionSet, username, color, active: true, email };
+      let colId = await provisionCollaboratorAuth({ name, email, password, permissions: permissionSet, role: 'COLLABORATOR', username });
+      const collabObj = { id: colId || slugify(username || email), userId: colId || undefined, name, role: 'Colaboradora', roleKey: 'COLLABORATOR', commission, permissions: permissionSet, username, color, active: true, email };
       if (!colId) {
         collabObj.limitedAccess = true;
       }
       collaborators.push(collabObj);
       await persistCollaborator(collabObj);
-      collaboratorAccounts.push({ name, username: username || email, password, permissions: permissionSet, device: 'Tablet dedicado', email, id: colId || collabObj.id, userId: colId || collabObj.id, role: 'COLAB_LIMITED' });
-      await persistCollaboratorAccount({ name, username: username || email, password, permissions: permissionSet, device: 'Tablet dedicado', email, id: colId || collabObj.id, userId: colId || collabObj.id, role: 'COLAB_LIMITED' });
+      collaboratorAccounts.push({ name, username: username || email, password, permissions: permissionSet, device: 'Tablet dedicado', email, id: colId || collabObj.id, userId: colId || collabObj.id, role: 'COLLABORATOR' });
+      await persistCollaboratorAccount({ name, username: username || email, password, permissions: permissionSet, device: 'Tablet dedicado', email, id: colId || collabObj.id, userId: colId || collabObj.id, role: 'COLLABORATOR' });
     } catch (err) {
       if (err?.code === 'auth/email-already-in-use') {
         alert('Este email já está em uso. Use outro ou redefina a senha.');
         return;
       }
       const fallbackId = `colab-${Date.now()}`;
-      const collabObj = { id: fallbackId, name, role, commission, permissions: permissionSet, username, color, active: true, email, limitedAccess: true };
+      const collabObj = { id: fallbackId, name, role: 'Colaboradora', roleKey: 'COLLABORATOR', commission, permissions: permissionSet, username, color, active: true, email, limitedAccess: true };
       collaborators.push(collabObj);
-      collaboratorAccounts.push({ name, username: username || email, password, permissions: permissionSet, device: 'Tablet dedicado', email, id: fallbackId, userId: fallbackId, role: 'COLAB_LIMITED' });
+      collaboratorAccounts.push({ name, username: username || email, password, permissions: permissionSet, device: 'Tablet dedicado', email, id: fallbackId, userId: fallbackId, role: 'COLLABORATOR' });
       await persistCollaborator(collabObj);
-      await persistCollaboratorAccount({ name, username: username || email, password, permissions: permissionSet, device: 'Tablet dedicado', email, id: fallbackId, userId: fallbackId, role: 'COLAB_LIMITED' });
+      await persistCollaboratorAccount({ name, username: username || email, password, permissions: permissionSet, device: 'Tablet dedicado', email, id: fallbackId, userId: fallbackId, role: 'COLLABORATOR' });
     }
 
     renderCollaborators();
