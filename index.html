@@ -4723,9 +4723,12 @@
               <label>Senha inicial</label>
               <input id="add-collab-password" placeholder="Senha provisória" type="password" />
             </div>
-            <div style="grid-column:1 / span 2; display:flex; gap:1rem; align-items:center;">
+            <div style="grid-column:1 / span 2; display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
               <label style="display:flex;align-items:center;gap:0.4rem;">
                 <input type="checkbox" id="add-collab-perm-agenda" checked /> Agenda compartilhada
+              </label>
+              <label style="display:flex;align-items:center;gap:0.4rem;">
+                <input type="checkbox" id="add-collab-perm-agenda-full" /> Ver agenda da administradora
               </label>
               <label style="display:flex;align-items:center;gap:0.4rem;">
                 <input type="checkbox" id="add-collab-perm-comissao" checked /> Comissões
@@ -4762,6 +4765,10 @@
             </select>
           </div>
           <div>
+            <label>Email</label>
+            <input id="edit-collab-email" readonly />
+          </div>
+          <div>
             <label>Login</label>
             <input id="edit-collab-login" placeholder="Usuário" />
           </div>
@@ -4774,6 +4781,9 @@
             <div style="display:flex;flex-direction:column;gap:0.3rem;padding:0.4rem 0;">
               <label style="display:flex;align-items:center;gap:0.4rem;">
                 <input type="checkbox" id="perm-agenda" /> Agenda
+              </label>
+              <label style="display:flex;align-items:center;gap:0.4rem;">
+                <input type="checkbox" id="perm-agenda-full" /> Ver agenda da administradora
               </label>
               <label style="display:flex;align-items:center;gap:0.4rem;">
                 <input type="checkbox" id="perm-estoque" /> Estoque
@@ -5940,7 +5950,8 @@
     if (!perms) return 'Permissões pendentes';
     if (typeof perms === 'string') return perms;
     const parts = [];
-    if (perms.agenda) parts.push('Agenda');
+    if (perms.agendaFull) parts.push('Agenda completa');
+    else if (perms.agenda) parts.push('Agenda');
     if (perms.comissoes || perms.comissao) parts.push('Comissão');
     if (perms.estoque) parts.push('Estoque');
     if (Array.isArray(perms.custom)) parts.push(...perms.custom);
@@ -5962,6 +5973,7 @@
   function defaultCollaboratorPermissions(perms = {}) {
     const base = {
       agenda: true,
+      agendaFull: false,
       financeiro: false,
       configuracoes: false,
       admin: false,
@@ -6479,6 +6491,7 @@
     document.getElementById('add-collab-login').value = '';
     document.getElementById('add-collab-password').value = '';
     document.getElementById('add-collab-perm-agenda').checked = true;
+    document.getElementById('add-collab-perm-agenda-full').checked = false;
     document.getElementById('add-collab-perm-comissao').checked = true;
     openDialog('add-collab-modal');
   }
@@ -6491,6 +6504,7 @@
     const username = document.getElementById('add-collab-login').value.trim();
     const password = document.getElementById('add-collab-password').value.trim();
     const permAgenda = document.getElementById('add-collab-perm-agenda').checked;
+    const permAgendaFull = document.getElementById('add-collab-perm-agenda-full').checked;
     const permComissao = document.getElementById('add-collab-perm-comissao').checked;
     const initialPassword = password || Math.random().toString(36).slice(-10);
     if (!name || !email) {
@@ -6504,7 +6518,7 @@
       getCssVar('--chart-gold', '#B7A06A')
     ];
     const color = palette[Math.floor(Math.random() * palette.length)];
-    const permissionSet = defaultCollaboratorPermissions({ agenda: true, comissoes: permComissao });
+    const permissionSet = defaultCollaboratorPermissions({ agenda: permAgenda, agendaFull: permAgendaFull, comissoes: permComissao });
     let createdUserId = null;
     try {
       initFirebaseApp();
@@ -6556,6 +6570,7 @@
     document.getElementById('edit-collab-name').value = col.name;
     document.getElementById('edit-collab-role').value = col.role;
     document.getElementById('edit-collab-status').value = col.active === false ? 'inactive' : 'active';
+    document.getElementById('edit-collab-email').value = col.email || '';
     document.getElementById('edit-collab-login').value = col.username || '';
     const pwdField = document.getElementById('edit-collab-password');
     if (pwdField) pwdField.value = '';
@@ -6567,6 +6582,7 @@
         }
       : col.permissions || {};
     document.getElementById('perm-agenda').checked = !!permObj.agenda;
+    document.getElementById('perm-agenda-full').checked = !!permObj.agendaFull;
     document.getElementById('perm-estoque').checked = !!permObj.estoque;
     document.getElementById('perm-comissao').checked = !!permObj.comissoes;
     openDialog('edit-collab-modal');
@@ -6581,6 +6597,7 @@
     const newPassword = document.getElementById('edit-collab-password').value.trim();
     const permissionSet = {
       agenda: document.getElementById('perm-agenda').checked,
+      agendaFull: document.getElementById('perm-agenda-full').checked,
       estoque: document.getElementById('perm-estoque').checked,
       comissoes: document.getElementById('perm-comissao').checked,
       financeiro: false,
@@ -9134,7 +9151,8 @@
 
   function getAppointmentsForScope(scope = 'ceo') {
     let list = appointments.filter(a => a.status !== 'canceled');
-    if (scope === 'colab') {
+    const colabCanSeeAll = scope === 'colab' && (currentColabAccount?.permissions?.agendaFull);
+    if (scope === 'colab' && !colabCanSeeAll) {
       const colabName = (currentColabAccount?.name || '').toLowerCase();
       const colabId = (currentColabAccount?.id || '').toLowerCase();
       list = list.filter(a => (a.professionalName || '').toLowerCase() === colabName || (a.professionalId || '').toLowerCase() === colabId);
@@ -10643,8 +10661,8 @@
         </div>
         <div class="collab-permissions">
           <span class="collab-meta tagline">${permLine}</span>
+          <span class="collab-meta">Email: <strong>${col.email || '—'}</strong></span>
           <span class="collab-meta">Login: <strong>${col.username || 'definir no modal'}</strong></span>
-          ${statusPill}
         </div>
         <div class="collab-actions">
           <button class="ghost-btn secondary" onclick="openEditCollab(${index})" title="Editar">✏️</button>
