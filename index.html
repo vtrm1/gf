@@ -4659,11 +4659,10 @@
         <div class="block-header">
           <div>
             <h3>Colaboradoras</h3>
-            <div class="section-caption">Lista compacta para gerenciar permissões, comissão e logins dedicados.</div>
+            <div class="section-caption">Lista compacta para gerenciar permissões, comissão e logins vinculados.</div>
           </div>
           <div class="block-actions">
             <button class="ghost-btn secondary" onclick="openCollabAddModal()">+ Colaboradora</button>
-            <button class="ghost-btn" onclick="openDedicatedLoginModal()">🔑 Criar login dedicado</button>
           </div>
         </div>
         <div id="collaborators-list" class="collab-list"></div>
@@ -4692,48 +4691,6 @@
         </table>
       </div>
     </section>
-
-    <div id="login-dedicated-modal" class="dialog-layer hidden">
-      <div class="dialog-card">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <h3>Criar login dedicado</h3>
-          <button class="secondary" style="height:32px;padding:0.35rem 0.8rem;" onclick="closeDialog('login-dedicated-modal')">Fechar</button>
-        </div>
-        <div class="dialog-grid">
-          <div>
-            <label>Colaboradora</label>
-            <select id="dedicated-collab-select" onchange="prefillDedicatedLoginFromSelect()">
-              <option value="">Selecione uma colaboradora</option>
-            </select>
-          </div>
-          <div>
-            <label>Nome da colaboradora</label>
-            <input id="new-colab-name" placeholder="Ex: Camila" />
-          </div>
-          <div>
-            <label>Email</label>
-            <input id="new-colab-email" placeholder="camila@email.com" />
-          </div>
-          <div>
-            <label>Usuário</label>
-            <input id="new-colab-username" placeholder="Ex: camila" />
-          </div>
-          <div>
-            <label>Senha inicial</label>
-            <input id="new-colab-password" placeholder="Ex: 123" />
-          </div>
-          <div>
-            <label>Permissões</label>
-            <input id="new-colab-permissions" placeholder="Agenda compartilhada, comissões" />
-          </div>
-        </div>
-        <div class="dialog-actions">
-          <button class="secondary" onclick="closeDialog('login-dedicated-modal')">Cancelar</button>
-          <button onclick="createCollaboratorAccount()">Gerar usuário e senha</button>
-        </div>
-        <div class="section-caption">A colaboradora verá apenas o próprio login e o acesso ao tablet.</div>
-      </div>
-    </div>
 
     <div id="add-collab-modal" class="dialog-layer hidden">
         <div class="dialog-card">
@@ -4798,8 +4755,19 @@
             <input id="edit-collab-role" />
           </div>
           <div>
+            <label>Status</label>
+            <select id="edit-collab-status">
+              <option value="active">Ativa</option>
+              <option value="inactive">Inativa</option>
+            </select>
+          </div>
+          <div>
             <label>Login</label>
             <input id="edit-collab-login" placeholder="Usuário" />
+          </div>
+          <div>
+            <label>Nova senha (opcional)</label>
+            <input id="edit-collab-password" type="password" placeholder="Redefinir senha" />
           </div>
           <div>
             <label>Permissões</label>
@@ -6003,10 +5971,27 @@
     return { ...base, ...perms };
   }
 
-  async function provisionCollaboratorAuth({ name, email, password, permissions, role = 'COLLABORATOR', username }) {
+  let secondaryAuth = null;
+  let secondaryApp = null;
+
+  function ensureSecondaryAuth() {
+    initFirebaseApp();
+    if (secondaryAuth) return secondaryAuth;
     try {
-      initFirebaseApp();
-      if (!firebaseAuth || !firestore || !email || !password) return null;
+      secondaryApp = firebase.apps.find(app => app.name === 'admin-helper') || firebase.initializeApp(firebaseConfig, 'admin-helper');
+      secondaryAuth = firebase.auth(secondaryApp);
+    } catch (err) {
+      console.warn('Falha ao iniciar auth secundário', err);
+      secondaryAuth = null;
+    }
+    return secondaryAuth;
+  }
+
+  async function provisionCollaboratorAuth({ name, email, password, permissions, role = 'COLLABORATOR', username }) {
+    let createdUser = null;
+    const adminAuth = ensureSecondaryAuth();
+    try {
+      if (!adminAuth || !firestore || !email || !password) throw new Error('auth-unavailable');
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         throw new Error('email-invalid');
       }
@@ -6015,14 +6000,16 @@
         err.code = 'auth/weak-password';
         throw err;
       }
-      const existingMethods = await firebaseAuth.fetchSignInMethodsForEmail(email);
+      const existingMethods = await adminAuth.fetchSignInMethodsForEmail(email);
       if (existingMethods && existingMethods.length) {
         const err = new Error('email-in-use');
         err.code = 'auth/email-already-in-use';
         throw err;
       }
-      const cred = await firebaseAuth.createUserWithEmailAndPassword(email, password);
+      const cred = await adminAuth.createUserWithEmailAndPassword(email, password);
+      createdUser = cred.user;
       const profile = {
+        id: cred.user.uid,
         name,
         email,
         role,
@@ -6030,20 +6017,23 @@
         username,
         active: true,
         createdAt: new Date().toISOString(),
-        limitedAccess: true,
       };
       await firestore.collection('users').doc(cred.user.uid).set(profile, { merge: true });
+      await adminAuth.signOut().catch(() => {});
       return cred.user.uid;
     } catch (err) {
       console.warn('Falha ao provisionar login de colaboradora', err);
+      if (createdUser && secondaryAuth?.currentUser?.uid === createdUser.uid) {
+        await secondaryAuth.currentUser.delete().catch(() => {});
+      }
       if (err?.code === 'auth/email-already-in-use') {
-        alert('E-mail já cadastrado no Auth. Use outro ou vincule o existente.');
+        alert('E-mail já cadastrado no Auth. Use outro ou redefina a senha.');
       } else if (err?.code === 'auth/weak-password') {
         alert('Senha muito curta. Use 6 caracteres ou mais.');
       } else if (err?.message === 'email-invalid') {
         alert('E-mail inválido. Confira o formato.');
       } else {
-        alert('Não foi possível criar o login dedicado.');
+        alert('Não foi possível criar o login.');
       }
       return null;
     }
@@ -6208,18 +6198,7 @@
 
   async function resolveLoginEmail(identifier) {
     if (!identifier) return null;
-    if (identifier.includes('@')) return identifier;
-    initFirebaseApp();
-    if (!firestore) return null;
-    const snap = await firestore
-      .collection('users')
-      .where('username', '==', identifier)
-      .limit(1)
-      .get()
-      .catch(() => null);
-    if (!snap || snap.empty) return null;
-    const data = snap.docs[0].data();
-    return data?.email || null;
+    return identifier.includes('@') ? identifier : null;
   }
 
   async function fetchUserDoc(uid) {
@@ -6255,7 +6234,12 @@
     }
     const role = (userData?.role || '').toUpperCase() === 'CEO' ? 'ceo' : 'colab';
     const linkedCollab = collabOverride || collaborators.find(c => c.userId === userData.id || c.id === userData.id);
-    const mergedPerms = defaultCollaboratorPermissions(linkedCollab?.permissions || userData?.permissions);
+    const mergedPerms = defaultCollaboratorPermissions({
+      ...(linkedCollab?.permissions || userData?.permissions || {}),
+      financeiro: false,
+      configuracoes: false,
+      admin: false,
+    });
     if (role === 'colab' && linkedCollab && linkedCollab.active === false) {
       alert('Colaboradora desativada. Solicite reativação ao administrador.');
       return;
@@ -6276,13 +6260,13 @@
     const identifier = document.getElementById('login-identifier').value.trim();
     const password = document.getElementById('login-password').value.trim();
     if (!identifier || !password) {
-      alert('Informe usuário/email e senha.');
+      alert('Informe email e senha.');
       return;
     }
     initFirebaseApp();
     const email = await resolveLoginEmail(identifier);
     if (!email) {
-      alert('Não encontramos esse usuário/email.');
+      alert('Use seu email corporativo para entrar.');
       return;
     }
     try {
@@ -6487,144 +6471,6 @@
     }
   }
 
-  function prefillDedicatedLoginFromSelect() {
-    const select = document.getElementById('dedicated-collab-select');
-    const selectedId = select?.value;
-    const target = collaborators.find(c => c.id === selectedId);
-    if (!target) return;
-    const nameInput = document.getElementById('new-colab-name');
-    const usernameInput = document.getElementById('new-colab-username');
-    const emailInput = document.getElementById('new-colab-email');
-    const permsInput = document.getElementById('new-colab-permissions');
-    if (nameInput) nameInput.value = target.name || '';
-    if (usernameInput) usernameInput.value = (target.username || target.email || target.name || '').split('@')[0];
-    if (emailInput) emailInput.value = target.email || '';
-    if (permsInput) {
-      const preset = [];
-      if (target.permissions?.agenda) preset.push('agenda');
-      if (target.permissions?.comissoes || target.permissions?.comissao) preset.push('comissoes');
-      if (target.permissions?.estoque) preset.push('estoque');
-      if (Array.isArray(target.permissions?.custom)) preset.push(...target.permissions.custom);
-      permsInput.value = preset.join(', ');
-    }
-  }
-
-  function createCollaboratorAccount() {
-    const selectedId = document.getElementById('dedicated-collab-select').value;
-    const name = document.getElementById('new-colab-name').value.trim();
-    const username = document.getElementById('new-colab-username').value.trim();
-    const email = document.getElementById('new-colab-email').value.trim().toLowerCase();
-    const password = document.getElementById('new-colab-password').value.trim();
-    const permissions = document.getElementById('new-colab-permissions').value.trim();
-
-    if (!name || !email || !password) {
-      alert('Preencha nome, email e senha para criar o acesso.');
-      return;
-    }
-
-    const permTokens = permissions ? permissions.split(',').map(p => p.trim().toLowerCase()) : [];
-    const permissionSet = defaultCollaboratorPermissions({
-      agenda: true,
-      comissoes: permTokens.some(p => p.includes('comiss')),
-      estoque: permTokens.includes('estoque'),
-      custom: permTokens.filter(p => !['agenda','estoque'].includes(p) && !p.includes('comiss')).map(p => p.charAt(0).toUpperCase() + p.slice(1))
-    });
-
-    const linkedCollab = collaborators.find(c => c.id === selectedId) || collaborators.find(c => c.email && c.email.toLowerCase() === email);
-    if (linkedCollab?.userId) {
-      alert('Esta colaboradora já possui login vinculado.');
-      return;
-    }
-
-    initFirebaseApp();
-    if (!firebaseAuth) {
-      alert('Serviço de autenticação indisponível.');
-      return;
-    }
-
-    provisionCollaboratorAuth({ name, email, password, permissions: permissionSet, role: 'COLLABORATOR', username })
-      .then(async (uid) => {
-        if (!uid) {
-          alert('Não foi possível criar o login. Verifique o email e tente novamente.');
-          return;
-        }
-        const basePalette = [
-          getCssVar('--pastel-rose', '#F4D9D2'),
-          getCssVar('--pastel-peach', '#F6E4D6'),
-          getCssVar('--pastel-green', '#E6EFE6'),
-          getCssVar('--chart-gold', '#B7A06A')
-        ];
-        const color = linkedCollab?.color || basePalette[Math.floor(Math.random() * basePalette.length)];
-        const collabObj = {
-          ...(linkedCollab || {}),
-          id: linkedCollab?.id || slugify(username || name),
-          userId: uid,
-          name,
-          username: username || email,
-          email,
-          role: 'Colaboradora',
-          roleKey: 'COLLABORATOR',
-          commission: linkedCollab?.commission || '40% serviços',
-          permissions: permissionSet,
-          color,
-          active: true,
-          limitedAccess: false,
-        };
-        const collabIndex = collaborators.findIndex(c => c.id === collabObj.id);
-        if (collabIndex >= 0) {
-          collaborators[collabIndex] = collabObj;
-        } else {
-          collaborators.push(collabObj);
-        }
-        await persistCollaborator(collabObj);
-
-        const accountPayload = { name: collabObj.name, username: collabObj.username || collabObj.email, password, permissions: permissionSet, device: 'Tablet dedicado', id: collabObj.id, userId: uid, role: 'COLAB_LIMITED', email };
-        const accIndex = collaboratorAccounts.findIndex(acc => acc.id === accountPayload.id || acc.userId === uid || acc.email === email);
-        if (accIndex >= 0) {
-          collaboratorAccounts[accIndex] = { ...collaboratorAccounts[accIndex], ...accountPayload };
-        } else {
-          collaboratorAccounts.push(accountPayload);
-        }
-        await persistCollaboratorAccount(accountPayload);
-        renderCollaborators();
-        closeDialog('login-dedicated-modal');
-        alert(`Login criado com sucesso para ${collabObj.name}.`);
-      })
-      .catch((err) => {
-        if (err?.code === 'auth/email-already-in-use') {
-          alert('Este email já possui um login ativo. Utilize outro ou redefina a senha.');
-          return;
-        }
-        alert('Não foi possível criar o login. Tente novamente.');
-      });
-
-    document.getElementById('new-colab-name').value = '';
-    document.getElementById('new-colab-username').value = '';
-    document.getElementById('new-colab-password').value = '';
-    document.getElementById('new-colab-permissions').value = '';
-    document.getElementById('new-colab-email').value = '';
-    if (document.getElementById('dedicated-collab-select')) document.getElementById('dedicated-collab-select').value = '';
-  }
-
-  function openDedicatedLoginModal(name = '') {
-    const select = document.getElementById('dedicated-collab-select');
-    if (select) {
-      select.innerHTML = '<option value="">Selecione uma colaboradora</option>';
-      collaborators.forEach(col => {
-        const opt = document.createElement('option');
-        opt.value = col.id;
-        opt.textContent = col.email ? `${col.name} • ${col.email}` : col.name;
-        select.appendChild(opt);
-      });
-    }
-    document.getElementById('new-colab-name').value = name || '';
-    document.getElementById('new-colab-username').value = name ? name.toLowerCase() : '';
-    document.getElementById('new-colab-email').value = '';
-    document.getElementById('new-colab-password').value = '';
-    document.getElementById('new-colab-permissions').value = '';
-    openDialog('login-dedicated-modal');
-  }
-
   function openCollabAddModal() {
     document.getElementById('add-collab-name').value = '';
     document.getElementById('add-collab-role').value = 'Colaboradora';
@@ -6646,7 +6492,8 @@
     const password = document.getElementById('add-collab-password').value.trim();
     const permAgenda = document.getElementById('add-collab-perm-agenda').checked;
     const permComissao = document.getElementById('add-collab-perm-comissao').checked;
-    if (!name || !email || !password) {
+    const initialPassword = password || Math.random().toString(36).slice(-10);
+    if (!name || !email) {
       alert('Preencha nome, email e senha para criar a colaboradora.');
       return;
     }
@@ -6658,40 +6505,45 @@
     ];
     const color = palette[Math.floor(Math.random() * palette.length)];
     const permissionSet = defaultCollaboratorPermissions({ agenda: true, comissoes: permComissao });
-    const collaboratorDoc = {
-      name,
-      role: 'COLLABORATOR',
-      commission,
-      permissions: permissionSet,
-      username,
-      email,
-      status: 'active',
-      createdBy: currentUserDoc?.id || 'ceo',
-      createdAt: new Date().toISOString(),
-    };
-
+    let createdUserId = null;
     try {
       initFirebaseApp();
-      let colId = await provisionCollaboratorAuth({ name, email, password, permissions: permissionSet, role: 'COLLABORATOR', username });
-      const collabObj = { id: colId || slugify(username || email), userId: colId || undefined, name, role: 'Colaboradora', roleKey: 'COLLABORATOR', commission, permissions: permissionSet, username, color, active: true, email };
-      if (!colId) {
-        collabObj.limitedAccess = true;
-      }
+      const colId = await provisionCollaboratorAuth({ name, email, password: initialPassword, permissions: permissionSet, role: 'COLLABORATOR', username });
+      if (!colId) throw new Error('auth-failed');
+      createdUserId = colId;
+      const collabObj = {
+        id: colId,
+        userId: colId,
+        name,
+        role: role || 'Colaboradora',
+        roleKey: 'COLLABORATOR',
+        commission,
+        permissions: permissionSet,
+        username: username || email,
+        color,
+        active: true,
+        email,
+        createdBy: currentUserDoc?.id || 'ceo',
+        createdAt: new Date().toISOString(),
+      };
+      const accPayload = { name: collabObj.name, username: collabObj.username, password: initialPassword, permissions: permissionSet, device: 'Tablet dedicado', email, id: colId, userId: colId, role: 'COLLABORATOR', active: true };
       collaborators.push(collabObj);
-      await persistCollaborator(collabObj);
-      collaboratorAccounts.push({ name, username: username || email, password, permissions: permissionSet, device: 'Tablet dedicado', email, id: colId || collabObj.id, userId: colId || collabObj.id, role: 'COLLABORATOR' });
-      await persistCollaboratorAccount({ name, username: username || email, password, permissions: permissionSet, device: 'Tablet dedicado', email, id: colId || collabObj.id, userId: colId || collabObj.id, role: 'COLLABORATOR' });
+      collaboratorAccounts.push(accPayload);
+      await Promise.all([
+        persistCollaborator(collabObj),
+        persistCollaboratorAccount(accPayload)
+      ]);
     } catch (err) {
-      if (err?.code === 'auth/email-already-in-use') {
-        alert('Este email já está em uso. Use outro ou redefina a senha.');
-        return;
+      console.warn('Falha ao criar colaboradora', err);
+      if (createdUserId) {
+        const auth = ensureSecondaryAuth();
+        if (auth && auth.currentUser?.uid === createdUserId) {
+          await auth.currentUser.delete().catch(() => {});
+          await auth.signOut().catch(() => {});
+        }
       }
-      const fallbackId = `colab-${Date.now()}`;
-      const collabObj = { id: fallbackId, name, role: 'Colaboradora', roleKey: 'COLLABORATOR', commission, permissions: permissionSet, username, color, active: true, email, limitedAccess: true };
-      collaborators.push(collabObj);
-      collaboratorAccounts.push({ name, username: username || email, password, permissions: permissionSet, device: 'Tablet dedicado', email, id: fallbackId, userId: fallbackId, role: 'COLLABORATOR' });
-      await persistCollaborator(collabObj);
-      await persistCollaboratorAccount({ name, username: username || email, password, permissions: permissionSet, device: 'Tablet dedicado', email, id: fallbackId, userId: fallbackId, role: 'COLLABORATOR' });
+      alert('Não foi possível criar a colaboradora. Confira email, senha e tente novamente.');
+      return;
     }
 
     renderCollaborators();
@@ -6703,7 +6555,10 @@
     const col = collaborators[index];
     document.getElementById('edit-collab-name').value = col.name;
     document.getElementById('edit-collab-role').value = col.role;
+    document.getElementById('edit-collab-status').value = col.active === false ? 'inactive' : 'active';
     document.getElementById('edit-collab-login').value = col.username || '';
+    const pwdField = document.getElementById('edit-collab-password');
+    if (pwdField) pwdField.value = '';
     const permObj = typeof col.permissions === 'string'
       ? {
           agenda: col.permissions.toLowerCase().includes('agenda'),
@@ -6717,24 +6572,46 @@
     openDialog('edit-collab-modal');
   }
 
-  function saveCollaboratorProfile() {
+  async function saveCollaboratorProfile() {
     if (currentEditingCollabIndex === null) return;
     const name = document.getElementById('edit-collab-name').value.trim();
     const role = document.getElementById('edit-collab-role').value.trim();
     const username = document.getElementById('edit-collab-login').value.trim();
+    const status = document.getElementById('edit-collab-status').value;
+    const newPassword = document.getElementById('edit-collab-password').value.trim();
     const permissionSet = {
       agenda: document.getElementById('perm-agenda').checked,
       estoque: document.getElementById('perm-estoque').checked,
       comissoes: document.getElementById('perm-comissao').checked,
+      financeiro: false,
+      configuracoes: false,
+      admin: false,
     };
-    const updated = { ...collaborators[currentEditingCollabIndex], name: name || collaborators[currentEditingCollabIndex].name, role: role || 'Colaboradora', username, permissions: permissionSet };
+    const base = collaborators[currentEditingCollabIndex];
+    const updated = { ...base, name: name || base.name, role: role || 'Colaboradora', username, permissions: permissionSet, active: status !== 'inactive' };
     collaborators[currentEditingCollabIndex] = updated;
-    const accountIdx = collaboratorAccounts.findIndex(acc => acc.name === updated.name || acc.username === updated.username);
+    const accountIdx = collaboratorAccounts.findIndex(acc => acc.userId === updated.userId || acc.id === updated.id);
     if (accountIdx >= 0) {
-      collaboratorAccounts[accountIdx] = { ...collaboratorAccounts[accountIdx], name: updated.name, username: updated.username, permissions: permissionSet };
+      collaboratorAccounts[accountIdx] = { ...collaboratorAccounts[accountIdx], name: updated.name, username: updated.username, permissions: permissionSet, active: updated.active };
       persistCollaboratorAccount(collaboratorAccounts[accountIdx]);
     }
-    persistCollaborator(updated);
+    await persistCollaborator(updated);
+    if (newPassword && updated.email && updated.userId) {
+      try {
+        const auth = ensureSecondaryAuth();
+        if (auth) {
+          await auth.signInWithEmailAndPassword(updated.email, newPassword).catch(() => null);
+          if (auth.currentUser && auth.currentUser.uid === updated.userId) {
+            await auth.currentUser.updatePassword(newPassword);
+            await auth.signOut().catch(() => {});
+          } else {
+            await auth.sendPasswordResetEmail(updated.email);
+          }
+        }
+      } catch (err) {
+        console.warn('Falha ao redefinir senha da colaboradora', err);
+      }
+    }
     renderCollaborators();
     closeDialog('edit-collab-modal');
   }
@@ -10773,9 +10650,9 @@
           <button class="ghost-btn secondary" onclick="openEditCollab(${index})" title="Editar">✏️</button>
           <button class="ghost-btn" onclick="openCommissionModal(${index})" title="Comissão">💰</button>
           <button class="ghost-btn secondary" onclick="openCollabStatusModal(${index})" title="Ativar/Desativar ou remover">⚙️</button>
-          ${col.username ? `<button class="ghost-btn" onclick="openCollaboratorLogin('${col.username}')" title="Login dedicado">🔑</button>` : `<button class="ghost-btn" onclick="openDedicatedLoginModal('${col.name}')">🔑 Criar login</button>`}
         </div>
       `;
+      row.addEventListener('dblclick', () => openEditCollab(index));
       container.appendChild(row);
     });
   }
