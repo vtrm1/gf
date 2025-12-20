@@ -4393,14 +4393,14 @@
           <label>Descrição</label>
           <input id="fixed-cost-desc" placeholder="Ex.: Aluguel" />
         </div>
-        <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+        <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;align-items:center;">
           <div>
             <label>Valor</label>
             <input id="fixed-cost-amount" type="number" step="0.01" min="0" placeholder="0,00" />
           </div>
-          <div>
-            <label>Referência (mês)</label>
-            <input id="fixed-cost-month" type="month" />
+          <div style="display:flex;align-items:center;gap:0.5rem;">
+            <input id="fixed-cost-active" type="checkbox" checked aria-label="Custo recorrente ativo" />
+            <label for="fixed-cost-active" style="margin:0;">Recorrente ativo</label>
           </div>
         </div>
         <div class="dialog-actions" style="justify-content:flex-end;">
@@ -4413,7 +4413,7 @@
     <div id="finance-fixed-remove-modal" class="dialog-layer hidden">
       <div class="dialog-card" style="max-width:420px;">
         <h3>Remover custo fixo</h3>
-        <p class="subtext">Essa despesa recorrente será removida do mês selecionado.</p>
+        <p class="subtext">Essa despesa recorrente será removida da lista de custos fixos.</p>
         <div class="dialog-actions" style="justify-content:space-between;">
           <button class="secondary" onclick="closeDialog('finance-fixed-remove-modal'); pendingRemoveFixedCostId = null;">Cancelar</button>
           <button class="danger" onclick="confirmRemoveFixedCost()">Confirmar</button>
@@ -8300,9 +8300,11 @@
     const alertEl = document.getElementById('dashboard-stock-alerts');
     const alertDesc = document.getElementById('dashboard-stock-alerts-desc');
     const targetLabel = target ? `${monthNamesFull[target.monthIndex]} ${target.year}` : '—';
-    const filteredFin = selectedGlobalMonthKey === 'all'
-      ? financialEntries
-      : financialEntries.filter(e => matchesTargetMonth(e.date, target));
+    const filteredFin = financialEntries.filter(e => {
+      if (e.isFixed) return e.isActive !== false;
+      if (selectedGlobalMonthKey === 'all') return true;
+      return matchesTargetMonth(e.date, target);
+    });
     const revenue = filteredFin.filter(f => f.type === 'receita').reduce((acc, cur) => acc + (cur.amount || 0), 0);
     const commission = filteredFin.filter(f => f.type === 'comissao').reduce((acc, cur) => acc + (cur.amount || 0), 0);
     const historyEntries = Object.values(stockHistories).flat();
@@ -8431,14 +8433,21 @@
     const dedupedFinancial = [];
     const seenFinKeys = new Set();
     financialEntries.forEach(fin => {
-      const key = fin.id || `${(fin.description || fin.descricao || '').toLowerCase()}-${monthKeyFromDate(fin.date) || 'nomonth'}-${fin.type || ''}-${fin.amount || 0}`;
+      const descKey = slugify(fin.description || fin.descricao || '');
+      const key = fin.isFixed
+        ? `fixed-${descKey || fin.id || ''}`
+        : (fin.id || `${(fin.description || fin.descricao || '').toLowerCase()}-${monthKeyFromDate(fin.date) || 'nomonth'}-${fin.type || ''}-${fin.amount || 0}`);
       if (!seenFinKeys.has(key)) {
         seenFinKeys.add(key);
         dedupedFinancial.push(fin);
       }
     });
 
-    const filtered = selectedGlobalMonthKey === 'all' ? dedupedFinancial : dedupedFinancial.filter(e => matchesTargetMonth(e.date, target));
+    const filtered = dedupedFinancial.filter(e => {
+      if (e.isFixed) return e.isActive !== false;
+      if (selectedGlobalMonthKey === 'all') return true;
+      return matchesTargetMonth(e.date, target);
+    });
     const revenues = filtered.filter(f => f.type === 'receita');
     const baseExpenses = filtered.filter(f => f.type === 'despesa');
     const stockExpenses = deriveStockCostEntries(target);
@@ -8600,11 +8609,11 @@
       const totalCosts = fixedEntries.reduce((acc, cur) => acc + (cur.amount || 0), 0) || 1;
       const sortedFixed = fixedEntries
         .slice()
-        .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+        .sort((a, b) => (b.createdAt || b.date || '').localeCompare(a.createdAt || a.date || ''));
 
       sortedFixed.forEach(entry => {
         const pct = Math.round(((entry.amount || 0) / totalCosts) * 100);
-        const monthLabel = formatMonthRef(monthKeyFromDate(entry.date)) || 'Mês';
+        const monthLabel = entry.isFixed ? 'Recorrente' : (formatMonthRef(monthKeyFromDate(entry.date)) || 'Mês');
         const row = document.createElement('div');
         row.className = 'finance-fixed-mini-item';
         row.innerHTML = `
@@ -8727,10 +8736,9 @@
 
   function openFixedCostModal(id = null) {
     const target = getDashboardFilterTarget();
-    const monthStr = `${target.year}-${String((target.monthIndex || 0) + 1).padStart(2, '0')}`;
     const desc = document.getElementById('fixed-cost-desc');
     const val = document.getElementById('fixed-cost-amount');
-    const month = document.getElementById('fixed-cost-month');
+    const active = document.getElementById('fixed-cost-active');
     const modal = document.getElementById('finance-fixed-modal');
     const entry = id ? financialEntries.find(fin => fin.id === id) : null;
     editingFixedCostId = id;
@@ -8739,7 +8747,7 @@
     }
     if (desc) desc.value = entry?.description || '';
     if (val) val.value = entry?.amount != null ? entry.amount : '';
-    if (month) month.value = entry?.date ? monthKeyFromDate(entry.date) : monthStr;
+    if (active) active.checked = entry?.isActive !== false;
     openDialog('finance-fixed-modal');
   }
 
@@ -8752,10 +8760,10 @@
     initFirebaseApp();
     const desc = document.getElementById('fixed-cost-desc')?.value?.trim() || 'Custo fixo';
     const valStr = (document.getElementById('fixed-cost-amount')?.value || '0').toString().replace(',', '.');
-    const month = document.getElementById('fixed-cost-month')?.value;
+    const isActive = document.getElementById('fixed-cost-active')?.checked !== false;
     const amount = Number(valStr);
     if (!amount || amount <= 0) return;
-    const date = month ? `${month}-15T12:00:00` : new Date().toISOString();
+    const date = new Date().toISOString();
 
     const payload = {
       type: 'despesa',
@@ -8764,6 +8772,7 @@
       category: 'Custo fixo',
       date,
       isFixed: true,
+      isActive,
       createdAt: new Date().toISOString()
     };
 
@@ -8772,15 +8781,12 @@
 
     const applyLocal = (entry) => {
       const idx = financialEntries.findIndex(fin => fin.id === entry.id);
+      const normalized = slugify(entry.description || entry.descricao || 'custo');
+      const dupeIdx = financialEntries.findIndex(fin => fin.isFixed && slugify(fin.description || fin.descricao || 'custo') === normalized);
       if (idx >= 0) {
-        financialEntries[idx] = entry;
+        financialEntries[idx] = { ...financialEntries[idx], ...entry };
         return;
       }
-
-      const monthKey = monthKeyFromDate(entry.date);
-      const dupeIdx = financialEntries.findIndex(fin => fin.isFixed &&
-        (fin.description || '').toLowerCase() === (entry.description || '').toLowerCase() &&
-        monthKeyFromDate(fin.date) === monthKey);
       if (dupeIdx >= 0) {
         financialEntries[dupeIdx] = { ...financialEntries[dupeIdx], ...entry };
       } else {
