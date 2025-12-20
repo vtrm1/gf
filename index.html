@@ -4410,6 +4410,17 @@
       </div>
     </div>
 
+    <div id="finance-fixed-remove-modal" class="dialog-layer hidden">
+      <div class="dialog-card" style="max-width:420px;">
+        <h3>Remover custo fixo</h3>
+        <p class="subtext">Essa despesa recorrente será removida do mês selecionado.</p>
+        <div class="dialog-actions" style="justify-content:space-between;">
+          <button class="secondary" onclick="closeDialog('finance-fixed-remove-modal'); pendingRemoveFixedCostId = null;">Cancelar</button>
+          <button class="danger" onclick="confirmRemoveFixedCost()">Confirmar</button>
+        </div>
+      </div>
+    </div>
+
       <section id="page-ceo-investments" class="page-ceo hidden">
       <div class="card investment-controls">
         <div class="control-actions" style="justify-content: space-between; gap:1rem;">
@@ -5821,6 +5832,7 @@
   const financialEntries = [];
   let editingFixedCostId = null;
   let stockItemsExpanded = false;
+  let pendingRemoveFixedCostId = null;
 
   let investments = [];
   const investmentHistoryStore = {};
@@ -8416,7 +8428,17 @@
     const salesConsumeQty = document.getElementById('finance-sales-consume-qty');
     const salesConsumeVal = document.getElementById('finance-sales-consume-val');
     const target = getDashboardFilterTarget();
-    const filtered = selectedGlobalMonthKey === 'all' ? financialEntries : financialEntries.filter(e => matchesTargetMonth(e.date, target));
+    const dedupedFinancial = [];
+    const seenFinKeys = new Set();
+    financialEntries.forEach(fin => {
+      const key = fin.id || `${(fin.description || fin.descricao || '').toLowerCase()}-${monthKeyFromDate(fin.date) || 'nomonth'}-${fin.type || ''}-${fin.amount || 0}`;
+      if (!seenFinKeys.has(key)) {
+        seenFinKeys.add(key);
+        dedupedFinancial.push(fin);
+      }
+    });
+
+    const filtered = selectedGlobalMonthKey === 'all' ? dedupedFinancial : dedupedFinancial.filter(e => matchesTargetMonth(e.date, target));
     const revenues = filtered.filter(f => f.type === 'receita');
     const baseExpenses = filtered.filter(f => f.type === 'despesa');
     const stockExpenses = deriveStockCostEntries(target);
@@ -8594,7 +8616,7 @@
             <div class="finance-fixed-bar" aria-hidden="true"><span style="width:${pct}%"></span></div>
             <span class="value">${formatCurrency(entry.amount || 0)}</span>
             <button class="ghost-btn secondary icon-mini" aria-label="Editar custo fixo" onclick="openFixedCostModal('${entry.id}')">✎</button>
-            <button class="ghost-btn danger icon-mini" aria-label="Remover custo fixo" onclick="removeFixedCost('${entry.id}')">🗑</button>
+            <button class="ghost-btn danger icon-mini" aria-label="Remover custo fixo" onclick="openRemoveFixedCostModal('${entry.id}')">🗑</button>
           </div>
         `;
         fixedList.appendChild(row);
@@ -8721,6 +8743,11 @@
     openDialog('finance-fixed-modal');
   }
 
+  function openRemoveFixedCostModal(id) {
+    pendingRemoveFixedCostId = id;
+    openDialog('finance-fixed-remove-modal');
+  }
+
   async function saveFixedCost() {
     initFirebaseApp();
     const desc = document.getElementById('fixed-cost-desc')?.value?.trim() || 'Custo fixo';
@@ -8743,10 +8770,27 @@
     const modal = document.getElementById('finance-fixed-modal');
     const editingId = editingFixedCostId || modal?.dataset?.editingId || null;
 
+    const applyLocal = (entry) => {
+      const idx = financialEntries.findIndex(fin => fin.id === entry.id);
+      if (idx >= 0) {
+        financialEntries[idx] = entry;
+        return;
+      }
+
+      const monthKey = monthKeyFromDate(entry.date);
+      const dupeIdx = financialEntries.findIndex(fin => fin.isFixed &&
+        (fin.description || '').toLowerCase() === (entry.description || '').toLowerCase() &&
+        monthKeyFromDate(fin.date) === monthKey);
+      if (dupeIdx >= 0) {
+        financialEntries[dupeIdx] = { ...financialEntries[dupeIdx], ...entry };
+      } else {
+        financialEntries.push(entry);
+      }
+    };
+
     if (editingId) {
-      const idx = financialEntries.findIndex(fin => fin.id === editingId);
-      const merged = idx >= 0 ? { ...financialEntries[idx], ...payload } : { id: editingId, ...payload };
-      if (idx >= 0) financialEntries[idx] = merged; else financialEntries.push(merged);
+      const merged = { id: editingId, ...payload };
+      applyLocal(merged);
       if (firestore && !editingId.startsWith('local-')) {
         try {
           await firestore.collection('financial').doc(editingId).set(merged, { merge: true });
@@ -8764,7 +8808,7 @@
           console.error('Falha ao salvar custo fixo', err);
         }
       }
-      financialEntries.push({ id: docId || `local-${Date.now()}`, ...payload });
+      applyLocal({ id: docId || `local-${Date.now()}`, ...payload });
     }
 
     editingFixedCostId = null;
@@ -8776,7 +8820,8 @@
     closeDialog('finance-fixed-modal');
   }
 
-  async function removeFixedCost(id) {
+  async function confirmRemoveFixedCost() {
+    const id = pendingRemoveFixedCostId;
     if (!id) return;
     const idx = financialEntries.findIndex(fin => fin.id === id);
     if (idx >= 0) financialEntries.splice(idx, 1);
@@ -8787,6 +8832,8 @@
         console.error('Erro ao excluir custo fixo', err);
       }
     }
+    pendingRemoveFixedCostId = null;
+    closeDialog('finance-fixed-remove-modal');
     renderFinance();
     renderDashboardCards();
   }
