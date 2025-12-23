@@ -1617,18 +1617,20 @@
     .filter-label { font-weight: 600; color: var(--text-main); display: block; margin-top: 0.15rem; }
     .month-dropdown { padding: 0.45rem 0.6rem; border-radius: 10px; border: 1px solid var(--border-soft); background: #fffbf4; min-width: 160px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.04); }
     .control-actions { display: flex; justify-content: space-between; align-items: center; gap: 0.65rem; flex-wrap: wrap; }
-    .investment-tabs { display: inline-flex; gap: 0.35rem; background: #fff; padding: 0.25rem 0.3rem; border-radius: 14px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.04); flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .investment-tab { border: none; box-shadow: none; padding: 0.4rem 0.6rem; font-weight: 700; font-size: 0.85rem; border-radius: 12px; color: #374151; background: #f3f4f6; transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease; min-width: 120px; text-align: center; white-space: nowrap; flex-shrink: 0; }
+    .investment-tabs { display: inline-flex; gap: 0.3rem; background: #fff; padding: 0.2rem 0.25rem; border-radius: 14px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.04); flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+    .investment-tabs::-webkit-scrollbar { height: 6px; }
+    .investment-tabs::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 999px; }
+    .investment-tab { border: none; box-shadow: none; padding: 0.35rem 0.5rem; font-weight: 700; font-size: 0.82rem; border-radius: 12px; color: #374151; background: #f8fafc; transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease; min-width: 105px; text-align: center; white-space: nowrap; flex-shrink: 0; }
     .investment-tab:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(0,0,0,0.08); }
     .investment-tab.active { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,0.1); color: #0f172a; border: 1px solid rgba(0,0,0,0.05); }
     .investment-tab.all { background: linear-gradient(135deg, #f8fafc, #eef2ff); color: #475569; }
     .investment-tab.plan { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #1d4ed8; }
-    .investment-tab.progress { background: linear-gradient(135deg, #fef9c3, #f5e6b3); color: #92400e; }
-    .investment-tab.paid { background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #166534; }
-    .investment-tab.active.all { background: linear-gradient(135deg, #e5e7eb, #e2e8f0); color: #1f2937; box-shadow: 0 12px 24px rgba(148, 163, 184, 0.25); }
+    .investment-tab.progress { background: linear-gradient(135deg, #fff7ed, #fde7c7); color: #9a3412; }
+    .investment-tab.paid { background: linear-gradient(135deg, #e7f7ed, #c6f6d5); color: #166534; }
+    .investment-tab.active.all { background: linear-gradient(135deg, #e5e7eb, #e2e8f0); color: #111827; box-shadow: 0 12px 24px rgba(148, 163, 184, 0.25); }
     .investment-tab.active.plan { background: linear-gradient(135deg, #bfdbfe, #60a5fa); color: #0f172a; box-shadow: 0 12px 24px rgba(96, 165, 250, 0.25); }
-    .investment-tab.active.progress { background: linear-gradient(135deg, #fde68a, #f59e0b); color: #7c2d12; box-shadow: 0 12px 24px rgba(245, 158, 11, 0.25); }
-    .investment-tab.active.paid { background: linear-gradient(135deg, #86efac, #34d399); color: #14532d; box-shadow: 0 12px 24px rgba(52, 211, 153, 0.25); }
+    .investment-tab.active.progress { background: linear-gradient(135deg, #fcd34d, #f59e0b); color: #7c2d12; box-shadow: 0 12px 24px rgba(245, 158, 11, 0.25); }
+    .investment-tab.active.paid { background: linear-gradient(135deg, #4ade80, #22c55e); color: #064e3b; box-shadow: 0 12px 24px rgba(34, 197, 94, 0.25); }
     .investment-groups { display: flex; flex-direction: column; gap: 0.75rem; }
     .investment-card { border: 1px solid var(--border-soft); border-radius: 14px; padding: 0.9rem 1rem; background: linear-gradient(180deg,#fffefb,#ffffff); box-shadow: 0 8px 16px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 0.55rem; }
     .investment-card-head { display: flex; justify-content: space-between; gap: 0.6rem; align-items: flex-start; }
@@ -1667,7 +1669,7 @@
       .investment-card-actions:not(.compact) { display: none; }
       .investment-card.expanded .investment-card-actions:not(.compact) { display: flex; }
       .investment-tabs { width: 100%; justify-content: flex-start; }
-      .investment-tab { flex: 0 0 auto; padding: 0.35rem 0.5rem; min-width: 110px; }
+      .investment-tab { flex: 0 0 auto; padding: 0.32rem 0.45rem; min-width: 100px; }
     }
 
     .calendar-year {
