@@ -1617,18 +1617,18 @@
     .filter-label { font-weight: 600; color: var(--text-main); display: block; margin-top: 0.15rem; }
     .month-dropdown { padding: 0.45rem 0.6rem; border-radius: 10px; border: 1px solid var(--border-soft); background: #fffbf4; min-width: 160px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.04); }
     .control-actions { display: flex; justify-content: space-between; align-items: center; gap: 0.65rem; flex-wrap: wrap; }
-    .investment-tabs { display: inline-flex; gap: 0.35rem; background: #fff; padding: 0.25rem 0.3rem; border-radius: 14px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.04); }
-    .investment-tab { border: none; box-shadow: none; padding: 0.45rem 0.8rem; font-weight: 700; font-size: 0.9rem; border-radius: 12px; color: #374151; background: #f3f4f6; transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease; }
+    .investment-tabs { display: inline-flex; gap: 0.35rem; background: #fff; padding: 0.25rem 0.3rem; border-radius: 14px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.04); flex-wrap: wrap; }
+    .investment-tab { border: none; box-shadow: none; padding: 0.45rem 0.8rem; font-weight: 700; font-size: 0.9rem; border-radius: 12px; color: #374151; background: #f3f4f6; transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease; min-width: 140px; text-align: center; }
     .investment-tab:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(0,0,0,0.08); }
-    .investment-tab.active { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,0.1); color: #0f172a; }
+    .investment-tab.active { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,0.1); color: #0f172a; border: 1px solid rgba(0,0,0,0.05); }
     .investment-tab.all { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #854d0e; }
     .investment-tab.plan { background: linear-gradient(135deg, #e0f2fe, #bfdbfe); color: #1d4ed8; }
     .investment-tab.progress { background: linear-gradient(135deg, #ecfdf3, #bbf7d0); color: #166534; }
     .investment-tab.paid { background: linear-gradient(135deg, #f3e8ff, #e9d5ff); color: #6b21a8; }
-    .investment-tab.active.all { background: linear-gradient(135deg, #fde68a, #fbbf24); color: #7c2d12; }
-    .investment-tab.active.plan { background: linear-gradient(135deg, #bfdbfe, #60a5fa); color: #1e3a8a; }
-    .investment-tab.active.progress { background: linear-gradient(135deg, #bbf7d0, #4ade80); color: #14532d; }
-    .investment-tab.active.paid { background: linear-gradient(135deg, #e9d5ff, #c084fc); color: #581c87; }
+    .investment-tab.active.all { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #7c2d12; box-shadow: 0 12px 24px rgba(251, 191, 36, 0.25); }
+    .investment-tab.active.plan { background: linear-gradient(135deg, #93c5fd, #60a5fa); color: #1e3a8a; box-shadow: 0 12px 24px rgba(96, 165, 250, 0.25); }
+    .investment-tab.active.progress { background: linear-gradient(135deg, #86efac, #4ade80); color: #14532d; box-shadow: 0 12px 24px rgba(74, 222, 128, 0.25); }
+    .investment-tab.active.paid { background: linear-gradient(135deg, #c084fc, #a855f7); color: #581c87; box-shadow: 0 12px 24px rgba(160, 85, 247, 0.25); }
     .investment-groups { display: flex; flex-direction: column; gap: 0.75rem; }
     .investment-card { border: 1px solid var(--border-soft); border-radius: 14px; padding: 0.9rem 1rem; background: linear-gradient(180deg,#fffefb,#ffffff); box-shadow: 0 8px 16px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 0.55rem; }
     .investment-card-head { display: flex; justify-content: space-between; gap: 0.6rem; align-items: flex-start; }
@@ -1666,6 +1666,8 @@
       .investment-card-actions { width: 100%; }
       .investment-card-actions:not(.compact) { display: none; }
       .investment-card.expanded .investment-card-actions:not(.compact) { display: flex; }
+      .investment-tabs { width: 100%; justify-content: space-between; }
+      .investment-tab { flex: 1 1 calc(50% - 0.2rem); padding: 0.4rem 0.35rem; min-width: 0; }
     }
 
     .calendar-year {
@@ -11063,6 +11065,18 @@
     return { ...inv, status, parcelaAtual: Math.min(paidCount, total), payments };
   }
 
+  function getInvestmentDisplayStatus(inv, target) {
+    const payments = inv.payments || [];
+    const paidThisMonth = target ? payments.some(p => p.year === target.year && p.monthIndex === target.monthIndex) : false;
+    if (paidThisMonth) return 'Pago';
+    const total = inv.parcelasTotais || 1;
+    if (inv.parcelado && total > 1) {
+      if (payments.length >= total) return 'Pago';
+      if (payments.length > 0) return 'Em andamento';
+    }
+    return inv.status || 'Planejado';
+  }
+
   function normalizeInvestments() {
     investments = investments.map(inv => {
       const created = inv.createdAt || new Date().toISOString();
@@ -11181,9 +11195,11 @@
     investments = investments.map(syncInvestmentStatus);
     container.innerHTML = '';
 
-    const target = getInvestmentFilterTarget();
-    const visibleByMonth = target ? investments.filter(inv => isInvestmentActiveInMonth(inv, target)) : investments;
-    const filtered = investmentFilter === 'Todos' ? visibleByMonth : visibleByMonth.filter(inv => inv.status === investmentFilter);
+    const monthTarget = getInvestmentFilterTarget();
+    const target = monthTarget || getDashboardFilterTarget();
+    const visibleByMonth = monthTarget ? investments.filter(inv => isInvestmentActiveInMonth(inv, monthTarget)) : investments;
+    const mapped = visibleByMonth.map(inv => ({ inv, displayStatus: getInvestmentDisplayStatus(inv, target) }));
+    const filtered = investmentFilter === 'Todos' ? mapped : mapped.filter(entry => entry.displayStatus === investmentFilter);
 
     if (!filtered.length) {
       container.innerHTML = '<div class="subtext">Nenhum investimento para este filtro.</div>';
@@ -11191,22 +11207,18 @@
     }
 
     const sorted = filtered.slice().sort((a, b) => {
-      const aRef = parseMonthRef(a.mesReferencia) || { year: 0, monthIndex: 0 };
-      const bRef = parseMonthRef(b.mesReferencia) || { year: 0, monthIndex: 0 };
+      const aRef = parseMonthRef(a.inv.mesReferencia) || { year: 0, monthIndex: 0 };
+      const bRef = parseMonthRef(b.inv.mesReferencia) || { year: 0, monthIndex: 0 };
       return (aRef.year - bRef.year) || (aRef.monthIndex - bRef.monthIndex);
     });
 
-    sorted.forEach(item => {
+    sorted.forEach(entry => {
+      const item = entry.inv;
+      const displayStatus = entry.displayStatus;
       const currentTarget = target || parseMonthRef(item.mesReferencia) || getDashboardFilterTarget();
       const parcelLabel = getInvestmentParcelLabel(item, currentTarget);
       const amountLabel = formatCurrency(getInvestmentMonthlyValue(item));
       const totalLabel = formatCurrency(item.valorTotal || item.amount || 0);
-      const displayStatus = (() => {
-        const activeParcel = getActiveParcelNumber(item, currentTarget);
-        const total = item.parcelasTotais || 1;
-        if (activeParcel && activeParcel >= total) return 'Pago';
-        return item.status;
-      })();
       const card = document.createElement('div');
       card.className = 'investment-card';
       card.dataset.id = item.id;
@@ -11230,7 +11242,7 @@
             </div>
             <div class="investment-meta-line">
               <span>Valor da parcela: <strong>${amountLabel}</strong></span>
-              <span>Status: <strong>${item.status}</strong></span>
+              <span>Status: <strong>${displayStatus}</strong></span>
             </div>
             <div class="investment-meta-line" style="align-items:center; gap:0.5rem;">
               <span class="text-sm text-slate-500">Mover status:</span>
