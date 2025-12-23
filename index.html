@@ -1617,20 +1617,19 @@
     .filter-label { font-weight: 600; color: var(--text-main); display: block; margin-top: 0.15rem; }
     .month-dropdown { padding: 0.45rem 0.6rem; border-radius: 10px; border: 1px solid var(--border-soft); background: #fffbf4; min-width: 160px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.04); }
     .control-actions { display: flex; justify-content: space-between; align-items: center; gap: 0.65rem; flex-wrap: wrap; }
-    .investment-tabs { display: inline-flex; gap: 0.3rem; background: #fff; padding: 0.2rem 0.25rem; border-radius: 14px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.04); flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
-    .investment-tabs::-webkit-scrollbar { height: 6px; }
-    .investment-tabs::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 999px; }
-    .investment-tab { border: none; box-shadow: none; padding: 0.35rem 0.5rem; font-weight: 700; font-size: 0.82rem; border-radius: 12px; color: #374151; background: #f8fafc; transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease; min-width: 105px; text-align: center; white-space: nowrap; flex-shrink: 0; }
+    .investment-tabs { display: inline-flex; gap: 0.4rem; background: #fff; padding: 0.25rem 0.3rem; border-radius: 14px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.04); flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; scrollbar-width: none; }
+    .investment-tabs::-webkit-scrollbar { display: none; }
+    .investment-tab { border: 1px solid rgba(0,0,0,0.05); box-shadow: none; padding: 0.35rem 0.65rem; font-weight: 700; font-size: 0.82rem; border-radius: 999px; color: #374151; background: #f8fafc; transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease, color 0.2s ease; min-width: 110px; text-align: center; white-space: nowrap; flex-shrink: 0; }
     .investment-tab:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(0,0,0,0.08); }
     .investment-tab.active { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,0.1); color: #0f172a; border: 1px solid rgba(0,0,0,0.05); }
-    .investment-tab.all { background: linear-gradient(135deg, #f8fafc, #eef2ff); color: #475569; }
-    .investment-tab.plan { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #1d4ed8; }
-    .investment-tab.progress { background: linear-gradient(135deg, #fff7ed, #fde7c7); color: #9a3412; }
-    .investment-tab.paid { background: linear-gradient(135deg, #e7f7ed, #c6f6d5); color: #166534; }
-    .investment-tab.active.all { background: linear-gradient(135deg, #e5e7eb, #e2e8f0); color: #111827; box-shadow: 0 12px 24px rgba(148, 163, 184, 0.25); }
-    .investment-tab.active.plan { background: linear-gradient(135deg, #bfdbfe, #60a5fa); color: #0f172a; box-shadow: 0 12px 24px rgba(96, 165, 250, 0.25); }
-    .investment-tab.active.progress { background: linear-gradient(135deg, #fcd34d, #f59e0b); color: #7c2d12; box-shadow: 0 12px 24px rgba(245, 158, 11, 0.25); }
-    .investment-tab.active.paid { background: linear-gradient(135deg, #4ade80, #22c55e); color: #064e3b; box-shadow: 0 12px 24px rgba(34, 197, 94, 0.25); }
+    .investment-tab.all { background: #f5f3ee; color: #4b5563; border-color: #e7e2d7; }
+    .investment-tab.plan { background: #e9f8ee; color: #166534; border-color: #b6e6c5; }
+    .investment-tab.progress { background: #fdf3d7; color: #92400e; border-color: #f2dd9c; }
+    .investment-tab.paid { background: #d9f2e3; color: #0f5132; border-color: #a9dfbd; }
+    .investment-tab.active.all { background: #cbbf97; color: #ffffff; border-color: #b7a46f; box-shadow: 0 10px 22px rgba(183, 164, 111, 0.28); }
+    .investment-tab.active.plan { background: #16a34a; color: #ffffff; border-color: #0f7a38; box-shadow: 0 10px 22px rgba(22, 163, 74, 0.28); }
+    .investment-tab.active.progress { background: #d97706; color: #ffffff; border-color: #b45309; box-shadow: 0 10px 22px rgba(217, 119, 6, 0.28); }
+    .investment-tab.active.paid { background: #15803d; color: #ffffff; border-color: #0f5132; box-shadow: 0 10px 22px rgba(21, 128, 61, 0.28); }
     .investment-groups { display: flex; flex-direction: column; gap: 0.75rem; }
     .investment-card { border: 1px solid var(--border-soft); border-radius: 14px; padding: 0.9rem 1rem; background: linear-gradient(180deg,#fffefb,#ffffff); box-shadow: 0 8px 16px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 0.55rem; }
     .investment-card-head { display: flex; justify-content: space-between; gap: 0.6rem; align-items: flex-start; }
@@ -1669,7 +1668,7 @@
       .investment-card-actions:not(.compact) { display: none; }
       .investment-card.expanded .investment-card-actions:not(.compact) { display: flex; }
       .investment-tabs { width: 100%; justify-content: flex-start; }
-      .investment-tab { flex: 0 0 auto; padding: 0.32rem 0.45rem; min-width: 100px; }
+      .investment-tab { flex: 0 0 auto; padding: 0.32rem 0.5rem; min-width: 105px; }
     }
 
     .calendar-year {
