@@ -1617,6 +1617,18 @@
     .filter-label { font-weight: 600; color: var(--text-main); display: block; margin-top: 0.15rem; }
     .month-dropdown { padding: 0.45rem 0.6rem; border-radius: 10px; border: 1px solid var(--border-soft); background: #fffbf4; min-width: 160px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.04); }
     .control-actions { display: flex; justify-content: space-between; align-items: center; gap: 0.65rem; flex-wrap: wrap; }
+    .investment-tabs { display: inline-flex; gap: 0.35rem; background: #fff; padding: 0.25rem 0.3rem; border-radius: 14px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.04); }
+    .investment-tab { border: none; box-shadow: none; padding: 0.45rem 0.8rem; font-weight: 700; font-size: 0.9rem; border-radius: 12px; color: #374151; background: #f3f4f6; transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease; }
+    .investment-tab:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(0,0,0,0.08); }
+    .investment-tab.active { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,0.1); color: #0f172a; }
+    .investment-tab.all { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #854d0e; }
+    .investment-tab.plan { background: linear-gradient(135deg, #e0f2fe, #bfdbfe); color: #1d4ed8; }
+    .investment-tab.progress { background: linear-gradient(135deg, #ecfdf3, #bbf7d0); color: #166534; }
+    .investment-tab.paid { background: linear-gradient(135deg, #f3e8ff, #e9d5ff); color: #6b21a8; }
+    .investment-tab.active.all { background: linear-gradient(135deg, #fde68a, #fbbf24); color: #7c2d12; }
+    .investment-tab.active.plan { background: linear-gradient(135deg, #bfdbfe, #60a5fa); color: #1e3a8a; }
+    .investment-tab.active.progress { background: linear-gradient(135deg, #bbf7d0, #4ade80); color: #14532d; }
+    .investment-tab.active.paid { background: linear-gradient(135deg, #e9d5ff, #c084fc); color: #581c87; }
     .investment-groups { display: flex; flex-direction: column; gap: 0.75rem; }
     .investment-card { border: 1px solid var(--border-soft); border-radius: 14px; padding: 0.9rem 1rem; background: linear-gradient(180deg,#fffefb,#ffffff); box-shadow: 0 8px 16px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 0.55rem; }
     .investment-card-head { display: flex; justify-content: space-between; gap: 0.6rem; align-items: flex-start; }
@@ -1632,6 +1644,7 @@
     .investment-card-actions.compact { justify-content: flex-start; padding: 0; }
     .investment-actions { display: inline-flex; gap: 0.3rem; flex-wrap: wrap; align-items: center; }
     .investment-actions button { height: 34px; }
+    .investment-status-select { padding: 0.35rem 0.6rem; border-radius: 10px; border: 1px solid var(--border-soft); background: #f8fafc; font-weight: 700; color: #475569; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
     .investment-note { color: var(--text-muted); font-size: 0.86rem; }
     .investment-history-list { display: flex; flex-direction: column; gap: 0.45rem; margin-top: 0.6rem; }
     .investment-history-item { padding: 0.55rem 0.65rem; border-radius: 12px; background: var(--bg-card); border: 1px solid var(--border-soft); box-shadow: 0 4px 12px rgba(0,0,0,0.04); display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
@@ -2829,12 +2842,12 @@
       align-items: center;
       justify-content: center;
       padding: 1rem;
-      z-index: 50;
+      z-index: 140;
     }
 
     /* dialogos que precisam ficar acima de overlays como a timeline */
     .dialog-layer.topmost {
-      z-index: 160;
+      z-index: 200;
     }
 
     .dialog-layer.hidden {
@@ -4541,11 +4554,11 @@
         <div class="control-actions" style="justify-content: space-between; gap:1rem;">
           <div>
             <div class="subtext">Filtrando pelo mês selecionado acima</div>
-            <div class="segmented compact">
-              <button id="invest-filter-all" class="active" onclick="setInvestmentFilter('Todos')">Todos</button>
-              <button id="invest-filter-plan" onclick="setInvestmentFilter('Planejado')">Planejado</button>
-              <button id="invest-filter-progress" onclick="setInvestmentFilter('Em andamento')">Em andamento</button>
-              <button id="invest-filter-paid" onclick="setInvestmentFilter('Pago')">Pago</button>
+            <div class="investment-tabs">
+              <button id="invest-filter-all" class="investment-tab all active" onclick="setInvestmentFilter('Todos')">Todos</button>
+              <button id="invest-filter-plan" class="investment-tab plan" onclick="setInvestmentFilter('Planejado')">Planejado</button>
+              <button id="invest-filter-progress" class="investment-tab progress" onclick="setInvestmentFilter('Em andamento')">Em andamento</button>
+              <button id="invest-filter-paid" class="investment-tab paid" onclick="setInvestmentFilter('Pago')">Pago</button>
             </div>
           </div>
           <button class="secondary" onclick="openInvestmentModal()">+ Adicionar investimento</button>
@@ -10774,7 +10787,7 @@
     return `${String(target.monthIndex + 1).padStart(2, '0')}/${target.year}`;
   }
 
-  function setInvestmentFilter(value) {
+  function setInvestmentFilter(value, silent = false) {
     investmentFilter = value;
     const ids = {
       Todos: 'invest-filter-all',
@@ -10786,7 +10799,7 @@
       const btn = document.getElementById(btnId);
       if (btn) btn.classList.toggle('active', value === status);
     });
-    renderInvestments();
+    if (!silent) renderInvestments();
   }
 
   function getInvestmentFilterTarget() {
@@ -11153,6 +11166,10 @@
       investments.push(merged);
     }
 
+    if (firestore) {
+      firestore.collection('investments').doc(id).set(merged, { merge: true }).catch(() => {});
+    }
+
     closeDialog('investment-modal');
     renderInvestments();
     renderDashboardCards();
@@ -11215,6 +11232,16 @@
               <span>Valor da parcela: <strong>${amountLabel}</strong></span>
               <span>Status: <strong>${item.status}</strong></span>
             </div>
+            <div class="investment-meta-line" style="align-items:center; gap:0.5rem;">
+              <span class="text-sm text-slate-500">Mover status:</span>
+              <select class="investment-status-select" onchange="handleInvestmentStatusChange('${item.id}', this.value)" aria-label="Alterar status do investimento">
+                <option value="">Selecionar</option>
+                <option value="Planejado" ${displayStatus === 'Planejado' ? 'selected' : ''}>Planejado</option>
+                <option value="Em andamento" ${displayStatus === 'Em andamento' ? 'selected' : ''}>Em andamento</option>
+                <option value="Pago">Pago</option>
+              </select>
+              <button class="action-btn neutral" title="Histórico" onclick="openInvestmentHistory('${item.id}')">📜</button>
+            </div>
             <div class="investment-note">${item.observacoes || 'Sem observações adicionais'}</div>
           </div>
           <div class="investment-card-actions">
@@ -11268,20 +11295,61 @@
     if (firestore && updatedInvestment) {
       firestore.collection('investments').doc(updatedInvestment.id).set(updatedInvestment, { merge: true }).catch(() => {});
     }
+    setInvestmentFilter('Pago', true);
+    renderInvestments();
+    renderDashboardCards();
+  }
+
+  function handleInvestmentStatusChange(id, status) {
+    if (!status) return;
+    if (status === 'Pago') {
+      markInvestmentPaid(id);
+      return;
+    }
+    let updated = null;
+    const now = new Date().toISOString();
+    investments = investments.map(inv => {
+      if (inv.id !== id) return inv;
+      const total = inv.parcelasTotais || 1;
+      let payments = Array.isArray(inv.payments) ? [...inv.payments] : [];
+      if (status === 'Planejado') {
+        payments = [];
+      } else if (status === 'Em andamento' && payments.length >= total) {
+        payments = payments.slice(0, Math.max(total - 1, 0));
+      }
+      const history = [...(inv.history || []), { type: 'status', date: now, detail: `Status alterado para ${status}` }];
+      updated = syncInvestmentStatus({ ...inv, payments, status, updatedAt: now, lastPaymentAt: payments.slice(-1)[0]?.date || null, history });
+      return updated;
+    });
+    if (firestore && updated) {
+      firestore.collection('investments').doc(updated.id).set(updated, { merge: true }).catch(() => {});
+    }
+    const targetStatus = updated?.status;
+    if (targetStatus && targetStatus !== investmentFilter) {
+      setInvestmentFilter(targetStatus, true);
+    }
     renderInvestments();
     renderDashboardCards();
   }
 
   function reopenInvestment(id) {
     const target = getInvestmentActionTarget();
+    let updated = null;
     investments = investments.map(inv => {
       if (inv.id !== id) return inv;
       const payments = inv.payments || [];
       const now = new Date().toISOString();
       const updatedPayments = payments.filter(p => !(p.year === target.year && p.monthIndex === target.monthIndex));
       const history = [...(inv.history || []), { type: 'reaberto', date: now, detail: `Parcela reaberta para ${formatMonthWithYear(target)}` }];
-      return syncInvestmentStatus({ ...inv, payments: updatedPayments, history, updatedAt: now, lastPaymentAt: updatedPayments.slice(-1)[0]?.date || null });
+      updated = syncInvestmentStatus({ ...inv, payments: updatedPayments, history, updatedAt: now, lastPaymentAt: updatedPayments.slice(-1)[0]?.date || null });
+      return updated;
     });
+    if (firestore && updated) {
+      firestore.collection('investments').doc(updated.id).set(updated, { merge: true }).catch(() => {});
+    }
+    if (updated?.status && updated.status !== investmentFilter) {
+      setInvestmentFilter(updated.status, true);
+    }
     renderInvestments();
     renderDashboardCards();
   }
