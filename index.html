@@ -1956,6 +1956,17 @@
       justify-content: center;
     }
 
+    .day-slot-body.double {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: stretch;
+      gap: 0.3rem;
+    }
+
+    .day-slot-body.double .appt-card {
+      width: 100%;
+    }
+
     .appt-card {
       position: relative;
       min-height: 46px;
@@ -2204,6 +2215,8 @@
       .agenda-day-desktop { display: none; }
       .agenda-day-mobile { display: flex; }
       .day-mobile-header button { padding: 0.35rem 0.75rem; font-size: 0.82rem; }
+      .day-slot-body.double { gap: 0.22rem; }
+      .day-slot-body.double .appt-card { min-height: 44px; }
     }
 
     .appt-card .title {
@@ -7298,6 +7311,7 @@
       }
       slotBody.appendChild(card);
       const count = slotBody.querySelectorAll('.appt-card').length;
+      slotBody.classList.toggle('double', count >= 2);
       if (status) status.textContent = count === 0 ? '' : (count === 1 ? '1 atendimento' : `${count} atendimentos`);
     });
 
