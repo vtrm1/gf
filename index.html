@@ -248,6 +248,8 @@
       margin-bottom: 0.35rem;
       justify-content: center;
       align-items: stretch;
+      width: 100%;
+      max-width: 100%;
     }
 
     .finance-section-wrap {
@@ -504,6 +506,8 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 1rem;
       align-items: start;
+      width: 100%;
+      max-width: 100%;
     }
 
     .finance-secondary-column {
@@ -1579,6 +1583,8 @@
       .finance-section-wrap {
         gap: 0.9rem;
         padding-inline: clamp(0.35rem, 4vw, 0.65rem);
+        width: 100%;
+        max-width: 100%;
       }
 
       .card.finance-card {
@@ -1588,6 +1594,10 @@
         box-sizing: border-box;
         word-break: break-word;
         overflow-wrap: anywhere;
+        width: 100%;
+        margin: 0 auto;
+        text-align: left;
+        align-items: flex-start;
       }
 
       .card.finance-card h3 {
@@ -1610,12 +1620,16 @@
         width: 100%;
         max-width: 100%;
         box-sizing: border-box;
+        justify-items: center;
       }
 
       .finance-chart-area {
         min-height: 180px;
         max-width: 100%;
         margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
       .finance-chart-area canvas {
@@ -1629,18 +1643,39 @@
         box-sizing: border-box;
         word-break: break-word;
         overflow-wrap: anywhere;
+        padding-inline: 0.05rem;
       }
 
       .finance-legend-row,
       .finance-stock-row {
         width: 100%;
         max-width: 100%;
+        box-sizing: border-box;
+        padding-inline: 0.35rem;
       }
 
       .finance-card .subtext,
       .finance-card .section-caption {
         font-size: 0.74rem;
         line-height: 1.35;
+      }
+
+      .finance-secondary-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        width: 100%;
+        max-width: 100%;
+      }
+
+      .finance-secondary-column,
+      .finance-main-card,
+      .finance-stock-card,
+      .finance-fixed-card,
+      .finance-balance-card {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        margin: 0 auto;
       }
     }
 
