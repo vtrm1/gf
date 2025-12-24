@@ -244,41 +244,24 @@
     .finance-card-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .finance-card-grid .card h3 {
-      font-size: 0.95rem;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .finance-card-grid .value {
-      font-size: 1.6rem;
-      font-weight: 700;
+      gap: 0.85rem;
+      margin-bottom: 0.35rem;
     }
 
     .finance-section-wrap {
       max-width: 1280px;
       margin: 0 auto;
       display: grid;
-      gap: 1rem;
+      gap: 1.15rem;
     }
 
     .finance-main-card {
       grid-column: 1 / -1;
+      margin-top: 0.35rem;
     }
 
     .finance-main-card .finance-chart-area {
       min-height: 320px;
-    }
-
-    .finance-card {
-      background: linear-gradient(180deg, rgba(255, 247, 243, 0.75), rgba(232, 238, 244, 0.6));
-      border: 1px solid rgba(0,0,0,0.04);
     }
 
     .finance-chart-area {
@@ -346,9 +329,9 @@
     }
 
     .finance-fixed-card {
-      background: linear-gradient(135deg, rgba(155, 191, 146, 0.12), rgba(114, 150, 131, 0.12));
-      border: 1px solid rgba(155, 191, 146, 0.35);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+      background: linear-gradient(135deg, rgba(155, 191, 146, 0.08), rgba(114, 150, 131, 0.08));
+      border: 1px solid rgba(155, 191, 146, 0.28);
+      box-shadow: none;
       display: flex;
       flex-direction: column;
       gap: 0.6rem;
@@ -459,8 +442,8 @@
 
     .finance-stock-card {
       background: var(--card-bg, #fff);
-      border: 1px solid rgba(0,0,0,0.05);
-      box-shadow: 0 10px 26px rgba(0,0,0,0.06);
+      border: 1px solid rgba(0,0,0,0.06);
+      box-shadow: none;
       border-radius: 18px;
       padding: 1rem;
       display: grid;
@@ -535,19 +518,6 @@
       }
     }
 
-    @media (max-width: 768px) {
-      .finance-card-grid .value {
-        font-size: 1.3rem;
-      }
-
-      .finance-chart-area {
-        min-height: 200px;
-      }
-
-      .finance-card-grid {
-        gap: 0.75rem;
-      }
-    }
 
     .tag.attention,
     .badge.attention {
@@ -1546,6 +1516,84 @@
       font-size: 0.8rem;
       color: var(--text-muted);
       margin-top: 0.2rem;
+    }
+
+    .card.finance-card {
+      background: #ffffff;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      box-shadow: none;
+      padding: 0.9rem 1rem;
+      display: grid;
+      gap: 0.25rem;
+    }
+
+    .card.finance-card h3 {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.01em;
+    }
+
+    .card.finance-card .value {
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .card.finance-card .subtext,
+    .card.finance-card .section-caption {
+      font-size: 0.78rem;
+      color: #7b7166;
+      line-height: 1.3;
+    }
+
+    .card.finance-card.featured {
+      background: linear-gradient(140deg, #fdf8f1 0%, #f4f8f2 100%);
+      border: 1px solid rgba(var(--accent-gold-rgb), 0.45);
+      box-shadow: none;
+    }
+
+    .card.finance-card.featured .value {
+      color: var(--accent-gold-dark);
+    }
+
+    .card.finance-card.soft {
+      background: #fbfbfb;
+      border-color: rgba(0, 0, 0, 0.04);
+    }
+
+    .card.finance-card.alt {
+      background: #f9fbff;
+      border-color: rgba(0, 0, 0, 0.05);
+    }
+
+    @media (max-width: 768px) {
+      .finance-section-wrap {
+        gap: 0.9rem;
+      }
+
+      .card.finance-card {
+        padding: 0.8rem 0.9rem;
+        gap: 0.2rem;
+      }
+
+      .card.finance-card h3 {
+        font-size: 0.78rem;
+      }
+
+      .card.finance-card .value {
+        font-size: 1.45rem;
+      }
+
+      .finance-card-grid {
+        gap: 0.65rem;
+      }
+
+      .finance-chart-area {
+        min-height: 200px;
+      }
     }
 
     .pill-row {
@@ -4779,17 +4827,17 @@
 
       <div class="finance-section-wrap">
         <div class="finance-card-grid">
-          <div class="card finance-card">
+          <div class="card finance-card featured">
             <h3>Receita bruta</h3>
             <div class="value" id="finance-revenue">R$ 0,00</div>
             <div class="subtext">Inclui serviços e bebidas</div>
           </div>
-          <div class="card finance-card">
+          <div class="card finance-card soft">
             <h3>Custos (produtos)</h3>
             <div class="value" id="finance-costs">R$ 0,00</div>
             <div class="subtext">Baseado no consumo estimado de esmaltes e itens</div>
           </div>
-          <div class="card finance-card">
+          <div class="card finance-card alt">
             <h3>Lucro estimado</h3>
             <div class="value" id="finance-profit">R$ 0,00</div>
             <div class="subtext">Antes de outras despesas fixas</div>
