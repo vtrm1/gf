@@ -1573,7 +1573,7 @@
     @media (max-width: 768px) {
       .finance-section-wrap {
         gap: 0.9rem;
-        padding-inline: clamp(0.5rem, 4vw, 0.85rem);
+        padding-inline: clamp(0.35rem, 4vw, 0.65rem);
       }
 
       .card.finance-card {
@@ -1590,11 +1590,18 @@
       }
 
       .finance-card-grid {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 0.6rem;
-        max-width: 680px;
-        margin-inline: auto;
-        width: 100%;
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(200px, 1fr);
+        grid-template-columns: none;
+        gap: 0.55rem;
+        overflow-x: auto;
+        padding-bottom: 0.35rem;
+        padding-inline: 0.05rem;
+        margin-inline: -0.25rem;
+        width: calc(100% + 0.5rem);
+        max-width: none;
+        -webkit-overflow-scrolling: touch;
       }
 
       .finance-chart-area {
