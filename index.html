@@ -3155,10 +3155,53 @@
       border-color: rgba(217, 83, 79, 0.2);
     }
 
+    .inventory-badge.alerta {
+      background: rgba(255, 193, 7, 0.14);
+      color: #8a5b00;
+      border-color: rgba(255, 193, 7, 0.24);
+    }
+
+    .inventory-badge.critico {
+      background: rgba(217, 83, 79, 0.14);
+      color: var(--danger);
+      border-color: rgba(217, 83, 79, 0.26);
+    }
+
     .inventory-badge.warn {
       background: rgba(255, 193, 7, 0.12);
       color: #8a5b00;
       border-color: rgba(255, 193, 7, 0.22);
+    }
+
+    .inventory-history {
+      margin-top: 1rem;
+      border-top: 1px solid var(--border-soft);
+      padding-top: 0.75rem;
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .inventory-history-list {
+      background: rgba(255,255,255,0.8);
+      border: 1px solid var(--border-soft);
+      border-radius: 10px;
+      padding: 0.65rem 0.8rem;
+      display: grid;
+      gap: 0.4rem;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .inventory-history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .inventory-history-item strong {
+      font-weight: 600;
     }
 
     .inventory-card-title {
@@ -3614,13 +3657,22 @@
       padding: 0.75rem 0.85rem;
       background: rgba(255,255,255,0.7);
       display: grid;
-      gap: 0.5rem;
+      gap: 0.65rem;
+    }
+
+    .finalizar-esmaltes-search {
+      width: 100%;
+      padding: 0.55rem 0.65rem;
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      background: rgba(255,255,255,0.95);
+      font-size: 0.9rem;
     }
 
     .finalizar-esmaltes-list {
       display: grid;
       gap: 0.35rem;
-      max-height: 180px;
+      max-height: 230px;
       overflow-y: auto;
       padding-right: 0.2rem;
     }
@@ -3628,16 +3680,58 @@
     .finalizar-esmalte-item {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 0.6rem;
-      padding: 0.4rem 0.5rem;
-      border-radius: 10px;
-      background: rgba(0,0,0,0.03);
-      border: 1px solid rgba(0,0,0,0.04);
-      font-size: 0.86rem;
+      padding: 0.55rem 0.65rem;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.02);
+      border: 1px solid rgba(0,0,0,0.05);
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.18s ease;
     }
 
-    .finalizar-esmalte-item input[type="checkbox"] {
-      accent-color: var(--btn-primary);
+    .finalizar-esmalte-item:hover {
+      border-color: rgba(var(--accent-gold-rgb), 0.35);
+      background: rgba(255,255,255,0.9);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.06);
+    }
+
+    .finalizar-esmalte-item.selected {
+      border-color: rgba(var(--accent-gold-rgb), 0.55);
+      background: rgba(244,217,210,0.45);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+    }
+
+    .finalizar-esmalte-name {
+      display: block;
+      font-weight: 600;
+    }
+
+    .finalizar-esmalte-meta {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .finalizar-esmalte-check {
+      display: none;
+      background: #fff;
+      color: var(--accent-gold-dark);
+      border-radius: 999px;
+      padding: 0.25rem 0.4rem;
+      font-weight: 700;
+      border: 1px solid rgba(var(--accent-gold-rgb), 0.4);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+      align-items: center;
+      justify-content: center;
+      min-width: 28px;
+      min-height: 28px;
+    }
+
+    .finalizar-esmalte-item.selected .finalizar-esmalte-check {
+      display: inline-flex;
     }
 
     .section-caption {
@@ -5354,21 +5448,37 @@
               <option value="manutencao">Manutenção</option>
             </select>
           </div>
-          <div>
-            <label class="subtext">Unidades por pack</label>
-            <input id="template-pack" type="number" min="0" />
-          </div>
-          <div>
+          <div class="template-field-esmaltes">
             <label class="subtext">Volume total (ml)</label>
             <input id="template-volume" type="number" min="0" />
           </div>
-          <div>
-            <label class="subtext">Volume por pack</label>
+          <div class="template-field-esmaltes">
+            <label class="subtext">Marca</label>
+            <input id="template-brand" />
+          </div>
+          <div class="template-field-esmaltes">
+            <label class="subtext">Consumo estimado por uso (ml)</label>
+            <input id="template-consumption" type="number" min="0" step="0.1" />
+          </div>
+          <div class="template-field-geladeira">
+            <label class="subtext">Unidades por pack</label>
+            <input id="template-pack" type="number" min="0" />
+          </div>
+          <div class="template-field-geladeira">
+            <label class="subtext">Volume por pack (opcional)</label>
             <input id="template-volume-pack" type="number" min="0" />
           </div>
-          <div>
-            <label class="subtext">Frequência de uso</label>
-            <input id="template-frequency" placeholder="Ex: diário" />
+          <div class="template-field-geladeira">
+            <label class="subtext">Preço de venda</label>
+            <input id="template-price" type="number" min="0" step="0.01" />
+          </div>
+          <div class="template-field-manutencao">
+            <label class="subtext">Custo estimado</label>
+            <input id="template-cost" type="number" min="0" step="0.01" />
+          </div>
+          <div class="template-field-manutencao">
+            <label class="subtext">Frequência (opcional)</label>
+            <input id="template-frequency" placeholder="Ex: mensal" />
           </div>
         </div>
         <div class="modal-actions">
@@ -5391,6 +5501,12 @@
           <div><label>Última saída</label><div id="stock-detail-exit" class="subtext">—</div></div>
           <div><label>Previsão</label><div id="stock-detail-forecast" class="subtext">—</div></div>
           <div><label>Custo/uso</label><div id="stock-detail-cost" class="subtext">—</div></div>
+        </div>
+        <div id="stock-detail-history-section" class="inventory-history">
+          <div class="section-title" style="margin-top:0;">
+            <h4 style="font-size:1rem;">Histórico de uso</h4>
+          </div>
+          <div id="stock-detail-history-list" class="inventory-history-list subtext">Carregando...</div>
         </div>
       </div>
     </div>
@@ -5639,6 +5755,10 @@
           </div>
         </div>
         <div id="clients-grid-ceo" class="clients-grid"></div>
+        <div class="client-detail-actions" style="margin-top:0.75rem;justify-content:flex-start;">
+          <button id="clients-loadmore-ceo" class="secondary" onclick="loadClientsPage(false)">Carregar mais</button>
+          <span id="clients-loading-ceo" class="subtext hidden">Carregando...</span>
+        </div>
       </div>
     </section>
 
@@ -6399,6 +6519,10 @@
           </div>
         </div>
         <div id="clients-grid-colab" class="clients-grid"></div>
+        <div class="client-detail-actions" style="margin-top:0.75rem;justify-content:flex-start;">
+          <button id="clients-loadmore-colab" class="secondary" onclick="loadClientsPage(false)">Carregar mais</button>
+          <span id="clients-loading-colab" class="subtext hidden">Carregando...</span>
+        </div>
       </div>
     </section>
 
@@ -6527,7 +6651,14 @@
 
     <div class="finalizar-esmaltes">
       <strong>Selecionar esmaltes usados</strong>
-      <div class="subtext">Marque os esmaltes utilizados neste atendimento.</div>
+      <div class="subtext">Toque nos esmaltes utilizados neste atendimento.</div>
+      <input
+        type="search"
+        id="finalizar-esmaltes-search"
+        class="finalizar-esmaltes-search"
+        placeholder="Buscar por nome ou marca"
+        aria-label="Buscar esmaltes por nome ou marca"
+      />
       <div id="finalizar-comanda-esmaltes" class="finalizar-esmaltes-list">
         <div class="subtext">Carregando esmaltes...</div>
       </div>
@@ -7178,6 +7309,45 @@
   let collaboratorAccounts = [];
 
   let clients = [];
+  let clientsLastDoc = null;
+  let clientsHasMore = true;
+  let clientsLoading = false;
+
+  async function loadClientsPage(reset = false) {
+    initFirebaseApp();
+    if (!firestore) return;
+    if (clientsLoading) return;
+    if (reset) {
+      clients = [];
+      clientsLastDoc = null;
+      clientsHasMore = true;
+    }
+    if (!clientsHasMore) return;
+    clientsLoading = true;
+    renderClients('ceo');
+    renderClients('colab');
+    try {
+      let query = firestore.collection('clients').orderBy('name').limit(50);
+      if (clientsLastDoc) query = query.startAfter(clientsLastDoc);
+      const snap = await query.get();
+      const newDocs = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .filter(c => !c.deletedAt && c.deleted !== true);
+      const existingIds = new Set(clients.map(c => c.id));
+      newDocs.forEach(doc => {
+        if (!existingIds.has(doc.id)) clients.push(doc);
+      });
+      clientsLastDoc = snap.docs[snap.docs.length - 1] || clientsLastDoc;
+      if (snap.docs.length < 50) clientsHasMore = false;
+    } catch (err) {
+      console.error('Falha ao carregar clientes paginados', err);
+      alert('Não foi possível carregar mais clientes agora.');
+    } finally {
+      clientsLoading = false;
+      renderClients('ceo');
+      renderClients('colab');
+    }
+  }
 
   let currentClientEditingId = null;
   let pendingRemoveClientId = null;
@@ -7663,14 +7833,7 @@
       normalizeAppointmentsData();
       refreshAgendaFromAppointments();
     });
-    // Clientes
-    firestore.collection('clients').onSnapshot(snap => {
-      clients = snap.docs
-        .map(d => ({ id: d.id, ...d.data() }))
-        .filter(c => !c.deletedAt && c.deleted !== true);
-      renderClients('ceo');
-      renderClients('colab');
-    });
+    loadClientsPage(true);
     // Serviços
     firestore.collection('services').onSnapshot(snap => {
       kioskServices = snap.docs.map(d => ({
@@ -7701,7 +7864,11 @@
       renderInventoryTemplates();
     });
     firestore.collection('stock').onSnapshot(snap => {
-      stockItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      stockItems = snap.docs.map(d => {
+        const raw = { id: d.id, ...d.data() };
+        const statusInfo = computePolishUsageStatus(raw);
+        return { ...raw, ...statusInfo };
+      });
       stockItems.forEach(item => attachStockHistoryListener(item.id));
       renderInventory();
       renderDashboardCards();
@@ -8081,8 +8248,7 @@
       await persistClient(newClient);
     }
 
-    renderClients('ceo');
-    renderClients('colab');
+    await loadClientsPage(true);
     closeDialog('client-form-modal');
     currentClientEditingId = null;
   }
@@ -8099,6 +8265,79 @@
     document.getElementById('tab-detail-data').classList.add('active');
     renderClientDetailTab();
     openDialog('client-detail-modal');
+  }
+
+  function getComandaByAppointment(appt) {
+    if (!appt?.comandaId) return null;
+    return comandas.find(c => c.id === appt.comandaId) || null;
+  }
+
+  function getEsmaltesUsedByAppointment(atendimentoId) {
+    if (!atendimentoId) return [];
+    const names = new Set();
+    Object.entries(stockHistories || {}).forEach(([stockId, list]) => {
+      const item = stockItems.find(i => i.id === stockId);
+      if ((item?.categoria || item?.category) !== 'esmaltes') return;
+      (list || []).forEach(entry => {
+        if (entry.atendimentoId === atendimentoId && entry.tipo === 'uso_esmalte') {
+          names.add(item.nome || item.name || 'Esmalte');
+        }
+      });
+    });
+    return Array.from(names);
+  }
+
+  function buildClientConsumptions(clientId) {
+    const related = appointments.filter(a => a.clientId === clientId);
+    const consumptions = [];
+    related.forEach(appt => {
+      const comanda = getComandaByAppointment(appt);
+      const items = comanda
+        ? (comanda.itensProfissional || []).concat(comanda.itensCliente || []).concat(comanda.itens || comanda.items || [])
+        : [];
+      items.forEach(it => {
+        if ((it.tipo || '').toLowerCase() === 'servico' || (it.tipo || '').toLowerCase() === 'service') return;
+        const cat = (it.categoriaEstoque || it.categoria || it.category || '').toLowerCase();
+        if (cat.includes('esmalte')) return;
+        if (!(cat.includes('geladeira') || (it.tipo || '').toLowerCase() === 'consumo')) return;
+        const qty = Number(it.quantidade || it.qtd || 1);
+        const price = Number(it.preco || it.valor || 0);
+        consumptions.push({
+          nome: it.nome || 'Consumo',
+          total: price * qty,
+          qtd: qty,
+          preco: price,
+          data: appt.date || comanda?.atualizadoEm || comanda?.createdAt
+        });
+      });
+    });
+    return consumptions;
+  }
+
+  function buildClientServices(clientId) {
+    const related = appointments.filter(a => a.clientId === clientId);
+    return related.map(appt => {
+      const comanda = getComandaByAppointment(appt);
+      const items = comanda
+        ? (comanda.itensProfissional || []).concat(comanda.itensCliente || []).concat(comanda.itens || comanda.items || [])
+        : [];
+      const serviceItems = items.filter(it => (it.tipo || '').toLowerCase() === 'servico');
+      const serviceValue = serviceItems.reduce((acc, it) => {
+        const qty = Number(it.quantidade || it.qtd || 1);
+        const price = Number(it.preco || it.valor || 0);
+        return acc + (qty * price);
+      }, 0) || getServicePriceByAppointment(appt) || 0;
+      const totals = computeResumoTotals(items);
+      const totalPago = comanda?.pagamentoTotal || comanda?.total || totals.total || serviceValue;
+      const esmaltes = getEsmaltesUsedByAppointment(appt.id);
+      return {
+        data: appt.date || comanda?.atualizadoEm || appt.updatedAt || '',
+        servico: appt.serviceName || appt.service || 'Serviço',
+        valorServico: serviceValue,
+        total: totalPago,
+        esmaltes
+      };
+    });
   }
 
   function switchClientTab(tab) {
@@ -8134,17 +8373,31 @@
     }
 
     if (activeClientTab === 'history') {
-      const hist = (client.history || []).map(h => `<li>${h}</li>`).join('') || '<li>Sem histórico</li>';
+      const records = buildClientServices(client.id);
+      const list = records.length
+        ? records.map(r => {
+            const esmaltes = r.esmaltes.length ? `<div class="subtext">Esmaltes: ${r.esmaltes.join(', ')}</div>` : '';
+            const dateLabel = r.data ? formatDateLabel(r.data) : 'Data não informada';
+            return `<li>${dateLabel} • ${r.servico} • Serviço ${formatCurrency(r.valorServico)} • Total pago ${formatCurrency(r.total)}${esmaltes}</li>`;
+          }).join('')
+        : '<li>Sem histórico</li>';
       container.innerHTML = `
         <div class="client-detail-section">
           <h4>Histórico de serviços</h4>
-          <ul class="client-detail-list">${hist}</ul>
+          <ul class="client-detail-list">${list}</ul>
         </div>
       `;
     }
 
     if (activeClientTab === 'consume') {
-      const cons = (client.consume || []).map(h => `<li>${h}</li>`).join('') || '<li>Sem consumos</li>';
+      const consumptions = buildClientConsumptions(client.id);
+      const cons = consumptions.length
+        ? consumptions.map(c => {
+            const dateLabel = c.data ? formatDateLabel(c.data) : '—';
+            const total = formatCurrency(c.total || 0);
+            return `<li>${dateLabel} • ${c.nome} (${c.qtd}x ${formatCurrency(c.preco || 0)}) • Total ${total}</li>`;
+          }).join('')
+        : '<li>Sem consumos</li>';
       container.innerHTML = `
         <div class="client-detail-section">
           <h4>Consumos no Studio</h4>
@@ -8199,6 +8452,7 @@
       renderAgendaMonthSummary('ceo');
       renderAgendaMonthCalendar('colab');
       renderAgendaMonthSummary('colab');
+      loadClientsPage(true);
       pendingRemoveClientId = null;
     };
     if (firestore) {
@@ -8897,7 +9151,8 @@
     cliente: '',
     profissional: '',
     resumoGeradoEm: null,
-    esmaltesSelecionados: new Set()
+    esmaltesSelecionados: new Set(),
+    esmaltesBusca: ''
   };
 
   function resetFinalizarComandaModal() {
@@ -8909,6 +9164,7 @@
     finalizeModalState.profissional = '';
     finalizeModalState.resumoGeradoEm = null;
     finalizeModalState.esmaltesSelecionados = new Set();
+    finalizeModalState.esmaltesBusca = '';
     const list = document.getElementById('finalizar-comanda-list');
     if (list) list.innerHTML = '<div class="subtext">Selecione um atendimento para finalizar.</div>';
     const caption = document.getElementById('finalizar-comanda-caption');
@@ -8919,6 +9175,8 @@
     if (total) total.textContent = 'Total estimado: --';
     const esmaltes = document.getElementById('finalizar-comanda-esmaltes');
     if (esmaltes) esmaltes.innerHTML = '<div class="subtext">Selecione um atendimento para listar os esmaltes.</div>';
+    const esmalteSearch = document.getElementById('finalizar-esmaltes-search');
+    if (esmalteSearch) esmalteSearch.value = '';
     const confirmBtn = document.getElementById('finalizar-comanda-confirm');
     if (confirmBtn) {
       confirmBtn.disabled = false;
@@ -8928,30 +9186,90 @@
 
   function renderFinalizarComandaEsmaltes() {
     const container = document.getElementById('finalizar-comanda-esmaltes');
+    const searchInput = document.getElementById('finalizar-esmaltes-search');
     if (!container) return;
+    if (searchInput && searchInput.value !== (finalizeModalState.esmaltesBusca || '')) {
+      searchInput.value = finalizeModalState.esmaltesBusca || '';
+    }
     container.innerHTML = '';
+    const searchTerm = (finalizeModalState.esmaltesBusca || '').toLowerCase().trim();
     const esmaltes = stockItems.filter(item => (item.categoria || item.category) === 'esmaltes');
     if (!esmaltes.length) {
       container.innerHTML = '<div class="subtext">Nenhum esmalte cadastrado no estoque.</div>';
       return;
     }
-    esmaltes.forEach(item => {
-      const label = document.createElement('label');
-      label.className = 'finalizar-esmalte-item';
-      const input = document.createElement('input');
-      input.type = 'checkbox';
-      input.value = item.id;
-      input.checked = finalizeModalState.esmaltesSelecionados.has(item.id);
-      input.addEventListener('change', () => {
-        if (input.checked) finalizeModalState.esmaltesSelecionados.add(item.id);
-        else finalizeModalState.esmaltesSelecionados.delete(item.id);
+
+    const filteredEsmaltes = searchTerm
+      ? esmaltes.filter(item => {
+          const nome = (item.nome || item.name || '').toLowerCase();
+          const marca = (item.marca || '').toLowerCase();
+          return nome.includes(searchTerm) || marca.includes(searchTerm);
+        })
+      : esmaltes;
+
+    if (!filteredEsmaltes.length) {
+      container.innerHTML = '<div class="subtext">Nenhum esmalte encontrado para o filtro digitado.</div>';
+      return;
+    }
+
+    const toggleSelection = (id) => {
+      if (finalizeModalState.esmaltesSelecionados.has(id)) finalizeModalState.esmaltesSelecionados.delete(id);
+      else finalizeModalState.esmaltesSelecionados.add(id);
+      renderFinalizarComandaEsmaltes();
+    };
+
+    filteredEsmaltes.forEach(item => {
+      const isSelected = finalizeModalState.esmaltesSelecionados.has(item.id);
+      const label = document.createElement('div');
+      label.className = `finalizar-esmalte-item${isSelected ? ' selected' : ''}`;
+      label.setAttribute('role', 'button');
+      label.setAttribute('tabindex', '0');
+      label.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+
+      const info = document.createElement('div');
+      const name = document.createElement('span');
+      name.className = 'finalizar-esmalte-name';
+      name.textContent = item.nome || item.name || 'Esmalte';
+      info.appendChild(name);
+
+      const brand = item.marca || '';
+      if (brand) {
+        const meta = document.createElement('span');
+        meta.className = 'finalizar-esmalte-meta';
+        meta.textContent = brand;
+        info.appendChild(meta);
+      }
+
+      const check = document.createElement('span');
+      check.className = 'finalizar-esmalte-check';
+      check.textContent = '✓';
+
+      label.addEventListener('click', () => toggleSelection(item.id));
+      label.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter' || ev.key === ' ') {
+          ev.preventDefault();
+          toggleSelection(item.id);
+        }
       });
-      const text = document.createElement('span');
-      const brand = item.marca ? ` • ${item.marca}` : '';
-      text.textContent = `${item.nome || item.name || 'Esmalte'}${brand}`;
-      label.appendChild(input);
-      label.appendChild(text);
+
+      label.appendChild(info);
+      label.appendChild(check);
       container.appendChild(label);
+    });
+  }
+
+  const finalizarEsmaltesSearchInput = document.getElementById('finalizar-esmaltes-search');
+  if (finalizarEsmaltesSearchInput) {
+    finalizarEsmaltesSearchInput.addEventListener('input', (ev) => {
+      finalizeModalState.esmaltesBusca = ev.target.value || '';
+      renderFinalizarComandaEsmaltes();
+    });
+  }
+
+  const templateCategoryInput = document.getElementById('template-category');
+  if (templateCategoryInput) {
+    templateCategoryInput.addEventListener('change', (ev) => {
+      toggleTemplateFields(ev.target.value);
     });
   }
 
@@ -9017,6 +9335,7 @@
       if (!atendimentoId) throw new Error('Atendimento inválido para finalizar.');
       finalizeModalState.atendimentoId = atendimentoId;
       finalizeModalState.esmaltesSelecionados = new Set();
+      finalizeModalState.esmaltesBusca = '';
       const list = document.getElementById('finalizar-comanda-list');
       if (list) list.innerHTML = '<div class="subtext">Carregando itens da comanda...</div>';
       const confirmBtn = document.getElementById('finalizar-comanda-confirm');
@@ -9940,12 +10259,13 @@
     const revenue = filteredFin.filter(f => f.type === 'receita').reduce((acc, cur) => acc + (cur.amount || 0), 0);
     const commission = filteredFin.filter(f => f.type === 'comissao').reduce((acc, cur) => acc + (cur.amount || 0), 0);
     const soldConsumptionValue = getSoldConsumptionValue(target);
-    const alertsCount = stockItems.filter(item => {
-      const pct = item.volumeTotal_ml ? (item.volumeAtual_ml / item.volumeTotal_ml) : null;
-      const low = (item.previsaoDuracaoDias && item.previsaoDuracaoDias < 15) || (pct != null && pct < 0.3) || (item.quantidade && item.quantidade <= (item.unidadesPorPack || item.quantidade) * 0.2);
-      return low;
-    }).length;
-    const alertText = alertsCount > 0 ? 'Itens com estoque baixo' : 'Nenhum alerta de estoque';
+    const alertsCount = stockItems
+      .filter(item => (item.categoria || item.category) === 'esmaltes')
+      .filter(item => {
+        const statusInfo = computePolishUsageStatus(item);
+        return statusInfo.statusEstoque === 'alerta' || statusInfo.statusEstoque === 'critico';
+      }).length;
+    const alertText = alertsCount > 0 ? 'Esmaltes em alerta ou crítico' : 'Esmaltes sem alerta';
 
     if (revenueEl) revenueEl.textContent = formatCurrency(revenue);
     if (revenueDelta) revenueDelta.textContent = targetLabel;
@@ -10485,11 +10805,14 @@
   function renderClients(scope = 'ceo') {
     const listEl = document.getElementById(scope === 'ceo' ? 'clients-grid-ceo' : 'clients-grid-colab');
     const searchEl = document.getElementById(scope === 'ceo' ? 'client-search-ceo' : 'client-search-colab');
+    const loadBtn = document.getElementById(scope === 'ceo' ? 'clients-loadmore-ceo' : 'clients-loadmore-colab');
+    const loadingEl = document.getElementById(scope === 'ceo' ? 'clients-loading-ceo' : 'clients-loading-colab');
     if (!listEl) return;
     listEl.innerHTML = '';
     const search = (searchEl?.value || '').toLowerCase();
     const filtered = filterClientsByRole(scope)
-      .filter(c => c.name.toLowerCase().includes(search) || (c.phone || '').includes(search));
+      .filter(c => c.name.toLowerCase().includes(search) || (c.phone || '').includes(search))
+      .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 
     filtered.forEach(c => {
       const card = document.createElement('div');
@@ -10536,6 +10859,11 @@
     }
 
     renderClientsDatalist();
+    if (loadBtn) {
+      loadBtn.style.display = clientsHasMore ? 'inline-flex' : 'none';
+      loadBtn.disabled = clientsLoading;
+    }
+    if (loadingEl) loadingEl.classList.toggle('hidden', !clientsLoading);
   }
 
   function renderClientsDatalist() {
@@ -10649,7 +10977,7 @@
     }
   }
 
-  async function applyStockConsumptionFromComanda(itens = []) {
+  async function applyStockConsumptionFromComanda(itens = [], atendimentoId = null, comandaId = null) {
     if (!firestore || !Array.isArray(itens) || !itens.length) return;
     const nowISO = new Date().toISOString();
     for (const item of itens) {
@@ -10664,18 +10992,24 @@
         const quantidade = Number(item.quantidade || 1);
         if (categoria === 'esmaltes') {
           const consumo = data.consumoEstimadoPorUso || quantidade;
-          const remaining = Math.max(0, (data.volumeAtual_ml || data.volumeTotal_ml || 0) - consumo);
+          const baseVolume = normalizeVolumeOneDecimal(data.volumeAtual_ml || data.volumeTotal_ml || 0);
+          const remaining = Math.max(0, baseVolume - consumo);
+          const normalized = normalizeVolumeOneDecimal(remaining);
           const usesPerDay = 3;
           const previsao = (data.consumoEstimadoPorUso || 0) > 0
-            ? Math.round(remaining / ((data.consumoEstimadoPorUso || 0) * usesPerDay))
+            ? Math.round(normalized / ((data.consumoEstimadoPorUso || 0) * usesPerDay))
             : data.previsaoDuracaoDias || 0;
-          await ref.set({ volumeAtual_ml: remaining, previsaoDuracaoDias: previsao, updatedAt: nowISO }, { merge: true });
+          const statusInfo = computePolishUsageStatus({ ...data, volumeAtual_ml: normalized });
+          await ref.set({ volumeAtual_ml: normalized, previsaoDuracaoDias: previsao, statusEstoque: statusInfo.statusEstoque, usosRestantes: statusInfo.usosRestantes, updatedAt: nowISO }, { merge: true });
           await saveStockHistory(stockId, {
-            tipo: 'baixa',
+            tipo: 'uso_esmalte',
             volume: consumo,
+            consumoMl: consumo,
             quantidade: consumo,
             data: nowISO,
             origem: 'comanda',
+            atendimentoId,
+            comandaId,
             ref: item.itemId || item.nome || 'consumo'
           });
         } else {
@@ -10709,17 +11043,20 @@
         if (categoria !== 'esmaltes') return;
         const consumo = Number(data.consumoEstimadoPorUso || 0);
         if (!Number.isFinite(consumo) || consumo <= 0) return;
-        const current = Number(data.volumeAtual_ml ?? data.volumeTotal_ml ?? 0);
+        const current = normalizeVolumeOneDecimal(data.volumeAtual_ml ?? data.volumeTotal_ml ?? 0);
         if (!Number.isFinite(current) || current <= 0) return;
         const remaining = Math.max(0, current - consumo);
-        if (remaining === current) return;
-        tx.set(ref, { volumeAtual_ml: remaining, updatedAt: nowISO }, { merge: true });
+        const normalized = normalizeVolumeOneDecimal(remaining);
+        if (normalized === current) return;
+        const statusInfo = computePolishUsageStatus({ ...data, volumeAtual_ml: normalized });
+        tx.set(ref, { volumeAtual_ml: normalized, statusEstoque: statusInfo.statusEstoque, usosRestantes: statusInfo.usosRestantes, updatedAt: nowISO }, { merge: true });
         const historyRef = ref.collection('history').doc();
         tx.set(historyRef, {
           atendimentoId: atendimentoId || null,
           comandaId: comandaId || null,
           consumoMl: consumo,
-          data: nowISO
+          data: nowISO,
+          tipo: 'uso_esmalte'
         });
       });
     }
@@ -10832,7 +11169,7 @@
     }
 
     if (itensRegistrados.length) {
-      await applyStockConsumptionFromComanda(itensRegistrados);
+      await applyStockConsumptionFromComanda(itensRegistrados, atendimentoId, appt.comandaId || null);
     }
 
     if (selectedEsmaltes && selectedEsmaltes.length) {
@@ -11753,7 +12090,7 @@
     }
     const forecast = consumption > 0 ? Math.round(current / consumption) : 0;
     const forecastEl = document.getElementById('stock-polish-forecast');
-    if (forecastEl) forecastEl.value = forecast ? `${forecast} dias` : '';
+    if (forecastEl) forecastEl.value = forecast ? `${forecast} atendimentos` : '';
   }
 
   function applyInventoryTemplate(templateId) {
@@ -11764,14 +12101,19 @@
     if (currentInventoryCategory === 'esmaltes') {
       document.getElementById('stock-polish-name').value = tmpl.nome || tmpl.name || '';
       document.getElementById('stock-polish-brand').value = tmpl.marca || 'Studio Nails';
-      document.getElementById('stock-polish-total').value = tmpl.volumeTotal || tmpl.volumePorPack || '';
-      document.getElementById('stock-polish-current').value = tmpl.volumeTotal || tmpl.volumePorPack || '';
+      document.getElementById('stock-polish-total').value = tmpl.volumeTotal || '';
+      document.getElementById('stock-polish-current').value = tmpl.volumeTotal || '';
+      document.getElementById('stock-polish-consumption').value = tmpl.consumoEstimadoPorUso || '';
     } else if (currentInventoryCategory === 'geladeira') {
       document.getElementById('stock-fridge-name').value = tmpl.nome || tmpl.name || '';
       document.getElementById('stock-fridge-qty').value = tmpl.unidadesPorPack || tmpl.volumePorPack || '';
+      const priceEl = document.getElementById('stock-fridge-price');
+      if (priceEl) priceEl.value = tmpl.precoVenda || '';
     } else {
       document.getElementById('stock-maint-name').value = tmpl.nome || tmpl.name || '';
       document.getElementById('stock-maint-qty').value = tmpl.unidadesPorPack || '';
+      const costEl = document.getElementById('stock-maint-cost');
+      if (costEl) costEl.value = tmpl.custoEstimado || '';
     }
     updatePolishForecast();
   }
@@ -11783,6 +12125,27 @@
     if (lower.includes('energy') || lower.includes('ener')) return '⚡';
     if (lower.includes('suco')) return '🧃';
     return '🥤';
+  }
+
+  function normalizeVolumeOneDecimal(value = 0) {
+    const num = Number(value) || 0;
+    return Math.round(num * 10) / 10;
+  }
+
+  function computePolishUsageStatus(item = {}) {
+    if ((item.categoria || item.category) !== 'esmaltes') {
+      return { statusEstoque: item.statusEstoque || 'ok', usosRestantes: null };
+    }
+    const volume = normalizeVolumeOneDecimal(item.volumeAtual_ml ?? item.volumeTotal_ml ?? 0);
+    const consumo = Number(item.consumoEstimadoPorUso || 0);
+    if (!consumo || consumo <= 0) {
+      return { statusEstoque: 'ok', usosRestantes: null };
+    }
+    const usosRestantes = Math.max(0, Math.floor(normalizeVolumeOneDecimal(volume / consumo)));
+    let statusEstoque = 'ok';
+    if (usosRestantes <= 2) statusEstoque = 'critico';
+    else if (usosRestantes <= 5) statusEstoque = 'alerta';
+    return { statusEstoque, usosRestantes };
   }
 
   function openInventoryModal(itemId = null) {
@@ -11854,7 +12217,12 @@
           icon.textContent = currentInventoryCategory === 'geladeira' ? '🥤' : currentInventoryCategory === 'manutencao' ? '🧰' : '💅';
           const meta = document.createElement('div');
           meta.className = 'meta';
-          meta.innerHTML = `<strong>${t.nome || t.name}</strong><span>${t.unidadesPorPack ? `${t.unidadesPorPack} por pack` : 'Template rápido'}</span>`;
+          const secondary = currentInventoryCategory === 'esmaltes'
+            ? (t.marca ? t.marca : 'Template rápido')
+            : currentInventoryCategory === 'geladeira'
+              ? (t.unidadesPorPack ? `${t.unidadesPorPack} por pack` : 'Template rápido')
+              : (t.frequenciaDeUso ? `Freq: ${t.frequenciaDeUso}` : 'Template rápido');
+          meta.innerHTML = `<strong>${t.nome || t.name}</strong><span>${secondary}</span>`;
           const quick = document.createElement('button');
           quick.className = 'secondary';
           quick.style.padding = '0.35rem 0.6rem';
@@ -11871,7 +12239,12 @@
       filtered.forEach(t => {
         const btn = document.createElement('div');
         btn.className = `template-chip ${currentInventoryCategory}`;
-        btn.innerHTML = `<div class="icon">⭐</div><div class="meta"><strong>${t.nome || t.name}</strong><span>${t.unidadesPorPack ? t.unidadesPorPack + ' por pack' : 'Sugestão'}</span></div>`;
+        const secondary = currentInventoryCategory === 'esmaltes'
+          ? (t.marca ? t.marca : 'Sugestão')
+          : currentInventoryCategory === 'geladeira'
+            ? (t.unidadesPorPack ? t.unidadesPorPack + ' por pack' : 'Sugestão')
+            : (t.frequenciaDeUso ? `Freq: ${t.frequenciaDeUso}` : 'Sugestão');
+        btn.innerHTML = `<div class="icon">⭐</div><div class="meta"><strong>${t.nome || t.name}</strong><span>${secondary}</span></div>`;
         btn.onclick = () => applyInventoryTemplate(t.id);
         modalRow.appendChild(btn);
       });
@@ -11882,11 +12255,28 @@
   function buildStockHistoryInfo(itemId) {
     const list = stockHistories[itemId] || [];
     const lastEntry = list.find(h => h.tipo === 'entrada');
-    const lastExit = list.find(h => h.tipo === 'saida' || h.tipo === 'baixa');
+    const lastExit = list.find(h => h.tipo === 'saida' || h.tipo === 'baixa' || h.tipo === 'uso');
     return {
       lastEntry: lastEntry?.data || null,
       lastExit: lastExit?.data || null
     };
+  }
+
+  async function loadStockHistory(itemId, limit = 5) {
+    if (!firestore || !itemId) return [];
+    try {
+      const snap = await firestore.collection('stock').doc(itemId).collection('history')
+        .orderBy('data', 'desc')
+        .limit(limit * 2)
+        .get();
+      return snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .filter(h => h.tipo === 'uso_esmalte')
+        .slice(0, limit);
+    } catch (err) {
+      console.warn('Não foi possível carregar histórico de estoque', err);
+      return (stockHistories[itemId] || []).filter(h => h.tipo === 'uso_esmalte').slice(0, limit);
+    }
   }
 
   function attachStockHistoryListener(itemId) {
@@ -11924,8 +12314,13 @@
         const badgeLow = item.previsaoDuracaoDias && item.previsaoDuracaoDias < 15;
         const warnFlag = item.previsaoDuracaoDias && item.previsaoDuracaoDias < 7;
         const lowFlag = badgeLow || (pct != null && pct < 30) || (item.quantidade && item.quantidade <= (item.unidadesPorPack || item.quantidade) * 0.2);
-        const statusLabel = lowFlag ? 'Baixo' : warnFlag ? 'Expirando' : 'OK';
-        const badgeClass = lowFlag ? 'low' : warnFlag ? 'warn' : '';
+        const polishStatus = category === 'esmaltes' ? computePolishUsageStatus(item) : { statusEstoque: 'ok', usosRestantes: null };
+        const statusLabel = category === 'esmaltes'
+          ? (polishStatus.statusEstoque === 'critico' ? 'Crítico' : polishStatus.statusEstoque === 'alerta' ? 'Alerta' : 'OK')
+          : (lowFlag ? 'Baixo' : warnFlag ? 'Expirando' : 'OK');
+        const badgeClass = category === 'esmaltes'
+          ? (polishStatus.statusEstoque === 'critico' ? 'critico' : polishStatus.statusEstoque === 'alerta' ? 'alerta' : '')
+          : (lowFlag ? 'low' : warnFlag ? 'warn' : '');
         const div = document.createElement('div');
         div.className = 'inventory-card';
         const entryLabel = hist.lastEntry ? formatDateLabel((hist.lastEntry || '').split('T')[0] || hist.lastEntry) : '—';
@@ -11941,6 +12336,7 @@
             ${category === 'geladeira' ? `<span>🏷️ Venda ${formatCurrency(item.precoVenda || 0)}</span>` : ''}
             <span>📅 Entrada ${entryLabel}</span>
             ${category === 'esmaltes' ? `<span>⏳ Consumo ${item.consumoEstimadoPorUso || 0}ml</span>` : ''}
+            ${category === 'esmaltes' ? `<span>🧮 Usos ~${polishStatus.usosRestantes ?? '—'} restantes</span>` : ''}
           </div>`;
         div.innerHTML = `
           <div class="line-top">
@@ -11957,7 +12353,7 @@
             <div class="inventory-actions-icons">
               <button class="action-btn edit" title="Editar" aria-label="Editar" onclick="openInventoryModal('${item.id}')">✎</button>
               <button class="action-btn neutral" title="Detalhes" aria-label="Detalhes" onclick="openStockDetailModal('${item.id}')">👁</button>
-              <button class="action-btn exit" title="Registrar saída" aria-label="Registrar saída" onclick="openStockExitModal('${item.id}')">➖</button>
+              ${category === 'esmaltes' ? '' : `<button class="action-btn exit" title="Registrar saída" aria-label="Registrar saída" onclick="openStockExitModal('${item.id}')">➖</button>`}
               <button class="action-btn danger" title="Excluir" aria-label="Excluir" onclick="promptRemoveStockItem('${item.id}')">🗑</button>
             </div>
           </div>
@@ -11992,12 +12388,11 @@
       const dataCompra = document.getElementById('stock-polish-date').value;
       if (!nome || !marca || !volumeTotal) { alert('Preencha nome, marca e volume total.'); return; }
       if (!consumo || consumo <= 0) { alert('Informe o consumo estimado por uso (ml).'); return; }
-      const volumeAtual = inventoryFormMode === 'edit' && original
-        ? (original.volumeAtual_ml ?? original.volumeTotal_ml ?? volumeTotal)
-        : volumeTotal;
+      const volumeAtual = volumeTotal;
       const previsao = Math.round(volumeAtual / consumo);
       const custoPorUso = volumeTotal ? ((custoTotal || 0) / volumeTotal) * consumo : 0;
-      payload = { ...payload, nome, marca, volumeTotal_ml: volumeTotal, volumeAtual_ml: volumeAtual, consumoEstimadoPorUso: consumo, dataCompra: dataCompra || null, previsaoDuracaoDias: previsao, custoTotal, custoPorUso, addedAt: payload.addedAt || now, paused: true };
+      const statusInfo = computePolishUsageStatus({ categoria: 'esmaltes', volumeAtual_ml: volumeAtual, consumoEstimadoPorUso: consumo });
+      payload = { ...payload, nome, marca, volumeTotal_ml: volumeTotal, volumeAtual_ml: volumeAtual, consumoEstimadoPorUso: consumo, dataCompra: dataCompra || null, previsaoDuracaoDias: previsao, custoTotal, custoPorUso, addedAt: payload.addedAt || now, paused: true, statusEstoque: statusInfo.statusEstoque, usosRestantes: statusInfo.usosRestantes };
     } else if (category === 'geladeira') {
       const nome = document.getElementById('stock-fridge-name').value.trim();
       const quantidade = parseInt(document.getElementById('stock-fridge-qty').value, 10) || 0;
@@ -12055,6 +12450,19 @@
     await firestore.collection('stock').doc(itemId).set({ paused: !item?.paused, updatedAt: new Date().toISOString() }, { merge: true });
   }
 
+  function toggleTemplateFields(category) {
+    const sections = {
+      esmaltes: document.querySelectorAll('.template-field-esmaltes'),
+      geladeira: document.querySelectorAll('.template-field-geladeira'),
+      manutencao: document.querySelectorAll('.template-field-manutencao')
+    };
+    Object.entries(sections).forEach(([key, nodes]) => {
+      nodes.forEach(node => {
+        node.style.display = key === category ? 'block' : 'none';
+      });
+    });
+  }
+
   async function removeStockItem(itemId) {
     if (!firestore || !itemId) return;
     await firestore.collection('stock').doc(itemId).delete();
@@ -12072,22 +12480,53 @@
     closeDialog('stock-remove-modal');
   }
 
-  function openStockDetailModal(itemId) {
+  async function openStockDetailModal(itemId) {
     const item = stockItems.find(i => i.id === itemId);
     if (!item) return;
     const hist = buildStockHistoryInfo(itemId);
     document.getElementById('stock-detail-name').textContent = item.nome || item.name || 'Item';
     document.getElementById('stock-detail-cat').textContent = item.categoria || item.category || '—';
     document.getElementById('stock-detail-entry').textContent = hist.lastEntry ? formatDateLabel((hist.lastEntry || '').split('T')[0] || hist.lastEntry) : '—';
+    const usosRestantes = item.usosRestantes ?? (item.previsaoDuracaoDias || null);
+    document.getElementById('stock-detail-forecast').textContent = usosRestantes ? `Usos restantes: ${usosRestantes}` : '—';
     document.getElementById('stock-detail-exit').textContent = hist.lastExit ? formatDateLabel((hist.lastExit || '').split('T')[0] || hist.lastExit) : '—';
-    document.getElementById('stock-detail-forecast').textContent = item.previsaoDuracaoDias ? `${item.previsaoDuracaoDias} dias` : '—';
     document.getElementById('stock-detail-cost').textContent = item.custoPorUso ? formatCurrency(item.custoPorUso) : '—';
+    const historySection = document.getElementById('stock-detail-history-section');
+    const historyList = document.getElementById('stock-detail-history-list');
+    const isPolish = (item.categoria || item.category) === 'esmaltes';
+    if (historySection) historySection.style.display = isPolish ? 'grid' : 'none';
+    if (isPolish && historyList) {
+      historyList.textContent = 'Carregando...';
+      const entries = await loadStockHistory(itemId, 5);
+      if (!entries.length) {
+        historyList.textContent = 'Nenhum uso registrado.';
+      } else {
+        historyList.innerHTML = '';
+        entries.forEach(entry => {
+          const row = document.createElement('div');
+          row.className = 'inventory-history-item';
+          const dateLabel = entry.data ? formatDateLabel((entry.data || '').split('T')[0] || entry.data) : '—';
+          const volume = entry.consumoMl ?? '—';
+          row.innerHTML = `<span>${dateLabel} • Uso em atendimento</span><strong>${volume} ml</strong>`;
+          historyList.appendChild(row);
+        });
+      }
+      const lastUsage = entries[0]?.data || hist.lastExit || null;
+      document.getElementById('stock-detail-exit').textContent = lastUsage ? formatDateLabel((lastUsage || '').split('T')[0] || lastUsage) : '—';
+    } else if (historyList) {
+      historyList.textContent = '';
+    }
     openDialog('stock-detail-modal');
   }
 
   function openStockExitModal(itemId) {
     pendingExitStockId = itemId;
     const item = stockItems.find(i => i.id === itemId);
+    if (!item || (item.categoria || item.category) === 'esmaltes') {
+      alert('Saída manual não disponível para esmaltes.');
+      pendingExitStockId = null;
+      return;
+    }
     const input = document.getElementById('stock-exit-qty');
     const nameEl = document.getElementById('stock-exit-name');
     if (nameEl) nameEl.textContent = item?.nome || item?.name || 'Item';
@@ -12104,9 +12543,11 @@
     let payload = { updatedAt: now };
     if (item.categoria === 'esmaltes') {
       const remaining = Math.max(0, (item.volumeAtual_ml || 0) - qty);
+      const normalized = normalizeVolumeOneDecimal(remaining);
       const usesPerDay = 3;
-      const previsao = (item.consumoEstimadoPorUso || 0) > 0 ? Math.round(remaining / ((item.consumoEstimadoPorUso || 0) * usesPerDay)) : item.previsaoDuracaoDias || 0;
-      payload = { volumeAtual_ml: remaining, previsaoDuracaoDias: previsao };
+      const previsao = (item.consumoEstimadoPorUso || 0) > 0 ? Math.round(normalized / ((item.consumoEstimadoPorUso || 0) * usesPerDay)) : item.previsaoDuracaoDias || 0;
+      const statusInfo = computePolishUsageStatus({ ...item, volumeAtual_ml: normalized });
+      payload = { volumeAtual_ml: normalized, previsaoDuracaoDias: previsao, statusEstoque: statusInfo.statusEstoque, usosRestantes: statusInfo.usosRestantes };
     } else {
       const remaining = Math.max(0, (item.quantidade || 0) - qty);
       payload = { quantidade: remaining };
@@ -12122,7 +12563,7 @@
     const title = document.getElementById('template-modal-title');
     const tmpl = productTemplates.find(t => t.id === id);
     if (title) title.textContent = id ? 'Editar template' : 'Novo template';
-    ['template-name','template-pack','template-volume','template-volume-pack','template-frequency'].forEach(fid => {
+    ['template-name','template-volume','template-brand','template-consumption','template-pack','template-volume-pack','template-price','template-cost','template-frequency'].forEach(fid => {
       const el = document.getElementById(fid);
       if (el) el.value = '';
     });
@@ -12130,11 +12571,16 @@
     if (cat) cat.value = tmpl?.categoria || tmpl?.category || currentInventoryCategory;
     if (tmpl) {
       document.getElementById('template-name').value = tmpl.nome || tmpl.name || '';
-      document.getElementById('template-pack').value = tmpl.unidadesPorPack || '';
       document.getElementById('template-volume').value = tmpl.volumeTotal || '';
+      document.getElementById('template-brand').value = tmpl.marca || '';
+      document.getElementById('template-consumption').value = tmpl.consumoEstimadoPorUso || tmpl.consumo || '';
+      document.getElementById('template-pack').value = tmpl.unidadesPorPack || '';
       document.getElementById('template-volume-pack').value = tmpl.volumePorPack || '';
+      document.getElementById('template-price').value = tmpl.precoVenda || '';
+      document.getElementById('template-cost').value = tmpl.custoEstimado || '';
       document.getElementById('template-frequency').value = tmpl.frequenciaDeUso || '';
     }
+    toggleTemplateFields(cat?.value || currentInventoryCategory);
     openDialog('template-modal');
   }
 
@@ -12142,15 +12588,23 @@
     initFirebaseApp();
     const nome = document.getElementById('template-name').value.trim();
     const categoria = document.getElementById('template-category').value;
+    const marca = document.getElementById('template-brand').value.trim();
+    const volumeTotal = parseFloat(document.getElementById('template-volume').value) || null;
+    const consumo = parseFloat(document.getElementById('template-consumption').value) || null;
+    const unidadesPorPack = parseFloat(document.getElementById('template-pack').value) || null;
+    const volumePorPack = parseFloat(document.getElementById('template-volume-pack').value) || null;
+    const precoVenda = parseFloat(document.getElementById('template-price').value) || null;
+    const custoEstimado = parseFloat(document.getElementById('template-cost').value) || null;
+    const frequenciaDeUso = document.getElementById('template-frequency').value || '';
     if (!nome) { alert('Informe o nome do template.'); return; }
-    const payload = {
-      nome,
-      categoria,
-      unidadesPorPack: parseInt(document.getElementById('template-pack').value, 10) || null,
-      volumeTotal: parseFloat(document.getElementById('template-volume').value) || null,
-      volumePorPack: parseFloat(document.getElementById('template-volume-pack').value) || null,
-      frequenciaDeUso: document.getElementById('template-frequency').value || ''
-    };
+    if (categoria === 'esmaltes' && (!volumeTotal || !consumo)) { alert('Informe volume total e consumo estimado.'); return; }
+    if (categoria === 'geladeira' && (!unidadesPorPack || unidadesPorPack <= 0)) { alert('Informe unidades por pack para geladeira.'); return; }
+    const base = { nome, categoria };
+    const payload = categoria === 'esmaltes'
+      ? { ...base, marca, volumeTotal, consumoEstimadoPorUso: consumo }
+      : categoria === 'geladeira'
+        ? { ...base, unidadesPorPack, volumePorPack: volumePorPack || null, precoVenda: precoVenda || null }
+        : { ...base, custoEstimado: custoEstimado || null, frequenciaDeUso };
     try {
       if (firestore) {
         if (templateEditingId) {
