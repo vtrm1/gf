@@ -5418,20 +5418,16 @@
             </select>
           </div>
           <div>
-            <label class="subtext">Unidades por pack</label>
-            <input id="template-pack" type="number" min="0" />
-          </div>
-          <div>
             <label class="subtext">Volume total (ml)</label>
             <input id="template-volume" type="number" min="0" />
           </div>
           <div>
-            <label class="subtext">Volume por pack</label>
-            <input id="template-volume-pack" type="number" min="0" />
+            <label class="subtext">Marca</label>
+            <input id="template-brand" />
           </div>
           <div>
-            <label class="subtext">Frequência de uso</label>
-            <input id="template-frequency" placeholder="Ex: diário" />
+            <label class="subtext">Consumo estimado por uso (ml)</label>
+            <input id="template-consumption" type="number" min="0" step="0.1" />
           </div>
         </div>
         <div class="modal-actions">
@@ -11891,7 +11887,7 @@
     }
     const forecast = consumption > 0 ? Math.round(current / consumption) : 0;
     const forecastEl = document.getElementById('stock-polish-forecast');
-    if (forecastEl) forecastEl.value = forecast ? `${forecast} dias` : '';
+    if (forecastEl) forecastEl.value = forecast ? `${forecast} atendimentos` : '';
   }
 
   function applyInventoryTemplate(templateId) {
@@ -11902,8 +11898,9 @@
     if (currentInventoryCategory === 'esmaltes') {
       document.getElementById('stock-polish-name').value = tmpl.nome || tmpl.name || '';
       document.getElementById('stock-polish-brand').value = tmpl.marca || 'Studio Nails';
-      document.getElementById('stock-polish-total').value = tmpl.volumeTotal || tmpl.volumePorPack || '';
-      document.getElementById('stock-polish-current').value = tmpl.volumeTotal || tmpl.volumePorPack || '';
+      document.getElementById('stock-polish-total').value = tmpl.volumeTotal || '';
+      document.getElementById('stock-polish-current').value = tmpl.volumeTotal || '';
+      document.getElementById('stock-polish-consumption').value = tmpl.consumoEstimadoPorUso || '';
     } else if (currentInventoryCategory === 'geladeira') {
       document.getElementById('stock-fridge-name').value = tmpl.nome || tmpl.name || '';
       document.getElementById('stock-fridge-qty').value = tmpl.unidadesPorPack || tmpl.volumePorPack || '';
@@ -12013,7 +12010,10 @@
           icon.textContent = currentInventoryCategory === 'geladeira' ? '🥤' : currentInventoryCategory === 'manutencao' ? '🧰' : '💅';
           const meta = document.createElement('div');
           meta.className = 'meta';
-          meta.innerHTML = `<strong>${t.nome || t.name}</strong><span>${t.unidadesPorPack ? `${t.unidadesPorPack} por pack` : 'Template rápido'}</span>`;
+          const secondary = currentInventoryCategory === 'esmaltes'
+            ? (t.marca ? t.marca : 'Template rápido')
+            : (t.unidadesPorPack ? `${t.unidadesPorPack} por pack` : 'Template rápido');
+          meta.innerHTML = `<strong>${t.nome || t.name}</strong><span>${secondary}</span>`;
           const quick = document.createElement('button');
           quick.className = 'secondary';
           quick.style.padding = '0.35rem 0.6rem';
@@ -12030,7 +12030,10 @@
       filtered.forEach(t => {
         const btn = document.createElement('div');
         btn.className = `template-chip ${currentInventoryCategory}`;
-        btn.innerHTML = `<div class="icon">⭐</div><div class="meta"><strong>${t.nome || t.name}</strong><span>${t.unidadesPorPack ? t.unidadesPorPack + ' por pack' : 'Sugestão'}</span></div>`;
+        const secondary = currentInventoryCategory === 'esmaltes'
+          ? (t.marca ? t.marca : 'Sugestão')
+          : (t.unidadesPorPack ? t.unidadesPorPack + ' por pack' : 'Sugestão');
+        btn.innerHTML = `<div class="icon">⭐</div><div class="meta"><strong>${t.nome || t.name}</strong><span>${secondary}</span></div>`;
         btn.onclick = () => applyInventoryTemplate(t.id);
         modalRow.appendChild(btn);
       });
@@ -12122,7 +12125,7 @@
             <div class="inventory-actions-icons">
               <button class="action-btn edit" title="Editar" aria-label="Editar" onclick="openInventoryModal('${item.id}')">✎</button>
               <button class="action-btn neutral" title="Detalhes" aria-label="Detalhes" onclick="openStockDetailModal('${item.id}')">👁</button>
-              <button class="action-btn exit" title="Registrar saída" aria-label="Registrar saída" onclick="openStockExitModal('${item.id}')">➖</button>
+              ${category === 'esmaltes' ? '' : `<button class="action-btn exit" title="Registrar saída" aria-label="Registrar saída" onclick="openStockExitModal('${item.id}')">➖</button>`}
               <button class="action-btn danger" title="Excluir" aria-label="Excluir" onclick="promptRemoveStockItem('${item.id}')">🗑</button>
             </div>
           </div>
@@ -12157,9 +12160,7 @@
       const dataCompra = document.getElementById('stock-polish-date').value;
       if (!nome || !marca || !volumeTotal) { alert('Preencha nome, marca e volume total.'); return; }
       if (!consumo || consumo <= 0) { alert('Informe o consumo estimado por uso (ml).'); return; }
-      const volumeAtual = inventoryFormMode === 'edit' && original
-        ? (original.volumeAtual_ml ?? original.volumeTotal_ml ?? volumeTotal)
-        : volumeTotal;
+      const volumeAtual = volumeTotal;
       const previsao = Math.round(volumeAtual / consumo);
       const custoPorUso = volumeTotal ? ((custoTotal || 0) / volumeTotal) * consumo : 0;
       const statusInfo = computePolishUsageStatus({ categoria: 'esmaltes', volumeAtual_ml: volumeAtual, consumoEstimadoPorUso: consumo });
@@ -12254,6 +12255,11 @@
   function openStockExitModal(itemId) {
     pendingExitStockId = itemId;
     const item = stockItems.find(i => i.id === itemId);
+    if (!item || (item.categoria || item.category) === 'esmaltes') {
+      alert('Saída manual não disponível para esmaltes.');
+      pendingExitStockId = null;
+      return;
+    }
     const input = document.getElementById('stock-exit-qty');
     const nameEl = document.getElementById('stock-exit-name');
     if (nameEl) nameEl.textContent = item?.nome || item?.name || 'Item';
@@ -12290,7 +12296,7 @@
     const title = document.getElementById('template-modal-title');
     const tmpl = productTemplates.find(t => t.id === id);
     if (title) title.textContent = id ? 'Editar template' : 'Novo template';
-    ['template-name','template-pack','template-volume','template-volume-pack','template-frequency'].forEach(fid => {
+    ['template-name','template-volume','template-brand','template-consumption'].forEach(fid => {
       const el = document.getElementById(fid);
       if (el) el.value = '';
     });
@@ -12298,10 +12304,9 @@
     if (cat) cat.value = tmpl?.categoria || tmpl?.category || currentInventoryCategory;
     if (tmpl) {
       document.getElementById('template-name').value = tmpl.nome || tmpl.name || '';
-      document.getElementById('template-pack').value = tmpl.unidadesPorPack || '';
       document.getElementById('template-volume').value = tmpl.volumeTotal || '';
-      document.getElementById('template-volume-pack').value = tmpl.volumePorPack || '';
-      document.getElementById('template-frequency').value = tmpl.frequenciaDeUso || '';
+      document.getElementById('template-brand').value = tmpl.marca || '';
+      document.getElementById('template-consumption').value = tmpl.consumoEstimadoPorUso || tmpl.consumo || '';
     }
     openDialog('template-modal');
   }
@@ -12310,14 +12315,17 @@
     initFirebaseApp();
     const nome = document.getElementById('template-name').value.trim();
     const categoria = document.getElementById('template-category').value;
+    const marca = document.getElementById('template-brand').value.trim();
+    const volumeTotal = parseFloat(document.getElementById('template-volume').value) || null;
+    const consumo = parseFloat(document.getElementById('template-consumption').value) || null;
     if (!nome) { alert('Informe o nome do template.'); return; }
+    if (categoria === 'esmaltes' && (!volumeTotal || !consumo)) { alert('Informe volume total e consumo estimado.'); return; }
     const payload = {
       nome,
       categoria,
-      unidadesPorPack: parseInt(document.getElementById('template-pack').value, 10) || null,
-      volumeTotal: parseFloat(document.getElementById('template-volume').value) || null,
-      volumePorPack: parseFloat(document.getElementById('template-volume-pack').value) || null,
-      frequenciaDeUso: document.getElementById('template-frequency').value || ''
+      marca: categoria === 'esmaltes' ? marca : undefined,
+      volumeTotal: categoria === 'esmaltes' ? volumeTotal : (parseFloat(document.getElementById('template-volume').value) || null),
+      consumoEstimadoPorUso: categoria === 'esmaltes' ? consumo : undefined
     };
     try {
       if (firestore) {
