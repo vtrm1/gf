@@ -3173,6 +3173,37 @@
       border-color: rgba(255, 193, 7, 0.22);
     }
 
+    .inventory-history {
+      margin-top: 1rem;
+      border-top: 1px solid var(--border-soft);
+      padding-top: 0.75rem;
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .inventory-history-list {
+      background: rgba(255,255,255,0.8);
+      border: 1px solid var(--border-soft);
+      border-radius: 10px;
+      padding: 0.65rem 0.8rem;
+      display: grid;
+      gap: 0.4rem;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .inventory-history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .inventory-history-item strong {
+      font-weight: 600;
+    }
+
     .inventory-card-title {
       font-size: 0.95rem;
       font-weight: 800;
@@ -5470,6 +5501,12 @@
           <div><label>Última saída</label><div id="stock-detail-exit" class="subtext">—</div></div>
           <div><label>Previsão</label><div id="stock-detail-forecast" class="subtext">—</div></div>
           <div><label>Custo/uso</label><div id="stock-detail-cost" class="subtext">—</div></div>
+        </div>
+        <div id="stock-detail-history-section" class="inventory-history">
+          <div class="section-title" style="margin-top:0;">
+            <h4 style="font-size:1rem;">Histórico de uso</h4>
+          </div>
+          <div id="stock-detail-history-list" class="inventory-history-list subtext">Carregando...</div>
         </div>
       </div>
     </div>
@@ -12079,11 +12116,22 @@
   function buildStockHistoryInfo(itemId) {
     const list = stockHistories[itemId] || [];
     const lastEntry = list.find(h => h.tipo === 'entrada');
-    const lastExit = list.find(h => h.tipo === 'saida' || h.tipo === 'baixa');
+    const lastExit = list.find(h => h.tipo === 'saida' || h.tipo === 'baixa' || h.tipo === 'uso');
     return {
       lastEntry: lastEntry?.data || null,
       lastExit: lastExit?.data || null
     };
+  }
+
+  async function loadStockHistory(itemId, limit = 5) {
+    if (!firestore || !itemId) return [];
+    try {
+      const snap = await firestore.collection('stock').doc(itemId).collection('history').orderBy('data', 'desc').limit(limit).get();
+      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch (err) {
+      console.warn('Não foi possível carregar histórico de estoque', err);
+      return stockHistories[itemId] ? stockHistories[itemId].slice(0, limit) : [];
+    }
   }
 
   function attachStockHistoryListener(itemId) {
@@ -12287,7 +12335,7 @@
     closeDialog('stock-remove-modal');
   }
 
-  function openStockDetailModal(itemId) {
+  async function openStockDetailModal(itemId) {
     const item = stockItems.find(i => i.id === itemId);
     if (!item) return;
     const hist = buildStockHistoryInfo(itemId);
@@ -12295,8 +12343,31 @@
     document.getElementById('stock-detail-cat').textContent = item.categoria || item.category || '—';
     document.getElementById('stock-detail-entry').textContent = hist.lastEntry ? formatDateLabel((hist.lastEntry || '').split('T')[0] || hist.lastEntry) : '—';
     document.getElementById('stock-detail-exit').textContent = hist.lastExit ? formatDateLabel((hist.lastExit || '').split('T')[0] || hist.lastExit) : '—';
-    document.getElementById('stock-detail-forecast').textContent = item.previsaoDuracaoDias ? `${item.previsaoDuracaoDias} dias` : '—';
+    document.getElementById('stock-detail-forecast').textContent = item.previsaoDuracaoDias ? `${item.previsaoDuracaoDias} atendimentos` : '—';
     document.getElementById('stock-detail-cost').textContent = item.custoPorUso ? formatCurrency(item.custoPorUso) : '—';
+    const historySection = document.getElementById('stock-detail-history-section');
+    const historyList = document.getElementById('stock-detail-history-list');
+    const isPolish = (item.categoria || item.category) === 'esmaltes';
+    if (historySection) historySection.style.display = isPolish ? 'grid' : 'none';
+    if (isPolish && historyList) {
+      historyList.textContent = 'Carregando...';
+      const entries = await loadStockHistory(itemId, 5);
+      if (!entries.length) {
+        historyList.textContent = 'Nenhum uso registrado.';
+      } else {
+        historyList.innerHTML = '';
+        entries.forEach(entry => {
+          const row = document.createElement('div');
+          row.className = 'inventory-history-item';
+          const dateLabel = entry.data ? formatDateLabel((entry.data || '').split('T')[0] || entry.data) : '—';
+          const volume = entry.consumoMl ?? entry.volume ?? entry.quantidade ?? '—';
+          row.innerHTML = `<span>${dateLabel} • Uso em atendimento</span><strong>${volume} ml</strong>`;
+          historyList.appendChild(row);
+        });
+      }
+    } else if (historyList) {
+      historyList.textContent = '';
+    }
     openDialog('stock-detail-modal');
   }
 
