@@ -5755,6 +5755,10 @@
           </div>
         </div>
         <div id="clients-grid-ceo" class="clients-grid"></div>
+        <div class="client-detail-actions" style="margin-top:0.75rem;justify-content:flex-start;">
+          <button id="clients-loadmore-ceo" class="secondary" onclick="loadClientsPage(false)">Carregar mais</button>
+          <span id="clients-loading-ceo" class="subtext hidden">Carregando...</span>
+        </div>
       </div>
     </section>
 
@@ -6515,6 +6519,10 @@
           </div>
         </div>
         <div id="clients-grid-colab" class="clients-grid"></div>
+        <div class="client-detail-actions" style="margin-top:0.75rem;justify-content:flex-start;">
+          <button id="clients-loadmore-colab" class="secondary" onclick="loadClientsPage(false)">Carregar mais</button>
+          <span id="clients-loading-colab" class="subtext hidden">Carregando...</span>
+        </div>
       </div>
     </section>
 
@@ -7301,6 +7309,45 @@
   let collaboratorAccounts = [];
 
   let clients = [];
+  let clientsLastDoc = null;
+  let clientsHasMore = true;
+  let clientsLoading = false;
+
+  async function loadClientsPage(reset = false) {
+    initFirebaseApp();
+    if (!firestore) return;
+    if (clientsLoading) return;
+    if (reset) {
+      clients = [];
+      clientsLastDoc = null;
+      clientsHasMore = true;
+    }
+    if (!clientsHasMore) return;
+    clientsLoading = true;
+    renderClients('ceo');
+    renderClients('colab');
+    try {
+      let query = firestore.collection('clients').orderBy('name').limit(50);
+      if (clientsLastDoc) query = query.startAfter(clientsLastDoc);
+      const snap = await query.get();
+      const newDocs = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .filter(c => !c.deletedAt && c.deleted !== true);
+      const existingIds = new Set(clients.map(c => c.id));
+      newDocs.forEach(doc => {
+        if (!existingIds.has(doc.id)) clients.push(doc);
+      });
+      clientsLastDoc = snap.docs[snap.docs.length - 1] || clientsLastDoc;
+      if (snap.docs.length < 50) clientsHasMore = false;
+    } catch (err) {
+      console.error('Falha ao carregar clientes paginados', err);
+      alert('Não foi possível carregar mais clientes agora.');
+    } finally {
+      clientsLoading = false;
+      renderClients('ceo');
+      renderClients('colab');
+    }
+  }
 
   let currentClientEditingId = null;
   let pendingRemoveClientId = null;
@@ -7786,14 +7833,7 @@
       normalizeAppointmentsData();
       refreshAgendaFromAppointments();
     });
-    // Clientes
-    firestore.collection('clients').onSnapshot(snap => {
-      clients = snap.docs
-        .map(d => ({ id: d.id, ...d.data() }))
-        .filter(c => !c.deletedAt && c.deleted !== true);
-      renderClients('ceo');
-      renderClients('colab');
-    });
+    loadClientsPage(true);
     // Serviços
     firestore.collection('services').onSnapshot(snap => {
       kioskServices = snap.docs.map(d => ({
@@ -8208,8 +8248,7 @@
       await persistClient(newClient);
     }
 
-    renderClients('ceo');
-    renderClients('colab');
+    await loadClientsPage(true);
     closeDialog('client-form-modal');
     currentClientEditingId = null;
   }
@@ -8226,6 +8265,79 @@
     document.getElementById('tab-detail-data').classList.add('active');
     renderClientDetailTab();
     openDialog('client-detail-modal');
+  }
+
+  function getComandaByAppointment(appt) {
+    if (!appt?.comandaId) return null;
+    return comandas.find(c => c.id === appt.comandaId) || null;
+  }
+
+  function getEsmaltesUsedByAppointment(atendimentoId) {
+    if (!atendimentoId) return [];
+    const names = new Set();
+    Object.entries(stockHistories || {}).forEach(([stockId, list]) => {
+      const item = stockItems.find(i => i.id === stockId);
+      if ((item?.categoria || item?.category) !== 'esmaltes') return;
+      (list || []).forEach(entry => {
+        if (entry.atendimentoId === atendimentoId && entry.tipo === 'uso_esmalte') {
+          names.add(item.nome || item.name || 'Esmalte');
+        }
+      });
+    });
+    return Array.from(names);
+  }
+
+  function buildClientConsumptions(clientId) {
+    const related = appointments.filter(a => a.clientId === clientId);
+    const consumptions = [];
+    related.forEach(appt => {
+      const comanda = getComandaByAppointment(appt);
+      const items = comanda
+        ? (comanda.itensProfissional || []).concat(comanda.itensCliente || []).concat(comanda.itens || comanda.items || [])
+        : [];
+      items.forEach(it => {
+        if ((it.tipo || '').toLowerCase() === 'servico' || (it.tipo || '').toLowerCase() === 'service') return;
+        const cat = (it.categoriaEstoque || it.categoria || it.category || '').toLowerCase();
+        if (cat.includes('esmalte')) return;
+        if (!(cat.includes('geladeira') || (it.tipo || '').toLowerCase() === 'consumo')) return;
+        const qty = Number(it.quantidade || it.qtd || 1);
+        const price = Number(it.preco || it.valor || 0);
+        consumptions.push({
+          nome: it.nome || 'Consumo',
+          total: price * qty,
+          qtd: qty,
+          preco: price,
+          data: appt.date || comanda?.atualizadoEm || comanda?.createdAt
+        });
+      });
+    });
+    return consumptions;
+  }
+
+  function buildClientServices(clientId) {
+    const related = appointments.filter(a => a.clientId === clientId);
+    return related.map(appt => {
+      const comanda = getComandaByAppointment(appt);
+      const items = comanda
+        ? (comanda.itensProfissional || []).concat(comanda.itensCliente || []).concat(comanda.itens || comanda.items || [])
+        : [];
+      const serviceItems = items.filter(it => (it.tipo || '').toLowerCase() === 'servico');
+      const serviceValue = serviceItems.reduce((acc, it) => {
+        const qty = Number(it.quantidade || it.qtd || 1);
+        const price = Number(it.preco || it.valor || 0);
+        return acc + (qty * price);
+      }, 0) || getServicePriceByAppointment(appt) || 0;
+      const totals = computeResumoTotals(items);
+      const totalPago = comanda?.pagamentoTotal || comanda?.total || totals.total || serviceValue;
+      const esmaltes = getEsmaltesUsedByAppointment(appt.id);
+      return {
+        data: appt.date || comanda?.atualizadoEm || appt.updatedAt || '',
+        servico: appt.serviceName || appt.service || 'Serviço',
+        valorServico: serviceValue,
+        total: totalPago,
+        esmaltes
+      };
+    });
   }
 
   function switchClientTab(tab) {
@@ -8261,17 +8373,31 @@
     }
 
     if (activeClientTab === 'history') {
-      const hist = (client.history || []).map(h => `<li>${h}</li>`).join('') || '<li>Sem histórico</li>';
+      const records = buildClientServices(client.id);
+      const list = records.length
+        ? records.map(r => {
+            const esmaltes = r.esmaltes.length ? `<div class="subtext">Esmaltes: ${r.esmaltes.join(', ')}</div>` : '';
+            const dateLabel = r.data ? formatDateLabel(r.data) : 'Data não informada';
+            return `<li>${dateLabel} • ${r.servico} • Serviço ${formatCurrency(r.valorServico)} • Total pago ${formatCurrency(r.total)}${esmaltes}</li>`;
+          }).join('')
+        : '<li>Sem histórico</li>';
       container.innerHTML = `
         <div class="client-detail-section">
           <h4>Histórico de serviços</h4>
-          <ul class="client-detail-list">${hist}</ul>
+          <ul class="client-detail-list">${list}</ul>
         </div>
       `;
     }
 
     if (activeClientTab === 'consume') {
-      const cons = (client.consume || []).map(h => `<li>${h}</li>`).join('') || '<li>Sem consumos</li>';
+      const consumptions = buildClientConsumptions(client.id);
+      const cons = consumptions.length
+        ? consumptions.map(c => {
+            const dateLabel = c.data ? formatDateLabel(c.data) : '—';
+            const total = formatCurrency(c.total || 0);
+            return `<li>${dateLabel} • ${c.nome} (${c.qtd}x ${formatCurrency(c.preco || 0)}) • Total ${total}</li>`;
+          }).join('')
+        : '<li>Sem consumos</li>';
       container.innerHTML = `
         <div class="client-detail-section">
           <h4>Consumos no Studio</h4>
@@ -8326,6 +8452,7 @@
       renderAgendaMonthSummary('ceo');
       renderAgendaMonthCalendar('colab');
       renderAgendaMonthSummary('colab');
+      loadClientsPage(true);
       pendingRemoveClientId = null;
     };
     if (firestore) {
@@ -10678,11 +10805,14 @@
   function renderClients(scope = 'ceo') {
     const listEl = document.getElementById(scope === 'ceo' ? 'clients-grid-ceo' : 'clients-grid-colab');
     const searchEl = document.getElementById(scope === 'ceo' ? 'client-search-ceo' : 'client-search-colab');
+    const loadBtn = document.getElementById(scope === 'ceo' ? 'clients-loadmore-ceo' : 'clients-loadmore-colab');
+    const loadingEl = document.getElementById(scope === 'ceo' ? 'clients-loading-ceo' : 'clients-loading-colab');
     if (!listEl) return;
     listEl.innerHTML = '';
     const search = (searchEl?.value || '').toLowerCase();
     const filtered = filterClientsByRole(scope)
-      .filter(c => c.name.toLowerCase().includes(search) || (c.phone || '').includes(search));
+      .filter(c => c.name.toLowerCase().includes(search) || (c.phone || '').includes(search))
+      .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 
     filtered.forEach(c => {
       const card = document.createElement('div');
@@ -10729,6 +10859,11 @@
     }
 
     renderClientsDatalist();
+    if (loadBtn) {
+      loadBtn.style.display = clientsHasMore ? 'inline-flex' : 'none';
+      loadBtn.disabled = clientsLoading;
+    }
+    if (loadingEl) loadingEl.classList.toggle('hidden', !clientsLoading);
   }
 
   function renderClientsDatalist() {
@@ -10842,7 +10977,7 @@
     }
   }
 
-  async function applyStockConsumptionFromComanda(itens = []) {
+  async function applyStockConsumptionFromComanda(itens = [], atendimentoId = null, comandaId = null) {
     if (!firestore || !Array.isArray(itens) || !itens.length) return;
     const nowISO = new Date().toISOString();
     for (const item of itens) {
@@ -10873,6 +11008,8 @@
             quantidade: consumo,
             data: nowISO,
             origem: 'comanda',
+            atendimentoId,
+            comandaId,
             ref: item.itemId || item.nome || 'consumo'
           });
         } else {
@@ -11032,7 +11169,7 @@
     }
 
     if (itensRegistrados.length) {
-      await applyStockConsumptionFromComanda(itensRegistrados);
+      await applyStockConsumptionFromComanda(itensRegistrados, atendimentoId, appt.comandaId || null);
     }
 
     if (selectedEsmaltes && selectedEsmaltes.length) {
