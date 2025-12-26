@@ -276,20 +276,10 @@
       min-height: 320px;
     }
 
-    .finance-card {
-      background: linear-gradient(180deg, rgba(255, 247, 243, 0.75), rgba(232, 238, 244, 0.6));
-      border: 1px solid rgba(0,0,0,0.04);
-    }
-
     .finance-chart-area {
       min-height: 240px;
       position: relative;
       overflow: hidden;
-    }
-
-    .finance-balance-card .finance-chart-area {
-      max-width: 100%;
-      margin: 0;
     }
 
     .finance-chart-area canvas {
@@ -346,9 +336,6 @@
     }
 
     .finance-fixed-card {
-      background: linear-gradient(135deg, rgba(155, 191, 146, 0.12), rgba(114, 150, 131, 0.12));
-      border: 1px solid rgba(155, 191, 146, 0.35);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
       display: flex;
       flex-direction: column;
       gap: 0.6rem;
@@ -368,8 +355,8 @@
       gap: 0.75rem;
       padding: 0.4rem 0.6rem;
       border-radius: 12px;
-      background: rgba(255,255,255,0.7);
-      border: 1px solid rgba(0,0,0,0.06);
+      background: rgba(255,255,255,0.85);
+      border: 1px solid rgba(0,0,0,0.05);
       font-size: 0.9rem;
       color: var(--text-dark);
       flex-wrap: wrap;
@@ -382,6 +369,21 @@
       align-items: center;
       flex: 1;
       min-width: 160px;
+    }
+
+    .finance-fixed-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      width: 100%;
+    }
+
+    .finance-fixed-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      flex-shrink: 0;
     }
 
     .finance-fixed-mini-item .value {
@@ -419,7 +421,7 @@
       width: 0;
       border-radius: 999px;
       transition: width 0.25s ease;
-      background: linear-gradient(90deg, rgba(155,191,146,0.9), rgba(183,160,106,0.75));
+      background: linear-gradient(90deg, rgba(155,191,146,0.85), rgba(183,160,106,0.7));
     }
 
     .finance-stock-items-card .finance-stock-legend {
@@ -432,7 +434,7 @@
     }
 
     .finance-stock-items-card .finance-fixed-bar span {
-      background: linear-gradient(90deg, rgba(170,189,209,0.9), rgba(104,153,142,0.85));
+      background: linear-gradient(90deg, rgba(170,189,209,0.85), rgba(104,153,142,0.8));
     }
 
     .finance-sales-table {
@@ -458,9 +460,6 @@
     }
 
     .finance-stock-card {
-      background: var(--card-bg, #fff);
-      border: 1px solid rgba(0,0,0,0.05);
-      box-shadow: 0 10px 26px rgba(0,0,0,0.06);
       border-radius: 18px;
       padding: 1rem;
       display: grid;
@@ -479,8 +478,8 @@
       gap: 0.75rem;
       padding: 0.35rem 0.6rem;
       border-radius: 12px;
-      background: rgba(0,0,0,0.03);
-      border: 1px solid rgba(0,0,0,0.03);
+      background: rgba(0,0,0,0.02);
+      border: 1px solid rgba(0,0,0,0.04);
     }
 
     .finance-stock-label {
@@ -525,6 +524,143 @@
       align-content: start;
     }
 
+    .dashboard-insight-card {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .dashboard-insight-card.insight-active {
+      border: 1px solid rgba(155, 191, 146, 0.35);
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+    }
+
+    .dashboard-insight-card.insight-active::after {
+      content: '';
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 8px;
+      height: 2px;
+      border-radius: 999px;
+      background: rgba(155, 191, 146, 0.7);
+    }
+
+    .dashboard-details-panel {
+      width: 100%;
+      max-width: 100%;
+      border-radius: 16px;
+      border: 1px solid transparent;
+      background: rgba(255, 255, 255, 0.82);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+      padding: 0;
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transform: translateY(-4px);
+      transition: max-height 0.25s ease, opacity 0.25s ease, transform 0.25s ease, padding 0.25s ease, border-color 0.25s ease;
+    }
+
+    .dashboard-details-panel.open {
+      padding: 0.85rem 0.95rem;
+      border-color: rgba(0,0,0,0.06);
+      max-height: 560px;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .dashboard-details-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .details-title {
+      display: grid;
+      gap: 0.15rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .details-value {
+      font-size: 1.35rem;
+      font-weight: 700;
+    }
+
+    .details-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.08);
+      background: rgba(255,255,255,0.7);
+      color: var(--text-muted);
+      box-shadow: none;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dashboard-details-body {
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .details-lines {
+      display: grid;
+      gap: 0.25rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .details-breakdown {
+      display: grid;
+      gap: 0.35rem;
+      font-size: 0.8rem;
+    }
+
+    .details-breakdown .detail-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      padding: 0.35rem 0.5rem;
+      border-radius: 10px;
+      background: rgba(0,0,0,0.03);
+    }
+
+    .details-action {
+      align-self: flex-start;
+      font-size: 0.85rem;
+      padding: 0.35rem 0.85rem;
+    }
+
+    .dashboard-stock-toggle {
+      display: none;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.8rem;
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.7);
+      color: var(--text-muted);
+      border: 1px solid rgba(0,0,0,0.08);
+      box-shadow: none;
+      white-space: nowrap;
+    }
+
+    #dashboard-stock-card {
+      background-color: var(--pastel-beige);
+    }
+
+    @media (min-width: 769px) {
+      .dashboard-stock-toggle {
+        display: none !important;
+      }
+    }
+
     @media (max-width: 1024px) {
       .finance-donut-wrap {
         grid-template-columns: 1fr;
@@ -536,16 +672,369 @@
     }
 
     @media (max-width: 768px) {
+      /* Previne rolagem horizontal */
+      body, html {
+        overflow-x: hidden;
+        width: 100%;
+        max-width: 100%;
+      }
+
+      .content {
+        overflow-x: hidden;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+
+      #page-ceo-finance {
+        overflow-x: hidden;
+        overflow-y: visible;
+        width: 100%;
+        max-width: 100%;
+      }
+
+      /* Ajustes financeiro mobile */
       .finance-card-grid .value {
         font-size: 1.3rem;
       }
 
-      .finance-chart-area {
-        min-height: 200px;
+      /* Remove o container finance-section-wrap no mobile para comportar-se como "Vendas por tipo" */
+      .finance-section-wrap {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        margin-bottom: 0.85rem !important;
+        box-sizing: border-box;
+        overflow-x: hidden;
+        overflow-y: visible;
+        display: block;
+        gap: 0 !important;
+      }
+
+      /* Garante que os containers não adicionem largura extra aos cards */
+      .finance-section-wrap > * {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
       }
 
       .finance-card-grid {
         gap: 0.75rem;
+        grid-template-columns: 1fr;
+        margin: 0 !important;
+        margin-bottom: 0.85rem !important;
+        padding: 0 !important;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+
+      /* Padroniza TODOS os cards financeiros para usar o mesmo padrão do site */
+      .finance-card-grid .card,
+      .finance-card,
+      .finance-fixed-card,
+      .finance-stock-card,
+      .finance-stock-items-card,
+      .finance-main-card,
+      .finance-secondary-column .card,
+      .finance-secondary-column .finance-card,
+      .finance-secondary-column .finance-fixed-card,
+      .finance-secondary-column .finance-stock-card,
+      .card.finance-card,
+      .card.finance-fixed-card,
+      .card.finance-stock-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 0 0.85rem 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding: 0.95rem 1rem !important;
+        box-sizing: border-box !important;
+        overflow: visible !important;
+        /* Remove qualquer largura mínima ou máxima que possa estar causando problema */
+        min-width: 0 !important;
+        max-width: 100% !important;
+      }
+
+      /* Fixa altura do gráfico para evitar crescimento infinito, mas permite conteúdo visível */
+      .finance-chart-area {
+        min-height: 200px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        position: relative;
+        overflow: visible;
+      }
+
+      .finance-main-card .finance-chart-area {
+        min-height: 240px;
+      }
+
+      .finance-chart-area canvas {
+        display: block;
+        margin: 0 auto;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        box-sizing: border-box;
+      }
+
+      .finance-donut-wrap {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        overflow: visible;
+      }
+
+      .finance-donut-wrap .finance-chart-area {
+        overflow: visible;
+        width: 100%;
+        max-width: 100%;
+      }
+
+      .finance-donut-wrap canvas {
+        display: block;
+        margin: 0 auto;
+        max-width: 100% !important;
+        width: 100% !important;
+        box-sizing: border-box;
+        max-height: none !important;
+        height: auto !important;
+      }
+
+      /* Garante que os containers secundários não cortem conteúdo e não adicionem largura extra */
+      .finance-secondary-grid {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: visible !important;
+        overflow-x: hidden;
+        overflow-y: visible;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box;
+        min-width: 0 !important;
+      }
+
+      .finance-secondary-column {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: visible !important;
+        overflow-x: hidden;
+        overflow-y: visible;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box;
+        min-width: 0 !important;
+      }
+
+      /* Garante que todos os elementos filhos também respeitem a largura */
+      .finance-secondary-grid > *,
+      .finance-secondary-column > * {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box;
+      }
+
+
+      /* Garante que legendas e listas não sejam cortadas */
+      .finance-legend,
+      .finance-stock-legend,
+      .finance-fixed-mini-list {
+        overflow: visible !important;
+        width: 100%;
+        max-width: 100%;
+        min-height: auto;
+      }
+
+      /* Regras específicas para os cards que estavam quebrando - força mesmo tamanho */
+      .card.finance-card,
+      .card.finance-fixed-card,
+      .card.finance-stock-card,
+      .finance-stock-items-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding: 0.95rem 1rem !important;
+        box-sizing: border-box !important;
+        /* Remove qualquer transformação ou posicionamento que possa afetar largura */
+        transform: none !important;
+        position: relative !important;
+      }
+
+      /* Garante que elementos filhos também respeitem a largura */
+      .card.finance-card > *,
+      .card.finance-fixed-card > *,
+      .card.finance-stock-card > *,
+      .finance-stock-items-card > * {
+        max-width: 100% !important;
+        box-sizing: border-box;
+      }
+
+      /* Remove max-height do canvas dentro do donut-wrap que pode estar cortando */
+      .finance-donut-wrap .finance-chart-area canvas {
+        max-height: none !important;
+        height: auto !important;
+      }
+
+      .finance-sales-table,
+      .table {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: auto;
+        display: block;
+      }
+
+      /* Dashboard mobile */
+      #page-ceo-dashboard {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
+      #page-ceo-dashboard > * {
+        max-width: 100%;
+      }
+
+      #page-ceo-dashboard > :not([hidden]) ~ :not([hidden]) {
+        margin-top: 1rem;
+      }
+
+      #page-ceo-dashboard .grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.6rem !important;
+        width: 100%;
+        max-width: 100%;
+      }
+
+      #page-ceo-dashboard .grid > * {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0;
+      }
+
+      #page-ceo-dashboard .bg-white.rounded-xl,
+      #page-ceo-dashboard .bg-white.rounded-2xl {
+        padding: 0.75rem 0.85rem !important;
+        border-radius: 14px;
+        border: 1px solid rgba(0,0,0,0.04);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.06) !important;
+      }
+
+      #page-ceo-dashboard .bg-white.rounded-2xl.shadow-sm {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+      }
+
+      #dashboard-stock-card {
+        padding: 0.95rem !important;
+        border-radius: 18px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+      }
+
+      #page-ceo-dashboard h2 {
+        font-size: 1.05rem;
+      }
+
+      #page-ceo-dashboard h4 {
+        font-size: 0.95rem;
+      }
+
+      #page-ceo-dashboard .text-2xl.font-semibold {
+        font-size: 1.35rem;
+        font-weight: 600;
+      }
+
+      #page-ceo-dashboard .text-xl.font-semibold {
+        font-size: 1.15rem;
+        font-weight: 600;
+      }
+
+      #page-ceo-dashboard .text-sm {
+        font-size: 0.8rem;
+        line-height: 1.25;
+      }
+
+      #page-ceo-dashboard .text-xs {
+        font-size: 0.72rem;
+        line-height: 1.2;
+      }
+
+      #page-ceo-dashboard .flex,
+      #page-ceo-dashboard .grid,
+      #page-ceo-dashboard .flex > *,
+      #page-ceo-dashboard .grid > * {
+        min-width: 0;
+      }
+
+      #page-ceo-dashboard * {
+        overflow-wrap: break-word;
+        word-break: break-word;
+      }
+
+      #page-ceo-dashboard .h-72 {
+        height: 180px !important;
+      }
+
+      #page-ceo-dashboard canvas {
+        display: block;
+        margin: 0 auto;
+        max-width: 100% !important;
+        height: auto !important;
+      }
+
+      #page-ceo-dashboard table {
+        width: 100%;
+        table-layout: fixed;
+      }
+
+      #page-ceo-dashboard th,
+      #page-ceo-dashboard td {
+        padding: 0.45rem 0.6rem;
+        font-size: 0.78rem;
+        white-space: normal;
+      }
+
+      #page-ceo-dashboard .dashboard-insight-card {
+        padding-bottom: 0.9rem !important;
+      }
+
+      .dashboard-details-panel.open {
+        max-height: 520px;
+      }
+
+      .details-value {
+        font-size: 1.2rem;
+      }
+
+      .details-lines {
+        font-size: 0.8rem;
+      }
+
+      .dashboard-stock-toggle {
+        display: inline-flex;
+      }
+
+      #dashboard-stock-card {
+        overflow: hidden;
+      }
+
+      #dashboard-stock-card .dashboard-stock-body {
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease, opacity 0.3s ease;
+      }
+
+      #dashboard-stock-card.stock-open .dashboard-stock-body {
+        max-height: 1400px;
+        opacity: 1;
       }
     }
 
@@ -564,6 +1053,7 @@
       display: none;
       align-items: flex-end;
       gap: 0.6rem;
+      pointer-events: none;
     }
 
     .fab-backdrop {
@@ -580,8 +1070,8 @@
     }
 
     .fab-main {
-      width: 58px;
-      height: 58px;
+      width: 52px;
+      height: 52px;
       border-radius: 999px;
       background: linear-gradient(135deg, #d8b66a, #cbb79a);
       color: #fff;
@@ -589,7 +1079,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.35rem;
+      font-size: 1.2rem;
       transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
       pointer-events: auto;
     }
@@ -629,7 +1119,7 @@
       background: #fffaf3;
       border: 1px solid #d8b66a;
       color: #7a6030;
-      padding: 0.55rem 0.9rem;
+      padding: 0.45rem 0.8rem;
       border-radius: 999px;
       display: inline-flex;
       align-items: center;
@@ -637,9 +1127,18 @@
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
       white-space: nowrap;
       font-weight: 600;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       min-width: 0;
       pointer-events: auto;
+    }
+
+    .fab-container:not(.hidden):not(.fab-hidden) {
+      pointer-events: auto;
+    }
+
+    .fab-container.hidden,
+    .fab-container.fab-hidden {
+      pointer-events: none;
     }
 
     .fab-speed-btn span {
@@ -982,9 +1481,21 @@
       background: linear-gradient(180deg, var(--bg-sidebar) 0%, var(--wood-3) 100%);
       border-bottom: 1px solid var(--border-soft);
       box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-      position: sticky;
+      position: fixed;
       top: 0;
       z-index: 40;
+      left: 0;
+      right: 0;
+      transform: translateY(0);
+      transition: transform 0.25s ease;
+      will-change: transform;
+      pointer-events: auto;
+    }
+
+    .mobile-nav.hidden-on-scroll {
+      transform: translateY(-100%);
+      pointer-events: none;
+      box-shadow: none;
     }
 
     .mobile-nav-header {
@@ -1473,6 +1984,12 @@
       }
     }
 
+    @media (max-width: 1023px) {
+      .app-body {
+        padding-top: var(--mobile-header-height, 0px);
+      }
+    }
+
     .topbar {
       display: none;
     }
@@ -1530,6 +2047,18 @@
       border: 1px solid rgba(255,255,255,0.9);
     }
 
+    .ui-card {
+      background: #fff;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(0,0,0,0.04);
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .ui-card:hover {
+      box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+      transform: translateY(-2px);
+    }
     .card h3 {
       font-size: 0.9rem;
       margin-bottom: 0.2rem;
@@ -1612,7 +2141,7 @@
     .badge.status-progress { background: rgba(46, 204, 113, 0.12); color: #1e824c; }
     .badge.status-paid { background: rgba(52, 152, 219, 0.12); color: #1f6fa5; }
 
-    .investment-controls { display: flex; flex-direction: column; gap: 0.75rem; }
+    .investment-controls { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 0.9rem; }
     .filter-line { display: flex; justify-content: space-between; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
     .filter-label { font-weight: 600; color: var(--text-main); display: block; margin-top: 0.15rem; }
     .month-dropdown { padding: 0.45rem 0.6rem; border-radius: 10px; border: 1px solid var(--border-soft); background: #fffbf4; min-width: 160px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.04); }
@@ -2052,7 +2581,7 @@
       display: flex;
       gap: 0.6rem;
       flex-wrap: wrap;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
       margin-bottom: 0.4rem;
       padding-bottom: 0.35rem;
@@ -2061,7 +2590,7 @@
 
     .day-header-picker {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       gap: 0.45rem;
       flex-wrap: wrap;
     }
@@ -2073,6 +2602,14 @@
       max-height: 86vh;
       overflow: hidden;
       position: relative;
+    }
+
+    .agenda-day-container {
+      width: 100%;
+      max-width: 100%;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
     .day-mobile-header {
@@ -2087,6 +2624,7 @@
       padding: 0.15rem 0;
       background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.88));
       backdrop-filter: blur(5px);
+      width: 100%;
     }
 
     .day-mobile-date {
@@ -2128,6 +2666,7 @@
       padding: 0.15rem 0;
       background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.85));
       backdrop-filter: blur(5px);
+      width: 100%;
     }
 
     #agenda-day-card .agenda-day-desktop .pill-row,
@@ -2151,12 +2690,12 @@
     .day-mobile-chip {
       background: #fff;
       border: 1px solid rgba(0,0,0,0.03);
-      border-radius: 10px;
-      padding: 0.3rem 0.5rem;
+      border-radius: 14px;
+      padding: 0.35rem 0.6rem;
       display: flex;
       flex-direction: column;
       gap: 0.06rem;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.05);
     }
 
     .day-mobile-chip .label {
@@ -2175,10 +2714,11 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.22rem;
+      gap: 0.4rem;
       overflow-y: auto;
       max-height: calc(86vh - 130px);
       padding: 0 0.35rem 0.35rem;
+      box-sizing: border-box;
     }
 
     .day-mobile-card {
@@ -2191,9 +2731,20 @@
       flex-direction: column;
       gap: 0.08rem;
       transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-      width: 96%;
-      max-width: 480px;
-      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 768px) {
+      .day-mobile-header {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+      }
+
+      .day-mobile-date,
+      .day-mobile-header .timeline-btn {
+        width: 100%;
+      }
     }
 
     .day-mobile-card.status-agendado {
@@ -2262,9 +2813,72 @@
     @media (max-width: 768px) {
       .agenda-day-desktop { display: none; }
       .agenda-day-mobile { display: flex; }
-      .day-mobile-header button { padding: 0.35rem 0.75rem; font-size: 0.82rem; }
+      .day-mobile-header button { padding: 0.35rem 0.35rem; font-size: 0.8rem; }
       .day-slot-body.double { gap: 0.22rem; }
       .day-slot-body.double .appt-card { min-height: 44px; }
+    }
+
+    @media (max-width: 768px) {
+      #agenda-day-card,
+      #agenda-day-card-colab {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        padding: 12px;
+        box-sizing: border-box;
+      }
+
+      .agenda-day-mobile,
+      .agenda-day-container,
+      .day-mobile-list {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+
+      .agenda-day-container > * {
+        width: 100%;
+        max-width: 100%;
+        margin-inline: 0;
+        box-sizing: border-box;
+      }
+
+      .day-mobile-header {
+        justify-content: center;
+        gap: 0.4rem;
+        padding: 0.2rem 0;
+      }
+
+      .day-mobile-date {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        min-width: 0;
+      }
+
+      .day-mobile-date .day-date-input,
+      .day-mobile-date input[type="date"] {
+        width: 100%;
+        max-width: 320px;
+      }
+
+      .day-mobile-summary {
+        gap: 0.3rem;
+        padding: 0.1rem 0;
+        margin-bottom: 0.4rem;
+      }
+
+      .day-mobile-list {
+        margin-top: 0;
+        padding: 0 0 0.35rem;
+      }
+
+      .day-mobile-header .timeline-btn {
+        margin-top: 0.35rem;
+        max-width: 180px;
+        width: 100%;
+      }
     }
 
     .appt-card .title {
@@ -2994,6 +3608,38 @@
       margin-top: 0.2rem;
     }
 
+    .finalizar-esmaltes {
+      border: 1px solid var(--border-soft);
+      border-radius: 12px;
+      padding: 0.75rem 0.85rem;
+      background: rgba(255,255,255,0.7);
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .finalizar-esmaltes-list {
+      display: grid;
+      gap: 0.35rem;
+      max-height: 180px;
+      overflow-y: auto;
+      padding-right: 0.2rem;
+    }
+
+    .finalizar-esmalte-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.4rem 0.5rem;
+      border-radius: 10px;
+      background: rgba(0,0,0,0.03);
+      border: 1px solid rgba(0,0,0,0.04);
+      font-size: 0.86rem;
+    }
+
+    .finalizar-esmalte-item input[type="checkbox"] {
+      accent-color: var(--btn-primary);
+    }
+
     .section-caption {
       color: var(--text-muted);
       font-size: 0.9rem;
@@ -3011,6 +3657,21 @@
       gap: 0.75rem;
     }
 
+    .settings-block.services-light {
+      background: rgba(255, 255, 255, 0.92);
+    }
+
+    .collab-add-btn {
+      background: #7fcf8a !important;
+      border-color: #66c377 !important;
+      color: #1f4b2a !important;
+    }
+
+    .collab-add-btn:hover {
+      background: #6fc77d !important;
+      border-color: #57b96b !important;
+      color: #1f4b2a !important;
+    }
     .block-header {
       display: flex;
       justify-content: space-between;
@@ -3171,9 +3832,36 @@
 
     .permission-list label {
       display: flex;
-      align-items: center;
-      gap: 0.45rem;
+      align-items: flex-start;
+      gap: 0.6rem;
+      font-size: 0.88rem;
+      color: var(--text-main);
+      padding: 0.35rem 0.45rem;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.6);
+      border: 1px solid rgba(0,0,0,0.05);
+      cursor: pointer;
+    }
+
+    .permission-list label input[type="checkbox"] {
+      margin-top: 0.15rem;
+    }
+
+    .permission-text {
+      display: flex;
+      flex-direction: column;
+      gap: 0.08rem;
+      line-height: 1.2;
+    }
+
+    .permission-title {
+      font-weight: 700;
+      color: var(--text-main);
       font-size: 0.9rem;
+    }
+
+    .permission-desc {
+      font-size: 0.78rem;
       color: var(--text-muted);
     }
 
@@ -4136,7 +4824,7 @@
     <!-- Páginas da CEO -->
     <section id="page-ceo-dashboard" class="page-ceo space-y-6">
       <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <div class="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition transform hover:-translate-y-0.5">
+        <div class="ui-card p-5 dashboard-insight-card" data-insight="revenue" role="button" tabindex="0" aria-pressed="false">
           <div class="flex items-center justify-between text-sm text-slate-500">
             <span>Faturamento do mês</span>
             <span class="inline-flex h-9 w-9 items-center justify-center rounded-full" style="background-color: var(--pastel-green);">
@@ -4148,7 +4836,7 @@
           <div class="text-2xl font-semibold text-[color:var(--text-main)]" id="dashboard-revenue">R$ 0,00</div>
           <div class="text-sm text-slate-500" id="dashboard-revenue-delta">--</div>
         </div>
-        <div class="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition transform hover:-translate-y-0.5">
+        <div class="ui-card p-5 dashboard-insight-card" data-insight="commission" role="button" tabindex="0" aria-pressed="false">
           <div class="flex items-center justify-between text-sm text-slate-500">
             <span>Comissão colaboradora</span>
             <span class="inline-flex h-9 w-9 items-center justify-center rounded-full" style="background-color: var(--pastel-peach);">
@@ -4160,7 +4848,7 @@
           <div class="text-2xl font-semibold text-[color:var(--text-main)]" id="dashboard-commission">R$ 0,00</div>
           <div class="text-sm text-slate-500" id="dashboard-commission-delta">--</div>
         </div>
-        <div class="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition transform hover:-translate-y-0.5">
+        <div class="ui-card p-5 dashboard-insight-card" data-insight="consumption" role="button" tabindex="0" aria-pressed="false">
           <div class="flex items-center justify-between text-sm text-slate-500">
             <span>Consumo vendido</span>
             <span class="inline-flex h-9 w-9 items-center justify-center rounded-full" style="background-color: var(--pastel-blue);">
@@ -4172,7 +4860,7 @@
           <div class="text-2xl font-semibold text-[color:var(--text-main)]" id="dashboard-consumption">R$ 0,00</div>
           <div class="text-sm text-slate-500" id="dashboard-consumption-delta">--</div>
         </div>
-        <div class="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition transform hover:-translate-y-0.5">
+        <div class="ui-card p-5 dashboard-insight-card" data-insight="invest-month" role="button" tabindex="0" aria-pressed="false">
           <div class="flex items-center justify-between text-sm text-slate-500">
             <span>Investimentos do mês</span>
             <span class="inline-flex h-9 w-9 items-center justify-center rounded-full" style="background-color: var(--pastel-rose);">
@@ -4187,7 +4875,7 @@
       </div>
 
       <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <div class="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition transform hover:-translate-y-0.5">
+        <div class="ui-card p-5 dashboard-insight-card" data-insight="invest-paid" role="button" tabindex="0" aria-pressed="false">
           <div class="flex items-center justify-between text-sm text-slate-500">
             <span>Parcelas pagas</span>
             <span class="inline-flex h-8 w-8 items-center justify-center rounded-full" style="background-color: var(--pastel-green);">
@@ -4199,7 +4887,7 @@
           <div class="text-2xl font-semibold text-[color:var(--text-main)]" id="dashboard-invest-paid">R$ 0,00</div>
           <div class="text-sm text-slate-500" id="dashboard-invest-paid-desc">Pagamentos registrados no mês</div>
         </div>
-        <div class="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition transform hover:-translate-y-0.5">
+        <div class="ui-card p-5 dashboard-insight-card" data-insight="invest-future" role="button" tabindex="0" aria-pressed="false">
           <div class="flex items-center justify-between text-sm text-slate-500">
             <span>Planejado para próximos meses</span>
             <span class="inline-flex h-8 w-8 items-center justify-center rounded-full" style="background-color: var(--pastel-peach);">
@@ -4211,7 +4899,7 @@
           <div class="text-2xl font-semibold text-[color:var(--text-main)]" id="dashboard-invest-future">R$ 0,00</div>
           <div class="text-sm text-slate-500" id="dashboard-invest-future-desc">Investimentos agendados para frente</div>
         </div>
-        <div class="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition transform hover:-translate-y-0.5">
+        <div class="ui-card p-5 dashboard-insight-card" data-insight="stock-alerts" role="button" tabindex="0" aria-pressed="false">
           <div class="flex items-center justify-between text-sm text-slate-500">
             <span>Itens em alerta</span>
             <span class="inline-flex h-8 w-8 items-center justify-center rounded-full" style="background-color: var(--pastel-rose);">
@@ -4223,7 +4911,7 @@
           <div class="text-2xl font-semibold text-[color:var(--text-main)]" id="dashboard-stock-alerts">0</div>
           <div class="text-sm text-slate-500" id="dashboard-stock-alerts-desc">Nenhum alerta</div>
         </div>
-        <div class="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition transform hover:-translate-y-0.5">
+        <div class="ui-card p-5 dashboard-insight-card" data-insight="stock-consumption" role="button" tabindex="0" aria-pressed="false">
           <div class="flex items-center justify-between text-sm text-slate-500">
             <span>Consumo no mês</span>
             <span class="inline-flex h-8 w-8 items-center justify-center rounded-full" style="background-color: var(--pastel-blue);">
@@ -4233,98 +4921,125 @@
             </span>
           </div>
           <div class="text-2xl font-semibold text-[color:var(--text-main)]" id="dashboard-stock-consumption-month">0</div>
-          <div class="text-sm text-slate-500">Atualizado pelo mês filtrado</div>
+          <div class="text-sm text-slate-500" id="dashboard-stock-consumption-desc">Atualizado pelo mês filtrado</div>
         </div>
       </div>
 
-      <div id="dashboard-stock-card" class="rounded-3xl shadow-md p-6" style="background-color: var(--pastel-beige);">
+      <div id="dashboard-details-panel" class="dashboard-details-panel" aria-hidden="true">
+        <div class="dashboard-details-header">
+          <div class="details-title">
+            <span id="dashboard-details-label">Detalhes</span>
+            <span id="dashboard-details-value" class="details-value">--</span>
+          </div>
+          <button class="details-close" type="button" aria-label="Fechar detalhes">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M6 6l12 12M6 18L18 6" />
+            </svg>
+          </button>
+        </div>
+        <div id="dashboard-details-body" class="dashboard-details-body">
+          <div id="dashboard-details-lines" class="details-lines"></div>
+          <div id="dashboard-details-breakdown" class="details-breakdown hidden"></div>
+          <button id="dashboard-details-action" class="details-action secondary hidden" type="button">Ver detalhes</button>
+        </div>
+      </div>
+
+      <div id="dashboard-stock-card" class="rounded-3xl shadow-md p-6">
         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 class="text-xl font-semibold text-[color:var(--text-main)]">Estoque e Custos Operacionais</h2>
             <p class="text-sm text-slate-600">Custos, lucro da geladeira e alertas por categoria</p>
           </div>
+          <button id="dashboard-stock-toggle" class="dashboard-stock-toggle" type="button" aria-expanded="false" aria-controls="dashboard-stock-body">
+            <span>Detalhes</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
           <div id="dashboard-stock-tags" class="flex flex-wrap gap-2 text-sm"></div>
         </div>
-        <div id="dashboard-stock-totals" class="mt-3 flex flex-wrap gap-3 text-sm text-slate-700"></div>
-        <div class="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <div class="bg-white rounded-2xl shadow-sm p-4 flex flex-col gap-2">
-            <div class="flex items-center justify-between text-sm text-slate-500">
-              <span>Custo esmaltes</span>
-              <span class="px-2 py-1 rounded-full text-xs font-medium" style="background-color: var(--pastel-rose); color: var(--accent-gold-dark);">Categoria</span>
+        <div id="dashboard-stock-body" class="dashboard-stock-body">
+          <div id="dashboard-stock-totals" class="mt-3 flex flex-wrap gap-3 text-sm text-slate-700"></div>
+          <div class="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div class="ui-card p-4 flex flex-col gap-2">
+              <div class="flex items-center justify-between text-sm text-slate-500">
+                <span>Custo esmaltes</span>
+                <span class="px-2 py-1 rounded-full text-xs font-medium" style="background-color: var(--pastel-rose); color: var(--accent-gold-dark);">Categoria</span>
+              </div>
+              <div class="text-xl font-semibold" id="dashboard-stock-esmaltes">R$ 0,00</div>
+              <p class="text-xs text-slate-500">No mês filtrado</p>
             </div>
-            <div class="text-xl font-semibold" id="dashboard-stock-esmaltes">R$ 0,00</div>
-            <p class="text-xs text-slate-500">No mês filtrado</p>
-          </div>
-          <div class="bg-white rounded-2xl shadow-sm p-4 flex flex-col gap-2">
-            <div class="flex items-center justify-between text-sm text-slate-500">
-              <span>Custo geladeira</span>
-              <span class="px-2 py-1 rounded-full text-xs font-medium" style="background-color: var(--pastel-peach); color: var(--accent-gold-dark);">Categoria</span>
+          <div class="ui-card p-4 flex flex-col gap-2">
+              <div class="flex items-center justify-between text-sm text-slate-500">
+                <span>Custo geladeira</span>
+                <span class="px-2 py-1 rounded-full text-xs font-medium" style="background-color: var(--pastel-peach); color: var(--accent-gold-dark);">Categoria</span>
+              </div>
+              <div class="text-xl font-semibold" id="dashboard-stock-geladeira">R$ 0,00</div>
+              <p class="text-xs text-slate-500">No mês filtrado</p>
             </div>
-            <div class="text-xl font-semibold" id="dashboard-stock-geladeira">R$ 0,00</div>
-            <p class="text-xs text-slate-500">No mês filtrado</p>
-          </div>
-          <div class="bg-white rounded-2xl shadow-sm p-4 flex flex-col gap-2">
-            <div class="flex items-center justify-between text-sm text-slate-500">
-              <span>Custo manutenção</span>
-              <span class="px-2 py-1 rounded-full text-xs font-medium" style="background-color: var(--pastel-blue); color: var(--accent-gold-dark);">Categoria</span>
+          <div class="ui-card p-4 flex flex-col gap-2">
+              <div class="flex items-center justify-between text-sm text-slate-500">
+                <span>Custo manutenção</span>
+                <span class="px-2 py-1 rounded-full text-xs font-medium" style="background-color: var(--pastel-blue); color: var(--accent-gold-dark);">Categoria</span>
+              </div>
+              <div class="text-xl font-semibold" id="dashboard-stock-manutencao">R$ 0,00</div>
+              <p class="text-xs text-slate-500">No mês filtrado</p>
             </div>
-            <div class="text-xl font-semibold" id="dashboard-stock-manutencao">R$ 0,00</div>
-            <p class="text-xs text-slate-500">No mês filtrado</p>
-          </div>
-          <div class="bg-white rounded-2xl shadow-sm p-4 flex flex-col gap-2">
-            <div class="flex items-center justify-between text-sm text-slate-500">
-              <span>Itens em alerta</span>
-              <span class="px-2 py-1 rounded-full text-xs font-medium bg-rose-100 text-rose-700">Atenção</span>
+          <div class="ui-card p-4 flex flex-col gap-2">
+              <div class="flex items-center justify-between text-sm text-slate-500">
+                <span>Itens em alerta</span>
+                <span class="px-2 py-1 rounded-full text-xs font-medium bg-rose-100 text-rose-700">Atenção</span>
+              </div>
+              <div class="text-xl font-semibold" id="dashboard-stock-low">0</div>
+              <p class="text-xs text-slate-500">Previsão baixa ou pouca quantidade</p>
             </div>
-            <div class="text-xl font-semibold" id="dashboard-stock-low">0</div>
-            <p class="text-xs text-slate-500">Previsão baixa ou pouca quantidade</p>
-          </div>
-          <div class="bg-white rounded-2xl shadow-sm p-4 flex flex-col gap-2">
-            <div class="flex items-center justify-between text-sm text-slate-500">
-              <span>Lucro bruto geladeira</span>
-              <span class="px-2 py-1 rounded-full text-xs font-medium" style="background-color: var(--pastel-green); color: var(--accent-gold-dark);">Vendas</span>
+          <div class="ui-card p-4 flex flex-col gap-2">
+              <div class="flex items-center justify-between text-sm text-slate-500">
+                <span>Lucro bruto geladeira</span>
+                <span class="px-2 py-1 rounded-full text-xs font-medium" style="background-color: var(--pastel-green); color: var(--accent-gold-dark);">Vendas</span>
+              </div>
+              <div class="text-xl font-semibold" id="dashboard-stock-profit">R$ 0,00</div>
+              <p class="text-xs text-slate-500">Com base no estoque atual</p>
             </div>
-            <div class="text-xl font-semibold" id="dashboard-stock-profit">R$ 0,00</div>
-            <p class="text-xs text-slate-500">Com base no estoque atual</p>
-          </div>
-          <div class="bg-white rounded-2xl shadow-sm p-4 flex flex-col gap-2">
-            <div class="flex items-center justify-between text-sm text-slate-500">
-              <span>Consumo no mês</span>
-              <span class="px-2 py-1 rounded-full text-xs font-medium" style="background-color: var(--pastel-peach); color: var(--accent-gold-dark);">Movimentação</span>
+          <div class="ui-card p-4 flex flex-col gap-2">
+              <div class="flex items-center justify-between text-sm text-slate-500">
+                <span>Consumo no mês</span>
+                <span class="px-2 py-1 rounded-full text-xs font-medium" style="background-color: var(--pastel-peach); color: var(--accent-gold-dark);">Movimentação</span>
+              </div>
+              <div class="text-xl font-semibold" id="dashboard-stock-consumption-month">0</div>
+              <p class="text-xs text-slate-500">Saídas registradas</p>
             </div>
-            <div class="text-xl font-semibold" id="dashboard-stock-consumption-month">0</div>
-            <p class="text-xs text-slate-500">Saídas registradas</p>
           </div>
-        </div>
 
-        <div class="mt-4 grid gap-4 lg:grid-cols-2">
-          <div class="bg-white rounded-2xl shadow-sm p-4 flex flex-col gap-3">
-            <div class="flex items-center justify-between">
-              <div>
-                <h4 class="text-base font-semibold text-[color:var(--text-main)]">Distribuição de gastos</h4>
-                <p class="text-xs text-slate-500">Gastos por categoria</p>
+          <div class="mt-4 grid gap-4 lg:grid-cols-2">
+          <div class="ui-card p-4 flex flex-col gap-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="text-base font-semibold text-[color:var(--text-main)]">Distribuição de gastos</h4>
+                  <p class="text-xs text-slate-500">Gastos por categoria</p>
+                </div>
+              </div>
+              <div class="h-72">
+                <canvas id="stock-pie"></canvas>
               </div>
             </div>
-            <div class="h-72">
-              <canvas id="stock-pie"></canvas>
-            </div>
-          </div>
-          <div class="bg-white rounded-2xl shadow-sm p-4 flex flex-col gap-3">
-            <div class="flex items-center justify-between">
-              <div>
-                <h4 class="text-base font-semibold text-[color:var(--text-main)]">Evolução mensal</h4>
-                <p class="text-xs text-slate-500">Últimos meses filtrados</p>
+          <div class="ui-card p-4 flex flex-col gap-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="text-base font-semibold text-[color:var(--text-main)]">Evolução mensal</h4>
+                  <p class="text-xs text-slate-500">Últimos meses filtrados</p>
+                </div>
+              </div>
+              <div class="h-72">
+                <canvas id="stock-bars"></canvas>
               </div>
             </div>
-            <div class="h-72">
-              <canvas id="stock-bars"></canvas>
-            </div>
           </div>
+          <div class="mt-4 flex flex-wrap gap-2" id="stock-indicators"></div>
         </div>
-        <div class="mt-4 flex flex-wrap gap-2" id="stock-indicators"></div>
       </div>
 
-      <div class="bg-white rounded-2xl shadow-md p-4">
+      <div class="ui-card p-4">
         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 class="text-xl font-semibold text-[color:var(--text-main)]">Próximos horários</h2>
@@ -4430,15 +5145,16 @@
         </div>
 
         <div class="agenda-day-mobile">
-          <div class="day-mobile-header">
+          <div class="agenda-day-container">
+            <div class="day-mobile-header">
             <div class="day-mobile-date">
-              <label class="subtext" for="agenda-day-picker-mobile">Escolha o dia</label>
               <input class="day-date-input" id="agenda-day-picker-mobile" type="date" onchange="handleAgendaDayDateChange('ceo', this.value)" />
             </div>
-            <button class="secondary timeline-btn" onclick="openDayAgendaFromTab('ceo')">Ver timeline</button>
+              <button class="secondary timeline-btn" onclick="openDayAgendaFromTab('ceo')">Ver timeline</button>
+            </div>
+            <div class="day-mobile-summary" id="agenda-day-summary-mobile"></div>
+            <div class="day-mobile-list" id="agenda-day-list-mobile"></div>
           </div>
-          <div class="day-mobile-summary" id="agenda-day-summary-mobile"></div>
-          <div class="day-mobile-list" id="agenda-day-list-mobile"></div>
         </div>
       </div>
 
@@ -4779,24 +5495,24 @@
 
       <div class="finance-section-wrap">
         <div class="finance-card-grid">
-          <div class="card finance-card">
+          <div class="card finance-card ui-card">
             <h3>Receita bruta</h3>
             <div class="value" id="finance-revenue">R$ 0,00</div>
             <div class="subtext">Inclui serviços e bebidas</div>
           </div>
-          <div class="card finance-card">
+          <div class="card finance-card ui-card">
             <h3>Custos (produtos)</h3>
             <div class="value" id="finance-costs">R$ 0,00</div>
             <div class="subtext">Baseado no consumo estimado de esmaltes e itens</div>
           </div>
-          <div class="card finance-card">
+          <div class="card finance-card ui-card">
             <h3>Lucro estimado</h3>
             <div class="value" id="finance-profit">R$ 0,00</div>
             <div class="subtext">Antes de outras despesas fixas</div>
           </div>
         </div>
 
-        <div class="card finance-card finance-balance-card finance-main-card">
+        <div class="card finance-card finance-balance-card finance-main-card ui-card">
           <div class="block-header" style="align-items:flex-start;">
             <div>
               <h3>Receita x Custos x Lucro</h3>
@@ -4810,7 +5526,7 @@
 
         <div class="finance-secondary-grid">
           <div class="finance-secondary-column">
-            <div class="card finance-card">
+            <div class="card finance-card ui-card">
               <div class="block-header" style="align-items:flex-start;">
                 <div>
                   <h3>Distribuição de custos</h3>
@@ -4825,7 +5541,7 @@
               </div>
             </div>
 
-            <div class="card finance-fixed-card">
+            <div class="card finance-fixed-card ui-card">
               <div class="block-header" style="align-items:flex-start;">
                 <div>
                   <h3>Custo fixo mensal</h3>
@@ -4843,7 +5559,7 @@
           </div>
 
           <div class="finance-secondary-column">
-            <div class="card finance-stock-card">
+            <div class="card finance-stock-card ui-card">
               <div class="block-header" style="align-items:flex-start;">
                 <div>
                   <h3>Custos de estoque</h3>
@@ -4856,7 +5572,7 @@
               <div id="finance-stock-legend" class="finance-stock-legend"></div>
             </div>
 
-            <div class="card finance-stock-card finance-stock-items-card">
+            <div class="card finance-stock-card finance-stock-items-card ui-card">
               <div class="block-header" style="align-items:flex-start;">
                 <div>
                   <h3>Itens de estoque</h3>
@@ -4879,7 +5595,7 @@
         <h2>Vendas por tipo</h2>
       </div>
 
-      <div class="card finance-card">
+      <div class="card finance-card ui-card">
         <div class="finance-chart-area" style="min-height:240px;">
           <canvas id="finance-sales-chart"></canvas>
         </div>
@@ -4928,26 +5644,24 @@
 
     <section id="page-ceo-settings" class="page-ceo hidden">
       <div class="section-title">
-        <h2>Configurações do Studio</h2>
+        <h2></h2>
       </div>
       <div class="settings-block">
         <div class="block-header">
           <div>
             <h3>Colaboradoras</h3>
-            <div class="section-caption">Lista compacta para gerenciar permissões, comissão e logins vinculados.</div>
           </div>
           <div class="block-actions">
-            <button class="ghost-btn secondary" onclick="openCollabAddModal()">+ Colaboradora</button>
+            <button class="ghost-btn secondary collab-add-btn" onclick="openCollabAddModal()">+ Colaboradora</button>
           </div>
         </div>
         <div id="collaborators-list" class="collab-list"></div>
       </div>
 
-      <div class="settings-block" style="margin-top:1rem;">
+      <div class="settings-block services-light" style="margin-top:1rem;">
         <div class="block-header">
           <div>
             <h3>Serviços</h3>
-            <div class="section-caption">Valores utilizados no app e no tablet, com edição via modal.</div>
           </div>
           <div class="block-actions">
             <button class="ghost-btn" onclick="openServiceAddModal()">➕ Adicionar serviço</button>
@@ -5003,10 +5717,18 @@
                 <h4>Agenda</h4>
                 <div class="permission-list">
                   <label>
-                    <input type="checkbox" id="add-collab-perm-agenda" checked /> Ver agenda
+                    <input type="checkbox" id="add-collab-perm-agenda" checked />
+                    <span class="permission-text">
+                      <span class="permission-title">Ver agenda</span>
+                      <span class="permission-desc">Acessa os atendimentos do dia.</span>
+                    </span>
                   </label>
                   <label>
-                    <input type="checkbox" id="add-collab-perm-agenda-full" /> Ver agenda da administradora
+                    <input type="checkbox" id="add-collab-perm-agenda-full" />
+                    <span class="permission-text">
+                      <span class="permission-title">Agenda completa</span>
+                      <span class="permission-desc">Inclui agenda da administradora.</span>
+                    </span>
                   </label>
                 </div>
               </div>
@@ -5014,7 +5736,11 @@
                 <h4>Financeiro / Comissão</h4>
                 <div class="permission-list">
                   <label>
-                    <input type="checkbox" id="add-collab-perm-comissao" checked /> Comissão
+                    <input type="checkbox" id="add-collab-perm-comissao" checked />
+                    <span class="permission-text">
+                      <span class="permission-title">Comissão</span>
+                      <span class="permission-desc">Visualiza e acompanha comissões.</span>
+                    </span>
                   </label>
                 </div>
               </div>
@@ -5068,10 +5794,18 @@
                 <h4>Agenda</h4>
                 <div class="permission-list">
                   <label>
-                    <input type="checkbox" id="perm-agenda" /> Ver agenda
+                    <input type="checkbox" id="perm-agenda" />
+                    <span class="permission-text">
+                      <span class="permission-title">Ver agenda</span>
+                      <span class="permission-desc">Acessa os atendimentos do dia.</span>
+                    </span>
                   </label>
                   <label>
-                    <input type="checkbox" id="perm-agenda-full" /> Ver agenda da administradora
+                    <input type="checkbox" id="perm-agenda-full" />
+                    <span class="permission-text">
+                      <span class="permission-title">Agenda completa</span>
+                      <span class="permission-desc">Inclui agenda da administradora.</span>
+                    </span>
                   </label>
                 </div>
               </div>
@@ -5079,7 +5813,11 @@
                 <h4>Clientes</h4>
                 <div class="permission-list">
                   <label style="opacity:0.7;">
-                    <input type="checkbox" disabled checked /> Acesso de leitura
+                    <input type="checkbox" disabled checked />
+                    <span class="permission-text">
+                      <span class="permission-title">Acesso de leitura</span>
+                      <span class="permission-desc">Consulta clientes e contatos.</span>
+                    </span>
                   </label>
                 </div>
               </div>
@@ -5087,10 +5825,18 @@
                 <h4>Financeiro / Comissão</h4>
                 <div class="permission-list">
                   <label>
-                    <input type="checkbox" id="perm-comissao" /> Comissão
+                    <input type="checkbox" id="perm-comissao" />
+                    <span class="permission-text">
+                      <span class="permission-title">Comissão</span>
+                      <span class="permission-desc">Visualiza e acompanha comissões.</span>
+                    </span>
                   </label>
                   <label>
-                    <input type="checkbox" id="perm-estoque" /> Estoque
+                    <input type="checkbox" id="perm-estoque" />
+                    <span class="permission-text">
+                      <span class="permission-title">Estoque</span>
+                      <span class="permission-desc">Acessa painel e controles do estoque.</span>
+                    </span>
                   </label>
                 </div>
               </div>
@@ -5486,12 +6232,12 @@
 <!-- Páginas da COLABORADORA -->
 <section id="page-colab-dashboard" class="page-colab hidden">
   <div class="card-grid">
-    <div class="card">
+    <div class="card ui-card">
       <h3>Comissão no mês</h3>
           <div class="value">R$ 3.250</div>
           <div class="subtext">Baseada nos serviços realizados</div>
         </div>
-        <div class="card">
+        <div class="card ui-card">
           <h3>Atendimentos hoje</h3>
           <div class="value">6</div>
           <div class="subtext">3 manhã • 3 tarde</div>
@@ -5592,15 +6338,16 @@
         </div>
 
         <div class="agenda-day-mobile">
-          <div class="day-mobile-header">
+          <div class="agenda-day-container">
+            <div class="day-mobile-header">
             <div class="day-mobile-date">
-              <label class="subtext" for="agenda-day-picker-colab-mobile">Escolha o dia</label>
               <input class="day-date-input" id="agenda-day-picker-colab-mobile" type="date" onchange="handleAgendaDayDateChange('colab', this.value)" />
             </div>
-            <button class="secondary timeline-btn" onclick="openDayAgendaFromTab('colab')">Ver timeline</button>
+              <button class="secondary timeline-btn" onclick="openDayAgendaFromTab('colab')">Ver timeline</button>
+            </div>
+            <div class="day-mobile-summary" id="agenda-day-summary-mobile-colab"></div>
+            <div class="day-mobile-list" id="agenda-day-list-mobile-colab"></div>
           </div>
-          <div class="day-mobile-summary" id="agenda-day-summary-mobile-colab"></div>
-          <div class="day-mobile-list" id="agenda-day-list-mobile-colab"></div>
         </div>
       </div>
 
@@ -5776,6 +6523,14 @@
 
     <div id="finalizar-comanda-list" class="flex flex-col gap-2" style="margin-bottom:1rem;">
       <div class="subtext">Carregando itens da comanda...</div>
+    </div>
+
+    <div class="finalizar-esmaltes">
+      <strong>Selecionar esmaltes usados</strong>
+      <div class="subtext">Marque os esmaltes utilizados neste atendimento.</div>
+      <div id="finalizar-comanda-esmaltes" class="finalizar-esmaltes-list">
+        <div class="subtext">Carregando esmaltes...</div>
+      </div>
     </div>
 
     <div class="dialog-actions" style="justify-content:space-between;">
@@ -6043,10 +6798,26 @@
       }))
       .filter(it => it.nome && Number.isFinite(it.preco) && Number.isFinite(it.quantidade));
 
-    if (parsedItems.length) {
+    const normalizeType = (value) => (value || '').toString().toLowerCase();
+    const isServiceItem = (item) => {
+      const tipo = normalizeType(item?.tipo || item?.type);
+      return tipo === 'servico' || tipo === 'service';
+    };
+
+    const itensProfissional = Array.isArray(data.itensProfissional) ? data.itensProfissional : [];
+    const itensCliente = Array.isArray(data.itensCliente) ? data.itensCliente : [];
+    const hasExistingService = itensProfissional.some(isServiceItem);
+    const filteredItems = hasExistingService ? parsedItems.filter(it => !isServiceItem(it)) : parsedItems;
+
+    if (!itensProfissional.length && !itensCliente.length && !filteredItems.length) {
+      throw new Error("Nenhum serviço ou consumo encontrado na comanda.");
+    }
+
+    if (filteredItems.length) {
+
       await updateDoc(comandaRef, {
         itensCliente: arrayUnion(
-          ...parsedItems.map(it => ({
+          ...filteredItems.map(it => ({
             itemId: (crypto?.randomUUID ? crypto.randomUUID() : `item-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`),
             origem: "cliente",
             nome: it.nome,
@@ -6068,6 +6839,207 @@
     return { ok: true, comandaId };
   }
 
+  async function updateComandaBaseService(comandaId, service) {
+    if (!comandaId || !service?.nome) return null;
+    const comandaRef = doc(atendimentoDb, "comandas", comandaId);
+    const snap = await getDoc(comandaRef);
+    if (!snap.exists()) return null;
+    const data = snap.data() || {};
+    const itensProf = Array.isArray(data.itensProfissional) ? [...data.itensProfissional] : [];
+    const itensCliente = Array.isArray(data.itensCliente) ? [...data.itensCliente] : [];
+    const itensLivres = Array.isArray(data.itens) ? [...data.itens] : Array.isArray(data.items) ? [...data.items] : [];
+    const normalizeType = (value) => (value || '').toString().toLowerCase();
+    const isServiceItem = (item) => {
+      const tipo = normalizeType(item?.tipo || item?.type);
+      return tipo === 'servico' || tipo === 'service';
+    };
+    const baseItem =
+      itensProf.find(it => it.baseItem === true || it.origem === 'agenda') ||
+      itensCliente.find(it => it.baseItem === true || it.origem === 'agenda') ||
+      itensLivres.find(it => it.baseItem === true || it.origem === 'agenda');
+
+    const applyUpdate = (arr) => arr.map(it => (
+      it.itemId === baseItem?.itemId
+        ? { ...it, nome: service.nome, preco: Number(service.preco) || 0, quantidade: Number(service.quantidade) || 1, baseItem: true, origem: 'agenda' }
+        : it
+    ));
+
+    if (baseItem) {
+      if (itensProf.some(it => it.itemId === baseItem.itemId)) {
+        await updateDoc(comandaRef, { itensProfissional: applyUpdate(itensProf), atualizadoEm: serverTimestamp() });
+        return true;
+      }
+      if (itensCliente.some(it => it.itemId === baseItem.itemId)) {
+        await updateDoc(comandaRef, { itensCliente: applyUpdate(itensCliente), atualizadoEm: serverTimestamp() });
+        return true;
+      }
+      if (itensLivres.some(it => it.itemId === baseItem.itemId)) {
+        await updateDoc(comandaRef, { itens: applyUpdate(itensLivres), atualizadoEm: serverTimestamp() });
+        return true;
+      }
+    }
+
+    const newItem = {
+      itemId: (crypto?.randomUUID ? crypto.randomUUID() : `item-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`),
+      origem: "agenda",
+      nome: service.nome,
+      tipo: "servico",
+      preco: Number(service.preco) || 0,
+      quantidade: Number(service.quantidade) || 1,
+      baseItem: true,
+      criadoEm: Timestamp.now()
+    };
+
+    await updateDoc(comandaRef, {
+      itensProfissional: arrayUnion(newItem),
+      atualizadoEm: serverTimestamp()
+    });
+
+    return true;
+  }
+
+  async function kioskRemoveClienteItem(comandaId, itemId) {
+    if (!comandaId || !itemId) return null;
+    const comandaRef = doc(atendimentoDb, "comandas", comandaId);
+    const snap = await getDoc(comandaRef);
+    if (!snap.exists()) return null;
+    const data = snap.data() || {};
+    const itensCliente = Array.isArray(data.itensCliente) ? data.itensCliente : [];
+    const filtered = itensCliente.filter(it => it.itemId !== itemId);
+    await updateDoc(comandaRef, { itensCliente: filtered, atualizadoEm: serverTimestamp() });
+    return true;
+  }
+
+  async function kioskClearClienteItems(comandaId) {
+    if (!comandaId) return null;
+    const comandaRef = doc(atendimentoDb, "comandas", comandaId);
+    const snap = await getDoc(comandaRef);
+    if (!snap.exists()) return null;
+    await updateDoc(comandaRef, { itensCliente: [], atualizadoEm: serverTimestamp() });
+    return true;
+  }
+
+  async function ensureComandaBaseService(comandaId) {
+    if (!comandaId) return null;
+    const user = await waitForAuthUser();
+    const comandaRef = doc(atendimentoDb, "comandas", comandaId);
+    const comandaSnap = await getDoc(comandaRef);
+    if (!comandaSnap.exists()) return null;
+    const comanda = comandaSnap.data() || {};
+    const atendimentoId = comanda.atendimentoId;
+    if (!atendimentoId) return null;
+    const atendRef = doc(atendimentoDb, "atendimentos", atendimentoId);
+    const atendSnap = await getDoc(atendRef);
+    if (!atendSnap.exists()) return null;
+    const apptData = atendSnap.data() || {};
+
+    const itensProf = Array.isArray(comanda.itensProfissional) ? [...comanda.itensProfissional] : [];
+    const itensCliente = Array.isArray(comanda.itensCliente) ? [...comanda.itensCliente] : [];
+    const itensLivres = Array.isArray(comanda.itens) ? [...comanda.itens] : Array.isArray(comanda.items) ? [...comanda.items] : [];
+    const allItems = itensProf.concat(itensCliente).concat(itensLivres);
+    const normalizeType = (value) => (value || '').toString().toLowerCase();
+    const isServiceItem = (item) => {
+      const tipo = normalizeType(item?.tipo || item?.type);
+      return tipo === 'servico' || tipo === 'service' || tipo === 'serviço';
+    };
+    const serviceItems = allItems.filter(isServiceItem);
+    const baseItem = serviceItems.find(it => it.baseItem === true || it.origem === 'agenda');
+    const serviceName =
+      apptData.serviceName ||
+      apptData.service ||
+      apptData.servico ||
+      apptData.nomeServico ||
+      apptData.nome ||
+      apptData.serviceId ||
+      apptData.servicoId ||
+      comanda.serviceName ||
+      comanda.servico ||
+      comanda.service ||
+      comanda.servicoAgendado ||
+      '';
+    const servicePrice = Number(
+      apptData.price ||
+      apptData.valor ||
+      apptData.preco ||
+      apptData.servicePrice ||
+      apptData.precoServico ||
+      apptData.valorServico ||
+      comanda.servicePrice ||
+      comanda.precoServico ||
+      comanda.valorServico ||
+      0
+    ) || 0;
+
+    const updateItemInSource = async (targetItem, updater) => {
+      const matchesItem = (it) => {
+        if (targetItem?.itemId && it.itemId) return it.itemId === targetItem.itemId;
+        const sameName = (it.nome || '').toString() === (targetItem?.nome || '').toString();
+        const sameType = isServiceItem(it) === isServiceItem(targetItem || {});
+        return sameName && sameType;
+      };
+      const updateArray = (arr) => arr.map(it => (matchesItem(it) ? updater(it) : it));
+      if (itensProf.some(matchesItem)) {
+        await updateDoc(comandaRef, { itensProfissional: updateArray(itensProf), atualizadoEm: serverTimestamp() });
+        return true;
+      }
+      if (itensCliente.some(matchesItem)) {
+        await updateDoc(comandaRef, { itensCliente: updateArray(itensCliente), atualizadoEm: serverTimestamp() });
+        return true;
+      }
+      if (itensLivres.some(matchesItem)) {
+        await updateDoc(comandaRef, { itens: updateArray(itensLivres), atualizadoEm: serverTimestamp() });
+        return true;
+      }
+      return false;
+    };
+
+    if (baseItem) {
+      if (serviceName && (baseItem.nome !== serviceName || Number(baseItem.preco || 0) !== servicePrice)) {
+        await updateItemInSource(baseItem, (it) => ({
+          ...it,
+          nome: serviceName,
+          preco: servicePrice,
+          quantidade: 1,
+          baseItem: true,
+          origem: 'agenda'
+        }));
+      }
+      return true;
+    }
+
+    if (serviceName) {
+      const existingMatch = serviceItems.find(it => (it.nome || '').toString() === serviceName);
+      if (existingMatch) {
+        await updateItemInSource(existingMatch, (it) => ({ ...it, baseItem: true, origem: 'agenda' }));
+        return true;
+      }
+    } else if (serviceItems.length) {
+      await updateItemInSource(serviceItems[0], (it) => ({ ...it, baseItem: true, origem: 'agenda' }));
+      return true;
+    }
+
+    if (!serviceName) return null;
+
+    const newItem = {
+      itemId: (crypto?.randomUUID ? crypto.randomUUID() : `item-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`),
+      origem: "agenda",
+      criadoPor: user?.uid || null,
+      nome: serviceName,
+      tipo: "servico",
+      preco: servicePrice,
+      quantidade: 1,
+      baseItem: true,
+      criadoEm: Timestamp.now()
+    };
+
+    await updateDoc(comandaRef, {
+      itensProfissional: arrayUnion(newItem),
+      atualizadoEm: serverTimestamp()
+    });
+
+    return true;
+  }
+
   /**
    * Escuta comanda em tempo real e retorna unsubscribe.
    * @param {string} comandaId
@@ -6086,6 +7058,10 @@
   window.kioskFetchComandaByCodigo = kioskFetchComandaByCodigo;
   window.kioskAddItem = kioskAddItem;
   window.kioskFinalizarConsumo = kioskFinalizarConsumo;
+  window.updateComandaBaseService = updateComandaBaseService;
+  window.kioskRemoveClienteItem = kioskRemoveClienteItem;
+  window.kioskClearClienteItems = kioskClearClienteItems;
+  window.ensureComandaBaseService = ensureComandaBaseService;
   window.listenComanda = listenComanda;
 </script>
 <script>
@@ -6117,6 +7093,9 @@
   let agendaProfessionalFilterColab = 'all';
   let fabMenuOpen = false;
   let fabScrollLast = 0;
+  let mobileHeaderLastScroll = 0;
+  let mobileHeaderHidden = false;
+  let mobileHeaderTicking = false;
 
   const getCssVar = (key, fallback = '') => {
     const val = getComputedStyle(document.documentElement).getPropertyValue(key);
@@ -6175,6 +7154,7 @@
   let productTemplates = [];
   let stockHistories = {};
   const chartInstances = {};
+  let comandas = [];
 
   let inventoryFormMode = 'add';
   let inventoryEditingId = null;
@@ -6685,7 +7665,9 @@
     });
     // Clientes
     firestore.collection('clients').onSnapshot(snap => {
-      clients = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      clients = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .filter(c => !c.deletedAt && c.deleted !== true);
       renderClients('ceo');
       renderClients('colab');
     });
@@ -6725,6 +7707,10 @@
       renderDashboardCards();
       renderFinance();
       buildGlobalMonthOptions();
+    });
+    firestore.collection('comandas').onSnapshot(snap => {
+      comandas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderDashboardCards();
     });
   }
 
@@ -7196,21 +8182,35 @@
 
   function confirmRemoveClient() {
     if (!pendingRemoveClientId) return;
-    const index = clients.findIndex(c => c.id === pendingRemoveClientId);
-    if (index >= 0) clients.splice(index, 1);
-    appointments = appointments.filter(a => !(a.clientId === pendingRemoveClientId && isFutureDate(a.date)));
-    refreshAgendaFromAppointments();
-    closeDialog('client-detail-modal');
-    closeDialog('client-remove-modal');
-    renderClients('ceo');
-    renderClients('colab');
-    renderAgendaAppointments('ceo');
-    renderAgendaAppointments('colab');
-    renderAgendaMonthCalendar('ceo');
-    renderAgendaMonthSummary('ceo');
-    renderAgendaMonthCalendar('colab');
-    renderAgendaMonthSummary('colab');
-    pendingRemoveClientId = null;
+    initFirebaseApp();
+    const targetId = pendingRemoveClientId;
+    const finalizeUiRemoval = () => {
+      const index = clients.findIndex(c => c.id === targetId);
+      if (index >= 0) clients.splice(index, 1);
+      appointments = appointments.filter(a => !(a.clientId === targetId && isFutureDate(a.date)));
+      refreshAgendaFromAppointments();
+      closeDialog('client-detail-modal');
+      closeDialog('client-remove-modal');
+      renderClients('ceo');
+      renderClients('colab');
+      renderAgendaAppointments('ceo');
+      renderAgendaAppointments('colab');
+      renderAgendaMonthCalendar('ceo');
+      renderAgendaMonthSummary('ceo');
+      renderAgendaMonthCalendar('colab');
+      renderAgendaMonthSummary('colab');
+      pendingRemoveClientId = null;
+    };
+    if (firestore) {
+      firestore.collection('clients').doc(targetId).delete()
+        .then(finalizeUiRemoval)
+        .catch((err) => {
+          console.error('Falha ao excluir cliente no Firestore', err);
+          alert('Não foi possível excluir o cliente no servidor. Verifique as permissões.');
+        });
+    } else {
+      finalizeUiRemoval();
+    }
   }
 
   function rebuildClientAppointments(clientId) {
@@ -7896,7 +8896,8 @@
     total: 0,
     cliente: '',
     profissional: '',
-    resumoGeradoEm: null
+    resumoGeradoEm: null,
+    esmaltesSelecionados: new Set()
   };
 
   function resetFinalizarComandaModal() {
@@ -7907,6 +8908,7 @@
     finalizeModalState.cliente = '';
     finalizeModalState.profissional = '';
     finalizeModalState.resumoGeradoEm = null;
+    finalizeModalState.esmaltesSelecionados = new Set();
     const list = document.getElementById('finalizar-comanda-list');
     if (list) list.innerHTML = '<div class="subtext">Selecione um atendimento para finalizar.</div>';
     const caption = document.getElementById('finalizar-comanda-caption');
@@ -7915,11 +8917,42 @@
     if (registro) registro.textContent = 'Resumo ainda não carregado.';
     const total = document.getElementById('finalizar-comanda-total');
     if (total) total.textContent = 'Total estimado: --';
+    const esmaltes = document.getElementById('finalizar-comanda-esmaltes');
+    if (esmaltes) esmaltes.innerHTML = '<div class="subtext">Selecione um atendimento para listar os esmaltes.</div>';
     const confirmBtn = document.getElementById('finalizar-comanda-confirm');
     if (confirmBtn) {
       confirmBtn.disabled = false;
       confirmBtn.textContent = 'Finalizar e registrar pagamento';
     }
+  }
+
+  function renderFinalizarComandaEsmaltes() {
+    const container = document.getElementById('finalizar-comanda-esmaltes');
+    if (!container) return;
+    container.innerHTML = '';
+    const esmaltes = stockItems.filter(item => (item.categoria || item.category) === 'esmaltes');
+    if (!esmaltes.length) {
+      container.innerHTML = '<div class="subtext">Nenhum esmalte cadastrado no estoque.</div>';
+      return;
+    }
+    esmaltes.forEach(item => {
+      const label = document.createElement('label');
+      label.className = 'finalizar-esmalte-item';
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.value = item.id;
+      input.checked = finalizeModalState.esmaltesSelecionados.has(item.id);
+      input.addEventListener('change', () => {
+        if (input.checked) finalizeModalState.esmaltesSelecionados.add(item.id);
+        else finalizeModalState.esmaltesSelecionados.delete(item.id);
+      });
+      const text = document.createElement('span');
+      const brand = item.marca ? ` • ${item.marca}` : '';
+      text.textContent = `${item.nome || item.name || 'Esmalte'}${brand}`;
+      label.appendChild(input);
+      label.appendChild(text);
+      container.appendChild(label);
+    });
   }
 
   function computeResumoTotals(itens = []) {
@@ -7983,6 +9016,7 @@
     try {
       if (!atendimentoId) throw new Error('Atendimento inválido para finalizar.');
       finalizeModalState.atendimentoId = atendimentoId;
+      finalizeModalState.esmaltesSelecionados = new Set();
       const list = document.getElementById('finalizar-comanda-list');
       if (list) list.innerHTML = '<div class="subtext">Carregando itens da comanda...</div>';
       const confirmBtn = document.getElementById('finalizar-comanda-confirm');
@@ -8020,6 +9054,7 @@
       finalizeModalState.profissional = appt.professionalName || appt.professional || 'Profissional';
       finalizeModalState.resumoGeradoEm = new Date();
       renderFinalizarComandaResumo();
+      renderFinalizarComandaEsmaltes();
     } catch (err) {
       alert('Não foi possível carregar o resumo da comanda.');
       console.error(err);
@@ -8043,7 +9078,8 @@
       confirmBtn.textContent = 'Finalizando...';
     }
     try {
-      const result = await finalizeAtendimento(finalizeModalState.atendimentoId);
+      const selectedEsmaltes = Array.from(finalizeModalState.esmaltesSelecionados || []);
+      const result = await finalizeAtendimento(finalizeModalState.atendimentoId, selectedEsmaltes);
       appointments = appointments.map(a => a.id === finalizeModalState.atendimentoId ? { ...a, status: 'finalizado' } : a);
       refreshAgendaFromAppointments();
       closeFinalizarComandaModal();
@@ -8521,6 +9557,47 @@
     renderFabActions();
   }
 
+  function isMobileHeaderActive() {
+    return window.innerWidth < 1024;
+  }
+
+  function updateMobileHeaderHeight() {
+    const header = document.getElementById('mobile-nav');
+    if (!header) return;
+    const height = header.offsetHeight || 0;
+    document.documentElement.style.setProperty('--mobile-header-height', `${height}px`);
+  }
+
+  function setMobileHeaderHidden(hidden) {
+    const header = document.getElementById('mobile-nav');
+    if (!header) return;
+    mobileHeaderHidden = hidden;
+    header.classList.toggle('hidden-on-scroll', hidden);
+  }
+
+  function handleMobileHeaderScroll() {
+    if (!isMobileHeaderActive()) {
+      setMobileHeaderHidden(false);
+      mobileHeaderLastScroll = window.scrollY || 0;
+      return;
+    }
+    if (mobileHeaderTicking) return;
+    mobileHeaderTicking = true;
+    requestAnimationFrame(() => {
+      const current = window.scrollY || document.documentElement.scrollTop || 0;
+      const delta = current - mobileHeaderLastScroll;
+      if (current <= 0) {
+        setMobileHeaderHidden(false);
+      } else if (delta > 6) {
+        setMobileHeaderHidden(true);
+      } else if (delta < -6) {
+        setMobileHeaderHidden(false);
+      }
+      mobileHeaderLastScroll = current;
+      mobileHeaderTicking = false;
+    });
+  }
+
   function closeFabMenu() {
     const menu = document.getElementById('fab-speed-dial');
     const backdrop = document.getElementById('fab-backdrop');
@@ -8795,6 +9872,55 @@
     });
   }
 
+  function getSoldConsumptionValue(target) {
+    const isFinalized = (status = '') => {
+      const key = status.toString().toLowerCase();
+      return key === 'finalizado' || key === 'done';
+    };
+    const isConsumptionItem = (item = {}) => {
+      const tipo = (item.tipo || item.type || '').toString().toLowerCase();
+      if (tipo === 'consumo' || tipo === 'consumption') return true;
+      const cat = (item.categoriaEstoque || item.categoria || item.category || '').toString().toLowerCase();
+      return cat.includes('geladeira') || cat.includes('bebida') || cat.includes('consumo');
+    };
+    const getComandaItems = (comanda = {}) =>
+      (comanda.itensProfissional || [])
+        .concat(comanda.itensCliente || [])
+        .concat(comanda.itens || comanda.items || []);
+    const sumConsumptionItems = (items = []) =>
+      items
+        .filter(isConsumptionItem)
+        .reduce((acc, item) => {
+          const price = Number(item.preco || item.valor || 0);
+          const qty = Number(item.quantidade || item.qtd || 1);
+          return acc + (Number.isFinite(price) ? price : 0) * (Number.isFinite(qty) ? qty : 1);
+        }, 0);
+    return appointments
+      .filter(appt => isFinalized(appt.status))
+      .filter(appt => {
+        if (selectedGlobalMonthKey === 'all') return true;
+        const dateRef = appt.updatedAt || appt.atualizadoEm || appt.date;
+        return matchesTargetMonth(dateRef, target);
+      })
+      .reduce((acc, appt) => {
+        if (!appt.comandaId) return acc;
+        const comanda = comandas.find(c => c.id === appt.comandaId);
+        if (!comanda) return acc;
+        return acc + sumConsumptionItems(getComandaItems(comanda));
+      }, 0);
+  }
+
+  function getMonthlyConsumptionCount(target) {
+    const historyEntries = Object.values(stockHistories).flat();
+    return historyEntries
+      .filter(entry => (entry.tipo === 'saida' || entry.tipo === 'baixa'))
+      .filter(entry => selectedGlobalMonthKey === 'all' || matchesTargetMonth(entry.data, target))
+      .reduce((acc, cur) => {
+        const raw = Number(cur.quantity || cur.quantidade || cur.volume || 0);
+        return acc + (Number.isFinite(raw) && raw > 0 ? raw : 1);
+      }, 0);
+  }
+
   function renderDashboardCards() {
     const target = getDashboardFilterTarget();
     const revenueEl = document.getElementById('dashboard-revenue');
@@ -8813,12 +9939,7 @@
     });
     const revenue = filteredFin.filter(f => f.type === 'receita').reduce((acc, cur) => acc + (cur.amount || 0), 0);
     const commission = filteredFin.filter(f => f.type === 'comissao').reduce((acc, cur) => acc + (cur.amount || 0), 0);
-    const historyEntries = Object.values(stockHistories).flat();
-    const consumption = selectedGlobalMonthKey === 'all'
-      ? 0
-      : historyEntries
-          .filter(m => (m.tipo === 'saida' || m.tipo === 'baixa') && matchesTargetMonth(m.data, target))
-          .reduce((acc, cur) => acc + (cur.quantity || cur.quantidade || cur.volume || 0), 0);
+    const soldConsumptionValue = getSoldConsumptionValue(target);
     const alertsCount = stockItems.filter(item => {
       const pct = item.volumeTotal_ml ? (item.volumeAtual_ml / item.volumeTotal_ml) : null;
       const low = (item.previsaoDuracaoDias && item.previsaoDuracaoDias < 15) || (pct != null && pct < 0.3) || (item.quantidade && item.quantidade <= (item.unidadesPorPack || item.quantidade) * 0.2);
@@ -8830,7 +9951,7 @@
     if (revenueDelta) revenueDelta.textContent = targetLabel;
     if (commEl) commEl.textContent = formatCurrency(commission);
     if (commDelta) commDelta.textContent = commission ? `Comissões registradas em ${targetLabel}` : 'Sem comissões registradas';
-    if (consEl) consEl.textContent = formatCurrency(consumption);
+    if (consEl) consEl.textContent = formatCurrency(soldConsumptionValue);
     if (consDelta) consDelta.textContent = 'Consumo filtrado pelo mês selecionado';
     if (alertEl) alertEl.textContent = `${alertsCount} itens`;
     if (alertDesc) alertDesc.textContent = alertText;
@@ -8907,11 +10028,7 @@
       .filter(i => (i.categoria || i.category) === 'geladeira')
       .reduce((acc, cur) => acc + ((cur.precoVenda || 0) * (cur.quantidade || 0) - (cur.custoCompra || 0)), 0);
     if (profitEl) profitEl.textContent = formatCurrency(fridgeProfit);
-    const historyEntries = Object.values(stockHistories).flat();
-    const monthConsumption = selectedGlobalMonthKey === 'all'
-      ? 0
-      : historyEntries.filter(m => (m.tipo === 'saida' || m.tipo === 'baixa') && matchesTargetMonth(m.data, target))
-          .reduce((acc, cur) => acc + (cur.quantity || cur.quantidade || cur.volume || 0), 0);
+    const monthConsumption = getMonthlyConsumptionCount(target);
     const consEl = document.getElementById('dashboard-stock-consumption-month');
     if (consEl) consEl.textContent = `${monthConsumption}`;
     const fridgeLow = stockItems.filter(item => (item.categoria || item.category) === 'geladeira' && item.quantidade && item.quantidade <= (item.unidadesPorPack || item.quantidade) * 0.2).length;
@@ -9124,14 +10241,18 @@
         row.className = 'finance-fixed-mini-item';
         row.innerHTML = `
           <div class="label">
-            <span>${entry.description || entry.descricao || 'Custo fixo'}</span>
+            <div class="finance-fixed-header">
+              <span>${entry.description || entry.descricao || 'Custo fixo'}</span>
+              <div class="finance-fixed-controls">
+                <button class="ghost-btn secondary icon-mini" aria-label="Editar custo fixo" onclick="openFixedCostModal('${entry.id}')">✎</button>
+                <button class="ghost-btn danger icon-mini" aria-label="Remover custo fixo" onclick="openRemoveFixedCostModal('${entry.id}')">🗑</button>
+              </div>
+            </div>
             <span class="section-caption" style="margin:0;">${monthLabel} • ${(entry.category || entry.categoria || 'Custo fixo')}</span>
           </div>
           <div class="finance-fixed-actions">
             <div class="finance-fixed-bar" aria-hidden="true"><span style="width:${pct}%"></span></div>
             <span class="value">${formatCurrency(entry.amount || 0)}</span>
-            <button class="ghost-btn secondary icon-mini" aria-label="Editar custo fixo" onclick="openFixedCostModal('${entry.id}')">✎</button>
-            <button class="ghost-btn danger icon-mini" aria-label="Remover custo fixo" onclick="openRemoveFixedCostModal('${entry.id}')">🗑</button>
           </div>
         `;
         fixedList.appendChild(row);
@@ -9574,6 +10695,36 @@
     }
   }
 
+  async function applyPolishConsumptionFromSelection(selectedIds = [], atendimentoId = null, comandaId = null) {
+    if (!firestore || !Array.isArray(selectedIds) || !selectedIds.length) return;
+    const nowISO = new Date().toISOString();
+    const safeIds = selectedIds.filter(Boolean);
+    for (const estoqueId of safeIds) {
+      const ref = firestore.collection('stock').doc(estoqueId);
+      await firestore.runTransaction(async (tx) => {
+        const snap = await tx.get(ref);
+        if (!snap.exists) return;
+        const data = snap.data() || {};
+        const categoria = data.categoria || data.category;
+        if (categoria !== 'esmaltes') return;
+        const consumo = Number(data.consumoEstimadoPorUso || 0);
+        if (!Number.isFinite(consumo) || consumo <= 0) return;
+        const current = Number(data.volumeAtual_ml ?? data.volumeTotal_ml ?? 0);
+        if (!Number.isFinite(current) || current <= 0) return;
+        const remaining = Math.max(0, current - consumo);
+        if (remaining === current) return;
+        tx.set(ref, { volumeAtual_ml: remaining, updatedAt: nowISO }, { merge: true });
+        const historyRef = ref.collection('history').doc();
+        tx.set(historyRef, {
+          atendimentoId: atendimentoId || null,
+          comandaId: comandaId || null,
+          consumoMl: consumo,
+          data: nowISO
+        });
+      });
+    }
+  }
+
   function buildClientHistoryEntries(appt, itens, total) {
     const now = new Date();
     const dateLabel = now.toLocaleDateString('pt-BR');
@@ -9587,7 +10738,7 @@
     return { historyEntry, consumeEntry };
   }
 
-  async function finalizeAtendimento(atendimentoId) {
+  async function finalizeAtendimento(atendimentoId, selectedEsmaltes = []) {
     if (!firestore) throw new Error('Firestore indisponível');
     const atendRef = firestore.collection('atendimentos').doc(atendimentoId);
     const atendSnap = await atendRef.get();
@@ -9682,6 +10833,10 @@
 
     if (itensRegistrados.length) {
       await applyStockConsumptionFromComanda(itensRegistrados);
+    }
+
+    if (selectedEsmaltes && selectedEsmaltes.length) {
+      await applyPolishConsumptionFromSelection(selectedEsmaltes, atendimentoId, appt.comandaId || null);
     }
 
     return { atendimentoId, status: 'finalizado', total };
@@ -10146,6 +11301,14 @@
 
     if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
 
+    // Obtém altura do container para limitar crescimento, mas permite conteúdo visível
+    const container = canvas.closest('.finance-chart-area');
+    const containerHeight = container ? container.offsetHeight || 240 : 240;
+    
+    // Define altura inicial baseada no container, mas permite crescimento até limite razoável
+    const maxAllowedHeight = Math.min(containerHeight * 1.5, 400);
+    canvas.style.maxHeight = maxAllowedHeight + 'px';
+
     chartInstances[canvasId] = new Chart(canvas, {
       type: 'bar',
       data: {
@@ -10162,7 +11325,18 @@
       },
       options: {
         responsive: true,
-        maintainAspectRatio: false,
+        maintainAspectRatio: true,
+        aspectRatio: 2,
+        layout: {
+          padding: {
+            top: 10,
+            bottom: 10
+          }
+        },
+        animation: {
+          duration: 0
+        },
+        resizeDelay: 250,
         scales: {
           x: { grid: { display: false }, ticks: { color: getCssVar('--text-main', '#2F2F2F') } },
           y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: getCssVar('--text-main', '#2F2F2F') } }
@@ -10173,6 +11347,13 @@
             callbacks: {
               label: ctx => formatCurrency(ctx.parsed.y || 0)
             }
+          }
+        },
+        onResize: (chart) => {
+          // Previne crescimento infinito limitando altura, mas permite conteúdo visível
+          const maxAllowedHeight = Math.min(containerHeight * 1.5, 400);
+          if (chart.canvas.offsetHeight > maxAllowedHeight) {
+            chart.canvas.style.maxHeight = maxAllowedHeight + 'px';
           }
         }
       }
@@ -10538,6 +11719,19 @@
     currentInventoryCategory = value;
     const select = document.getElementById('inventory-category');
     if (select) select.value = value;
+    const kioskFlag = document.getElementById('inventory-kiosk-flag');
+    const polishCurrent = document.getElementById('stock-polish-current');
+    if (kioskFlag) {
+      if (value === 'esmaltes') {
+        kioskFlag.value = 'paused';
+        kioskFlag.disabled = true;
+      } else {
+        kioskFlag.disabled = false;
+      }
+    }
+    if (polishCurrent) {
+      polishCurrent.disabled = value === 'esmaltes';
+    }
     ['inventory-fields-esmaltes', 'inventory-fields-geladeira', 'inventory-fields-manutencao'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.classList.toggle('hidden', !id.includes(value));
@@ -10547,10 +11741,17 @@
   }
 
   function updatePolishForecast() {
-    const current = parseFloat(document.getElementById('stock-polish-current')?.value || '0');
-    const consumption = parseFloat(document.getElementById('stock-polish-consumption')?.value || '0');
-    const usesPerDay = 3;
-    const forecast = consumption > 0 ? Math.round(current / (consumption * usesPerDay)) : 0;
+    const totalEl = document.getElementById('stock-polish-total');
+    const currentEl = document.getElementById('stock-polish-current');
+    const consumptionEl = document.getElementById('stock-polish-consumption');
+    const total = parseFloat(totalEl?.value || '0');
+    let current = parseFloat(currentEl?.value || '0');
+    const consumption = parseFloat(consumptionEl?.value || '0');
+    if (currentEl?.disabled && inventoryFormMode !== 'edit') {
+      current = total || 0;
+      currentEl.value = total ? total : '';
+    }
+    const forecast = consumption > 0 ? Math.round(current / consumption) : 0;
     const forecastEl = document.getElementById('stock-polish-forecast');
     if (forecastEl) forecastEl.value = forecast ? `${forecast} dias` : '';
   }
@@ -10596,7 +11797,15 @@
     const category = item?.categoria || item?.category || currentInventoryCategory;
     handleInventoryDestinationChange(category || 'esmaltes');
     if (title) title.textContent = item ? 'Editar item' : 'Adicionar item';
-    if (kioskFlag) kioskFlag.value = item?.paused ? 'paused' : 'active';
+    if (kioskFlag) {
+      if ((category || 'esmaltes') === 'esmaltes') {
+        kioskFlag.value = 'paused';
+        kioskFlag.disabled = true;
+      } else {
+        kioskFlag.value = item?.paused ? 'paused' : 'active';
+        kioskFlag.disabled = false;
+      }
+    }
     if (item && category === 'esmaltes') {
       document.getElementById('stock-polish-name').value = item.nome || '';
       document.getElementById('stock-polish-brand').value = item.marca || '';
@@ -10620,7 +11829,7 @@
       document.getElementById('stock-maint-date').value = item.dataCompra || '';
     }
     updatePolishForecast();
-    ['stock-polish-current','stock-polish-consumption'].forEach(id => {
+    ['stock-polish-total','stock-polish-current','stock-polish-consumption'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.oninput = updatePolishForecast;
     });
@@ -10778,15 +11987,17 @@
       const nome = document.getElementById('stock-polish-name').value.trim();
       const marca = document.getElementById('stock-polish-brand').value.trim();
       const volumeTotal = parseFloat(document.getElementById('stock-polish-total').value) || 0;
-      const volumeAtual = parseFloat(document.getElementById('stock-polish-current').value) || 0;
       const custoTotal = parseFloat(document.getElementById('stock-polish-cost').value) || 0;
       const consumo = parseFloat(document.getElementById('stock-polish-consumption').value) || 0;
       const dataCompra = document.getElementById('stock-polish-date').value;
       if (!nome || !marca || !volumeTotal) { alert('Preencha nome, marca e volume total.'); return; }
-      const usesPerDay = 3;
-      const previsao = consumo > 0 ? Math.round(volumeAtual / (consumo * usesPerDay)) : 0;
-      const custoPorUso = volumeTotal ? ((custoTotal || 0) / volumeTotal) * (consumo || 0) : 0;
-      payload = { ...payload, nome, marca, volumeTotal_ml: volumeTotal, volumeAtual_ml: volumeAtual, consumoEstimadoPorUso: consumo, dataCompra: dataCompra || null, previsaoDuracaoDias: previsao, custoTotal, custoPorUso, addedAt: payload.addedAt || now };
+      if (!consumo || consumo <= 0) { alert('Informe o consumo estimado por uso (ml).'); return; }
+      const volumeAtual = inventoryFormMode === 'edit' && original
+        ? (original.volumeAtual_ml ?? original.volumeTotal_ml ?? volumeTotal)
+        : volumeTotal;
+      const previsao = Math.round(volumeAtual / consumo);
+      const custoPorUso = volumeTotal ? ((custoTotal || 0) / volumeTotal) * consumo : 0;
+      payload = { ...payload, nome, marca, volumeTotal_ml: volumeTotal, volumeAtual_ml: volumeAtual, consumoEstimadoPorUso: consumo, dataCompra: dataCompra || null, previsaoDuracaoDias: previsao, custoTotal, custoPorUso, addedAt: payload.addedAt || now, paused: true };
     } else if (category === 'geladeira') {
       const nome = document.getElementById('stock-fridge-name').value.trim();
       const quantidade = parseInt(document.getElementById('stock-fridge-qty').value, 10) || 0;
@@ -10824,9 +12035,8 @@
     try {
       if (inventoryFormMode === 'edit' && inventoryEditingId) {
         await firestore.collection('stock').doc(inventoryEditingId).set(payload, { merge: true });
-        const entryDateIso = purchaseDate ? new Date(purchaseDate).toISOString() : now;
         const historyEntry = delta > 0
-          ? { tipo: 'entrada', quantidade: delta, volume: category === 'esmaltes' ? delta : null, custoTotal: inferredCost || 0, categoria: payload.categoria || category, data: entryDateIso, descricao: payload.nome || payload.name }
+          ? { tipo: 'entrada', quantidade: delta, volume: category === 'esmaltes' ? delta : null, custoTotal: inferredCost || 0, categoria: payload.categoria || category, data: purchaseDate, descricao: payload.nome || payload.name }
           : { tipo: 'edicao', quantidade: payload.quantidade || payload.volumeAtual_ml || 0, volume: payload.volumeAtual_ml || null, custoTotal: payload.custoTotal || payload.custoCompra || 0, categoria: payload.categoria || category };
         await saveStockHistory(inventoryEditingId, historyEntry);
       } else {
@@ -11757,7 +12967,6 @@
         icon: '🧾'
       }));
     kioskDrinks = fridgeDrinks.concat(maintConsumables);
-    cart = cart.filter(entry => entry.type !== 'drink' || kioskDrinks.some(d => d.id === entry.id));
     renderKiosk();
     populateComandaSelect();
   }
@@ -11828,6 +13037,7 @@
 
     updateKioskSessionStatus(`Pareado (${data?.codigoPareamento || ''})`, 'success');
     setKioskHint('Adicione os itens e finalize para avisar a profissional.');
+    renderCart();
   }
 
   async function handleKioskPairing() {
@@ -11844,6 +13054,9 @@
         updateKioskSessionStatus('Código inválido ou atendimento não iniciado', 'locked');
         setKioskHint('Peça para a profissional iniciar o atendimento e gerar um novo código.');
         return;
+      }
+      if (window.ensureComandaBaseService) {
+        await window.ensureComandaBaseService(comandaId);
       }
       kioskComandaId = comandaId;
       kioskComandaStatus = 'aberta';
@@ -11897,7 +13110,7 @@
           <div class="kiosk-icon">${s.icon || '💅'}</div>
           <h3>${s.name}</h3>
           <div class="kiosk-price">R$ ${s.price}</div>
-          <div class="kiosk-badge">Serviço principal</div>
+                    <div class="kiosk-badge">Servi\u00e7o principal</div>
           <button style="margin-top:0.5rem;" onclick="selectService('${s.id}')">Selecionar</button>
         `;
         servicesEl.appendChild(div);
@@ -11906,36 +13119,89 @@
     renderCart();
   }
 
-  function addDrinkToCart(drinkId) {
+  function getKioskComandaItems() {
+    const prof = Array.isArray(kioskComandaData?.itensProfissional) ? kioskComandaData.itensProfissional : [];
+    const client = Array.isArray(kioskComandaData?.itensCliente) ? kioskComandaData.itensCliente : [];
+    return { prof, client, all: prof.concat(client) };
+  }
+
+  async function addDrinkToCart(drinkId) {
     if (!ensureKioskReady()) return;
     const drink = kioskDrinks.find(d => d.id === drinkId);
     if (!drink) return;
-    cart.push({ type: 'drink', id: drink.id, name: drink.name, price: drink.price });
-    renderCart();
+    if (!kioskComandaId || !window.kioskAddItem) return;
+    await window.kioskAddItem(kioskComandaId, {
+      nome: drink.name,
+      tipo: 'consumo',
+      preco: Number(drink.price) || 0,
+      quantidade: 1,
+      estoqueId: drink.stockId,
+      categoriaEstoque: drink.categoria || null
+    });
   }
 
-  function selectService(serviceId) {
+  async function selectService(serviceId) {
     if (!ensureKioskReady()) return;
     const service = kioskServices.find(s => s.id === serviceId);
     if (!service) return;
-    // Remove serviços anteriores do carrinho
-    cart = cart.filter(item => item.type !== 'service');
-    cart.push({ type: 'service', id: service.id, name: service.name, price: service.price });
-    renderCart();
+    if (!kioskComandaId) return;
+    const { prof, client, all } = getKioskComandaItems();
+    const normalizeType = (value) => (value || '').toString().toLowerCase();
+    const isServiceItem = (item) => {
+      const tipo = normalizeType(item?.tipo || item?.type);
+      return tipo === 'servico' || tipo === 'service';
+    };
+    const serviceItems = all.filter(isServiceItem);
+    const baseItem = prof.find(it => it.baseItem === true || it.origem === 'agenda') ||
+      serviceItems.find(it => it.baseItem === true || it.origem === 'agenda');
+    const serviceName = (service.name || '').toString().toLowerCase();
+    const alreadyExists = serviceItems.some(it => (it.nome || '').toString().toLowerCase() === serviceName);
+    const clientServiceItems = client.filter(isServiceItem);
+
+    if (baseItem) {
+      const baseName = (baseItem.nome || '').toString().toLowerCase();
+      if (baseName == serviceName) return;
+      if (!clientServiceItems.length && window.updateComandaBaseService) {
+        await window.updateComandaBaseService(kioskComandaId, { nome: service.name, preco: service.price, quantidade: 1 });
+        return;
+      }
+      if (alreadyExists) return;
+      if (window.kioskAddItem) {
+        await window.kioskAddItem(kioskComandaId, {
+          nome: service.name,
+          tipo: 'servico',
+          preco: Number(service.price) || 0,
+          quantidade: 1
+        });
+      }
+      return;
+    }
+
+    if (alreadyExists) return;
+    if (window.kioskAddItem) {
+      await window.kioskAddItem(kioskComandaId, {
+        nome: service.name,
+        tipo: 'servico',
+        preco: Number(service.price) || 0,
+        quantidade: 1
+      });
+    }
   }
 
-  function removeFromCart(index) {
-    cart.splice(index, 1);
-    renderCart();
+  async function removeFromCart(itemId) {
+    if (!kioskComandaId || !itemId) return;
+    if (!window.kioskRemoveClienteItem) return;
+    await window.kioskRemoveClienteItem(kioskComandaId, itemId);
   }
 
-  function clearCart() {
-    cart = [];
-    renderCart();
+  async function clearCart() {
+    if (!kioskComandaId || !window.kioskClearClienteItems) return;
+    await window.kioskClearClienteItems(kioskComandaId);
   }
 
   function calcTotalCart() {
-    return cart.reduce((sum, item) => sum + item.price, 0);
+    const { all } = getKioskComandaItems();
+    return all.reduce((sum, item) => sum + (Number(item.preco) || 0) * (Number(item.quantidade) || 1), 0);
   }
 
   function renderCart() {
@@ -11947,24 +13213,41 @@
     if (kioskActionsLocked()) {
       const warn = document.createElement('div');
       warn.className = 'subtext';
-      warn.textContent = kioskComandaId ? 'Comanda fechada para lançamentos.' : 'Informe o código para liberar o carrinho.';
+      warn.textContent = kioskComandaId ? 'Comanda fechada para lan\u00e7amentos.' : 'Informe o c\u00f3digo para liberar o carrinho.';
       listEl.appendChild(warn);
     }
-    cart.forEach((item, index) => {
+    const normalizeType = (value) => (value || '').toString().toLowerCase();
+    const isServiceItem = (item) => {
+      const tipo = normalizeType(item?.tipo || item?.type);
+      return tipo === 'servico' || tipo === 'service';
+    };
+    const { prof, client } = getKioskComandaItems();
+    const items = []
+      .concat(prof.map(it => ({ ...it, __source: 'prof' })))
+      .concat(client.map(it => ({ ...it, __source: 'client' })));
+
+    if (!items.length && !kioskActionsLocked()) {
+      listEl.innerHTML = '<div class="subtext">Nenhum item adicionado.</div>';
+    }
+
+    items.forEach((item) => {
       const div = document.createElement('div');
       div.className = 'kiosk-cart-item';
-      const label = item.type === 'drink' ? 'Consumo' : 'Serviço';
+      const label = isServiceItem(item) ? 'Servi\u00e7o' : 'Consumo';
+      const totalItem = (Number(item.preco) || 0) * (Number(item.quantidade) || 1);
+      const isBase = item.__source === 'prof' || item.baseItem === true || item.origem === 'agenda';
+      const baseTag = isBase ? '<span class="badge" style="margin-left:0.35rem;">Base</span>' : '';
+      const removeBtn = item.__source === 'client' && item.itemId
+        ? `<button class="secondary" style="padding:0.15rem 0.5rem;font-size:0.7rem;margin-top:0.15rem;" onclick="removeFromCart('${item.itemId}')">Remover</button>`
+        : '';
       div.innerHTML = `
         <div>
-          <strong>${item.name}</strong>
-          <div class="subtext" style="margin-top:0.1rem;">${label}</div>
+          <strong>${item.nome || item.name}</strong>
+          <div class="subtext" style="margin-top:0.1rem;">${label}${baseTag}</div>
         </div>
         <div style="text-align:right;">
-          <div>R$ ${item.price}</div>
-          <button class="secondary" style="padding:0.15rem 0.5rem;font-size:0.7rem;margin-top:0.15rem;"
-            onclick="removeFromCart(${index})">
-            Remover
-          </button>
+          <div>R$ ${totalItem.toFixed(2).replace('.', ',')}</div>
+          ${removeBtn}
         </div>
       `;
       listEl.appendChild(div);
@@ -11975,33 +13258,19 @@
 
   async function sendOrder() {
     if (!ensureKioskReady()) return;
-    if (cart.length === 0) {
+    const { prof, client } = getKioskComandaItems();
+    if (!prof.length && !client.length) {
       alert('Adicione pelo menos um item ao carrinho.');
       return;
     }
 
-    const itens = cart.map(item => {
-      const drinkMeta = item.type === 'drink'
-        ? kioskDrinks.find(d => d.id === item.id)
-        : null;
-      return {
-        nome: item.name,
-        tipo: item.type === 'drink' ? 'consumo' : 'servico',
-        preco: Number(item.price) || 0,
-        quantidade: 1,
-        estoqueId: drinkMeta?.stockId,
-        categoriaEstoque: drinkMeta?.categoria || null
-      };
-    });
-
     try {
-      await window.kioskFinalizarConsumo(kioskComandaId, itens);
-      alert('Pedido registrado! A profissional será avisada.');
-      clearCart();
+      await window.kioskFinalizarConsumo(kioskComandaId, []);
+      alert('Pedido registrado! A profissional ser\u00e1 avisada.');
       updateKioskSessionStatus('Consumo finalizado no kiosk', 'locked');
     } catch (err) {
       console.error(err);
-      alert('Não foi possível registrar o consumo. Tente novamente.');
+      alert('N\u00e3o foi poss\u00edvel registrar o consumo. Tente novamente.');
     }
   }
 
@@ -12093,6 +13362,187 @@
     });
   }
 
+  function setupDashboardInsightPanel() {
+    const panel = document.getElementById('dashboard-details-panel');
+    const labelEl = document.getElementById('dashboard-details-label');
+    const valueEl = document.getElementById('dashboard-details-value');
+    const linesEl = document.getElementById('dashboard-details-lines');
+    const breakdownEl = document.getElementById('dashboard-details-breakdown');
+    const actionBtn = document.getElementById('dashboard-details-action');
+    const closeBtn = panel ? panel.querySelector('.details-close') : null;
+    const cards = Array.from(document.querySelectorAll('.dashboard-insight-card'));
+    if (!panel || !labelEl || !valueEl || !linesEl || !actionBtn || !cards.length) return;
+
+    const insightConfig = {
+      revenue: {
+        title: 'Faturamento do mês',
+        valueId: 'dashboard-revenue',
+        detailPage: 'finance',
+        lines: ['Baseado no mês filtrado.', 'Inclui serviços e vendas do período.']
+      },
+      commission: {
+        title: 'Comissão colaboradora',
+        valueId: 'dashboard-commission',
+        detailPage: 'finance',
+        lines: ['Resumo do período atual.', 'Consulte detalhes por serviço.']
+      },
+      consumption: {
+        title: 'Consumo vendido',
+        valueId: 'dashboard-consumption',
+        detailPage: 'finance',
+        lines: ['Consumo registrado no período.', 'Acompanhe tendências no financeiro.']
+      },
+      'invest-month': {
+        title: 'Investimentos do mês',
+        valueId: 'dashboard-invest-month',
+        detailPage: 'investments',
+        lines: ['Planejamento do mês atual.', 'Foco em melhorias e compras.']
+      },
+      'invest-paid': {
+        title: 'Parcelas pagas',
+        valueId: 'dashboard-invest-paid',
+        detailPage: 'investments',
+        lines: ['Pagamentos confirmados.', 'Verifique histórico completo.']
+      },
+      'invest-future': {
+        title: 'Planejado para próximos meses',
+        valueId: 'dashboard-invest-future',
+        detailPage: 'investments',
+        lines: ['Parcelas futuras registradas.', 'Planeje o caixa com antecedência.']
+      },
+      'stock-alerts': {
+        title: 'Itens em alerta',
+        valueId: 'dashboard-stock-alerts',
+        detailPage: 'inventory',
+        lines: ['Alertas ativos no estoque.', 'Priorize itens críticos.']
+      },
+      'stock-consumption': {
+        title: 'Consumo no mês',
+        valueId: 'dashboard-stock-consumption-month',
+        detailPage: 'inventory',
+        lines: ['Saídas registradas no período.', 'Consulte o estoque detalhado.']
+      }
+    };
+
+    let activeInsight = null;
+
+    const getText = (id) => {
+      const el = document.getElementById(id);
+      const text = el?.textContent?.trim();
+      return text && text !== '--' ? text : '';
+    };
+
+    const updatePanel = (insightId) => {
+      const cfg = insightConfig[insightId];
+      if (!cfg) return;
+      labelEl.textContent = cfg.title || 'Detalhes';
+      valueEl.textContent = getText(cfg.valueId) || '--';
+      const lines = [];
+      (cfg.lines || []).forEach((line) => {
+        if (line && !lines.includes(line)) lines.push(line);
+      });
+      linesEl.innerHTML = lines.slice(0, 4).map(line => `<div>${line}</div>`).join('');
+
+      if (cfg.breakdown && cfg.breakdown.length) {
+        breakdownEl.innerHTML = cfg.breakdown.map(item => (
+          `<div class="detail-row"><span>${item.label}</span><span>${item.value}</span></div>`
+        )).join('');
+        breakdownEl.classList.remove('hidden');
+      } else {
+        breakdownEl.innerHTML = '';
+        breakdownEl.classList.add('hidden');
+      }
+
+      if (cfg.detailPage) {
+        actionBtn.classList.remove('hidden');
+        actionBtn.onclick = () => navigatePage('ceo', cfg.detailPage);
+      } else {
+        actionBtn.classList.add('hidden');
+        actionBtn.onclick = null;
+      }
+    };
+
+    const openPanel = () => {
+      panel.classList.add('open');
+      panel.setAttribute('aria-hidden', 'false');
+      if (window.innerWidth <= 768) {
+        requestAnimationFrame(() => {
+          panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+    };
+
+    const closePanel = () => {
+      panel.classList.remove('open');
+      panel.setAttribute('aria-hidden', 'true');
+      activeInsight = null;
+      cards.forEach(card => {
+        card.classList.remove('insight-active');
+        card.setAttribute('aria-pressed', 'false');
+      });
+    };
+
+    const activateInsight = (insightId) => {
+      if (activeInsight === insightId) {
+        closePanel();
+        return;
+      }
+      activeInsight = insightId;
+      cards.forEach(card => {
+        const isActive = card.dataset.insight === insightId;
+        card.classList.toggle('insight-active', isActive);
+        card.setAttribute('aria-pressed', String(isActive));
+      });
+      updatePanel(insightId);
+      openPanel();
+    };
+
+    cards.forEach(card => {
+      card.addEventListener('click', () => activateInsight(card.dataset.insight));
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          activateInsight(card.dataset.insight);
+        }
+      });
+    });
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closePanel);
+    }
+  }
+
+  function setupDashboardStockAccordion() {
+    const card = document.getElementById('dashboard-stock-card');
+    const toggle = document.getElementById('dashboard-stock-toggle');
+    if (!card || !toggle) return;
+
+    const applyState = () => {
+      const isMobile = window.innerWidth <= 768;
+      const isOpen = card.dataset.stockOpen === 'true';
+      if (!isMobile) {
+        card.classList.add('stock-open');
+        toggle.setAttribute('aria-expanded', 'true');
+        return;
+      }
+      card.classList.toggle('stock-open', isOpen);
+      toggle.setAttribute('aria-expanded', String(isOpen));
+    };
+
+    toggle.addEventListener('click', () => {
+      const isOpen = card.dataset.stockOpen === 'true';
+      card.dataset.stockOpen = isOpen ? 'false' : 'true';
+      applyState();
+    });
+
+    if (!card.dataset.stockOpen) {
+      card.dataset.stockOpen = 'false';
+    }
+
+    applyState();
+    window.addEventListener('resize', applyState);
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     normalizeButtons();
     buttonObserver.observe(document.body, { childList: true, subtree: true });
@@ -12101,8 +13551,13 @@
     if (fabMain) fabMain.addEventListener('click', toggleFabMenu);
     if (fabBackdrop) fabBackdrop.addEventListener('click', closeFabMenu);
     window.addEventListener('resize', refreshFab);
+    window.addEventListener('resize', updateMobileHeaderHeight);
+    window.addEventListener('resize', handleMobileHeaderScroll);
     window.addEventListener('scroll', handleFabScroll, { passive: true });
+    window.addEventListener('scroll', handleMobileHeaderScroll, { passive: true });
     refreshFab();
+    updateMobileHeaderHeight();
+    handleMobileHeaderScroll();
     document.addEventListener('click', (e) => {
       const dd = document.getElementById('user-dropdown-mobile');
       const btn = document.getElementById('user-avatar-button-mobile');
@@ -12110,6 +13565,8 @@
       if (btn.contains(e.target)) return;
       if (!dd.contains(e.target)) dd.classList.add('hidden');
     });
+    setupDashboardInsightPanel();
+    setupDashboardStockAccordion();
   });
 
   // Inicialização
