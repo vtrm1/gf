@@ -10867,8 +10867,9 @@
           const statusInfo = computePolishUsageStatus({ ...data, volumeAtual_ml: normalized });
           await ref.set({ volumeAtual_ml: normalized, previsaoDuracaoDias: previsao, statusEstoque: statusInfo.statusEstoque, usosRestantes: statusInfo.usosRestantes, updatedAt: nowISO }, { merge: true });
           await saveStockHistory(stockId, {
-            tipo: 'baixa',
+            tipo: 'uso_esmalte',
             volume: consumo,
+            consumoMl: consumo,
             quantidade: consumo,
             data: nowISO,
             origem: 'comanda',
@@ -10917,7 +10918,8 @@
           atendimentoId: atendimentoId || null,
           comandaId: comandaId || null,
           consumoMl: consumo,
-          data: nowISO
+          data: nowISO,
+          tipo: 'uso_esmalte'
         });
       });
     }
@@ -12126,11 +12128,17 @@
   async function loadStockHistory(itemId, limit = 5) {
     if (!firestore || !itemId) return [];
     try {
-      const snap = await firestore.collection('stock').doc(itemId).collection('history').orderBy('data', 'desc').limit(limit).get();
-      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const snap = await firestore.collection('stock').doc(itemId).collection('history')
+        .orderBy('data', 'desc')
+        .limit(limit * 2)
+        .get();
+      return snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .filter(h => h.tipo === 'uso_esmalte')
+        .slice(0, limit);
     } catch (err) {
       console.warn('Não foi possível carregar histórico de estoque', err);
-      return stockHistories[itemId] ? stockHistories[itemId].slice(0, limit) : [];
+      return (stockHistories[itemId] || []).filter(h => h.tipo === 'uso_esmalte').slice(0, limit);
     }
   }
 
@@ -12342,8 +12350,9 @@
     document.getElementById('stock-detail-name').textContent = item.nome || item.name || 'Item';
     document.getElementById('stock-detail-cat').textContent = item.categoria || item.category || '—';
     document.getElementById('stock-detail-entry').textContent = hist.lastEntry ? formatDateLabel((hist.lastEntry || '').split('T')[0] || hist.lastEntry) : '—';
+    const usosRestantes = item.usosRestantes ?? (item.previsaoDuracaoDias || null);
+    document.getElementById('stock-detail-forecast').textContent = usosRestantes ? `Usos restantes: ${usosRestantes}` : '—';
     document.getElementById('stock-detail-exit').textContent = hist.lastExit ? formatDateLabel((hist.lastExit || '').split('T')[0] || hist.lastExit) : '—';
-    document.getElementById('stock-detail-forecast').textContent = item.previsaoDuracaoDias ? `${item.previsaoDuracaoDias} atendimentos` : '—';
     document.getElementById('stock-detail-cost').textContent = item.custoPorUso ? formatCurrency(item.custoPorUso) : '—';
     const historySection = document.getElementById('stock-detail-history-section');
     const historyList = document.getElementById('stock-detail-history-list');
@@ -12360,11 +12369,13 @@
           const row = document.createElement('div');
           row.className = 'inventory-history-item';
           const dateLabel = entry.data ? formatDateLabel((entry.data || '').split('T')[0] || entry.data) : '—';
-          const volume = entry.consumoMl ?? entry.volume ?? entry.quantidade ?? '—';
+          const volume = entry.consumoMl ?? '—';
           row.innerHTML = `<span>${dateLabel} • Uso em atendimento</span><strong>${volume} ml</strong>`;
           historyList.appendChild(row);
         });
       }
+      const lastUsage = entries[0]?.data || hist.lastExit || null;
+      document.getElementById('stock-detail-exit').textContent = lastUsage ? formatDateLabel((lastUsage || '').split('T')[0] || lastUsage) : '—';
     } else if (historyList) {
       historyList.textContent = '';
     }
