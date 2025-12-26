@@ -5417,17 +5417,37 @@
               <option value="manutencao">Manutenção</option>
             </select>
           </div>
-          <div>
+          <div class="template-field-esmaltes">
             <label class="subtext">Volume total (ml)</label>
             <input id="template-volume" type="number" min="0" />
           </div>
-          <div>
+          <div class="template-field-esmaltes">
             <label class="subtext">Marca</label>
             <input id="template-brand" />
           </div>
-          <div>
+          <div class="template-field-esmaltes">
             <label class="subtext">Consumo estimado por uso (ml)</label>
             <input id="template-consumption" type="number" min="0" step="0.1" />
+          </div>
+          <div class="template-field-geladeira">
+            <label class="subtext">Unidades por pack</label>
+            <input id="template-pack" type="number" min="0" />
+          </div>
+          <div class="template-field-geladeira">
+            <label class="subtext">Volume por pack (opcional)</label>
+            <input id="template-volume-pack" type="number" min="0" />
+          </div>
+          <div class="template-field-geladeira">
+            <label class="subtext">Preço de venda</label>
+            <input id="template-price" type="number" min="0" step="0.01" />
+          </div>
+          <div class="template-field-manutencao">
+            <label class="subtext">Custo estimado</label>
+            <input id="template-cost" type="number" min="0" step="0.01" />
+          </div>
+          <div class="template-field-manutencao">
+            <label class="subtext">Frequência (opcional)</label>
+            <input id="template-frequency" placeholder="Ex: mensal" />
           </div>
         </div>
         <div class="modal-actions">
@@ -9082,6 +9102,13 @@
     });
   }
 
+  const templateCategoryInput = document.getElementById('template-category');
+  if (templateCategoryInput) {
+    templateCategoryInput.addEventListener('change', (ev) => {
+      toggleTemplateFields(ev.target.value);
+    });
+  }
+
   function computeResumoTotals(itens = []) {
     return itens.reduce(
       (acc, it) => {
@@ -11904,9 +11931,13 @@
     } else if (currentInventoryCategory === 'geladeira') {
       document.getElementById('stock-fridge-name').value = tmpl.nome || tmpl.name || '';
       document.getElementById('stock-fridge-qty').value = tmpl.unidadesPorPack || tmpl.volumePorPack || '';
+      const priceEl = document.getElementById('stock-fridge-price');
+      if (priceEl) priceEl.value = tmpl.precoVenda || '';
     } else {
       document.getElementById('stock-maint-name').value = tmpl.nome || tmpl.name || '';
       document.getElementById('stock-maint-qty').value = tmpl.unidadesPorPack || '';
+      const costEl = document.getElementById('stock-maint-cost');
+      if (costEl) costEl.value = tmpl.custoEstimado || '';
     }
     updatePolishForecast();
   }
@@ -12012,7 +12043,9 @@
           meta.className = 'meta';
           const secondary = currentInventoryCategory === 'esmaltes'
             ? (t.marca ? t.marca : 'Template rápido')
-            : (t.unidadesPorPack ? `${t.unidadesPorPack} por pack` : 'Template rápido');
+            : currentInventoryCategory === 'geladeira'
+              ? (t.unidadesPorPack ? `${t.unidadesPorPack} por pack` : 'Template rápido')
+              : (t.frequenciaDeUso ? `Freq: ${t.frequenciaDeUso}` : 'Template rápido');
           meta.innerHTML = `<strong>${t.nome || t.name}</strong><span>${secondary}</span>`;
           const quick = document.createElement('button');
           quick.className = 'secondary';
@@ -12032,7 +12065,9 @@
         btn.className = `template-chip ${currentInventoryCategory}`;
         const secondary = currentInventoryCategory === 'esmaltes'
           ? (t.marca ? t.marca : 'Sugestão')
-          : (t.unidadesPorPack ? t.unidadesPorPack + ' por pack' : 'Sugestão');
+          : currentInventoryCategory === 'geladeira'
+            ? (t.unidadesPorPack ? t.unidadesPorPack + ' por pack' : 'Sugestão')
+            : (t.frequenciaDeUso ? `Freq: ${t.frequenciaDeUso}` : 'Sugestão');
         btn.innerHTML = `<div class="icon">⭐</div><div class="meta"><strong>${t.nome || t.name}</strong><span>${secondary}</span></div>`;
         btn.onclick = () => applyInventoryTemplate(t.id);
         modalRow.appendChild(btn);
@@ -12222,6 +12257,19 @@
     await firestore.collection('stock').doc(itemId).set({ paused: !item?.paused, updatedAt: new Date().toISOString() }, { merge: true });
   }
 
+  function toggleTemplateFields(category) {
+    const sections = {
+      esmaltes: document.querySelectorAll('.template-field-esmaltes'),
+      geladeira: document.querySelectorAll('.template-field-geladeira'),
+      manutencao: document.querySelectorAll('.template-field-manutencao')
+    };
+    Object.entries(sections).forEach(([key, nodes]) => {
+      nodes.forEach(node => {
+        node.style.display = key === category ? 'block' : 'none';
+      });
+    });
+  }
+
   async function removeStockItem(itemId) {
     if (!firestore || !itemId) return;
     await firestore.collection('stock').doc(itemId).delete();
@@ -12296,7 +12344,7 @@
     const title = document.getElementById('template-modal-title');
     const tmpl = productTemplates.find(t => t.id === id);
     if (title) title.textContent = id ? 'Editar template' : 'Novo template';
-    ['template-name','template-volume','template-brand','template-consumption'].forEach(fid => {
+    ['template-name','template-volume','template-brand','template-consumption','template-pack','template-volume-pack','template-price','template-cost','template-frequency'].forEach(fid => {
       const el = document.getElementById(fid);
       if (el) el.value = '';
     });
@@ -12307,7 +12355,13 @@
       document.getElementById('template-volume').value = tmpl.volumeTotal || '';
       document.getElementById('template-brand').value = tmpl.marca || '';
       document.getElementById('template-consumption').value = tmpl.consumoEstimadoPorUso || tmpl.consumo || '';
+      document.getElementById('template-pack').value = tmpl.unidadesPorPack || '';
+      document.getElementById('template-volume-pack').value = tmpl.volumePorPack || '';
+      document.getElementById('template-price').value = tmpl.precoVenda || '';
+      document.getElementById('template-cost').value = tmpl.custoEstimado || '';
+      document.getElementById('template-frequency').value = tmpl.frequenciaDeUso || '';
     }
+    toggleTemplateFields(cat?.value || currentInventoryCategory);
     openDialog('template-modal');
   }
 
@@ -12318,15 +12372,20 @@
     const marca = document.getElementById('template-brand').value.trim();
     const volumeTotal = parseFloat(document.getElementById('template-volume').value) || null;
     const consumo = parseFloat(document.getElementById('template-consumption').value) || null;
+    const unidadesPorPack = parseFloat(document.getElementById('template-pack').value) || null;
+    const volumePorPack = parseFloat(document.getElementById('template-volume-pack').value) || null;
+    const precoVenda = parseFloat(document.getElementById('template-price').value) || null;
+    const custoEstimado = parseFloat(document.getElementById('template-cost').value) || null;
+    const frequenciaDeUso = document.getElementById('template-frequency').value || '';
     if (!nome) { alert('Informe o nome do template.'); return; }
     if (categoria === 'esmaltes' && (!volumeTotal || !consumo)) { alert('Informe volume total e consumo estimado.'); return; }
-    const payload = {
-      nome,
-      categoria,
-      marca: categoria === 'esmaltes' ? marca : undefined,
-      volumeTotal: categoria === 'esmaltes' ? volumeTotal : (parseFloat(document.getElementById('template-volume').value) || null),
-      consumoEstimadoPorUso: categoria === 'esmaltes' ? consumo : undefined
-    };
+    if (categoria === 'geladeira' && (!unidadesPorPack || unidadesPorPack <= 0)) { alert('Informe unidades por pack para geladeira.'); return; }
+    const base = { nome, categoria };
+    const payload = categoria === 'esmaltes'
+      ? { ...base, marca, volumeTotal, consumoEstimadoPorUso: consumo }
+      : categoria === 'geladeira'
+        ? { ...base, unidadesPorPack, volumePorPack: volumePorPack || null, precoVenda: precoVenda || null }
+        : { ...base, custoEstimado: custoEstimado || null, frequenciaDeUso };
     try {
       if (firestore) {
         if (templateEditingId) {
