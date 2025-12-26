@@ -3155,6 +3155,18 @@
       border-color: rgba(217, 83, 79, 0.2);
     }
 
+    .inventory-badge.alerta {
+      background: rgba(255, 193, 7, 0.14);
+      color: #8a5b00;
+      border-color: rgba(255, 193, 7, 0.24);
+    }
+
+    .inventory-badge.critico {
+      background: rgba(217, 83, 79, 0.14);
+      color: var(--danger);
+      border-color: rgba(217, 83, 79, 0.26);
+    }
+
     .inventory-badge.warn {
       background: rgba(255, 193, 7, 0.12);
       color: #8a5b00;
@@ -7759,7 +7771,11 @@
       renderInventoryTemplates();
     });
     firestore.collection('stock').onSnapshot(snap => {
-      stockItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      stockItems = snap.docs.map(d => {
+        const raw = { id: d.id, ...d.data() };
+        const statusInfo = computePolishUsageStatus(raw);
+        return { ...raw, ...statusInfo };
+      });
       stockItems.forEach(item => attachStockHistoryListener(item.id));
       renderInventory();
       renderDashboardCards();
@@ -10056,12 +10072,13 @@
     const revenue = filteredFin.filter(f => f.type === 'receita').reduce((acc, cur) => acc + (cur.amount || 0), 0);
     const commission = filteredFin.filter(f => f.type === 'comissao').reduce((acc, cur) => acc + (cur.amount || 0), 0);
     const soldConsumptionValue = getSoldConsumptionValue(target);
-    const alertsCount = stockItems.filter(item => {
-      const pct = item.volumeTotal_ml ? (item.volumeAtual_ml / item.volumeTotal_ml) : null;
-      const low = (item.previsaoDuracaoDias && item.previsaoDuracaoDias < 15) || (pct != null && pct < 0.3) || (item.quantidade && item.quantidade <= (item.unidadesPorPack || item.quantidade) * 0.2);
-      return low;
-    }).length;
-    const alertText = alertsCount > 0 ? 'Itens com estoque baixo' : 'Nenhum alerta de estoque';
+    const alertsCount = stockItems
+      .filter(item => (item.categoria || item.category) === 'esmaltes')
+      .filter(item => {
+        const statusInfo = computePolishUsageStatus(item);
+        return statusInfo.statusEstoque === 'alerta' || statusInfo.statusEstoque === 'critico';
+      }).length;
+    const alertText = alertsCount > 0 ? 'Esmaltes em alerta ou crítico' : 'Esmaltes sem alerta';
 
     if (revenueEl) revenueEl.textContent = formatCurrency(revenue);
     if (revenueDelta) revenueDelta.textContent = targetLabel;
@@ -11901,6 +11918,22 @@
     return '🥤';
   }
 
+  function computePolishUsageStatus(item = {}) {
+    if ((item.categoria || item.category) !== 'esmaltes') {
+      return { statusEstoque: item.statusEstoque || 'ok', usosRestantes: null };
+    }
+    const volume = Number(item.volumeAtual_ml ?? item.volumeTotal_ml ?? 0);
+    const consumo = Number(item.consumoEstimadoPorUso || 0);
+    if (!consumo || consumo <= 0) {
+      return { statusEstoque: 'ok', usosRestantes: null };
+    }
+    const usosRestantes = Math.floor(volume / consumo);
+    let statusEstoque = 'ok';
+    if (usosRestantes <= 2) statusEstoque = 'critico';
+    else if (usosRestantes <= 5) statusEstoque = 'alerta';
+    return { statusEstoque, usosRestantes };
+  }
+
   function openInventoryModal(itemId = null) {
     closeFabMenu();
     inventoryFormMode = itemId ? 'edit' : 'add';
@@ -12040,8 +12073,13 @@
         const badgeLow = item.previsaoDuracaoDias && item.previsaoDuracaoDias < 15;
         const warnFlag = item.previsaoDuracaoDias && item.previsaoDuracaoDias < 7;
         const lowFlag = badgeLow || (pct != null && pct < 30) || (item.quantidade && item.quantidade <= (item.unidadesPorPack || item.quantidade) * 0.2);
-        const statusLabel = lowFlag ? 'Baixo' : warnFlag ? 'Expirando' : 'OK';
-        const badgeClass = lowFlag ? 'low' : warnFlag ? 'warn' : '';
+        const polishStatus = category === 'esmaltes' ? computePolishUsageStatus(item) : { statusEstoque: 'ok', usosRestantes: null };
+        const statusLabel = category === 'esmaltes'
+          ? (polishStatus.statusEstoque === 'critico' ? 'Crítico' : polishStatus.statusEstoque === 'alerta' ? 'Alerta' : 'OK')
+          : (lowFlag ? 'Baixo' : warnFlag ? 'Expirando' : 'OK');
+        const badgeClass = category === 'esmaltes'
+          ? (polishStatus.statusEstoque === 'critico' ? 'critico' : polishStatus.statusEstoque === 'alerta' ? 'alerta' : '')
+          : (lowFlag ? 'low' : warnFlag ? 'warn' : '');
         const div = document.createElement('div');
         div.className = 'inventory-card';
         const entryLabel = hist.lastEntry ? formatDateLabel((hist.lastEntry || '').split('T')[0] || hist.lastEntry) : '—';
@@ -12057,6 +12095,7 @@
             ${category === 'geladeira' ? `<span>🏷️ Venda ${formatCurrency(item.precoVenda || 0)}</span>` : ''}
             <span>📅 Entrada ${entryLabel}</span>
             ${category === 'esmaltes' ? `<span>⏳ Consumo ${item.consumoEstimadoPorUso || 0}ml</span>` : ''}
+            ${category === 'esmaltes' ? `<span>🧮 Usos ~${polishStatus.usosRestantes ?? '—'} restantes</span>` : ''}
           </div>`;
         div.innerHTML = `
           <div class="line-top">
@@ -12113,7 +12152,8 @@
         : volumeTotal;
       const previsao = Math.round(volumeAtual / consumo);
       const custoPorUso = volumeTotal ? ((custoTotal || 0) / volumeTotal) * consumo : 0;
-      payload = { ...payload, nome, marca, volumeTotal_ml: volumeTotal, volumeAtual_ml: volumeAtual, consumoEstimadoPorUso: consumo, dataCompra: dataCompra || null, previsaoDuracaoDias: previsao, custoTotal, custoPorUso, addedAt: payload.addedAt || now, paused: true };
+      const statusInfo = computePolishUsageStatus({ categoria: 'esmaltes', volumeAtual_ml: volumeAtual, consumoEstimadoPorUso: consumo });
+      payload = { ...payload, nome, marca, volumeTotal_ml: volumeTotal, volumeAtual_ml: volumeAtual, consumoEstimadoPorUso: consumo, dataCompra: dataCompra || null, previsaoDuracaoDias: previsao, custoTotal, custoPorUso, addedAt: payload.addedAt || now, paused: true, statusEstoque: statusInfo.statusEstoque, usosRestantes: statusInfo.usosRestantes };
     } else if (category === 'geladeira') {
       const nome = document.getElementById('stock-fridge-name').value.trim();
       const quantidade = parseInt(document.getElementById('stock-fridge-qty').value, 10) || 0;
@@ -12222,7 +12262,8 @@
       const remaining = Math.max(0, (item.volumeAtual_ml || 0) - qty);
       const usesPerDay = 3;
       const previsao = (item.consumoEstimadoPorUso || 0) > 0 ? Math.round(remaining / ((item.consumoEstimadoPorUso || 0) * usesPerDay)) : item.previsaoDuracaoDias || 0;
-      payload = { volumeAtual_ml: remaining, previsaoDuracaoDias: previsao };
+      const statusInfo = computePolishUsageStatus({ ...item, volumeAtual_ml: remaining });
+      payload = { volumeAtual_ml: remaining, previsaoDuracaoDias: previsao, statusEstoque: statusInfo.statusEstoque, usosRestantes: statusInfo.usosRestantes };
     } else {
       const remaining = Math.max(0, (item.quantidade || 0) - qty);
       payload = { quantidade: remaining };
