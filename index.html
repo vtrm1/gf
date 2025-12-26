@@ -10797,12 +10797,15 @@
         const quantidade = Number(item.quantidade || 1);
         if (categoria === 'esmaltes') {
           const consumo = data.consumoEstimadoPorUso || quantidade;
-          const remaining = Math.max(0, (data.volumeAtual_ml || data.volumeTotal_ml || 0) - consumo);
+          const baseVolume = normalizeVolumeOneDecimal(data.volumeAtual_ml || data.volumeTotal_ml || 0);
+          const remaining = Math.max(0, baseVolume - consumo);
+          const normalized = normalizeVolumeOneDecimal(remaining);
           const usesPerDay = 3;
           const previsao = (data.consumoEstimadoPorUso || 0) > 0
-            ? Math.round(remaining / ((data.consumoEstimadoPorUso || 0) * usesPerDay))
+            ? Math.round(normalized / ((data.consumoEstimadoPorUso || 0) * usesPerDay))
             : data.previsaoDuracaoDias || 0;
-          await ref.set({ volumeAtual_ml: remaining, previsaoDuracaoDias: previsao, updatedAt: nowISO }, { merge: true });
+          const statusInfo = computePolishUsageStatus({ ...data, volumeAtual_ml: normalized });
+          await ref.set({ volumeAtual_ml: normalized, previsaoDuracaoDias: previsao, statusEstoque: statusInfo.statusEstoque, usosRestantes: statusInfo.usosRestantes, updatedAt: nowISO }, { merge: true });
           await saveStockHistory(stockId, {
             tipo: 'baixa',
             volume: consumo,
@@ -10842,11 +10845,13 @@
         if (categoria !== 'esmaltes') return;
         const consumo = Number(data.consumoEstimadoPorUso || 0);
         if (!Number.isFinite(consumo) || consumo <= 0) return;
-        const current = Number(data.volumeAtual_ml ?? data.volumeTotal_ml ?? 0);
+        const current = normalizeVolumeOneDecimal(data.volumeAtual_ml ?? data.volumeTotal_ml ?? 0);
         if (!Number.isFinite(current) || current <= 0) return;
         const remaining = Math.max(0, current - consumo);
-        if (remaining === current) return;
-        tx.set(ref, { volumeAtual_ml: remaining, updatedAt: nowISO }, { merge: true });
+        const normalized = normalizeVolumeOneDecimal(remaining);
+        if (normalized === current) return;
+        const statusInfo = computePolishUsageStatus({ ...data, volumeAtual_ml: normalized });
+        tx.set(ref, { volumeAtual_ml: normalized, statusEstoque: statusInfo.statusEstoque, usosRestantes: statusInfo.usosRestantes, updatedAt: nowISO }, { merge: true });
         const historyRef = ref.collection('history').doc();
         tx.set(historyRef, {
           atendimentoId: atendimentoId || null,
@@ -11918,16 +11923,21 @@
     return '🥤';
   }
 
+  function normalizeVolumeOneDecimal(value = 0) {
+    const num = Number(value) || 0;
+    return Math.round(num * 10) / 10;
+  }
+
   function computePolishUsageStatus(item = {}) {
     if ((item.categoria || item.category) !== 'esmaltes') {
       return { statusEstoque: item.statusEstoque || 'ok', usosRestantes: null };
     }
-    const volume = Number(item.volumeAtual_ml ?? item.volumeTotal_ml ?? 0);
+    const volume = normalizeVolumeOneDecimal(item.volumeAtual_ml ?? item.volumeTotal_ml ?? 0);
     const consumo = Number(item.consumoEstimadoPorUso || 0);
     if (!consumo || consumo <= 0) {
       return { statusEstoque: 'ok', usosRestantes: null };
     }
-    const usosRestantes = Math.floor(volume / consumo);
+    const usosRestantes = Math.max(0, Math.floor(normalizeVolumeOneDecimal(volume / consumo)));
     let statusEstoque = 'ok';
     if (usosRestantes <= 2) statusEstoque = 'critico';
     else if (usosRestantes <= 5) statusEstoque = 'alerta';
@@ -12260,10 +12270,11 @@
     let payload = { updatedAt: now };
     if (item.categoria === 'esmaltes') {
       const remaining = Math.max(0, (item.volumeAtual_ml || 0) - qty);
+      const normalized = normalizeVolumeOneDecimal(remaining);
       const usesPerDay = 3;
-      const previsao = (item.consumoEstimadoPorUso || 0) > 0 ? Math.round(remaining / ((item.consumoEstimadoPorUso || 0) * usesPerDay)) : item.previsaoDuracaoDias || 0;
-      const statusInfo = computePolishUsageStatus({ ...item, volumeAtual_ml: remaining });
-      payload = { volumeAtual_ml: remaining, previsaoDuracaoDias: previsao, statusEstoque: statusInfo.statusEstoque, usosRestantes: statusInfo.usosRestantes };
+      const previsao = (item.consumoEstimadoPorUso || 0) > 0 ? Math.round(normalized / ((item.consumoEstimadoPorUso || 0) * usesPerDay)) : item.previsaoDuracaoDias || 0;
+      const statusInfo = computePolishUsageStatus({ ...item, volumeAtual_ml: normalized });
+      payload = { volumeAtual_ml: normalized, previsaoDuracaoDias: previsao, statusEstoque: statusInfo.statusEstoque, usosRestantes: statusInfo.usosRestantes };
     } else {
       const remaining = Math.max(0, (item.quantidade || 0) - qty);
       payload = { quantidade: remaining };
