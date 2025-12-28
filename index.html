@@ -14070,15 +14070,17 @@
       valueEl.textContent = getText(cfg.valueId) || '--';
       let lines = [];
       if (insightId === 'consumption') {
-        const history = buildConsumptionSoldHistory(getDashboardFilterTarget()).slice(0, 6);
-        lines = history.length
-          ? history.map(h => `${formatDateLabel(h.data)} • ${h.nome} • ${formatCurrency(h.valor)} • ${h.motivo} (${h.origem})`)
-          : ['Sem registros de consumo vendido no período.'];
+        const history = buildConsumptionSoldHistory(getDashboardFilterTarget());
+        lines = [
+          `Total ${history.length ? formatCurrency(history.reduce((acc, h) => acc + (h.valor || 0), 0)) : formatCurrency(0)}`,
+          'Clique em Ver detalhes para ver o histórico do período.'
+        ];
       } else if (insightId === 'revenue') {
-        const history = buildRevenueHistory(getDashboardFilterTarget()).slice(0, 6);
-        lines = history.length
-          ? history.map(h => `${formatDateLabel(h.data)} • ${h.origem} • ${formatCurrency(h.valor)} • ${h.descricao || ''}`)
-          : ['Sem receitas registradas no período.'];
+        lines = [
+          `Serviços: ${formatCurrency(revenueServices)}`,
+          `Consumos: ${formatCurrency(revenueConsumptions)}`,
+          'Use Ver detalhes para ver o histórico agrupado.'
+        ];
       } else if (insightId === 'stock-alerts') {
         const alerts = buildAlertItems();
         lines = alerts.length
