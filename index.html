@@ -5038,6 +5038,24 @@
         </div>
       </div>
 
+      <div id="revenue-history-modal" class="dialog-layer hidden">
+        <div class="dialog-card" style="max-width:720px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
+            <div>
+              <h3>Histórico de faturamento</h3>
+              <div class="subtext">Agrupado por dia, filtrado pelo mês selecionado.</div>
+            </div>
+            <button class="secondary" onclick="closeDialog('revenue-history-modal')">Fechar</button>
+          </div>
+          <div class="segmented" style="margin:0.75rem 0;flex-wrap:wrap;gap:0.35rem;">
+            <button id="rev-filter-all" class="active" onclick="setRevenueHistoryFilter('all')">Todos</button>
+            <button id="rev-filter-service" onclick="setRevenueHistoryFilter('service')">Serviços</button>
+            <button id="rev-filter-consumption" onclick="setRevenueHistoryFilter('consumption')">Consumos</button>
+          </div>
+          <div id="revenue-history-list" class="details-lines" style="max-height:420px;overflow:auto;"></div>
+        </div>
+      </div>
+
       <div id="dashboard-stock-card" class="rounded-3xl shadow-md p-6">
         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
@@ -7326,6 +7344,7 @@
   let clientsLastDoc = null;
   let clientsHasMore = true;
   let clientsLoading = false;
+  let revenueHistoryFilter = 'all';
 
   async function loadClientsPage(reset = false) {
     initFirebaseApp();
@@ -10220,41 +10239,17 @@
   }
 
   function getSoldConsumptionValue(target) {
-    const isFinalized = (status = '') => {
-      const key = status.toString().toLowerCase();
-      return key === 'finalizado' || key === 'done';
-    };
-    const isConsumptionItem = (item = {}) => {
-      const tipo = (item.tipo || item.type || '').toString().toLowerCase();
-      if (tipo === 'consumo' || tipo === 'consumption') return true;
-      const cat = (item.categoriaEstoque || item.categoria || item.category || '').toString().toLowerCase();
-      return cat.includes('geladeira') || cat.includes('bebida') || cat.includes('consumo');
-    };
-    const getComandaItems = (comanda = {}) =>
-      (comanda.itensProfissional || [])
-        .concat(comanda.itensCliente || [])
-        .concat(comanda.itens || comanda.items || []);
-    const sumConsumptionItems = (items = []) =>
-      items
-        .filter(isConsumptionItem)
-        .reduce((acc, item) => {
-          const price = Number(item.preco || item.valor || 0);
-          const qty = Number(item.quantidade || item.qtd || 1);
-          return acc + (Number.isFinite(price) ? price : 0) * (Number.isFinite(qty) ? qty : 1);
-        }, 0);
-    return appointments
-      .filter(appt => isFinalized(appt.status))
-      .filter(appt => {
-        if (selectedGlobalMonthKey === 'all') return true;
-        const dateRef = appt.updatedAt || appt.atualizadoEm || appt.date;
-        return matchesTargetMonth(dateRef, target);
-      })
-      .reduce((acc, appt) => {
-        if (!appt.comandaId) return acc;
-        const comanda = comandas.find(c => c.id === appt.comandaId);
-        if (!comanda) return acc;
-        return acc + sumConsumptionItems(getComandaItems(comanda));
-      }, 0);
+    return getSoldConsumptionFinancial(target).reduce((acc, cur) => acc + (cur.amount || 0), 0);
+  }
+
+  function getSoldConsumptionFinancial(target) {
+    return financialEntries
+      .filter(e => (e.type || '').toLowerCase() === 'consumo')
+      .filter(e => (e.origem || '').toLowerCase() === 'geladeira')
+      .filter(e => (e.motivo || '').toLowerCase() === 'atendimento')
+      .filter(e => selectedGlobalMonthKey === 'all' || matchesTargetMonth(e.date, target))
+      .map(e => ({ ...e, amount: Number(e.amount || 0) }))
+      .filter(e => Number.isFinite(e.amount));
   }
 
   function getMonthlyConsumptionCount(target) {
@@ -10284,7 +10279,9 @@
       if (selectedGlobalMonthKey === 'all') return true;
       return matchesTargetMonth(e.date, target);
     });
-    const revenue = filteredFin.filter(f => f.type === 'receita').reduce((acc, cur) => acc + (cur.amount || 0), 0);
+    const revenueServices = filteredFin.filter(f => f.type === 'receita').reduce((acc, cur) => acc + (cur.amount || 0), 0);
+    const revenueConsumptions = filteredFin.filter(f => f.type === 'consumo').reduce((acc, cur) => acc + (cur.amount || 0), 0);
+    const revenue = revenueServices + revenueConsumptions;
     const commission = filteredFin.filter(f => f.type === 'comissao').reduce((acc, cur) => acc + (cur.amount || 0), 0);
     const soldConsumptionValue = getSoldConsumptionValue(target);
     const alertsCount = stockItems
@@ -10296,7 +10293,7 @@
     const alertText = alertsCount > 0 ? 'Esmaltes em alerta ou crítico' : 'Esmaltes sem alerta';
 
     if (revenueEl) revenueEl.textContent = formatCurrency(revenue);
-    if (revenueDelta) revenueDelta.textContent = targetLabel;
+    if (revenueDelta) revenueDelta.textContent = `Serviços ${formatCurrency(revenueServices)} • Consumos ${formatCurrency(revenueConsumptions)}`;
     if (commEl) commEl.textContent = formatCurrency(commission);
     if (commDelta) commDelta.textContent = commission ? `Comissões registradas em ${targetLabel}` : 'Sem comissões registradas';
     if (consEl) consEl.textContent = formatCurrency(soldConsumptionValue);
@@ -11091,37 +11088,26 @@
   }
 
   function buildConsumptionSoldHistory(target = getDashboardFilterTarget()) {
-    const list = [];
-    Object.entries(stockHistories || {}).forEach(([stockId, entries]) => {
-      const item = stockItems.find(i => i.id === stockId);
-      if ((item?.categoria || item?.category) !== 'geladeira') return;
-      (entries || []).forEach(entry => {
-        if (entry.tipo !== 'saida') return;
-        if (selectedGlobalMonthKey !== 'all' && !matchesTargetMonth(entry.data, target)) return;
-        const qty = Number(entry.quantidade || entry.volume || 0);
-        const price = Number(item?.precoVenda || 0);
-        const valor = qty * price;
-        list.push({
-          data: entry.data,
-          nome: item?.nome || item?.name || 'Item',
-          valor,
-          motivo: entry.motivo || 'manual',
-          origem: entry.origem || 'manual'
-        });
-      });
-    });
-    return list.sort((a, b) => new Date(b.data || 0) - new Date(a.data || 0));
+    return getSoldConsumptionFinancial(target)
+      .map(e => ({
+        data: e.date,
+        nome: e.description || e.itemName || 'Consumo',
+        valor: e.amount || 0,
+        motivo: e.motivo || 'atendimento',
+        origem: e.origem || 'geladeira'
+      }))
+      .sort((a, b) => new Date(b.data || 0) - new Date(a.data || 0));
   }
 
   function buildRevenueHistory(target = getDashboardFilterTarget()) {
     return financialEntries
-      .filter(e => e.type === 'receita')
+      .filter(e => (e.type === 'receita' || e.type === 'consumo'))
       .filter(e => selectedGlobalMonthKey === 'all' || matchesTargetMonth(e.date, target))
       .map(e => ({
         data: e.date,
-        origem: e.serviceName ? 'Serviço' : 'Consumo',
+        origem: e.type === 'receita' ? 'Serviço' : 'Consumo',
         valor: e.amount || 0,
-        descricao: e.description || ''
+        descricao: e.description || e.serviceName || ''
       }))
       .sort((a, b) => new Date(b.data || 0) - new Date(a.data || 0));
   }
@@ -11134,6 +11120,71 @@
         return statusInfo.statusEstoque === 'alerta' || statusInfo.statusEstoque === 'critico';
       })
       .map(item => ({ id: item.id, nome: item.nome || item.name || 'Esmalte', status: item.statusEstoque || computePolishUsageStatus(item).statusEstoque }));
+  }
+
+  function getRevenueHistoryRecords(filter = 'all', target = getDashboardFilterTarget()) {
+    const list = buildRevenueHistory(target);
+    return list
+      .filter(rec => {
+        if (filter === 'service') return rec.origem === 'Serviço';
+        if (filter === 'consumption') return rec.origem === 'Consumo';
+        return true;
+      })
+      .sort((a, b) => new Date(b.data || 0) - new Date(a.data || 0));
+  }
+
+  function renderRevenueHistoryModal() {
+    const listEl = document.getElementById('revenue-history-list');
+    if (!listEl) return;
+    const records = getRevenueHistoryRecords(revenueHistoryFilter);
+    if (!records.length) {
+      listEl.innerHTML = '<div class="subtext">Nenhum registro para exibir.</div>';
+      return;
+    }
+    const groups = records.reduce((acc, cur) => {
+      const key = (cur.data || '').split('T')[0] || cur.data || '—';
+      acc[key] = acc[key] || [];
+      acc[key].push(cur);
+      return acc;
+    }, {});
+    const badge = (type) => {
+      const bg = type === 'Serviço' ? '#e6f6e4' : '#e8eef4';
+      const color = '#2f2f2f';
+      return `<span style="background:${bg};color:${color};padding:2px 8px;border-radius:999px;font-size:0.8rem;">${type}</span>`;
+    };
+    const html = Object.entries(groups)
+      .sort((a, b) => new Date(b[0]) - new Date(a[0]))
+      .map(([date, items]) => {
+        const totalDia = items.reduce((acc, it) => acc + (it.valor || 0), 0);
+        const itensHtml = items.map(it => {
+          return `<div class="detail-row"><div>${badge(it.origem)} ${it.descricao || ''}</div><span>${formatCurrency(it.valor || 0)}</span></div>`;
+        }).join('');
+        return `
+          <div class="detail-group">
+            <div class="detail-row" style="font-weight:600;">
+              <div>${formatDateLabel(date)}</div>
+              <span>${formatCurrency(totalDia)}</span>
+            </div>
+            <div class="details-lines">${itensHtml}</div>
+          </div>
+        `;
+      }).join('');
+    listEl.innerHTML = html;
+    ['rev-filter-all','rev-filter-service','rev-filter-consumption'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.classList.toggle('active', (id === 'rev-filter-all' && revenueHistoryFilter === 'all') || (id === 'rev-filter-service' && revenueHistoryFilter === 'service') || (id === 'rev-filter-consumption' && revenueHistoryFilter === 'consumption'));
+    });
+  }
+
+  function setRevenueHistoryFilter(filter = 'all') {
+    revenueHistoryFilter = filter;
+    renderRevenueHistoryModal();
+  }
+
+  function openRevenueHistoryModal(initialFilter = 'all') {
+    revenueHistoryFilter = initialFilter;
+    renderRevenueHistoryModal();
+    openDialog('revenue-history-modal');
   }
 
   function buildClientHistoryEntries(appt, itens, total) {
@@ -12581,30 +12632,30 @@
     const historySection = document.getElementById('stock-detail-history-section');
     const historyList = document.getElementById('stock-detail-history-list');
     const isPolish = (item.categoria || item.category) === 'esmaltes';
-    if (historySection) historySection.style.display = isPolish ? 'grid' : 'none';
-    if (historyList) {
-      historyList.textContent = 'Carregando...';
-      const entries = await loadStockHistory(itemId, 5);
-      if (!entries.length) {
-        historyList.textContent = 'Nenhum uso registrado.';
-      } else {
-        historyList.innerHTML = '';
-        entries.forEach(entry => {
-          const row = document.createElement('div');
-          row.className = 'inventory-history-item';
-          const dateLabel = entry.data ? formatDateLabel((entry.data || '').split('T')[0] || entry.data) : '—';
-          const volume = entry.consumoMl ?? entry.quantidade ?? '—';
-          const motivo = entry.motivo ? ` • ${entry.motivo}` : '';
-          const label = entry.tipo === 'uso_esmalte' ? 'Uso em atendimento' : 'Saída';
-          row.innerHTML = `<span>${dateLabel} • ${label}${motivo}</span><strong>${volume} ${entry.tipo === 'uso_esmalte' ? 'ml' : 'un.'}</strong>`;
-          historyList.appendChild(row);
-        });
+      if (historySection) historySection.style.display = isPolish ? 'grid' : 'none';
+      if (historyList) {
+        historyList.textContent = 'Carregando...';
+        const entries = await loadStockHistory(itemId, 5);
+        if (!entries.length) {
+          historyList.textContent = 'Nenhum uso registrado.';
+        } else {
+          historyList.innerHTML = '';
+          entries.forEach(entry => {
+            const row = document.createElement('div');
+            row.className = 'inventory-history-item';
+            const dateLabel = entry.data ? formatDateLabel((entry.data || '').split('T')[0] || entry.data) : '—';
+            const volume = entry.consumoMl ?? entry.quantidade ?? '—';
+            const motivo = entry.motivo ? ` • ${entry.motivo}` : '';
+            const label = entry.tipo === 'uso_esmalte' ? 'Uso em atendimento' : 'Saída';
+            row.innerHTML = `<span>${dateLabel} • ${label}${motivo}</span><strong>${volume} ${entry.tipo === 'uso_esmalte' ? 'ml' : 'un.'}</strong>`;
+            historyList.appendChild(row);
+          });
+        }
+        const lastUsage = entries[0]?.data || hist.lastExit || null;
+        document.getElementById('stock-detail-exit').textContent = lastUsage ? formatDateLabel((lastUsage || '').split('T')[0] || lastUsage) : '—';
+      } else if (historyList) {
+        historyList.textContent = '';
       }
-      const lastUsage = entries[0]?.data || hist.lastExit || null;
-      document.getElementById('stock-detail-exit').textContent = lastUsage ? formatDateLabel((lastUsage || '').split('T')[0] || lastUsage) : '—';
-    } else if (historyList) {
-      historyList.textContent = '';
-    }
     openDialog('stock-detail-modal');
   }
 
@@ -12666,12 +12717,13 @@
       if (reason === 'atendimento') {
         const valorSaida = Number(item.precoVenda || 0) * qty;
         await firestore.collection('financial').add({
-          type: 'receita',
+          type: 'consumo',
           amount: valorSaida,
           date: now,
           description: `Saída manual geladeira - ${item.nome || item.name || ''} (${reasonOther || reason})`,
           categoria: 'consumo',
-          origem: 'manual',
+          origem: 'geladeira',
+          motivo: reason === 'outro' ? reasonOther : reason,
           stockItemId: pendingExitStockId
         });
       }
@@ -14051,7 +14103,13 @@
 
       if (cfg.detailPage) {
         actionBtn.classList.remove('hidden');
-        actionBtn.onclick = () => navigatePage('ceo', cfg.detailPage);
+        if (insightId === 'revenue') {
+          actionBtn.onclick = () => openRevenueHistoryModal();
+        } else if (insightId === 'consumption') {
+          actionBtn.onclick = () => openRevenueHistoryModal('consumption');
+        } else {
+          actionBtn.onclick = () => navigatePage('ceo', cfg.detailPage);
+        }
       } else {
         actionBtn.classList.add('hidden');
         actionBtn.onclick = null;
