@@ -14076,6 +14076,14 @@
           'Clique em Ver detalhes para ver o histórico do período.'
         ];
       } else if (insightId === 'revenue') {
+        const target = getDashboardFilterTarget();
+        const filteredFin = financialEntries.filter(e => {
+          if (e.isFixed) return e.isActive !== false;
+          if (selectedGlobalMonthKey === 'all') return true;
+          return matchesTargetMonth(e.date, target);
+        });
+        const revenueServices = filteredFin.filter(f => f.type === 'receita').reduce((acc, cur) => acc + (cur.amount || 0), 0);
+        const revenueConsumptions = filteredFin.filter(f => f.type === 'consumo').reduce((acc, cur) => acc + (cur.amount || 0), 0);
         lines = [
           `Serviços: ${formatCurrency(revenueServices)}`,
           `Consumos: ${formatCurrency(revenueConsumptions)}`,
