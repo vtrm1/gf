@@ -5527,8 +5527,22 @@
             <input id="stock-exit-qty" type="number" min="0" />
           </div>
           <div>
+            <label>Motivo da saída</label>
+            <select id="stock-exit-reason">
+              <option value="">Selecione</option>
+              <option value="atendimento">Atendimento</option>
+              <option value="perda">Perda</option>
+              <option value="interno">Consumo interno</option>
+              <option value="outro">Outro</option>
+            </select>
+          </div>
+          <div>
             <label>Observações</label>
             <input id="stock-exit-notes" placeholder="Opcional" />
+          </div>
+          <div id="stock-exit-reason-other-wrapper" class="hidden">
+            <label>Descreva o motivo</label>
+            <input id="stock-exit-reason-other" placeholder="Ex: cortesia especial" />
           </div>
         </div>
         <div class="dialog-actions" style="justify-content:flex-end;">
@@ -9279,6 +9293,14 @@
     });
   }
 
+  const stockExitReason = document.getElementById('stock-exit-reason');
+  if (stockExitReason) {
+    stockExitReason.addEventListener('change', (ev) => {
+      const wrap = document.getElementById('stock-exit-reason-other-wrapper');
+      if (wrap) wrap.classList.toggle('hidden', ev.target.value !== 'outro');
+    });
+  }
+
   function computeResumoTotals(itens = []) {
     return itens.reduce(
       (acc, it) => {
@@ -11068,6 +11090,52 @@
     }
   }
 
+  function buildConsumptionSoldHistory(target = getDashboardFilterTarget()) {
+    const list = [];
+    Object.entries(stockHistories || {}).forEach(([stockId, entries]) => {
+      const item = stockItems.find(i => i.id === stockId);
+      if ((item?.categoria || item?.category) !== 'geladeira') return;
+      (entries || []).forEach(entry => {
+        if (entry.tipo !== 'saida') return;
+        if (selectedGlobalMonthKey !== 'all' && !matchesTargetMonth(entry.data, target)) return;
+        const qty = Number(entry.quantidade || entry.volume || 0);
+        const price = Number(item?.precoVenda || 0);
+        const valor = qty * price;
+        list.push({
+          data: entry.data,
+          nome: item?.nome || item?.name || 'Item',
+          valor,
+          motivo: entry.motivo || 'manual',
+          origem: entry.origem || 'manual'
+        });
+      });
+    });
+    return list.sort((a, b) => new Date(b.data || 0) - new Date(a.data || 0));
+  }
+
+  function buildRevenueHistory(target = getDashboardFilterTarget()) {
+    return financialEntries
+      .filter(e => e.type === 'receita')
+      .filter(e => selectedGlobalMonthKey === 'all' || matchesTargetMonth(e.date, target))
+      .map(e => ({
+        data: e.date,
+        origem: e.serviceName ? 'Serviço' : 'Consumo',
+        valor: e.amount || 0,
+        descricao: e.description || ''
+      }))
+      .sort((a, b) => new Date(b.data || 0) - new Date(a.data || 0));
+  }
+
+  function buildAlertItems() {
+    return stockItems
+      .filter(item => (item.categoria || item.category) === 'esmaltes')
+      .filter(item => {
+        const statusInfo = computePolishUsageStatus(item);
+        return statusInfo.statusEstoque === 'alerta' || statusInfo.statusEstoque === 'critico';
+      })
+      .map(item => ({ id: item.id, nome: item.nome || item.name || 'Esmalte', status: item.statusEstoque || computePolishUsageStatus(item).statusEstoque }));
+  }
+
   function buildClientHistoryEntries(appt, itens, total) {
     const now = new Date();
     const dateLabel = now.toLocaleDateString('pt-BR');
@@ -12282,11 +12350,11 @@
         .get();
       return snap.docs
         .map(d => ({ id: d.id, ...d.data() }))
-        .filter(h => h.tipo === 'uso_esmalte')
+        .filter(h => h.tipo === 'uso_esmalte' || h.tipo === 'saida')
         .slice(0, limit);
     } catch (err) {
       console.warn('Não foi possível carregar histórico de estoque', err);
-      return (stockHistories[itemId] || []).filter(h => h.tipo === 'uso_esmalte').slice(0, limit);
+      return (stockHistories[itemId] || []).filter(h => h.tipo === 'uso_esmalte' || h.tipo === 'saida').slice(0, limit);
     }
   }
 
@@ -12514,7 +12582,7 @@
     const historyList = document.getElementById('stock-detail-history-list');
     const isPolish = (item.categoria || item.category) === 'esmaltes';
     if (historySection) historySection.style.display = isPolish ? 'grid' : 'none';
-    if (isPolish && historyList) {
+    if (historyList) {
       historyList.textContent = 'Carregando...';
       const entries = await loadStockHistory(itemId, 5);
       if (!entries.length) {
@@ -12525,8 +12593,10 @@
           const row = document.createElement('div');
           row.className = 'inventory-history-item';
           const dateLabel = entry.data ? formatDateLabel((entry.data || '').split('T')[0] || entry.data) : '—';
-          const volume = entry.consumoMl ?? '—';
-          row.innerHTML = `<span>${dateLabel} • Uso em atendimento</span><strong>${volume} ml</strong>`;
+          const volume = entry.consumoMl ?? entry.quantidade ?? '—';
+          const motivo = entry.motivo ? ` • ${entry.motivo}` : '';
+          const label = entry.tipo === 'uso_esmalte' ? 'Uso em atendimento' : 'Saída';
+          row.innerHTML = `<span>${dateLabel} • ${label}${motivo}</span><strong>${volume} ${entry.tipo === 'uso_esmalte' ? 'ml' : 'un.'}</strong>`;
           historyList.appendChild(row);
         });
       }
@@ -12548,8 +12618,14 @@
     }
     const input = document.getElementById('stock-exit-qty');
     const nameEl = document.getElementById('stock-exit-name');
+    const reasonEl = document.getElementById('stock-exit-reason');
+    const reasonOther = document.getElementById('stock-exit-reason-other');
+    const reasonWrap = document.getElementById('stock-exit-reason-other-wrapper');
     if (nameEl) nameEl.textContent = item?.nome || item?.name || 'Item';
     if (input) input.value = item?.consumoEstimadoPorUso || 1;
+    if (reasonEl) reasonEl.value = '';
+    if (reasonOther) reasonOther.value = '';
+    if (reasonWrap) reasonWrap.classList.add('hidden');
     openDialog('stock-exit-modal');
   }
 
@@ -12558,6 +12634,10 @@
     const item = stockItems.find(i => i.id === pendingExitStockId);
     if (!item) return;
     const qty = parseFloat(document.getElementById('stock-exit-qty')?.value || '0');
+    const reason = document.getElementById('stock-exit-reason')?.value || '';
+    const reasonOther = document.getElementById('stock-exit-reason-other')?.value || '';
+    if (!reason) { alert('Selecione o motivo da saída.'); return; }
+    if (reason === 'outro' && !reasonOther.trim()) { alert('Descreva o motivo.'); return; }
     const now = new Date().toISOString();
     let payload = { updatedAt: now };
     if (item.categoria === 'esmaltes') {
@@ -12572,9 +12652,31 @@
       const custoUnitario = item.custoUnitario || (item.custoCompra && item.quantidade ? item.custoCompra / item.quantidade : 0);
       const custoTotalEstoqueAtual = custoUnitario ? custoUnitario * remaining : null;
       payload = { quantidade: remaining, custoUnitario, custoTotalEstoqueAtual };
+      const historyEntry = {
+        tipo: 'saida',
+        quantidade: qty,
+        volume: null,
+        custoUnitario,
+        custoTotal: custoUnitario ? custoUnitario * qty : null,
+        data: now,
+        motivo: reason === 'outro' ? reasonOther : reason,
+        origem: 'manual'
+      };
+      await saveStockHistory(pendingExitStockId, historyEntry);
+      if (reason === 'atendimento') {
+        const valorSaida = Number(item.precoVenda || 0) * qty;
+        await firestore.collection('financial').add({
+          type: 'receita',
+          amount: valorSaida,
+          date: now,
+          description: `Saída manual geladeira - ${item.nome || item.name || ''} (${reasonOther || reason})`,
+          categoria: 'consumo',
+          origem: 'manual',
+          stockItemId: pendingExitStockId
+        });
+      }
     }
     await firestore.collection('stock').doc(pendingExitStockId).set(payload, { merge: true });
-    await saveStockHistory(pendingExitStockId, { tipo: 'saida', quantidade: qty, volume: item.categoria === 'esmaltes' ? qty : null, data: now });
     closeDialog('stock-exit-modal');
     pendingExitStockId = null;
   }
@@ -13914,11 +14016,28 @@
       if (!cfg) return;
       labelEl.textContent = cfg.title || 'Detalhes';
       valueEl.textContent = getText(cfg.valueId) || '--';
-      const lines = [];
-      (cfg.lines || []).forEach((line) => {
-        if (line && !lines.includes(line)) lines.push(line);
-      });
-      linesEl.innerHTML = lines.slice(0, 4).map(line => `<div>${line}</div>`).join('');
+      let lines = [];
+      if (insightId === 'consumption') {
+        const history = buildConsumptionSoldHistory(getDashboardFilterTarget()).slice(0, 6);
+        lines = history.length
+          ? history.map(h => `${formatDateLabel(h.data)} • ${h.nome} • ${formatCurrency(h.valor)} • ${h.motivo} (${h.origem})`)
+          : ['Sem registros de consumo vendido no período.'];
+      } else if (insightId === 'revenue') {
+        const history = buildRevenueHistory(getDashboardFilterTarget()).slice(0, 6);
+        lines = history.length
+          ? history.map(h => `${formatDateLabel(h.data)} • ${h.origem} • ${formatCurrency(h.valor)} • ${h.descricao || ''}`)
+          : ['Sem receitas registradas no período.'];
+      } else if (insightId === 'stock-alerts') {
+        const alerts = buildAlertItems();
+        lines = alerts.length
+          ? alerts.map(a => `${a.nome} • ${a.status === 'critico' ? 'Crítico' : 'Alerta'}`)
+          : ['Nenhum item em alerta.'];
+      } else {
+        (cfg.lines || []).forEach((line) => {
+          if (line && !lines.includes(line)) lines.push(line);
+        });
+      }
+      linesEl.innerHTML = lines.slice(0, 6).map(line => `<div>${line}</div>`).join('');
 
       if (cfg.breakdown && cfg.breakdown.length) {
         breakdownEl.innerHTML = cfg.breakdown.map(item => (
