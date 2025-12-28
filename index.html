@@ -5196,13 +5196,13 @@
         <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
           <h2 id="selected-month-title" style="margin:0;">Agenda do mês</h2>
           <div class="segmented small">
-            <button id="agenda-tab-month" class="active" onclick="setAgendaSummaryTab('month', 'ceo')">Resumo do mês</button>
-            <button id="agenda-tab-day" onclick="setAgendaSummaryTab('day', 'ceo')">Agenda do dia</button>
+            <button id="agenda-tab-month" onclick="setAgendaSummaryTab('month', 'ceo')">Resumo do mês</button>
+            <button id="agenda-tab-day" class="active" onclick="setAgendaSummaryTab('day', 'ceo')">Agenda do dia</button>
           </div>
         </div>
         <div class="pill-row" id="selected-month-tags"></div>
       </div>
-      <div id="agenda-month-card" class="card" style="margin-top:0.2rem;">
+      <div id="agenda-month-card" class="card hidden" style="margin-top:0.2rem;">
         <div id="agenda-month-mobile-summary" class="agenda-month-mobile-summary"></div>
         <div class="agenda-table-wrapper">
           <table class="table" style="margin:0;">
@@ -5224,7 +5224,7 @@
         <div id="agenda-month-cards" class="agenda-month-cards"></div>
       </div>
 
-      <div id="agenda-day-card" class="card hidden" style="margin-top:0.4rem;">
+      <div id="agenda-day-card" class="card" style="margin-top:0.4rem;">
         <div class="agenda-day-desktop">
           <div class="day-header-row">
             <div class="day-header-picker">
@@ -6417,13 +6417,13 @@
         <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
           <h2 id="selected-month-title-colab" style="margin:0;">Agenda do mês</h2>
           <div class="segmented small">
-            <button id="agenda-tab-month-colab" class="active" onclick="setAgendaSummaryTab('month', 'colab')">Resumo do mês</button>
-            <button id="agenda-tab-day-colab" onclick="setAgendaSummaryTab('day', 'colab')">Agenda do dia</button>
+            <button id="agenda-tab-month-colab" onclick="setAgendaSummaryTab('month', 'colab')">Resumo do mês</button>
+            <button id="agenda-tab-day-colab" class="active" onclick="setAgendaSummaryTab('day', 'colab')">Agenda do dia</button>
           </div>
         </div>
         <div class="pill-row" id="selected-month-tags-colab"></div>
       </div>
-      <div id="agenda-month-card-colab" class="card" style="margin-top:0.2rem;">
+      <div id="agenda-month-card-colab" class="card hidden" style="margin-top:0.2rem;">
         <div id="agenda-month-mobile-summary-colab" class="agenda-month-mobile-summary"></div>
         <div class="agenda-table-wrapper">
           <table class="table" style="margin:0;">
@@ -6443,7 +6443,7 @@
         <div id="agenda-month-cards-colab" class="agenda-month-cards"></div>
       </div>
 
-      <div id="agenda-day-card-colab" class="card hidden" style="margin-top:0.4rem;">
+      <div id="agenda-day-card-colab" class="card" style="margin-top:0.4rem;">
         <div class="agenda-day-desktop">
           <div class="day-header-row">
             <div class="day-header-picker">
@@ -7272,7 +7272,7 @@
   let selectedMonthIndexColab = new Date().getMonth();
   let agendaViewMode = 'year';
   let agendaViewModeColab = 'year';
-  const agendaSummaryTab = { ceo: 'month', colab: 'month' };
+  const agendaSummaryTab = { ceo: 'day', colab: 'day' };
   const agendaDaySelectedDate = {
     ceo: new Date().toISOString().split('T')[0],
     colab: new Date().toISOString().split('T')[0]
@@ -8299,6 +8299,7 @@
         if ((it.tipo || '').toLowerCase() === 'servico' || (it.tipo || '').toLowerCase() === 'service') return;
         const cat = (it.categoriaEstoque || it.categoria || it.category || '').toLowerCase();
         if (cat.includes('esmalte')) return;
+        if (cat.includes('manutencao')) return;
         if (!(cat.includes('geladeira') || (it.tipo || '').toLowerCase() === 'consumo')) return;
         const qty = Number(it.quantidade || it.qtd || 1);
         const price = Number(it.preco || it.valor || 0);
@@ -9264,6 +9265,11 @@
       finalizeModalState.esmaltesBusca = ev.target.value || '';
       renderFinalizarComandaEsmaltes();
     });
+  }
+
+  function getTodaySaoPauloDateStr() {
+    const nowSp = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+    return nowSp.toISOString().split('T')[0];
   }
 
   const templateCategoryInput = document.getElementById('template-category');
@@ -11512,7 +11518,9 @@
   function ensureAgendaDayPicker(scope = 'ceo') {
     const picker = document.getElementById(scope === 'ceo' ? 'agenda-day-picker' : 'agenda-day-picker-colab');
     const pickerMobile = document.getElementById(scope === 'ceo' ? 'agenda-day-picker-mobile' : 'agenda-day-picker-colab-mobile');
-    const fallback = new Date().toISOString().split('T')[0];
+    const fallback = getTodaySaoPauloDateStr();
+    if (picker) picker.max = fallback;
+    if (pickerMobile) pickerMobile.max = fallback;
     const current = agendaDaySelectedDate[scope] || picker?.value || pickerMobile?.value || fallback;
     agendaDaySelectedDate[scope] = current;
     if (picker && picker.value !== current) picker.value = current;
@@ -11521,7 +11529,10 @@
   }
 
   function handleAgendaDayDateChange(scope = 'ceo', value) {
-    agendaDaySelectedDate[scope] = value || agendaDaySelectedDate[scope];
+    const todaySp = getTodaySaoPauloDateStr();
+    const nextVal = value || agendaDaySelectedDate[scope];
+    const finalVal = nextVal && nextVal <= todaySp ? nextVal : todaySp;
+    agendaDaySelectedDate[scope] = finalVal;
     ensureAgendaDayPicker(scope);
     renderAgendaDayList(scope);
   }
@@ -12616,10 +12627,12 @@
       } else {
         payload.id = templateEditingId || `tmpl-${Date.now()}`;
       }
-      if (templateEditingId) {
-        productTemplates = productTemplates.map(t => t.id === templateEditingId ? { ...t, ...payload } : t);
-      } else {
-        productTemplates.push({ id: payload.id || `tmpl-${Date.now()}`, ...payload });
+      if (!firestore) {
+        if (templateEditingId) {
+          productTemplates = productTemplates.map(t => t.id === templateEditingId ? { ...t, ...payload } : t);
+        } else {
+          productTemplates.push({ id: payload.id || `tmpl-${Date.now()}`, ...payload });
+        }
       }
       renderInventoryTemplates();
     } catch (err) {
