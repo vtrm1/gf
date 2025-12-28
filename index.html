@@ -12338,7 +12338,7 @@
         const exitLabel = hist.lastExit ? formatDateLabel((hist.lastExit || '').split('T')[0] || hist.lastExit) : '—';
         const progress = pct != null ? `<div class="inventory-progress"><div class="fill" style="width:${Math.max(0, Math.min(100, pct))}%;${pct < 10 ? 'background:#d9534f;' : ''}"></div></div>` : '';
         const unitCost = category === 'geladeira' || category === 'manutencao'
-          ? (item.custoCompra ? (item.custoCompra / Math.max(1, item.quantidade || 1)) : 0)
+          ? (category === 'geladeira' ? (item.custoUnitario || (item.custoCompra ? (item.custoCompra / Math.max(1, item.quantidade || 1)) : 0)) : (item.custoCompra ? (item.custoCompra / Math.max(1, item.quantidade || 1)) : 0))
           : (item.custoPorUso || 0);
         const miniMeta = `
           <div class="inventory-mini-meta">
@@ -12406,12 +12406,16 @@
       payload = { ...payload, nome, marca, volumeTotal_ml: volumeTotal, volumeAtual_ml: volumeAtual, consumoEstimadoPorUso: consumo, dataCompra: dataCompra || null, previsaoDuracaoDias: previsao, custoTotal, custoPorUso, addedAt: payload.addedAt || now, paused: true, statusEstoque: statusInfo.statusEstoque, usosRestantes: statusInfo.usosRestantes };
     } else if (category === 'geladeira') {
       const nome = document.getElementById('stock-fridge-name').value.trim();
-      const quantidade = parseInt(document.getElementById('stock-fridge-qty').value, 10) || 0;
+      const quantidadeCompra = parseInt(document.getElementById('stock-fridge-qty').value, 10) || 0;
       const custoCompra = parseFloat(document.getElementById('stock-fridge-cost').value) || 0;
       const precoVenda = parseFloat(document.getElementById('stock-fridge-price').value) || 0;
       const dataCompra = document.getElementById('stock-fridge-date').value;
-      if (!nome || !quantidade) { alert('Informe nome e quantidade.'); return; }
-      payload = { ...payload, nome, quantidade, custoCompra, precoVenda, dataCompra: dataCompra || null, addedAt: payload.addedAt || now };
+      if (!nome || !quantidadeCompra) { alert('Informe nome e quantidade.'); return; }
+      const originalQty = inventoryFormMode === 'edit' && original ? (original.quantidade || 0) : 0;
+      const quantidadeAtual = (inventoryFormMode === 'edit' && original) ? originalQty + quantidadeCompra : quantidadeCompra;
+      const custoUnitario = quantidadeCompra > 0 ? (custoCompra / quantidadeCompra) : (original?.custoUnitario || 0);
+      const custoTotalEstoqueAtual = custoUnitario ? custoUnitario * quantidadeAtual : null;
+      payload = { ...payload, nome, quantidade: quantidadeAtual, custoCompra, custoUnitario, custoTotalEstoqueAtual, precoVenda, dataCompra: dataCompra || null, addedAt: payload.addedAt || now };
     } else {
       const nome = document.getElementById('stock-maint-name').value.trim();
       const quantidade = parseInt(document.getElementById('stock-maint-qty').value, 10) || 0;
@@ -12423,15 +12427,19 @@
 
     const currentValue = category === 'esmaltes'
       ? (payload.volumeAtual_ml || 0)
-      : (payload.quantidade || 0);
+      : (category === 'geladeira' ? (parseInt(document.getElementById('stock-fridge-qty').value, 10) || 0) : (payload.quantidade || 0));
     const originalValue = category === 'esmaltes'
       ? (original?.volumeAtual_ml || original?.volumeTotal_ml || 0)
-      : (original?.quantidade || 0);
-    const delta = inventoryFormMode === 'edit' && original ? (currentValue - originalValue) : currentValue;
+      : (category === 'geladeira' ? (original?.quantidade || 0) : (original?.quantidade || 0));
+    const delta = category === 'geladeira'
+      ? (parseInt(document.getElementById('stock-fridge-qty').value, 10) || 0)
+      : (inventoryFormMode === 'edit' && original ? (currentValue - originalValue) : currentValue);
     const baseCost = payload.custoTotal || payload.custoCompra || 0;
-    const perUnitCost = originalValue > 0
-      ? ((original?.custoTotal || original?.custoCompra || 0) / originalValue)
-      : 0;
+    const perUnitCost = category === 'geladeira'
+      ? (payload.custoUnitario || original?.custoUnitario || 0)
+      : (originalValue > 0
+        ? ((original?.custoTotal || original?.custoCompra || 0) / originalValue)
+        : 0);
     const inferredCost = delta > 0 && !baseCost ? perUnitCost * delta : baseCost;
     const purchaseDate = payload.dataCompra || payload.addedAt || now;
     if (delta > 0) {
@@ -12442,12 +12450,12 @@
       if (inventoryFormMode === 'edit' && inventoryEditingId) {
         await firestore.collection('stock').doc(inventoryEditingId).set(payload, { merge: true });
         const historyEntry = delta > 0
-          ? { tipo: 'entrada', quantidade: delta, volume: category === 'esmaltes' ? delta : null, custoTotal: inferredCost || 0, categoria: payload.categoria || category, data: purchaseDate, descricao: payload.nome || payload.name }
-          : { tipo: 'edicao', quantidade: payload.quantidade || payload.volumeAtual_ml || 0, volume: payload.volumeAtual_ml || null, custoTotal: payload.custoTotal || payload.custoCompra || 0, categoria: payload.categoria || category };
+          ? { tipo: 'entrada', quantidade: delta, volume: category === 'esmaltes' ? delta : null, custoTotal: inferredCost || 0, custoUnitario: payload.custoUnitario || perUnitCost || null, categoria: payload.categoria || category, data: purchaseDate, descricao: payload.nome || payload.name }
+          : { tipo: 'edicao', quantidade: payload.quantidade || payload.volumeAtual_ml || 0, volume: payload.volumeAtual_ml || null, custoTotal: payload.custoTotal || payload.custoCompra || 0, custoUnitario: payload.custoUnitario || perUnitCost || null, categoria: payload.categoria || category };
         await saveStockHistory(inventoryEditingId, historyEntry);
       } else {
         const ref = await firestore.collection('stock').add({ ...payload, createdAt: now });
-        await saveStockHistory(ref.id, { tipo: 'entrada', quantidade: payload.quantidade || payload.volumeAtual_ml || 0, volume: payload.volumeAtual_ml || null, custoTotal: payload.custoTotal || payload.custoCompra || 0, categoria: payload.categoria || category, descricao: payload.nome || payload.name });
+        await saveStockHistory(ref.id, { tipo: 'entrada', quantidade: payload.quantidade || payload.volumeAtual_ml || 0, volume: payload.volumeAtual_ml || null, custoTotal: payload.custoTotal || payload.custoCompra || 0, custoUnitario: payload.custoUnitario || perUnitCost || null, categoria: payload.categoria || category, descricao: payload.nome || payload.name });
       }
     } catch (err) {
       console.error('Erro ao salvar estoque', err);
@@ -12561,7 +12569,9 @@
       payload = { volumeAtual_ml: normalized, previsaoDuracaoDias: previsao, statusEstoque: statusInfo.statusEstoque, usosRestantes: statusInfo.usosRestantes };
     } else {
       const remaining = Math.max(0, (item.quantidade || 0) - qty);
-      payload = { quantidade: remaining };
+      const custoUnitario = item.custoUnitario || (item.custoCompra && item.quantidade ? item.custoCompra / item.quantidade : 0);
+      const custoTotalEstoqueAtual = custoUnitario ? custoUnitario * remaining : null;
+      payload = { quantidade: remaining, custoUnitario, custoTotalEstoqueAtual };
     }
     await firestore.collection('stock').doc(pendingExitStockId).set(payload, { merge: true });
     await saveStockHistory(pendingExitStockId, { tipo: 'saida', quantidade: qty, volume: item.categoria === 'esmaltes' ? qty : null, data: now });
