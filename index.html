@@ -11266,12 +11266,24 @@
   function shareRevenueHistoryWhatsapp() {
     const records = getRevenueHistoryRecords(revenueHistoryFilter);
     if (!records.length) { alert('Nenhum dado para compartilhar.'); return; }
-    const text = records
-      .map(rec => {
-        const date = rec.data ? formatDateLabel((rec.data || '').split('T')[0] || rec.data) : '—';
-        return `${date} • ${rec.origem} • ${rec.descricao || 'Registro'} • ${formatCurrency(rec.valor || 0)}${rec.profissional ? ` • ${rec.profissional}` : ''}`;
-      })
-      .join('%0A');
+    const grouped = records.reduce((acc, rec) => {
+      const key = (rec.data || '').split('T')[0] || rec.data || '—';
+      acc[key] = acc[key] || [];
+      acc[key].push(rec);
+      return acc;
+    }, {});
+    let text = '📊 Histórico do mês\n\n';
+    Object.entries(grouped)
+      .sort((a, b) => new Date(b[0]) - new Date(a[0]))
+      .forEach(([date, items]) => {
+        const dateLabel = formatDateLabel(date);
+        text += `🗓 ${dateLabel}\n`;
+        items.forEach(it => {
+          const prof = it.profissional ? ` • ${it.profissional}` : '';
+          text += `• ${it.descricao || 'Registro'} — ${formatCurrency(it.valor || 0)}${prof}\n`;
+        });
+        text += `\n`;
+      });
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
   }
