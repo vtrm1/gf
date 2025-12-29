@@ -5092,7 +5092,7 @@
             <select id="rev-filter-prof" class="subtext" style="padding:0.25rem 0.5rem;border:1px solid var(--border-soft);border-radius:8px;" onchange="setRevenueHistoryProfessional(this.value)">
               <option value="all">Todas colaboradoras</option>
             </select>
-            <button class="secondary" onclick="exportRevenueHistoryPdf()">Exportar PDF</button>
+            <button class="secondary" onclick="shareRevenueHistoryWhatsapp()">Compartilhar no WhatsApp</button>
           </div>
           <div id="revenue-history-list" class="details-lines" style="max-height:420px;overflow:auto;"></div>
         </div>
@@ -11263,16 +11263,17 @@
     renderRevenueHistoryModal();
   }
 
-  function exportRevenueHistoryPdf() {
-    const listEl = document.getElementById('revenue-history-list');
-    if (!listEl) return;
-    const win = window.open('', '_blank');
-    if (!win) return;
-    win.document.write(`<html><head><title>Histórico de faturamento</title></head><body>${listEl.innerHTML}</body></html>`);
-    win.document.close();
-    win.focus();
-    win.print();
-    win.close();
+  function shareRevenueHistoryWhatsapp() {
+    const records = getRevenueHistoryRecords(revenueHistoryFilter);
+    if (!records.length) { alert('Nenhum dado para compartilhar.'); return; }
+    const text = records
+      .map(rec => {
+        const date = rec.data ? formatDateLabel((rec.data || '').split('T')[0] || rec.data) : '—';
+        return `${date} • ${rec.origem} • ${rec.descricao || 'Registro'} • ${formatCurrency(rec.valor || 0)}${rec.profissional ? ` • ${rec.profissional}` : ''}`;
+      })
+      .join('%0A');
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
   }
 
   function openRevenueHistoryModal(initialFilter = 'all') {
@@ -14178,10 +14179,10 @@
         });
         const revenueServices = filteredFin.filter(f => f.type === 'receita').reduce((acc, cur) => acc + (cur.amount || 0), 0);
         const revenueConsumptions = filteredFin.filter(f => f.type === 'consumo').reduce((acc, cur) => acc + (cur.amount || 0), 0);
-        const groupedLines = buildRevenuePanelLines(target);
-        lines = groupedLines.length ? groupedLines : [
+        lines = [
           `Serviços: ${formatCurrency(revenueServices)}`,
-          `Consumos: ${formatCurrency(revenueConsumptions)}`
+          `Consumos: ${formatCurrency(revenueConsumptions)}`,
+          'Use Ver detalhes para ver o histórico.'
         ];
       } else if (insightId === 'stock-alerts') {
         const alerts = buildAlertItems();
