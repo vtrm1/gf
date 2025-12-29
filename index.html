@@ -589,6 +589,92 @@
       font-weight: 700;
     }
 
+    .revenue-collapse {
+      margin-top: 0.75rem;
+      display: grid;
+      gap: 0.4rem;
+    }
+
+    .collapse-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255,255,255,0.85);
+      border: 1px solid var(--border-soft);
+      border-radius: 10px;
+      padding: 0.5rem 0.65rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .collapse-btn:hover {
+      border-color: rgba(var(--accent-gold-rgb), 0.35);
+      background: #fff;
+    }
+
+    .collapse-btn .chevron {
+      transition: transform 0.2s ease;
+    }
+
+    .collapse-btn.open .chevron {
+      transform: rotate(180deg);
+    }
+
+    .collapse-body {
+      border: 1px solid var(--border-soft);
+      border-radius: 10px;
+      padding: 0.5rem 0.65rem;
+      background: rgba(255,255,255,0.85);
+      display: grid;
+      gap: 0.35rem;
+      max-height: 420px;
+      overflow: hidden;
+    }
+
+    .collapse-body.hidden {
+      display: none;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+      align-items: center;
+      font-size: 0.92rem;
+    }
+
+    .detail-group {
+      display: grid;
+      gap: 0.3rem;
+      border-bottom: 1px solid var(--border-soft);
+      padding-bottom: 0.4rem;
+    }
+
+    .detail-group:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .badge-service {
+      background: #e6f6e4;
+      color: #2f2f2f;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      margin-right: 0.35rem;
+    }
+
+    .badge-consumption {
+      background: #e8eef4;
+      color: #2f2f2f;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      margin-right: 0.35rem;
+    }
+
     .details-close {
       width: 32px;
       height: 32px;
@@ -4929,6 +5015,18 @@
           </div>
           <div class="text-2xl font-semibold text-[color:var(--text-main)]" id="dashboard-revenue">R$ 0,00</div>
           <div class="text-sm text-slate-500" id="dashboard-revenue-delta">--</div>
+          <div class="revenue-collapse">
+            <button id="revenue-services-toggle" class="collapse-btn" type="button" onclick="toggleRevenueSection('services')">
+              <span>Serviços</span>
+              <span class="chevron">⌄</span>
+            </button>
+            <div id="revenue-services-body" class="collapse-body hidden"></div>
+            <button id="revenue-consumption-toggle" class="collapse-btn" type="button" onclick="toggleRevenueSection('consumption')">
+              <span>Consumos</span>
+              <span class="chevron">⌄</span>
+            </button>
+            <div id="revenue-consumption-body" class="collapse-body hidden"></div>
+          </div>
         </div>
         <div class="ui-card p-5 dashboard-insight-card" data-insight="commission" role="button" tabindex="0" aria-pressed="false">
           <div class="flex items-center justify-between text-sm text-slate-500">
