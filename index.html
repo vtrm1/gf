@@ -5089,6 +5089,10 @@
             <button id="rev-filter-all" class="active" onclick="setRevenueHistoryFilter('all')">Todos</button>
             <button id="rev-filter-service" onclick="setRevenueHistoryFilter('service')">Serviços</button>
             <button id="rev-filter-consumption" onclick="setRevenueHistoryFilter('consumption')">Consumos</button>
+            <select id="rev-filter-prof" class="subtext" style="padding:0.25rem 0.5rem;border:1px solid var(--border-soft);border-radius:8px;" onchange="setRevenueHistoryProfessional(this.value)">
+              <option value="all">Todas colaboradoras</option>
+            </select>
+            <button class="secondary" onclick="exportRevenueHistoryPdf()">Exportar PDF</button>
           </div>
           <div id="revenue-history-list" class="details-lines" style="max-height:420px;overflow:auto;"></div>
         </div>
@@ -7383,6 +7387,7 @@
   let clientsHasMore = true;
   let clientsLoading = false;
   let revenueHistoryFilter = 'all';
+  let revenueHistoryProfessional = 'all';
 
   async function loadClientsPage(reset = false) {
     initFirebaseApp();
@@ -11145,7 +11150,8 @@
         data: e.date,
         origem: e.type === 'receita' ? 'Serviço' : 'Consumo',
         valor: e.amount || 0,
-        descricao: e.description || e.serviceName || ''
+        descricao: e.description || e.serviceName || '',
+        profissional: e.professionalName || e.professional || e.professionalId || ''
       }))
       .sort((a, b) => new Date(b.data || 0) - new Date(a.data || 0));
   }
@@ -11168,6 +11174,7 @@
         if (filter === 'consumption') return rec.origem === 'Consumo';
         return true;
       })
+      .filter(rec => revenueHistoryProfessional === 'all' || (rec.profissional || '').toLowerCase() === revenueHistoryProfessional.toLowerCase())
       .sort((a, b) => new Date(b.data || 0) - new Date(a.data || 0));
   }
 
@@ -11194,6 +11201,17 @@
 
   function renderRevenueHistoryModal() {
     const listEl = document.getElementById('revenue-history-list');
+    const profEl = document.getElementById('rev-filter-prof');
+    if (profEl) {
+      profEl.innerHTML = '<option value="all">Todas colaboradoras</option>';
+      collaborators.forEach(col => {
+        const opt = document.createElement('option');
+        opt.value = col.name || col.id || '';
+        opt.textContent = col.name || col.id || '';
+        opt.selected = revenueHistoryProfessional && revenueHistoryProfessional.toLowerCase() === (opt.value || '').toLowerCase();
+        profEl.appendChild(opt);
+      });
+    }
     if (!listEl) return;
     const records = getRevenueHistoryRecords(revenueHistoryFilter);
     if (!records.length) {
@@ -11238,6 +11256,23 @@
   function setRevenueHistoryFilter(filter = 'all') {
     revenueHistoryFilter = filter;
     renderRevenueHistoryModal();
+  }
+
+  function setRevenueHistoryProfessional(prof = 'all') {
+    revenueHistoryProfessional = prof || 'all';
+    renderRevenueHistoryModal();
+  }
+
+  function exportRevenueHistoryPdf() {
+    const listEl = document.getElementById('revenue-history-list');
+    if (!listEl) return;
+    const win = window.open('', '_blank');
+    if (!win) return;
+    win.document.write(`<html><head><title>Histórico de faturamento</title></head><body>${listEl.innerHTML}</body></html>`);
+    win.document.close();
+    win.focus();
+    win.print();
+    win.close();
   }
 
   function openRevenueHistoryModal(initialFilter = 'all') {
@@ -14079,7 +14114,7 @@
       consumption: {
         title: 'Consumo vendido',
         valueId: 'dashboard-consumption',
-        detailPage: 'finance',
+        detailPage: null,
         lines: ['Consumo registrado no período.', 'Acompanhe tendências no financeiro.']
       },
       'invest-month': {
@@ -14170,15 +14205,13 @@
         breakdownEl.classList.add('hidden');
       }
 
-      if (cfg.detailPage) {
+      if (cfg.detailPage || insightId === 'revenue' || insightId === 'consumption') {
         actionBtn.classList.remove('hidden');
         if (insightId === 'revenue') {
-          actionBtn.onclick = () => openRevenueHistoryModal();
+          actionBtn.onclick = () => openRevenueHistoryModal('all');
         } else if (insightId === 'consumption') {
           actionBtn.onclick = () => openRevenueHistoryModal('consumption');
-        } else {
-          actionBtn.onclick = () => navigatePage('ceo', cfg.detailPage);
-        }
+        } else actionBtn.onclick = () => navigatePage('ceo', cfg.detailPage);
       } else {
         actionBtn.classList.add('hidden');
         actionBtn.onclick = null;
