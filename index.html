@@ -7388,6 +7388,9 @@
   let clientsLoading = false;
   let revenueHistoryFilter = 'all';
   let revenueHistoryProfessional = 'all';
+  let revenueShareRange = 'month';
+  let revenueShareStart = '';
+  let revenueShareEnd = '';
 
   async function loadClientsPage(reset = false) {
     initFirebaseApp();
