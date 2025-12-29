@@ -589,54 +589,6 @@
       font-weight: 700;
     }
 
-    .revenue-collapse {
-      margin-top: 0.75rem;
-      display: grid;
-      gap: 0.4rem;
-    }
-
-    .collapse-btn {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(255,255,255,0.85);
-      border: 1px solid var(--border-soft);
-      border-radius: 10px;
-      padding: 0.5rem 0.65rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.18s ease;
-    }
-
-    .collapse-btn:hover {
-      border-color: rgba(var(--accent-gold-rgb), 0.35);
-      background: #fff;
-    }
-
-    .collapse-btn .chevron {
-      transition: transform 0.2s ease;
-    }
-
-    .collapse-btn.open .chevron {
-      transform: rotate(180deg);
-    }
-
-    .collapse-body {
-      border: 1px solid var(--border-soft);
-      border-radius: 10px;
-      padding: 0.5rem 0.65rem;
-      background: rgba(255,255,255,0.85);
-      display: grid;
-      gap: 0.35rem;
-      max-height: 420px;
-      overflow: hidden;
-    }
-
-    .collapse-body.hidden {
-      display: none;
-    }
-
     .detail-row {
       display: flex;
       justify-content: space-between;
@@ -5015,18 +4967,6 @@
           </div>
           <div class="text-2xl font-semibold text-[color:var(--text-main)]" id="dashboard-revenue">R$ 0,00</div>
           <div class="text-sm text-slate-500" id="dashboard-revenue-delta">--</div>
-          <div class="revenue-collapse">
-            <button id="revenue-services-toggle" class="collapse-btn" type="button" onclick="toggleRevenueSection('services')">
-              <span>Serviços</span>
-              <span class="chevron">⌄</span>
-            </button>
-            <div id="revenue-services-body" class="collapse-body hidden"></div>
-            <button id="revenue-consumption-toggle" class="collapse-btn" type="button" onclick="toggleRevenueSection('consumption')">
-              <span>Consumos</span>
-              <span class="chevron">⌄</span>
-            </button>
-            <div id="revenue-consumption-body" class="collapse-body hidden"></div>
-          </div>
         </div>
         <div class="ui-card p-5 dashboard-insight-card" data-insight="commission" role="button" tabindex="0" aria-pressed="false">
           <div class="flex items-center justify-between text-sm text-slate-500">
@@ -11231,6 +11171,27 @@
       .sort((a, b) => new Date(b.data || 0) - new Date(a.data || 0));
   }
 
+  function buildRevenuePanelLines(target = getDashboardFilterTarget()) {
+    const grouped = {};
+    buildRevenueHistory(target).forEach(rec => {
+      const key = (rec.data || '').split('T')[0] || rec.data || '—';
+      if (!grouped[key]) grouped[key] = { service: 0, consumption: 0, items: [] };
+      if (rec.origem === 'Serviço') grouped[key].service += rec.valor || 0;
+      else grouped[key].consumption += rec.valor || 0;
+      grouped[key].items.push(rec);
+    });
+    return Object.entries(grouped)
+      .sort((a, b) => new Date(b[0]) - new Date(a[0]))
+      .map(([date, info]) => {
+        const total = (info.service || 0) + (info.consumption || 0);
+        const items = info.items.slice(0, 3).map(it => {
+          const badge = it.origem === 'Serviço' ? '<span class="badge-service">Serviço</span>' : '<span class="badge-consumption">Consumo</span>';
+          return `<div class="detail-row"><div>${badge}${it.descricao || ''}</div><span>${formatCurrency(it.valor || 0)}</span></div>`;
+        }).join('');
+        return `<div class="detail-group"><div class="detail-row" style="font-weight:600;"><div>${formatDateLabel(date)}</div><span>${formatCurrency(total)}</span></div>${items}</div>`;
+      });
+  }
+
   function renderRevenueHistoryModal() {
     const listEl = document.getElementById('revenue-history-list');
     if (!listEl) return;
@@ -14106,7 +14067,7 @@
       revenue: {
         title: 'Faturamento do mês',
         valueId: 'dashboard-revenue',
-        detailPage: 'finance',
+        detailPage: null,
         lines: ['Baseado no mês filtrado.', 'Inclui serviços e vendas do período.']
       },
       commission: {
@@ -14182,10 +14143,10 @@
         });
         const revenueServices = filteredFin.filter(f => f.type === 'receita').reduce((acc, cur) => acc + (cur.amount || 0), 0);
         const revenueConsumptions = filteredFin.filter(f => f.type === 'consumo').reduce((acc, cur) => acc + (cur.amount || 0), 0);
-        lines = [
+        const groupedLines = buildRevenuePanelLines(target);
+        lines = groupedLines.length ? groupedLines : [
           `Serviços: ${formatCurrency(revenueServices)}`,
-          `Consumos: ${formatCurrency(revenueConsumptions)}`,
-          'Use Ver detalhes para ver o histórico agrupado.'
+          `Consumos: ${formatCurrency(revenueConsumptions)}`
         ];
       } else if (insightId === 'stock-alerts') {
         const alerts = buildAlertItems();
