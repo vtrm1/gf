@@ -1216,6 +1216,43 @@
       transform: translateY(0);
     }
 
+    .fab-fridge-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+
+    .fab-fridge-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.65rem 0.8rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-soft);
+      background: #fff;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .fab-fridge-item .meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .fab-fridge-item:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
     .fab-speed-btn {
       background: #fffaf3;
       border: 1px solid #d8b66a;
@@ -5934,6 +5971,23 @@
       </div>
     </div>
 
+    <div id="fab-fridge-exit-modal" class="dialog-layer hidden">
+      <div class="dialog-card" style="max-width:480px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:0.75rem;">
+          <div>
+            <h3>Registrar consumo</h3>
+            <p class="subtext">Escolha um item da geladeira para dar saída manual.</p>
+          </div>
+          <button class="secondary" onclick="closeDialog('fab-fridge-exit-modal')">Fechar</button>
+        </div>
+        <div class="form-row" style="margin-top:0.5rem;">
+          <label>Filtrar item</label>
+          <input id="fab-fridge-exit-filter" placeholder="Ex.: Água, Refrigerante" oninput="renderFabFridgeExitList()" />
+        </div>
+        <div id="fab-fridge-exit-list" class="fab-fridge-list"></div>
+      </div>
+    </div>
+
     <div id="stock-exit-modal" class="dialog-layer hidden">
       <div class="dialog-card">
         <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -7732,6 +7786,7 @@
   let agendaProfessionalFilter = 'all';
   let agendaProfessionalFilterColab = 'all';
   let fabMenuOpen = false;
+  let fabFridgeFilter = '';
   let fabScrollLast = 0;
   let mobileHeaderLastScroll = 0;
   let mobileHeaderHidden = false;
@@ -10715,9 +10770,9 @@
       actions.push({ label: 'Registrar consumo/venda', icon: '🥤', handler: () => openFabFridgeExit() });
     }
     if (currentRole === 'colab') {
+      actions.push({ label: 'Adicionar cliente', icon: '👤➕', handler: () => openClientModal() });
       actions.push({ label: 'Novo agendamento', icon: '📅', handler: () => openAppointmentModal() });
-      actions.push({ label: 'Registrar serviço realizado', icon: '💅', handler: () => openAppointmentModal() });
-      actions.push({ label: 'Registrar consumo do cliente', icon: '🥤', handler: () => openFabFridgeExit() });
+      actions.push({ label: 'Registrar saída de consumo', icon: '🥤', handler: () => openFabFridgeExit() });
     }
     return actions;
   }
@@ -10750,13 +10805,64 @@
     openInventoryModal();
   }
 
+  function getFridgeItems() {
+    return (stockItems || []).filter(i => (i.categoria || i.category) === 'geladeira');
+  }
+
+  function renderFabFridgeExitList() {
+    const list = document.getElementById('fab-fridge-exit-list');
+    if (!list) return;
+    const filterInput = document.getElementById('fab-fridge-exit-filter');
+    const filter = (filterInput?.value || '').toLowerCase();
+    fabFridgeFilter = filter;
+    const fridgeItems = getFridgeItems()
+      .filter(i => {
+        const name = `${i.nome || i.name || ''} ${(i.marca || '')}`.toLowerCase();
+        return !filter || name.includes(filter);
+      })
+      .sort((a, b) => (a.nome || a.name || '').localeCompare(b.nome || b.name || ''));
+    list.innerHTML = '';
+    if (!fridgeItems.length) {
+      list.innerHTML = '<div class="subtext">Nenhum item encontrado.</div>';
+      return;
+    }
+    fridgeItems.forEach(item => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'fab-fridge-item';
+      const qty = item.quantidade ?? item.volumeAtual_ml ?? 0;
+      btn.disabled = qty <= 0;
+      const priceLabel = item.precoVenda ? `<span>R$ ${formatCurrency(item.precoVenda)}</span>` : '';
+      btn.innerHTML = `
+        <div>
+          <div>${item.nome || item.name || 'Item'}</div>
+          <div class="meta">${item.marca || 'Geladeira'}</div>
+        </div>
+        <div class="meta" style="text-align:right;">
+          <span>Qtd: ${qty}</span>
+          ${priceLabel}
+        </div>
+      `;
+      btn.onclick = () => selectFabFridgeExit(item.id);
+      list.appendChild(btn);
+    });
+  }
+
   function openFabFridgeExit() {
-    const fridgeItem = stockItems.find(i => (i.categoria || i.category) === 'geladeira');
-    if (!fridgeItem) {
+    const fridgeItems = getFridgeItems();
+    if (!fridgeItems.length) {
       alert('Adicione um item da geladeira para registrar consumo.');
       return;
     }
-    openStockExitModal(fridgeItem.id);
+    const filterInput = document.getElementById('fab-fridge-exit-filter');
+    if (filterInput) filterInput.value = '';
+    renderFabFridgeExitList();
+    openDialog('fab-fridge-exit-modal');
+  }
+
+  function selectFabFridgeExit(itemId) {
+    closeDialog('fab-fridge-exit-modal');
+    openStockExitModal(itemId);
   }
 
   function handleFabScroll() {

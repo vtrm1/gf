@@ -1,0 +1,124 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAuth() { return request.auth != null; }
+    function isAdmin() {
+      return isAuth() &&
+        (
+          request.auth.uid == "mJ3hkcBr5kT83iTgJROR811X0WP2" ||
+          request.auth.uid == "6YNHPmvhymU4vFMVcpaFz3f6FJP2"
+        );
+    }
+    function isCollab() {
+      return isAuth() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "COLLABORATOR";
+    }
+    function isOwnerClient(data) {
+      return data.ownerId == request.auth.uid
+          || data.responsibleId == request.auth.uid
+          || (data.ownersId != null && data.ownersId.hasAny([request.auth.uid]));
+    }
+    function isKiosk() {
+      return isAuth() && request.auth.token.firebase.sign_in_provider == "anonymous";
+    }
+    function isCollabOwnerComanda(profId) {
+      return profId == request.auth.uid
+        || get(/databases/$(database)/documents/collaborators/$(profId)).data.userId == request.auth.uid;
+    }
+
+    // Admin total
+    match /{document=**} {
+      allow read, write: if isAdmin();
+    }
+
+    // Atendimentos (agenda)
+    match /atendimentos/{id} {
+      allow read: if isAdmin() || isCollab();
+      allow create: if isAdmin()
+        || (isCollab() && request.resource.data.professionalId == request.auth.uid);
+      allow update: if isAdmin()
+        || (isCollab() && resource.data.professionalId == request.auth.uid);
+      allow delete: if isAdmin()
+        || (isCollab() && resource.data.professionalId == request.auth.uid);
+    }
+
+    // Clientes — colab pode ler todos, mas só mexe nos próprios
+    match /clients/{id} {
+      allow read: if isAdmin() || isCollab();
+      allow create: if isAdmin()
+        || (isCollab() && isOwnerClient(request.resource.data));
+      allow update: if isAdmin()
+        || (isCollab() && isOwnerClient(resource.data)
+            && isOwnerClient(request.resource.data));
+      allow delete: if isAdmin()
+        || (isCollab() && isOwnerClient(resource.data));
+    }
+
+    // Perfil do usuário
+    match /users/{id} {
+      allow read: if isAdmin() || (isAuth() && request.auth.uid == id);
+      allow write: if isAdmin() || (isAuth() && request.auth.uid == id);
+    }
+
+    // COLAB precisa ler serviços e colaboradores
+    match /services/{id} {
+      allow read: if isAdmin() || isCollab();
+      allow write: if isAdmin();
+    }
+    match /collaborators/{id} {
+      allow read: if isAdmin() || isCollab();
+      allow write: if isAdmin();
+    }
+
+    // COMANDAS — admin/colab, e kiosk anon (enquanto aberta)
+    match /comandas/{id} {
+      // GET (um doc)
+      allow get: if isAdmin()
+        || (isCollab() && isCollabOwnerComanda(resource.data.profissionalId))
+        || (isKiosk() && resource.data.codigoPareamento != null && resource.data.kioskFinalizado != true);
+
+      // LIST (queries) — kiosk precisa passar aqui
+      allow list: if isAdmin() || isCollab() || isKiosk();
+
+      allow create: if isAdmin()
+        || (isCollab() && isCollabOwnerComanda(request.resource.data.profissionalId));
+
+      allow update: if isAdmin()
+        || (isCollab() && isCollabOwnerComanda(resource.data.profissionalId))
+        || (isKiosk() && resource.data.codigoPareamento != null && resource.data.kioskFinalizado != true);
+
+      allow delete: if isAdmin()
+        || (isCollab() && isCollabOwnerComanda(resource.data.profissionalId));
+    }
+
+    // FINANCIAL — colab só registra pagamento próprio
+    match /financial/{id} {
+      allow create: if isAdmin()
+        || (isCollab() && request.resource.data.professionalId == request.auth.uid);
+      allow read, update, delete: if isAdmin();
+    }
+
+    // STOCK — kiosk precisa ler para mostrar consumos no tablet
+    match /stock/{id} {
+      allow read: if isAdmin() || isKiosk() || isCollab();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || isCollab();
+    }
+
+    // Histórico de estoque — colab pode registrar saída, apenas admin remove
+    match /stock/{id}/history/{histId} {
+      allow read: if isAdmin() || isKiosk() || isCollab();
+      allow create: if isAdmin() || isCollab();
+      allow update, delete: if isAdmin();
+    }
+
+    // Somente admin
+    match /collaboratorAccounts/{id} { allow read, write: if isAdmin(); }
+    match /investments/{id} { allow read, write: if isAdmin(); }
+
+    // Bloqueio padrão
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
