@@ -1221,7 +1221,7 @@
       flex-direction: column;
       gap: 0.5rem;
       margin-top: 0.5rem;
-      max-height: 280px;
+      max-height: calc(72px * 5 + 12px);
       overflow-y: auto;
     }
 
@@ -1237,6 +1237,18 @@
       background: #fff;
       text-align: left;
       font-weight: 600;
+    }
+
+    .fab-fridge-item .icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(var(--accent-gold-rgb), 0.12);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: var(--accent-gold);
     }
 
     .fab-fridge-item .meta {
@@ -10834,6 +10846,7 @@
       btn.disabled = qty <= 0;
       const priceLabel = item.precoVenda ? `<span>R$ ${formatCurrency(item.precoVenda)}</span>` : '';
       btn.innerHTML = `
+        <span class="icon" aria-hidden="true">🥤</span>
         <div>
           <div>${item.nome || item.name || 'Item'}</div>
           <div class="meta">${item.marca || 'Geladeira'}</div>
