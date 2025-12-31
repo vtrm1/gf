@@ -1,9 +1,18 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <title>Studio Nails - Painel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#F9EFE5" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Studio Nails" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="imagens/favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" sizes="180x180" href="imagens/apple-touch-icon-180.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -224,6 +233,60 @@
     .segmented.compact button {
       padding: 0.3rem 0.65rem;
       font-size: 0.8rem;
+    }
+
+    .revenue-history-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 0.5rem;
+      padding: 0.6rem 0.75rem;
+      margin: 0.85rem 0;
+      min-height: 56px;
+      width: 100%;
+      box-sizing: border-box;
+      overflow: visible;
+    }
+
+    @media (max-width: 640px) {
+      .revenue-history-toolbar {
+        gap: 0.45rem;
+        padding: 0.55rem 0.65rem;
+      }
+    }
+
+    .whatsapp-share-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 0.5rem;
+      margin: 0.75rem 0;
+      padding: 0.55rem 0.65rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .whatsapp-share-toolbar button {
+      padding: 0.25rem 0.55rem;
+      font-size: 0.78rem;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 640px) {
+      .whatsapp-share-toolbar {
+        flex-wrap: nowrap;
+        gap: 0.4rem;
+        padding: 0.55rem 0.6rem;
+      }
+
+      .whatsapp-share-toolbar button {
+        flex: 1 1 0;
+        min-width: 0;
+        padding: 0.3rem 0.45rem;
+        font-size: 0.78rem;
+      }
     }
 
     .tag,
@@ -587,6 +650,44 @@
     .details-value {
       font-size: 1.35rem;
       font-weight: 700;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+      align-items: center;
+      font-size: 0.92rem;
+    }
+
+    .detail-group {
+      display: grid;
+      gap: 0.3rem;
+      border-bottom: 1px solid var(--border-soft);
+      padding-bottom: 0.4rem;
+    }
+
+    .detail-group:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .badge-service {
+      background: #e6f6e4;
+      color: #2f2f2f;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      margin-right: 0.35rem;
+    }
+
+    .badge-consumption {
+      background: #e8eef4;
+      color: #2f2f2f;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      margin-right: 0.35rem;
     }
 
     .details-close {
@@ -2144,6 +2245,14 @@
     .investment-controls { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 0.9rem; }
     .filter-line { display: flex; justify-content: space-between; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
     .filter-label { font-weight: 600; color: var(--text-main); display: block; margin-top: 0.15rem; }
+    .share-range-custom { display: grid; gap: 0.6rem; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+    .share-range-custom input {
+      width: 100%;
+      padding: 0.45rem 0.6rem;
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      background: #fff;
+    }
     .month-dropdown { padding: 0.45rem 0.6rem; border-radius: 10px; border: 1px solid var(--border-soft); background: #fffbf4; min-width: 160px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.04); }
     .control-actions { display: flex; justify-content: space-between; align-items: center; gap: 0.65rem; flex-wrap: wrap; }
     .investment-controls .control-actions > div { min-width: 0; width: 100%; }
@@ -2213,6 +2322,16 @@
     .investment-history-item { padding: 0.55rem 0.65rem; border-radius: 12px; background: var(--bg-card); border: 1px solid var(--border-soft); box-shadow: 0 4px 12px rgba(0,0,0,0.04); display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
     .investment-history-item .subtext { margin: 0; }
     .investment-toggle { background: transparent; color: var(--text-main); font-weight: 700; box-shadow: none; padding: 0.25rem 0; }
+    .colab-earnings-grid { display: grid; gap: 0.8rem; margin-bottom: 0.9rem; }
+    .colab-earnings-card { background: var(--bg-card); border-radius: 18px; padding: 1rem; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 6px 16px rgba(0,0,0,0.05); }
+    .colab-earnings-header { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; }
+    .colab-earnings-total { font-size: 1.6rem; font-weight: 700; color: var(--text-main); }
+    .colab-earnings-toggle { display: inline-flex; gap: 0.35rem; background: rgba(0,0,0,0.05); padding: 0.25rem; border-radius: 999px; }
+    .segment-btn { border: none; background: transparent; padding: 0.35rem 0.8rem; border-radius: 999px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); box-shadow: none; }
+    .segment-btn.active { background: var(--btn-primary); color: #fff; }
+    .colab-earnings-meta { margin-top: 0.35rem; font-size: 0.85rem; color: var(--text-muted); }
+    .colab-earnings-chart { margin-top: 0.75rem; }
+    .colab-earnings-chart canvas { width: 100%; }
 
     @media (min-width: 801px) {
       .investment-card { flex-direction: row; align-items: center; justify-content: space-between; }
@@ -3155,10 +3274,53 @@
       border-color: rgba(217, 83, 79, 0.2);
     }
 
+    .inventory-badge.alerta {
+      background: rgba(255, 193, 7, 0.14);
+      color: #8a5b00;
+      border-color: rgba(255, 193, 7, 0.24);
+    }
+
+    .inventory-badge.critico {
+      background: rgba(217, 83, 79, 0.14);
+      color: var(--danger);
+      border-color: rgba(217, 83, 79, 0.26);
+    }
+
     .inventory-badge.warn {
       background: rgba(255, 193, 7, 0.12);
       color: #8a5b00;
       border-color: rgba(255, 193, 7, 0.22);
+    }
+
+    .inventory-history {
+      margin-top: 1rem;
+      border-top: 1px solid var(--border-soft);
+      padding-top: 0.75rem;
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .inventory-history-list {
+      background: rgba(255,255,255,0.8);
+      border: 1px solid var(--border-soft);
+      border-radius: 10px;
+      padding: 0.65rem 0.8rem;
+      display: grid;
+      gap: 0.4rem;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .inventory-history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .inventory-history-item strong {
+      font-weight: 600;
     }
 
     .inventory-card-title {
@@ -3614,13 +3776,22 @@
       padding: 0.75rem 0.85rem;
       background: rgba(255,255,255,0.7);
       display: grid;
-      gap: 0.5rem;
+      gap: 0.65rem;
+    }
+
+    .finalizar-esmaltes-search {
+      width: 100%;
+      padding: 0.55rem 0.65rem;
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      background: rgba(255,255,255,0.95);
+      font-size: 0.9rem;
     }
 
     .finalizar-esmaltes-list {
       display: grid;
       gap: 0.35rem;
-      max-height: 180px;
+      max-height: 230px;
       overflow-y: auto;
       padding-right: 0.2rem;
     }
@@ -3628,16 +3799,58 @@
     .finalizar-esmalte-item {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 0.6rem;
-      padding: 0.4rem 0.5rem;
-      border-radius: 10px;
-      background: rgba(0,0,0,0.03);
-      border: 1px solid rgba(0,0,0,0.04);
-      font-size: 0.86rem;
+      padding: 0.55rem 0.65rem;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.02);
+      border: 1px solid rgba(0,0,0,0.05);
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.18s ease;
     }
 
-    .finalizar-esmalte-item input[type="checkbox"] {
-      accent-color: var(--btn-primary);
+    .finalizar-esmalte-item:hover {
+      border-color: rgba(var(--accent-gold-rgb), 0.35);
+      background: rgba(255,255,255,0.9);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.06);
+    }
+
+    .finalizar-esmalte-item.selected {
+      border-color: rgba(var(--accent-gold-rgb), 0.55);
+      background: rgba(244,217,210,0.45);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+    }
+
+    .finalizar-esmalte-name {
+      display: block;
+      font-weight: 600;
+    }
+
+    .finalizar-esmalte-meta {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .finalizar-esmalte-check {
+      display: none;
+      background: #fff;
+      color: var(--accent-gold-dark);
+      border-radius: 999px;
+      padding: 0.25rem 0.4rem;
+      font-weight: 700;
+      border: 1px solid rgba(var(--accent-gold-rgb), 0.4);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+      align-items: center;
+      justify-content: center;
+      min-width: 28px;
+      min-height: 28px;
+    }
+
+    .finalizar-esmalte-item.selected .finalizar-esmalte-check {
+      display: inline-flex;
     }
 
     .section-caption {
@@ -3962,6 +4175,32 @@
       align-items: center;
     }
 
+    .clients-filter {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.4rem 0.7rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-soft);
+      background: rgba(255,255,255,0.92);
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      justify-content: center;
+      min-height: 38px;
+    }
+
+    .clients-filter select {
+      border: none;
+      background: transparent;
+      font-weight: 600;
+      color: var(--text-main);
+      outline: none;
+      min-width: 140px;
+      text-align: center;
+      text-align-last: center;
+      flex: 1 1 auto;
+    }
+
     .clients-search {
       display: flex;
       align-items: center;
@@ -3999,10 +4238,73 @@
       }
       .clients-actions {
         width: 100%;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+          "add new"
+          "filter filter"
+          "search search";
+        gap: 0.45rem;
       }
-      .clients-search {
-        flex: 1;
+      .clients-actions .client-add-btn {
+        grid-area: add;
+        justify-content: center;
+        width: 100%;
+      }
+      .clients-actions .client-new-appt-btn {
+        grid-area: new;
+        justify-content: center;
+        width: 100%;
+      }
+      .clients-actions .clients-filter {
+        grid-area: filter;
+        width: 100%;
+        justify-content: center;
+      }
+      .clients-actions .clients-search {
+        grid-area: search;
+        width: 100%;
+      }
+      .clients-actions .client-add-btn,
+      .clients-actions .client-new-appt-btn {
+        padding: 0.28rem 0.55rem;
+        font-size: 0.75rem;
+        border-radius: 12px;
+      }
+      .clients-actions .clients-filter {
+        padding: 0.28rem 0.5rem;
+        font-size: 0.74rem;
+        min-height: 32px;
+      }
+      .clients-actions .clients-filter select {
+        min-width: 0;
+        font-size: 0.74rem;
+      }
+      .clients-actions .clients-search {
+        padding: 0.25rem 0.45rem;
+        min-height: 32px;
+      }
+      .clients-actions .clients-search input {
+        font-size: 0.76rem;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .inventory-tabs {
+        flex-wrap: wrap;
+        width: 100%;
+        justify-content: center;
+        padding: 0.22rem 0.28rem;
+        gap: 0.25rem;
+      }
+      .inventory-tab {
+        padding: 0.32rem 0.65rem;
+        font-size: 0.78rem;
+        border-radius: 10px;
+      }
+      .inventory-actions button {
+        padding: 0.28rem 0.6rem;
+        font-size: 0.78rem;
       }
     }
 
@@ -4407,35 +4709,96 @@
     }
 
     .kiosk-wrapper {
-      max-width: 900px;
+      max-width: 980px;
       margin: 0 auto;
-      padding: 1.25rem 1.5rem 1.5rem;
-      background: radial-gradient(circle at 10% 20%, #fff7e6, #f0e7d8);
+      padding: 1.6rem 1.8rem 2rem;
+      background: radial-gradient(circle at 10% 20%, #fff7e6, #f3ebde);
       border-radius: 22px;
       box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    #kiosk-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      overflow-y: auto;
+    }
+
+    .kiosk-brand {
+      display: inline-flex;
+      align-items: center;
+      margin-bottom: 0.35rem;
+    }
+
+    .kiosk-brand img {
+      width: 140px;
+      height: auto;
+      display: block;
+      opacity: 0.9;
     }
 
     .kiosk-grid {
       display: grid;
       grid-template-columns: 1.8fr 1.1fr;
-      gap: 1.1rem;
-      margin-top: 1rem;
+      gap: 1.4rem;
     }
 
     .kiosk-pairing {
       background: #fff;
       border: 1px dashed var(--border-soft);
       border-radius: 16px;
-      padding: 1rem 1.2rem;
-      margin-bottom: 1rem;
+      padding: 1.15rem 1.25rem;
       box-shadow: 0 8px 22px rgba(0,0,0,0.08);
+    }
+
+    .kiosk-pairing-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .kiosk-pairing-toggle {
+      background: rgba(0,0,0,0.03);
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 999px;
+      padding: 0.25rem 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      box-shadow: none;
+    }
+
+    .kiosk-pairing-body {
+      margin-top: 0.6rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .kiosk-pairing.collapsed .kiosk-pairing-body {
+      display: none;
+    }
+
+    @media (max-height: 820px) {
+      #kiosk-screen {
+        align-items: flex-start;
+        padding-top: 1.25rem;
+        padding-bottom: 1.25rem;
+      }
     }
 
     .kiosk-pairing-row {
       display: flex;
       gap: 0.6rem;
       align-items: center;
-      margin-top: 0.6rem;
+      margin-top: 0.5rem;
     }
 
     .kiosk-pairing-row input {
@@ -4448,37 +4811,80 @@
       text-transform: uppercase;
     }
 
+    .kiosk-pairing-row .kiosk-connect-btn,
+    .kiosk-pairing-row .kiosk-clear-btn {
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 900px) {
+      .kiosk-pairing-row {
+        flex-wrap: wrap;
+      }
+
+      .kiosk-pairing-row input {
+        flex: 1 1 100%;
+      }
+    }
+
+    @media (max-width: 540px) {
+      .kiosk-pairing-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .kiosk-pairing-row input {
+        order: 1;
+      }
+
+      .kiosk-pairing-row .kiosk-clear-btn {
+        order: 2;
+        align-self: flex-end;
+        width: auto;
+        font-size: 0.8rem;
+        padding: 0.35rem 0.85rem;
+      }
+
+      .kiosk-pairing-row .kiosk-connect-btn {
+        order: 3;
+        width: 100%;
+      }
+    }
+
     .kiosk-section-title {
-      font-size: 1rem;
-      margin-bottom: 0.3rem;
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--text-main);
     }
 
     .kiosk-items {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 0.7rem;
+      gap: 0.85rem;
     }
 
     .kiosk-card {
       background: var(--bg-card);
       border-radius: 18px;
-      padding: 0.85rem 0.9rem;
+      padding: 0.9rem 1rem;
       text-align: left;
       box-shadow: 0 6px 18px rgba(0,0,0,0.08);
       border: 1px solid rgba(255,255,255,0.95);
       position: relative;
       overflow: hidden;
+      display: grid;
+      gap: 0.35rem;
     }
 
     .kiosk-card h3 {
-      font-size: 0.9rem;
-      margin-bottom: 0.25rem;
+      font-size: 0.95rem;
+      margin: 0;
+      font-weight: 700;
     }
 
     .kiosk-price {
-      font-size: 1rem;
-      font-weight: 700;
-      margin-bottom: 0.35rem;
+      font-size: 1.05rem;
+      font-weight: 800;
     }
 
     .kiosk-icon {
@@ -4489,7 +4895,7 @@
       place-items: center;
       font-size: 1.3rem;
       background: radial-gradient(circle at 30% 30%, #fff3d4, #f1d9a0);
-      margin-bottom: 0.35rem;
+      margin-bottom: 0.15rem;
     }
 
     .kiosk-badge {
@@ -4501,7 +4907,7 @@
       background: rgba(0,0,0,0.03);
       font-size: 0.75rem;
       color: var(--text-muted);
-      margin-top: 0.2rem;
+      margin-top: 0.15rem;
     }
 
     .kiosk-card::after {
@@ -4515,12 +4921,12 @@
     .kiosk-cart {
       background: var(--bg-card);
       border-radius: 20px;
-      padding: 1rem 1.1rem;
+      padding: 1.1rem 1.15rem;
       box-shadow: 0 8px 24px rgba(0,0,0,0.08);
       border: 1px solid rgba(255,255,255,0.95);
       display: flex;
       flex-direction: column;
-      gap: 0.4rem;
+      gap: 0.55rem;
       max-height: 520px;
     }
 
@@ -4536,7 +4942,7 @@
       align-items: center;
       padding: 0.45rem 0;
       border-bottom: 1px solid rgba(0,0,0,0.03);
-      font-size: 0.85rem;
+      font-size: 0.88rem;
     }
 
     .kiosk-cart-total {
@@ -4555,11 +4961,21 @@
       flex-wrap: wrap;
     }
 
+    .kiosk-hero h1 {
+      font-size: 1.35rem;
+      margin: 0.1rem 0 0.2rem;
+      font-weight: 700;
+    }
+
+    .kiosk-hero .tag {
+      margin-top: 0.25rem;
+    }
+
     .kiosk-steps {
       display: flex;
       gap: 0.4rem;
       flex-wrap: wrap;
-      margin-top: 0.35rem;
+      margin-top: 0.45rem;
     }
 
     .kiosk-pill {
@@ -4649,14 +5065,41 @@
       color: var(--text-muted);
     }
 
+    .login-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
     .login-screen {
       max-width: 420px;
-      margin: 4rem auto;
+      width: 100%;
+      margin: 0 auto;
+      position: relative;
       background: var(--bg-card);
       border-radius: 22px;
-      padding: 1.5rem 1.7rem 1.3rem;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+      padding: 1.8rem 1.7rem 1.6rem;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.08);
       border: 1px solid rgba(255,255,255,0.95);
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .login-brand {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.45rem;
+      text-align: center;
+    }
+
+    .login-brand img {
+      width: 220px;
+      height: auto;
+      display: block;
     }
 
     .login-screen h1 {
@@ -4713,10 +5156,11 @@
 <body>
 
 <!-- LOGIN / AUTENTICAÇÃO FIREBASE -->
-<section id="login-screen" class="login-screen">
-  <h1 id="login-title">Studio Nails • Painel</h1>
-  <p id="login-subtitle">Acesse com seu e-mail ou usuário. O sistema identifica automaticamente seu perfil.</p>
-
+<section id="login-wrapper" class="login-wrapper">
+  <div id="login-screen" class="login-screen">
+  <div class="login-brand">
+    <img src="imagens/studionails.png" alt="Studio Nails" />
+  </div>
   <div class="card" id="login-universal" style="margin-top:0.4rem;">
     <div class="collab-form">
       <div>
@@ -4732,15 +5176,16 @@
       <button onclick="handleEmailLogin()">Entrar</button>
       <button class="secondary" onclick="handleGoogleLogin()">Entrar com Google</button>
     </div>
+    <div id="login-status" class="subtext" style="margin-top:0.4rem;"></div>
   </div>
 
   <div class="card" style="margin-top:0.8rem;">
     <h3>Tablet do cliente (Kiosk)</h3>
     <p class="subtext">Tela fixa para o cliente registrar consumação e o serviço.</p>
-    <button style="margin-top:0.5rem;" class="secondary" onclick="openKioskDirect()">
+    <button style="margin-top:0.5rem;align-self:center;" class="secondary" onclick="openKioskDirect()">
       Acessar modo tablet
     </button>
-    <div class="chip">Ideal para ficar aberto em tela cheia no Studio</div>
+  </div>
   </div>
 </section>
 
@@ -4944,6 +5389,78 @@
         </div>
       </div>
 
+      <div id="revenue-history-modal" class="dialog-layer hidden">
+        <div class="dialog-card" style="max-width:720px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
+            <div>
+              <h3>Histórico de faturamento</h3>
+              <div class="subtext">Agrupado por dia, filtrado pelo mês selecionado.</div>
+            </div>
+            <button class="secondary" onclick="closeDialog('revenue-history-modal')">Fechar</button>
+          </div>
+          <div class="segmented" style="margin:0.75rem 0;flex-wrap:wrap;gap:0.35rem;">
+            <button id="rev-filter-all" class="active" onclick="setRevenueHistoryFilter('all')">Todos</button>
+            <button id="rev-filter-service" onclick="setRevenueHistoryFilter('service')">Serviços</button>
+            <button id="rev-filter-consumption" onclick="setRevenueHistoryFilter('consumption')">Consumos</button>
+            <select id="rev-filter-prof" class="subtext" style="padding:0.25rem 0.5rem;border:1px solid var(--border-soft);border-radius:8px;" onchange="setRevenueHistoryProfessional(this.value)">
+              <option value="all">Todas colaboradoras</option>
+            </select>
+            <button class="secondary" onclick="openRevenueShareModal()">Compartilhar no WhatsApp</button>
+          </div>
+          <div id="revenue-history-list" class="details-lines" style="max-height:420px;overflow:auto;"></div>
+        </div>
+      </div>
+
+      <div id="commission-history-modal" class="dialog-layer hidden">
+        <div class="dialog-card" style="max-width:720px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
+            <div>
+              <h3>Historico de comissoes</h3>
+              <div class="subtext">Detalhamento por atendimento no periodo.</div>
+            </div>
+            <button class="secondary" onclick="closeDialog('commission-history-modal')">Fechar</button>
+          </div>
+          <div class="segmented" style="margin:0.75rem 0;flex-wrap:wrap;gap:0.35rem;">
+            <button id="commission-range-day" onclick="setCommissionHistoryRange('day')">Dia</button>
+            <button id="commission-range-week" onclick="setCommissionHistoryRange('week')">Semana</button>
+            <button id="commission-range-month" class="active" onclick="setCommissionHistoryRange('month')">Mes</button>
+          </div>
+          <div id="commission-history-list" class="details-lines" style="max-height:420px;overflow:auto;"></div>
+        </div>
+      </div>
+
+      <div id="whatsapp-share-modal" class="dialog-layer hidden">
+        <div class="dialog-card" style="max-width:520px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
+            <div>
+              <h3>Compartilhar no WhatsApp</h3>
+              <div class="subtext">Escolha o periodo para compartilhar.</div>
+            </div>
+            <button class="secondary" onclick="closeDialog('whatsapp-share-modal')">Fechar</button>
+          </div>
+          <div class="segmented whatsapp-share-toolbar">
+            <button id="rev-share-day" onclick="setRevenueShareRange('day')">Dia</button>
+            <button id="rev-share-week" onclick="setRevenueShareRange('week')">Semana</button>
+            <button id="rev-share-month" onclick="setRevenueShareRange('month')">Mes</button>
+            <button id="rev-share-custom" onclick="setRevenueShareRange('custom')">Custom</button>
+          </div>
+          <div id="whatsapp-share-custom-fields" class="share-range-custom hidden">
+            <div>
+              <label class="subtext">Inicio</label>
+              <input id="whatsapp-share-start" type="date" onchange="updateRevenueShareDates()" />
+            </div>
+            <div>
+              <label class="subtext">Fim</label>
+              <input id="whatsapp-share-end" type="date" onchange="updateRevenueShareDates()" />
+            </div>
+          </div>
+          <div class="dialog-actions" style="justify-content:space-between;margin-top:0.8rem;">
+            <button class="secondary" onclick="closeDialog('whatsapp-share-modal')">Cancelar</button>
+            <button onclick="confirmShareRevenueWhatsapp()">Compartilhar</button>
+          </div>
+        </div>
+      </div>
+
       <div id="dashboard-stock-card" class="rounded-3xl shadow-md p-6">
         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
@@ -5102,13 +5619,13 @@
         <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
           <h2 id="selected-month-title" style="margin:0;">Agenda do mês</h2>
           <div class="segmented small">
-            <button id="agenda-tab-month" class="active" onclick="setAgendaSummaryTab('month', 'ceo')">Resumo do mês</button>
-            <button id="agenda-tab-day" onclick="setAgendaSummaryTab('day', 'ceo')">Agenda do dia</button>
+            <button id="agenda-tab-month" onclick="setAgendaSummaryTab('month', 'ceo')">Resumo do mês</button>
+            <button id="agenda-tab-day" class="active" onclick="setAgendaSummaryTab('day', 'ceo')">Agenda do dia</button>
           </div>
         </div>
         <div class="pill-row" id="selected-month-tags"></div>
       </div>
-      <div id="agenda-month-card" class="card" style="margin-top:0.2rem;">
+      <div id="agenda-month-card" class="card hidden" style="margin-top:0.2rem;">
         <div id="agenda-month-mobile-summary" class="agenda-month-mobile-summary"></div>
         <div class="agenda-table-wrapper">
           <table class="table" style="margin:0;">
@@ -5130,7 +5647,7 @@
         <div id="agenda-month-cards" class="agenda-month-cards"></div>
       </div>
 
-      <div id="agenda-day-card" class="card hidden" style="margin-top:0.4rem;">
+      <div id="agenda-day-card" class="card" style="margin-top:0.4rem;">
         <div class="agenda-day-desktop">
           <div class="day-header-row">
             <div class="day-header-picker">
@@ -5354,21 +5871,37 @@
               <option value="manutencao">Manutenção</option>
             </select>
           </div>
-          <div>
-            <label class="subtext">Unidades por pack</label>
-            <input id="template-pack" type="number" min="0" />
-          </div>
-          <div>
+          <div class="template-field-esmaltes">
             <label class="subtext">Volume total (ml)</label>
             <input id="template-volume" type="number" min="0" />
           </div>
-          <div>
-            <label class="subtext">Volume por pack</label>
+          <div class="template-field-esmaltes">
+            <label class="subtext">Marca</label>
+            <input id="template-brand" />
+          </div>
+          <div class="template-field-esmaltes">
+            <label class="subtext">Consumo estimado por uso (ml)</label>
+            <input id="template-consumption" type="number" min="0" step="0.1" />
+          </div>
+          <div class="template-field-geladeira">
+            <label class="subtext">Unidades por pack</label>
+            <input id="template-pack" type="number" min="0" />
+          </div>
+          <div class="template-field-geladeira">
+            <label class="subtext">Volume por pack (opcional)</label>
             <input id="template-volume-pack" type="number" min="0" />
           </div>
-          <div>
-            <label class="subtext">Frequência de uso</label>
-            <input id="template-frequency" placeholder="Ex: diário" />
+          <div class="template-field-geladeira">
+            <label class="subtext">Preço de venda</label>
+            <input id="template-price" type="number" min="0" step="0.01" />
+          </div>
+          <div class="template-field-manutencao">
+            <label class="subtext">Custo estimado</label>
+            <input id="template-cost" type="number" min="0" step="0.01" />
+          </div>
+          <div class="template-field-manutencao">
+            <label class="subtext">Frequência (opcional)</label>
+            <input id="template-frequency" placeholder="Ex: mensal" />
           </div>
         </div>
         <div class="modal-actions">
@@ -5392,6 +5925,12 @@
           <div><label>Previsão</label><div id="stock-detail-forecast" class="subtext">—</div></div>
           <div><label>Custo/uso</label><div id="stock-detail-cost" class="subtext">—</div></div>
         </div>
+        <div id="stock-detail-history-section" class="inventory-history">
+          <div class="section-title" style="margin-top:0;">
+            <h4 style="font-size:1rem;">Histórico de uso</h4>
+          </div>
+          <div id="stock-detail-history-list" class="inventory-history-list subtext">Carregando...</div>
+        </div>
       </div>
     </div>
 
@@ -5411,8 +5950,22 @@
             <input id="stock-exit-qty" type="number" min="0" />
           </div>
           <div>
+            <label>Motivo da saída</label>
+            <select id="stock-exit-reason">
+              <option value="">Selecione</option>
+              <option value="atendimento">Atendimento</option>
+              <option value="perda">Perda</option>
+              <option value="interno">Consumo interno</option>
+              <option value="outro">Outro</option>
+            </select>
+          </div>
+          <div>
             <label>Observações</label>
             <input id="stock-exit-notes" placeholder="Opcional" />
+          </div>
+          <div id="stock-exit-reason-other-wrapper" class="hidden">
+            <label>Descreva o motivo</label>
+            <input id="stock-exit-reason-other" placeholder="Ex: cortesia especial" />
           </div>
         </div>
         <div class="dialog-actions" style="justify-content:flex-end;">
@@ -5498,7 +6051,7 @@
           <div class="card finance-card ui-card">
             <h3>Receita bruta</h3>
             <div class="value" id="finance-revenue">R$ 0,00</div>
-            <div class="subtext">Inclui serviços e bebidas</div>
+            <div class="subtext">Inclui servicos e consumos</div>
           </div>
           <div class="card finance-card ui-card">
             <h3>Custos (produtos)</h3>
@@ -5630,8 +6183,12 @@
       <div class="settings-block">
         <div class="clients-header">
           <div class="clients-actions">
-            <button class="ghost-btn" onclick="openClientModal()">+ Adicionar cliente</button>
-            <button class="secondary" onclick="openAppointmentModal()">Novo agendamento</button>
+            <button class="ghost-btn client-add-btn" onclick="openClientModal()">+ Adicionar cliente</button>
+            <button class="secondary client-new-appt-btn" onclick="openAppointmentModal()">Novo agendamento</button>
+            <div class="clients-filter">
+              <span>Profissional</span>
+              <select id="client-prof-filter-ceo" onchange="setClientProfessionalFilter(this.value, 'ceo')"></select>
+            </div>
             <div class="clients-search">
               <span>🔍</span>
               <input id="client-search-ceo" placeholder="Buscar por nome ou telefone" oninput="renderClients('ceo')" />
@@ -5639,6 +6196,10 @@
           </div>
         </div>
         <div id="clients-grid-ceo" class="clients-grid"></div>
+        <div class="client-detail-actions" style="margin-top:0.75rem;justify-content:flex-start;">
+          <button id="clients-loadmore-ceo" class="secondary" onclick="loadClientsPage(false)">Carregar mais</button>
+          <span id="clients-loading-ceo" class="subtext hidden">Carregando...</span>
+        </div>
       </div>
     </section>
 
@@ -5714,6 +6275,18 @@
             </div>
             <div style="grid-column:1 / span 2; display:flex; flex-direction:column; gap:0.6rem;">
               <div class="permission-block">
+                <h4>Perfil administradora</h4>
+                <div class="permission-list">
+                  <label>
+                    <input type="checkbox" id="add-collab-perm-admin" onchange="toggleAdminCollab()" />
+                    <span class="permission-text">
+                      <span class="permission-title">Criar como administradora</span>
+                      <span class="permission-desc">Dá acesso total ao sistema. Use apenas para gestoras.</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+              <div class="permission-block">
                 <h4>Agenda</h4>
                 <div class="permission-list">
                   <label>
@@ -5786,6 +6359,10 @@
           <div>
             <label>Nova senha (opcional)</label>
             <input id="edit-collab-password" type="password" placeholder="Redefinir senha" />
+          </div>
+          <div>
+            <label>Senha atual</label>
+            <input id="edit-collab-current-password" type="text" readonly />
           </div>
           <div>
             <label>Permissões</label>
@@ -6223,9 +6800,7 @@
         <div class="day-slots" id="day-agenda-slots"></div>
       </div>
     </div>
-    <div class="day-agenda-foot">
-      <div class="subtext">Arraste um card para outro hor&aacute;rio ou toque no slot para mover no mobile.</div>
-    </div>
+    <div class="day-agenda-foot"></div>
   </div>
 </div>
 
@@ -6233,39 +6808,34 @@
 <section id="page-colab-dashboard" class="page-colab hidden">
   <div class="card-grid">
     <div class="card ui-card">
-      <h3>Comissão no mês</h3>
-          <div class="value">R$ 3.250</div>
-          <div class="subtext">Baseada nos serviços realizados</div>
-        </div>
-        <div class="card ui-card">
-          <h3>Atendimentos hoje</h3>
-          <div class="value">6</div>
-          <div class="subtext">3 manhã • 3 tarde</div>
-        </div>
-      </div>
+      <h3>Ganhos no mes</h3>
+      <div class="value" id="colab-dashboard-commission">R$ 0,00</div>
+      <div class="subtext" id="colab-dashboard-commission-desc">Baseada nos servicos finalizados</div>
+    </div>
+    <div class="card ui-card">
+      <h3>Atendimentos hoje</h3>
+      <div class="value" id="colab-dashboard-today-count">0</div>
+      <div class="subtext" id="colab-dashboard-today-desc">0 manha | 0 tarde</div>
+    </div>
+  </div>
 
-      <div class="section-title" style="margin-top:1rem;">
-        <h2>Próximos horários</h2>
-        <button class="secondary" onclick="navigatePage('colab', 'agenda')">Ver agenda completa</button>
-      </div>
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Horário</th>
-            <th>Cliente</th>
-            <th>Serviço</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td colspan="4" class="subtext">Nenhum agendamento para exibir.</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section id="page-colab-agenda" class="page-colab hidden">
+  <div class="section-title" style="margin-top:1rem;">
+    <h2>Proximos horarios</h2>
+    <button class="secondary" onclick="navigatePage('colab', 'agenda')">Ver agenda completa</button>
+  </div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Horario</th>
+        <th>Cliente</th>
+        <th>Servico</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="colab-dashboard-next"></tbody>
+  </table>
+</section>
+<section id="page-colab-agenda" class="page-colab hidden">
       <div class="section-title">
         <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
           <h2 style="margin:0;display:none;">Agenda</h2>
@@ -6297,13 +6867,13 @@
         <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
           <h2 id="selected-month-title-colab" style="margin:0;">Agenda do mês</h2>
           <div class="segmented small">
-            <button id="agenda-tab-month-colab" class="active" onclick="setAgendaSummaryTab('month', 'colab')">Resumo do mês</button>
-            <button id="agenda-tab-day-colab" onclick="setAgendaSummaryTab('day', 'colab')">Agenda do dia</button>
+            <button id="agenda-tab-month-colab" onclick="setAgendaSummaryTab('month', 'colab')">Resumo do mês</button>
+            <button id="agenda-tab-day-colab" class="active" onclick="setAgendaSummaryTab('day', 'colab')">Agenda do dia</button>
           </div>
         </div>
         <div class="pill-row" id="selected-month-tags-colab"></div>
       </div>
-      <div id="agenda-month-card-colab" class="card" style="margin-top:0.2rem;">
+      <div id="agenda-month-card-colab" class="card hidden" style="margin-top:0.2rem;">
         <div id="agenda-month-mobile-summary-colab" class="agenda-month-mobile-summary"></div>
         <div class="agenda-table-wrapper">
           <table class="table" style="margin:0;">
@@ -6323,7 +6893,7 @@
         <div id="agenda-month-cards-colab" class="agenda-month-cards"></div>
       </div>
 
-      <div id="agenda-day-card-colab" class="card hidden" style="margin-top:0.4rem;">
+      <div id="agenda-day-card-colab" class="card" style="margin-top:0.4rem;">
         <div class="agenda-day-desktop">
           <div class="day-header-row">
             <div class="day-header-picker">
@@ -6355,31 +6925,35 @@
 
     <section id="page-colab-commission" class="page-colab hidden">
       <div class="section-title">
-        <h2>Minhas comissões</h2>
+        <h2>Meus ganhos</h2>
+      </div>
+      <div class="colab-earnings-grid">
+        <div class="colab-earnings-card">
+          <div class="colab-earnings-header">
+            <div>
+              <div class="subtext">Total no periodo</div>
+              <div id="colab-earnings-total" class="colab-earnings-total">R$ 0,00</div>
+            </div>
+            <div class="colab-earnings-toggle">
+              <button id="colab-earnings-week" class="segment-btn active" onclick="setColabEarningsRange('week')">Semana</button>
+              <button id="colab-earnings-month" class="segment-btn" onclick="setColabEarningsRange('month')">Mes</button>
+            </div>
+          </div>
+          <div class="colab-earnings-meta" id="colab-earnings-meta">Ultimos 7 dias</div>
+          <div class="colab-earnings-chart">
+            <canvas id="colab-earnings-chart" height="70"></canvas>
+          </div>
+        </div>
       </div>
       <table class="table">
         <thead>
           <tr>
             <th>Data</th>
-            <th>Serviço</th>
-            <th>Valor serviço</th>
-            <th>Comissão</th>
+            <th>Servico</th>
+            <th>Valor a receber</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td>02/12</td>
-            <td>Manutenção fibra</td>
-            <td>R$ 120</td>
-            <td>R$ 48</td>
-          </tr>
-          <tr>
-            <td>03/12</td>
-            <td>Alongamento</td>
-            <td>R$ 180</td>
-            <td>R$ 72</td>
-          </tr>
-        </tbody>
+        <tbody id="colab-commission-body"></tbody>
       </table>
     </section>
 
@@ -6390,8 +6964,12 @@
       <div class="settings-block">
         <div class="clients-header">
           <div class="clients-actions">
-            <button class="ghost-btn" onclick="openClientModal()">+ Adicionar cliente</button>
-            <button class="secondary" onclick="openAppointmentModal()">Novo agendamento</button>
+            <button class="ghost-btn client-add-btn" onclick="openClientModal()">+ Adicionar cliente</button>
+            <button class="secondary client-new-appt-btn" onclick="openAppointmentModal()">Novo agendamento</button>
+            <div class="clients-filter">
+              <span>Profissional</span>
+              <select id="client-prof-filter-colab" onchange="setClientProfessionalFilter(this.value, 'colab')"></select>
+            </div>
             <div class="clients-search">
               <span>🔍</span>
               <input id="client-search-colab" placeholder="Buscar por nome ou telefone" oninput="renderClients('colab')" />
@@ -6399,6 +6977,10 @@
           </div>
         </div>
         <div id="clients-grid-colab" class="clients-grid"></div>
+        <div class="client-detail-actions" style="margin-top:0.75rem;justify-content:flex-start;">
+          <button id="clients-loadmore-colab" class="secondary" onclick="loadClientsPage(false)">Carregar mais</button>
+          <span id="clients-loading-colab" class="subtext hidden">Carregando...</span>
+        </div>
       </div>
     </section>
 
@@ -6411,6 +6993,9 @@
   <div class="kiosk-wrapper">
     <div class="kiosk-hero">
       <div>
+        <div class="kiosk-brand">
+          <img src="imagens/studionails.png" alt="Studio Nails" />
+        </div>
         <h1 style="font-size:1.4rem;">Consumo & Serviço</h1>
         <div class="tag" style="margin-top:0.2rem;">Informe o código que a profissional exibiu para você</div>
         <div class="kiosk-steps" id="kiosk-steps">
@@ -6423,19 +7008,24 @@
     </div>
 
     <div class="kiosk-pairing" id="kiosk-pairing-box">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+      <div class="kiosk-pairing-header">
         <div>
           <div style="font-weight:600;">Parear com seu atendimento</div>
           <div class="subtext">Digite o código de 4 a 6 caracteres informado pela profissional.</div>
         </div>
-        <div id="kiosk-session-status" class="badge" style="background:#fff0f0;color:#b91c1c;">Aguardando código</div>
+        <div style="display:flex;align-items:center;gap:0.4rem;">
+          <button id="kiosk-pairing-toggle" class="kiosk-pairing-toggle" type="button" onclick="toggleKioskPairing()">Detalhes</button>
+          <div id="kiosk-session-status" class="badge" style="background:#fff0f0;color:#b91c1c;">Aguardando código</div>
+        </div>
       </div>
-      <div class="kiosk-pairing-row">
-        <input id="kiosk-codigo-input" maxlength="6" autocomplete="off" placeholder="Ex: A1B2" />
-        <button onclick="handleKioskPairing()">Conectar</button>
-        <button class="secondary" onclick="resetKioskSession()">Limpar</button>
+      <div class="kiosk-pairing-body">
+        <div class="kiosk-pairing-row">
+          <input id="kiosk-codigo-input" maxlength="6" autocomplete="off" placeholder="Ex: A1B2" />
+          <button class="kiosk-connect-btn" onclick="handleKioskPairing()">Conectar</button>
+          <button class="secondary kiosk-clear-btn" onclick="resetKioskSession()">Limpar</button>
+        </div>
+        <div class="hint" id="kiosk-pairing-hint">O código é criado quando a comanda é aberta.</div>
       </div>
-      <div class="hint" id="kiosk-pairing-hint">O código é criado quando a comanda é aberta.</div>
     </div>
 
     <div id="kiosk-content" class="kiosk-grid hidden">
@@ -6527,7 +7117,14 @@
 
     <div class="finalizar-esmaltes">
       <strong>Selecionar esmaltes usados</strong>
-      <div class="subtext">Marque os esmaltes utilizados neste atendimento.</div>
+      <div class="subtext">Toque nos esmaltes utilizados neste atendimento.</div>
+      <input
+        type="search"
+        id="finalizar-esmaltes-search"
+        class="finalizar-esmaltes-search"
+        placeholder="Buscar por nome ou marca"
+        aria-label="Buscar esmaltes por nome ou marca"
+      />
       <div id="finalizar-comanda-esmaltes" class="finalizar-esmaltes-list">
         <div class="subtext">Carregando esmaltes...</div>
       </div>
@@ -6536,6 +7133,26 @@
     <div class="dialog-actions" style="justify-content:space-between;">
       <button class="secondary" onclick="closeFinalizarComandaModal()">Voltar</button>
       <button id="finalizar-comanda-confirm" onclick="confirmFinalizarComanda()">Finalizar e registrar pagamento</button>
+    </div>
+  </div>
+</div>
+
+<div id="kiosk-success-modal" class="dialog-layer hidden">
+  <div class="dialog-card" style="max-width:420px;">
+    <h3>Pedido registrado</h3>
+    <p class="subtext">A profissional será avisada. Obrigada!</p>
+    <div class="dialog-actions" style="justify-content:flex-end;">
+      <button class="secondary" onclick="closeDialog('kiosk-success-modal')">Ok</button>
+    </div>
+  </div>
+</div>
+
+<div id="finalizar-success-modal" class="dialog-layer hidden">
+  <div class="dialog-card" style="max-width:420px;">
+    <h3>Atendimento finalizado</h3>
+    <p class="subtext" id="finalizar-success-message">Pagamento registrado com sucesso.</p>
+    <div class="dialog-actions" style="justify-content:flex-end;">
+      <button class="secondary" onclick="closeDialog('finalizar-success-modal')">Ok</button>
     </div>
   </div>
 </div>
@@ -6575,18 +7192,38 @@
     return atendimentoAuth.currentUser;
   };
 
-  ensureAtendimentoAuth();
-
   const waitForAuthUser = () =>
     new Promise((resolve) => {
       const current = atendimentoAuth.currentUser;
       if (current) return resolve(current);
-      ensureAtendimentoAuth();
       const unsub = onAuthStateChanged(atendimentoAuth, (user) => {
         unsub();
         resolve(user);
       });
     });
+
+  async function fetchKioskStockItems() {
+    await waitForAuthUser();
+    const byId = new Map();
+    const categories = ['geladeira', 'manutencao'];
+    const fields = ['categoria', 'category'];
+    for (const cat of categories) {
+      for (const field of fields) {
+        try {
+          const q = query(collection(atendimentoDb, 'stock'), where(field, '==', cat), limit(200));
+          const snap = await getDocs(q);
+          snap.forEach(docSnap => {
+            if (!byId.has(docSnap.id)) byId.set(docSnap.id, { id: docSnap.id, ...docSnap.data() });
+          });
+        } catch (err) {
+          console.warn('Falha ao carregar consumos do kiosk', err);
+        }
+      }
+    }
+    return Array.from(byId.values());
+  }
+
+  window.fetchKioskStockItems = fetchKioskStockItems;
 
   function generateCodigoPareamento() {
     const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -6615,6 +7252,7 @@
       throw new Error("Atendimento não encontrado.");
     }
     const atendimentoData = atendimentoSnap.data();
+    const atendimentoProfId = atendimentoData.professionalId || atendimentoData.profissionalId || null;
 
     // 2) Prepara itens iniciais (serviço agendado)
     const itensProf = [];
@@ -6637,7 +7275,7 @@
     const comandaRef = await addDoc(collection(atendimentoDb, "comandas"), {
       atendimentoId,
       clienteId: atendimentoData.clienteId || null,
-      profissionalId: atendimentoData.profissionalId || null,
+      profissionalId: atendimentoProfId,
       status: "aberta",
       itensProfissional: itensProf,
       itensCliente: [],
@@ -6727,6 +7365,8 @@
 
   async function kioskFetchComandaByCodigo(codigoPareamento) {
     if (!codigoPareamento) return null;
+    const user = await waitForAuthUser();
+    if (!user) throw new Error(COMANDA_ERRORS.notAuthenticated);
     const sanitized = codigoPareamento.trim().toUpperCase();
     const q = query(
       collection(atendimentoDb, "comandas"),
@@ -7118,6 +7758,7 @@
   let currentUserDoc = null;
   let globalMonthUnsub = null;
   let authListenerAttached = false;
+  let authResolved = false;
 
   const adminOverrides = {
     'mJ3hkcBr5kT83iTgJROR811X0WP2': {
@@ -7141,7 +7782,7 @@
   let selectedMonthIndexColab = new Date().getMonth();
   let agendaViewMode = 'year';
   let agendaViewModeColab = 'year';
-  const agendaSummaryTab = { ceo: 'month', colab: 'month' };
+  const agendaSummaryTab = { ceo: 'day', colab: 'day' };
   const agendaDaySelectedDate = {
     ceo: new Date().toISOString().split('T')[0],
     colab: new Date().toISOString().split('T')[0]
@@ -7178,9 +7819,71 @@
   let collaboratorAccounts = [];
 
   let clients = [];
+  let clientsLastDoc = null;
+  let clientsHasMore = true;
+  let clientsLoading = false;
+  let revenueHistoryFilter = 'all';
+  let revenueHistoryProfessional = 'all';
+  let revenueShareRange = 'month';
+  let revenueShareStart = '';
+  let revenueShareEnd = '';
+  let colabEarningsRange = 'week';
+  let commissionHistoryRange = 'month';
+
+  async function loadClientsPage(reset = false) {
+    initFirebaseApp();
+    if (!firestore) return;
+    if (clientsLoading) return;
+    if (reset) {
+      clients = [];
+      clientsLastDoc = null;
+      clientsHasMore = true;
+    }
+    if (!clientsHasMore) return;
+    clientsLoading = true;
+    renderClients('ceo');
+    renderClients('colab');
+    try {
+      let query = firestore.collection('clients');
+      const isColab = currentRole === 'colab';
+      if (isColab && !colabCanSeeAllClients()) {
+        const uid = currentColabAccount?.userId || currentUserDoc?.id || '';
+        if (!uid) {
+          throw new Error('missing-collab-uid');
+        }
+        query = query.where('ownersId', 'array-contains', uid);
+      } else {
+        query = query.orderBy('name');
+      }
+      query = query.limit(50);
+      if (clientsLastDoc) query = query.startAfter(clientsLastDoc);
+      const snap = await query.get();
+      const newDocs = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .filter(c => !c.deletedAt && c.deleted !== true);
+      newDocs.forEach(doc => {
+        const existingIndex = clients.findIndex(c => c.id === doc.id);
+        if (existingIndex >= 0) {
+          clients[existingIndex] = { ...clients[existingIndex], ...doc };
+        } else {
+          clients.push(doc);
+        }
+      });
+      clientsLastDoc = snap.docs[snap.docs.length - 1] || clientsLastDoc;
+      if (snap.docs.length < 50) clientsHasMore = false;
+    } catch (err) {
+      console.error('Falha ao carregar clientes paginados', err);
+      alert('Não foi possível carregar mais clientes agora.');
+    } finally {
+      clientsLoading = false;
+      renderClients('ceo');
+      renderClients('colab');
+    }
+  }
 
   let currentClientEditingId = null;
   let pendingRemoveClientId = null;
+  let clientProfessionalFilter = { ceo: 'all', colab: 'all' };
 
   let appointments = [];
 
@@ -7208,8 +7911,16 @@
 
   function findCollaboratorByIdOrName(value) {
     if (!value) return null;
-    const lowered = value.toLowerCase();
-    return collaborators.find(c => c.id === lowered || c.username === lowered || c.name.toLowerCase() === lowered) || null;
+    const raw = value.toString();
+    const lowered = raw.toLowerCase();
+    return collaborators.find(c =>
+      c.id === raw ||
+      c.userId === raw ||
+      c.id === lowered ||
+      c.userId === lowered ||
+      c.username === lowered ||
+      c.name.toLowerCase() === lowered
+    ) || null;
   }
 
   async function fetchCollaboratorByUid(uid) {
@@ -7361,6 +8072,7 @@
       await firestore.collection('clients').doc(client.id).set(client, { merge: true });
     } catch (err) {
       console.warn('Falha ao salvar cliente', err);
+      alert('Nao foi possivel salvar cliente. Verifique permissoes e tente novamente.');
     }
   }
 
@@ -7381,6 +8093,7 @@
       await firestore.collection('atendimentos').doc(appt.id).set(appt, { merge: true });
     } catch (err) {
       console.warn('Falha ao salvar atendimento', err);
+      alert('Nao foi possivel salvar o agendamento. Verifique permissoes.');
     }
   }
 
@@ -7439,7 +8152,7 @@
 
       const service = findServiceByIdOrName(appt.serviceId || appt.serviceName || appt.service);
       const professional = findCollaboratorByIdOrName(appt.professionalId || appt.professionalName || appt.professional);
-      const professionalName = professional?.name || appt.professionalName || appt.professional || 'Equipe';
+      const professionalName = professional?.name || getProfessionalDisplayName(appt);
       const professionalId = professional?.id || slugify(professionalName);
       const serviceName = service?.name || appt.serviceName || appt.service || 'Serviço';
       const serviceId = service?.id || slugify(serviceName);
@@ -7493,6 +8206,20 @@
     return identifier.includes('@') ? identifier : null;
   }
 
+  function setLoginLoading(isLoading, message = '') {
+    const statusEl = document.getElementById('login-status');
+    const idInput = document.getElementById('login-identifier');
+    const passInput = document.getElementById('login-password');
+    const buttons = document.querySelectorAll('#login-universal button');
+    if (statusEl) statusEl.textContent = isLoading ? (message || 'Carregando...') : '';
+    [idInput, passInput].forEach(el => {
+      if (el) el.disabled = !!isLoading;
+    });
+    buttons.forEach(btn => {
+      btn.disabled = !!isLoading;
+    });
+  }
+
   async function fetchUserDoc(uid) {
     if (!uid || !firestore) return null;
     const docRef = firestore.collection('users').doc(uid);
@@ -7520,10 +8247,6 @@
 
   function applyUserRole(userData, collabOverride = null) {
     currentUserDoc = userData;
-    if (!appInitialized) {
-      postLoginInit();
-      appInitialized = true;
-    }
     const role = (userData?.role || '').toUpperCase() === 'CEO' ? 'ceo' : 'colab';
     const linkedCollab = collabOverride || collaborators.find(c => c.userId === userData.id || c.id === userData.id);
     const mergedPerms = defaultCollaboratorPermissions({
@@ -7533,7 +8256,7 @@
       admin: false,
     });
     if (role === 'colab' && linkedCollab && linkedCollab.active === false) {
-      alert('Colaboradora desativada. Solicite reativação ao administrador.');
+      alert('Colaboradora desativada. Solicite reativa?�o ao administrador.');
       return;
     }
     const account = role === 'colab'
@@ -7546,6 +8269,10 @@
         }
       : null;
     setRole(role, account);
+    if (!appInitialized) {
+      postLoginInit();
+      appInitialized = true;
+    }
   }
 
   async function handleEmailLogin() {
@@ -7562,6 +8289,7 @@
       return;
     }
     try {
+      setLoginLoading(true, 'Entrando...');
       const cred = await firebaseAuth.signInWithEmailAndPassword(email, password);
       const [userData, collabProfile] = await Promise.all([
         fetchUserDoc(cred.user.uid),
@@ -7595,6 +8323,8 @@
       applyUserRole(mergedUser, collabProfile);
     } catch (err) {
       alert('Falha no login. Confira as credenciais.');
+    } finally {
+      setLoginLoading(false);
     }
   }
 
@@ -7603,6 +8333,7 @@
     if (!firebaseAuth) return;
     const provider = new firebase.auth.GoogleAuthProvider();
     try {
+      setLoginLoading(true, 'Entrando...');
       const cred = await firebaseAuth.signInWithPopup(provider);
       const data = await fetchUserDoc(cred.user.uid);
       if (!data || (data.role || '').toUpperCase() !== 'CEO') {
@@ -7612,7 +8343,9 @@
       }
       applyUserRole(data);
     } catch (err) {
-      alert('Login Google cancelado ou inválido.');
+      alert('Login Google cancelado ou inv�lido.');
+    } finally {
+      setLoginLoading(false);
     }
   }
 
@@ -7637,13 +8370,30 @@
     if (!firebaseAuth || authListenerAttached) return;
     authListenerAttached = true;
     firebaseAuth.onAuthStateChanged(async (user) => {
-      if (user) {
+      authResolved = true;
+      if (!user) {
+        currentUserDoc = null;
+        currentColabAccount = null;
+        setLoginLoading(false);
+        backToLogin();
+        return;
+      }
+      setLoginLoading(true, 'Carregando dados...');
+      try {
         const data = await fetchUserDoc(user.uid);
-        if (data) {
-          applyUserRole(data);
-          document.getElementById('login-screen')?.classList.add('hidden');
-          document.getElementById('app-shell')?.classList.remove('hidden');
+        if (!data) {
+          await firebaseAuth.signOut().catch(() => {});
+          setLoginLoading(false);
+          backToLogin();
+          return;
         }
+        applyUserRole(data);
+      } catch (err) {
+        console.warn('Falha ao carregar perfil', err);
+        await firebaseAuth.signOut().catch(() => {});
+        backToLogin();
+      } finally {
+        setLoginLoading(false);
       }
     });
   }
@@ -7662,15 +8412,10 @@
       appointments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       normalizeAppointmentsData();
       refreshAgendaFromAppointments();
+      renderColabCommission();
+      renderColabDashboard();
     });
-    // Clientes
-    firestore.collection('clients').onSnapshot(snap => {
-      clients = snap.docs
-        .map(d => ({ id: d.id, ...d.data() }))
-        .filter(c => !c.deletedAt && c.deleted !== true);
-      renderClients('ceo');
-      renderClients('colab');
-    });
+    loadClientsPage(true);
     // Serviços
     firestore.collection('services').onSnapshot(snap => {
       kioskServices = snap.docs.map(d => ({
@@ -7682,6 +8427,8 @@
       }));
       renderServicesTable();
       renderKiosk();
+      renderColabCommission();
+      renderColabDashboard();
     });
     firestore.collection('investments').onSnapshot(snap => {
       investments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -7689,19 +8436,25 @@
       renderDashboardCards();
       buildGlobalMonthOptions();
     });
-    firestore.collection('financial').onSnapshot(snap => {
-      const mapped = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      financialEntries.splice(0, financialEntries.length, ...mapped);
-      renderFinance();
-      renderDashboardCards();
-      buildGlobalMonthOptions();
-    });
+    if ((currentUserDoc?.role || '').toUpperCase() === 'CEO') {
+      firestore.collection('financial').onSnapshot(snap => {
+        const mapped = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        financialEntries.splice(0, financialEntries.length, ...mapped);
+        renderFinance();
+        renderDashboardCards();
+        buildGlobalMonthOptions();
+      });
+    }
     firestore.collection('productTemplates').onSnapshot(snap => {
       productTemplates = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderInventoryTemplates();
     });
     firestore.collection('stock').onSnapshot(snap => {
-      stockItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      stockItems = snap.docs.map(d => {
+        const raw = { id: d.id, ...d.data() };
+        const statusInfo = computePolishUsageStatus(raw);
+        return { ...raw, ...statusInfo };
+      });
       stockItems.forEach(item => attachStockHistoryListener(item.id));
       renderInventory();
       renderDashboardCards();
@@ -7729,6 +8482,7 @@
     }
     if (role === 'ceo') agendaProfessionalFilter = 'all';
 
+    document.getElementById('login-wrapper')?.classList.add('hidden');
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('app-shell').classList.add('hidden');
     document.getElementById('kiosk-screen').classList.add('hidden');
@@ -7738,11 +8492,16 @@
       setupSidebar(role);
       updateRoleLabel(role);
       updateVisiblePage();
+      renderColabCommission();
+      renderColabDashboard();
       resetKioskSession();
+      updateMobileHeaderHeight();
+      handleMobileHeaderScroll();
     } else if (role === 'kiosk') {
       document.getElementById('kiosk-screen').classList.remove('hidden');
       resetKioskSession();
       renderKiosk();
+      syncKioskFromRemote();
     }
 
     refreshFab();
@@ -7750,6 +8509,8 @@
 
   function backToLogin() {
     currentRole = null;
+    setLoginLoading(false);
+    document.getElementById('login-wrapper')?.classList.remove('hidden');
     document.getElementById('login-screen').classList.remove('hidden');
     document.getElementById('app-shell').classList.add('hidden');
     document.getElementById('kiosk-screen').classList.add('hidden');
@@ -7777,16 +8538,43 @@
     document.getElementById('add-collab-email').value = '';
     document.getElementById('add-collab-login').value = '';
     document.getElementById('add-collab-password').value = '';
+    document.getElementById('add-collab-perm-admin').checked = false;
     document.getElementById('add-collab-perm-agenda').checked = true;
     document.getElementById('add-collab-perm-agenda-full').checked = false;
     document.getElementById('add-collab-perm-comissao').checked = true;
+    toggleAdminCollab();
     openDialog('add-collab-modal');
+  }
+
+  function toggleAdminCollab() {
+    const isAdmin = document.getElementById('add-collab-perm-admin')?.checked;
+    const roleInput = document.getElementById('add-collab-role');
+    const commissionInput = document.getElementById('add-collab-commission');
+    const agenda = document.getElementById('add-collab-perm-agenda');
+    const agendaFull = document.getElementById('add-collab-perm-agenda-full');
+    const comissao = document.getElementById('add-collab-perm-comissao');
+
+    if (roleInput) roleInput.value = isAdmin ? 'Administradora' : 'Colaboradora';
+    if (commissionInput) {
+      commissionInput.value = isAdmin ? '0%' : (commissionInput.value || '40% serviços');
+      commissionInput.disabled = Boolean(isAdmin);
+    }
+    [agenda, agendaFull, comissao].forEach(el => {
+      if (!el) return;
+      el.disabled = Boolean(isAdmin);
+    });
+    if (isAdmin) {
+      if (agenda) agenda.checked = true;
+      if (agendaFull) agendaFull.checked = true;
+      if (comissao) comissao.checked = true;
+    }
   }
 
   async function saveNewCollaborator() {
     const name = document.getElementById('add-collab-name').value.trim();
-    const role = document.getElementById('add-collab-role').value.trim() || 'Colaboradora';
-    const commission = document.getElementById('add-collab-commission').value.trim() || '40% serviços';
+    const isAdmin = document.getElementById('add-collab-perm-admin').checked;
+    const role = isAdmin ? 'Administradora' : (document.getElementById('add-collab-role').value.trim() || 'Colaboradora');
+    const commission = isAdmin ? '0%' : (document.getElementById('add-collab-commission').value.trim() || '40% serviços');
     const email = document.getElementById('add-collab-email').value.trim();
     const username = document.getElementById('add-collab-login').value.trim();
     const password = document.getElementById('add-collab-password').value.trim();
@@ -7805,11 +8593,28 @@
       getCssVar('--chart-gold', '#B7A06A')
     ];
     const color = palette[Math.floor(Math.random() * palette.length)];
-    const permissionSet = defaultCollaboratorPermissions({ agenda: permAgenda, agendaFull: permAgendaFull, comissoes: permComissao });
+    const permissionSet = isAdmin
+      ? defaultCollaboratorPermissions({
+          agenda: true,
+          agendaFull: true,
+          comissoes: true,
+          estoque: true,
+          financeiro: true,
+          configuracoes: true,
+          admin: true
+        })
+      : defaultCollaboratorPermissions({ agenda: permAgenda, agendaFull: permAgendaFull, comissoes: permComissao });
     let createdUserId = null;
     try {
       initFirebaseApp();
-      const colId = await provisionCollaboratorAuth({ name, email, password: initialPassword, permissions: permissionSet, role: 'COLLABORATOR', username });
+      const colId = await provisionCollaboratorAuth({
+        name,
+        email,
+        password: initialPassword,
+        permissions: permissionSet,
+        role: isAdmin ? 'CEO' : 'COLLABORATOR',
+        username
+      });
       if (!colId) throw new Error('auth-failed');
       createdUserId = colId;
       const collabObj = {
@@ -7817,7 +8622,7 @@
         userId: colId,
         name,
         role: role || 'Colaboradora',
-        roleKey: 'COLLABORATOR',
+        roleKey: isAdmin ? 'CEO' : 'COLLABORATOR',
         commission,
         permissions: permissionSet,
         username: username || email,
@@ -7827,7 +8632,18 @@
         createdBy: currentUserDoc?.id || 'ceo',
         createdAt: new Date().toISOString(),
       };
-      const accPayload = { name: collabObj.name, username: collabObj.username, password: initialPassword, permissions: permissionSet, device: 'Tablet dedicado', email, id: colId, userId: colId, role: 'COLLABORATOR', active: true };
+      const accPayload = {
+        name: collabObj.name,
+        username: collabObj.username,
+        password: initialPassword,
+        permissions: permissionSet,
+        device: 'Tablet dedicado',
+        email,
+        id: colId,
+        userId: colId,
+        role: isAdmin ? 'CEO' : 'COLLABORATOR',
+        active: true
+      };
       collaborators.push(collabObj);
       collaboratorAccounts.push(accPayload);
       await Promise.all([
@@ -7859,6 +8675,9 @@
     document.getElementById('edit-collab-status').value = col.active === false ? 'inactive' : 'active';
     document.getElementById('edit-collab-email').value = col.email || '';
     document.getElementById('edit-collab-login').value = col.username || '';
+    const account = collaboratorAccounts.find(acc => acc.userId === col.userId || acc.id === col.id);
+    const currentPassField = document.getElementById('edit-collab-current-password');
+    if (currentPassField) currentPassField.value = account?.password || '';
     const pwdField = document.getElementById('edit-collab-password');
     if (pwdField) pwdField.value = '';
     const permObj = typeof col.permissions === 'string'
@@ -7904,12 +8723,24 @@
       try {
         const auth = ensureSecondaryAuth();
         if (auth) {
-          await auth.signInWithEmailAndPassword(updated.email, newPassword).catch(() => null);
-          if (auth.currentUser && auth.currentUser.uid === updated.userId) {
-            await auth.currentUser.updatePassword(newPassword);
-            await auth.signOut().catch(() => {});
+          const currentPassword = accountIdx >= 0 ? collaboratorAccounts[accountIdx]?.password : null;
+          let updatedAuthPassword = false;
+          if (currentPassword) {
+            await auth.signInWithEmailAndPassword(updated.email, currentPassword).catch(() => null);
+            if (auth.currentUser && auth.currentUser.uid === updated.userId) {
+              await auth.currentUser.updatePassword(newPassword);
+              updatedAuthPassword = true;
+              await auth.signOut().catch(() => {});
+            }
+          }
+          if (updatedAuthPassword) {
+            if (accountIdx >= 0) {
+              collaboratorAccounts[accountIdx] = { ...collaboratorAccounts[accountIdx], password: newPassword };
+              persistCollaboratorAccount(collaboratorAccounts[accountIdx]);
+            }
           } else {
             await auth.sendPasswordResetEmail(updated.email);
+            alert('Não foi possível atualizar a senha automaticamente. Enviamos um link de redefinição para o email da colaboradora.');
           }
         }
       } catch (err) {
@@ -7957,10 +8788,32 @@
     currentCollabStatusIndex = null;
   }
 
-  function removeCollaborator() {
+  async function removeCollaborator() {
     if (currentCollabStatusIndex === null) return;
     const removed = collaborators.splice(currentCollabStatusIndex, 1)[0];
-    collaboratorAccounts = collaboratorAccounts.filter(acc => acc.name !== removed.name && acc.username !== removed.username);
+    const removedAccountIds = collaboratorAccounts
+      .filter(acc => acc.userId === removed?.userId || acc.id === removed?.id || acc.username === removed?.username)
+      .map(acc => acc.id || acc.userId)
+      .filter(Boolean);
+    collaboratorAccounts = collaboratorAccounts.filter(acc => !removedAccountIds.includes(acc.id || acc.userId));
+
+    if (firestore && removed?.id) {
+      try {
+        await firestore.collection('collaborators').doc(removed.id).delete();
+      } catch (err) {
+        console.warn('Falha ao remover colaboradora no Firestore', err);
+      }
+    }
+    if (firestore && removedAccountIds.length) {
+      removedAccountIds.forEach(async (accId) => {
+        try {
+          await firestore.collection('collaboratorAccounts').doc(accId).delete();
+        } catch (err) {
+          console.warn('Falha ao remover login da colaboradora', err);
+        }
+      });
+    }
+
     renderCollaborators();
     closeDialog('collab-status-modal');
     currentCollabStatusIndex = null;
@@ -7996,7 +8849,7 @@
       } else {
         collaborators.forEach(col => {
           const opt = document.createElement('option');
-          opt.value = col.name;
+          opt.value = col.userId || col.id || slugify(col.name);
           opt.textContent = col.name;
           fields.responsible.appendChild(opt);
         });
@@ -8016,8 +8869,20 @@
     if (fields.prefExtension) fields.prefExtension.value = client?.prefExtension || '';
     if (fields.allergies) fields.allergies.value = client?.allergies || '';
     if (fields.notes) fields.notes.value = client?.notes || '';
-    const responsibleFallback = currentRole === 'colab' && currentColabAccount ? currentColabAccount.name : (collaborators[0]?.name || '');
-    if (fields.responsible) fields.responsible.value = client?.responsible || responsibleFallback;
+    const responsibleFallback = currentRole === 'colab' && currentColabAccount
+      ? (currentColabAccount.userId || currentColabAccount.id || '')
+      : (collaborators[0]?.userId || collaborators[0]?.id || '');
+    if (fields.responsible) {
+      const preferred = client?.responsibleId || client?.ownerId || '';
+      if (preferred) {
+        fields.responsible.value = preferred;
+      } else if (client?.responsible) {
+        const match = findCollaboratorByIdOrName(client.responsible);
+        fields.responsible.value = match?.userId || match?.id || responsibleFallback;
+      } else {
+        fields.responsible.value = responsibleFallback;
+      }
+    }
 
     openDialog('client-form-modal');
   }
@@ -8025,7 +8890,10 @@
   async function saveClient() {
     const name = document.getElementById('client-name').value.trim();
     const phone = document.getElementById('client-phone').value.trim();
-    if (!name || !phone) return;
+    if (!name || !phone) {
+      alert('Informe nome e telefone.');
+      return;
+    }
     const instagram = document.getElementById('client-instagram').value.trim();
     const birthday = document.getElementById('client-birthday').value;
     const prefColor = document.getElementById('client-pref-color').value.trim();
@@ -8035,11 +8903,18 @@
     const notes = document.getElementById('client-notes').value.trim();
     const responsible = document.getElementById('client-responsible').value;
     const existingId = document.getElementById('client-id').value || currentClientEditingId;
-    const owner = responsible || (currentRole === 'colab' && currentColabAccount ? currentColabAccount.name : 'Glecie');
+    const ownerFallback = currentRole === 'colab'
+      ? (currentColabAccount?.name || currentUserDoc?.name || currentUserDoc?.username || currentUserDoc?.email || '')
+      : 'Glecie';
+    const responsibleMatch = findCollaboratorByIdOrName(responsible) || (currentRole === 'colab' ? currentColabAccount : null);
+    const ownerId = responsibleMatch?.userId || responsibleMatch?.id || (currentRole === 'colab' ? (currentColabAccount?.userId || currentUserDoc?.id || '') : '');
+    const owner = responsibleMatch?.name || ownerFallback || 'Glecie';
 
     if (existingId) {
       const target = clients.find(c => c.id === existingId);
       if (target) {
+        const ownersId = Array.isArray(target.ownersId) ? [...target.ownersId] : [];
+        if (ownerId && !ownersId.includes(ownerId)) ownersId.push(ownerId);
         Object.assign(target, {
           name,
           phone,
@@ -8050,8 +8925,12 @@
           prefExtension,
           allergies,
           notes,
-          responsible: owner
+          responsible: owner,
+          responsibleId: ownerId,
+          ownerId,
+          ownersId
         });
+        if (!Array.isArray(target.owners)) target.owners = [];
         if (!target.owners.includes(owner)) target.owners.push(owner);
         await persistClient(target);
       }
@@ -8067,9 +8946,12 @@
         prefExtension,
         allergies,
         responsible: owner,
+        responsibleId: ownerId,
+        ownerId,
         lastService: 'Novo cadastro',
         lastDate: '',
         owners: [owner],
+        ownersId: ownerId ? [ownerId] : [],
         notes,
         extra: '',
         history: [],
@@ -8081,8 +8963,7 @@
       await persistClient(newClient);
     }
 
-    renderClients('ceo');
-    renderClients('colab');
+    await loadClientsPage(true);
     closeDialog('client-form-modal');
     currentClientEditingId = null;
   }
@@ -8099,6 +8980,80 @@
     document.getElementById('tab-detail-data').classList.add('active');
     renderClientDetailTab();
     openDialog('client-detail-modal');
+  }
+
+  function getComandaByAppointment(appt) {
+    if (!appt?.comandaId) return null;
+    return comandas.find(c => c.id === appt.comandaId) || null;
+  }
+
+  function getEsmaltesUsedByAppointment(atendimentoId) {
+    if (!atendimentoId) return [];
+    const names = new Set();
+    Object.entries(stockHistories || {}).forEach(([stockId, list]) => {
+      const item = stockItems.find(i => i.id === stockId);
+      if ((item?.categoria || item?.category) !== 'esmaltes') return;
+      (list || []).forEach(entry => {
+        if (entry.atendimentoId === atendimentoId && entry.tipo === 'uso_esmalte') {
+          names.add(item.nome || item.name || 'Esmalte');
+        }
+      });
+    });
+    return Array.from(names);
+  }
+
+  function buildClientConsumptions(clientId) {
+    const related = appointments.filter(a => a.clientId === clientId);
+    const consumptions = [];
+    related.forEach(appt => {
+      const comanda = getComandaByAppointment(appt);
+      const items = comanda
+        ? (comanda.itensProfissional || []).concat(comanda.itensCliente || []).concat(comanda.itens || comanda.items || [])
+        : [];
+      items.forEach(it => {
+        if ((it.tipo || '').toLowerCase() === 'servico' || (it.tipo || '').toLowerCase() === 'service') return;
+        const cat = (it.categoriaEstoque || it.categoria || it.category || '').toLowerCase();
+        if (cat.includes('esmalte')) return;
+        if (cat.includes('manutencao')) return;
+        if (!(cat.includes('geladeira') || (it.tipo || '').toLowerCase() === 'consumo')) return;
+        const qty = Number(it.quantidade || it.qtd || 1);
+        const price = Number(it.preco || it.valor || 0);
+        consumptions.push({
+          nome: it.nome || 'Consumo',
+          total: price * qty,
+          qtd: qty,
+          preco: price,
+          data: appt.date || comanda?.atualizadoEm || comanda?.createdAt
+        });
+      });
+    });
+    return consumptions;
+  }
+
+  function buildClientServices(clientId) {
+    const related = appointments.filter(a => a.clientId === clientId);
+    return related.map(appt => {
+      const comanda = getComandaByAppointment(appt);
+      const items = comanda
+        ? (comanda.itensProfissional || []).concat(comanda.itensCliente || []).concat(comanda.itens || comanda.items || [])
+        : [];
+      const serviceItems = items.filter(it => (it.tipo || '').toLowerCase() === 'servico');
+      const serviceValue = serviceItems.reduce((acc, it) => {
+        const qty = Number(it.quantidade || it.qtd || 1);
+        const price = Number(it.preco || it.valor || 0);
+        return acc + (qty * price);
+      }, 0) || getServicePriceByAppointment(appt) || 0;
+      const totals = computeResumoTotals(items);
+      const totalPago = comanda?.pagamentoTotal || comanda?.total || totals.total || serviceValue;
+      const esmaltes = getEsmaltesUsedByAppointment(appt.id);
+      return {
+        data: appt.date || comanda?.atualizadoEm || appt.updatedAt || '',
+        servico: appt.serviceName || appt.service || 'Serviço',
+        valorServico: serviceValue,
+        total: totalPago,
+        esmaltes
+      };
+    });
   }
 
   function switchClientTab(tab) {
@@ -8134,17 +9089,31 @@
     }
 
     if (activeClientTab === 'history') {
-      const hist = (client.history || []).map(h => `<li>${h}</li>`).join('') || '<li>Sem histórico</li>';
+      const records = buildClientServices(client.id);
+      const list = records.length
+        ? records.map(r => {
+            const esmaltes = r.esmaltes.length ? `<div class="subtext">Esmaltes: ${r.esmaltes.join(', ')}</div>` : '';
+            const dateLabel = r.data ? formatDateLabel(r.data) : 'Data não informada';
+            return `<li>${dateLabel} • ${r.servico} • Serviço ${formatCurrency(r.valorServico)} • Total pago ${formatCurrency(r.total)}${esmaltes}</li>`;
+          }).join('')
+        : '<li>Sem histórico</li>';
       container.innerHTML = `
         <div class="client-detail-section">
           <h4>Histórico de serviços</h4>
-          <ul class="client-detail-list">${hist}</ul>
+          <ul class="client-detail-list">${list}</ul>
         </div>
       `;
     }
 
     if (activeClientTab === 'consume') {
-      const cons = (client.consume || []).map(h => `<li>${h}</li>`).join('') || '<li>Sem consumos</li>';
+      const consumptions = buildClientConsumptions(client.id);
+      const cons = consumptions.length
+        ? consumptions.map(c => {
+            const dateLabel = c.data ? formatDateLabel(c.data) : '—';
+            const total = formatCurrency(c.total || 0);
+            return `<li>${dateLabel} • ${c.nome} (${c.qtd}x ${formatCurrency(c.preco || 0)}) • Total ${total}</li>`;
+          }).join('')
+        : '<li>Sem consumos</li>';
       container.innerHTML = `
         <div class="client-detail-section">
           <h4>Consumos no Studio</h4>
@@ -8184,6 +9153,7 @@
     if (!pendingRemoveClientId) return;
     initFirebaseApp();
     const targetId = pendingRemoveClientId;
+    const nowISO = new Date().toISOString();
     const finalizeUiRemoval = () => {
       const index = clients.findIndex(c => c.id === targetId);
       if (index >= 0) clients.splice(index, 1);
@@ -8199,10 +9169,11 @@
       renderAgendaMonthSummary('ceo');
       renderAgendaMonthCalendar('colab');
       renderAgendaMonthSummary('colab');
+      loadClientsPage(true);
       pendingRemoveClientId = null;
     };
     if (firestore) {
-      firestore.collection('clients').doc(targetId).delete()
+      firestore.collection('clients').doc(targetId).set({ deleted: true, deletedAt: nowISO }, { merge: true })
         .then(finalizeUiRemoval)
         .catch((err) => {
           console.error('Falha ao excluir cliente no Firestore', err);
@@ -8271,7 +9242,7 @@
 
     items.forEach(appt => {
       const client = clients.find(c => c.id === appt.clientId);
-      const color = getProfessionalColor(appt.professionalName || appt.professional);
+      const color = getProfessionalColor(getProfessionalDisplayName(appt));
       const row = document.createElement('div');
       row.className = 'appointment-card';
       row.style.setProperty('--appt-color', color);
@@ -8279,7 +9250,7 @@
         <div class="appointment-meta">
           <div class="appointment-title" style="font-size:1rem;">
             ${appt.time || '--:--'} • ${appt.serviceName || appt.service}
-            <span class="appointment-pill" style="background:${color}1a;border-color:${color}33;">${appt.professionalName || appt.professional || 'Equipe'}</span>
+            <span class="appointment-pill" style="background:${color}1a;border-color:${color}33;">${getProfessionalDisplayName(appt)}</span>
           </div>
           <div class="appointment-subtext">
             <span>${client ? client.name : appt.clientName || 'Cliente'}</span>
@@ -8474,7 +9445,7 @@
         </div>
         <div class="meta">
           <span>${appt.serviceName || appt.service}</span>
-          <span>${appt.professionalName || appt.professional || 'Equipe'}</span>
+          <span>${getProfessionalDisplayName(appt)}</span>
           <span class="badge-soft">${appt.status || 'agendado'}</span>
         </div>
         <div class="actions-inline">
@@ -8567,7 +9538,7 @@
     if (summary) {
       const clientName = appt.clientName || appt.cliente || clients.find(c => c.id === appt.clientId)?.name || 'Cliente';
       const service = appt.serviceName || appt.service || 'Serviço';
-      const pro = appt.professionalName || appt.professional || 'Equipe';
+      const pro = getProfessionalDisplayName(appt);
       summary.textContent = `${clientName} • ${service} • ${formatDateLabel(targetDate)} às ${targetTime} • ${pro}`;
     }
     if (dateInput) dateInput.value = targetDate;
@@ -8786,6 +9757,7 @@
     } catch (err) {
       alert('Não foi possível adicionar o item.');
       console.error(err);
+      const isPerm = err?.code === 'permission-denied';
     } finally {
       if (submitBtn) submitBtn.disabled = false;
     }
@@ -8897,7 +9869,8 @@
     cliente: '',
     profissional: '',
     resumoGeradoEm: null,
-    esmaltesSelecionados: new Set()
+    esmaltesSelecionados: new Set(),
+    esmaltesBusca: ''
   };
 
   function resetFinalizarComandaModal() {
@@ -8909,6 +9882,7 @@
     finalizeModalState.profissional = '';
     finalizeModalState.resumoGeradoEm = null;
     finalizeModalState.esmaltesSelecionados = new Set();
+    finalizeModalState.esmaltesBusca = '';
     const list = document.getElementById('finalizar-comanda-list');
     if (list) list.innerHTML = '<div class="subtext">Selecione um atendimento para finalizar.</div>';
     const caption = document.getElementById('finalizar-comanda-caption');
@@ -8919,6 +9893,8 @@
     if (total) total.textContent = 'Total estimado: --';
     const esmaltes = document.getElementById('finalizar-comanda-esmaltes');
     if (esmaltes) esmaltes.innerHTML = '<div class="subtext">Selecione um atendimento para listar os esmaltes.</div>';
+    const esmalteSearch = document.getElementById('finalizar-esmaltes-search');
+    if (esmalteSearch) esmalteSearch.value = '';
     const confirmBtn = document.getElementById('finalizar-comanda-confirm');
     if (confirmBtn) {
       confirmBtn.disabled = false;
@@ -8928,30 +9904,103 @@
 
   function renderFinalizarComandaEsmaltes() {
     const container = document.getElementById('finalizar-comanda-esmaltes');
+    const searchInput = document.getElementById('finalizar-esmaltes-search');
     if (!container) return;
+    if (searchInput && searchInput.value !== (finalizeModalState.esmaltesBusca || '')) {
+      searchInput.value = finalizeModalState.esmaltesBusca || '';
+    }
     container.innerHTML = '';
+    const searchTerm = (finalizeModalState.esmaltesBusca || '').toLowerCase().trim();
     const esmaltes = stockItems.filter(item => (item.categoria || item.category) === 'esmaltes');
     if (!esmaltes.length) {
       container.innerHTML = '<div class="subtext">Nenhum esmalte cadastrado no estoque.</div>';
       return;
     }
-    esmaltes.forEach(item => {
-      const label = document.createElement('label');
-      label.className = 'finalizar-esmalte-item';
-      const input = document.createElement('input');
-      input.type = 'checkbox';
-      input.value = item.id;
-      input.checked = finalizeModalState.esmaltesSelecionados.has(item.id);
-      input.addEventListener('change', () => {
-        if (input.checked) finalizeModalState.esmaltesSelecionados.add(item.id);
-        else finalizeModalState.esmaltesSelecionados.delete(item.id);
+
+    const filteredEsmaltes = searchTerm
+      ? esmaltes.filter(item => {
+          const nome = (item.nome || item.name || '').toLowerCase();
+          const marca = (item.marca || '').toLowerCase();
+          return nome.includes(searchTerm) || marca.includes(searchTerm);
+        })
+      : esmaltes;
+
+    if (!filteredEsmaltes.length) {
+      container.innerHTML = '<div class="subtext">Nenhum esmalte encontrado para o filtro digitado.</div>';
+      return;
+    }
+
+    const toggleSelection = (id) => {
+      if (finalizeModalState.esmaltesSelecionados.has(id)) finalizeModalState.esmaltesSelecionados.delete(id);
+      else finalizeModalState.esmaltesSelecionados.add(id);
+      renderFinalizarComandaEsmaltes();
+    };
+
+    filteredEsmaltes.forEach(item => {
+      const isSelected = finalizeModalState.esmaltesSelecionados.has(item.id);
+      const label = document.createElement('div');
+      label.className = `finalizar-esmalte-item${isSelected ? ' selected' : ''}`;
+      label.setAttribute('role', 'button');
+      label.setAttribute('tabindex', '0');
+      label.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+
+      const info = document.createElement('div');
+      const name = document.createElement('span');
+      name.className = 'finalizar-esmalte-name';
+      name.textContent = item.nome || item.name || 'Esmalte';
+      info.appendChild(name);
+
+      const brand = item.marca || '';
+      if (brand) {
+        const meta = document.createElement('span');
+        meta.className = 'finalizar-esmalte-meta';
+        meta.textContent = brand;
+        info.appendChild(meta);
+      }
+
+      const check = document.createElement('span');
+      check.className = 'finalizar-esmalte-check';
+      check.textContent = '✓';
+
+      label.addEventListener('click', () => toggleSelection(item.id));
+      label.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter' || ev.key === ' ') {
+          ev.preventDefault();
+          toggleSelection(item.id);
+        }
       });
-      const text = document.createElement('span');
-      const brand = item.marca ? ` • ${item.marca}` : '';
-      text.textContent = `${item.nome || item.name || 'Esmalte'}${brand}`;
-      label.appendChild(input);
-      label.appendChild(text);
+
+      label.appendChild(info);
+      label.appendChild(check);
       container.appendChild(label);
+    });
+  }
+
+  const finalizarEsmaltesSearchInput = document.getElementById('finalizar-esmaltes-search');
+  if (finalizarEsmaltesSearchInput) {
+    finalizarEsmaltesSearchInput.addEventListener('input', (ev) => {
+      finalizeModalState.esmaltesBusca = ev.target.value || '';
+      renderFinalizarComandaEsmaltes();
+    });
+  }
+
+  function getTodaySaoPauloDateStr() {
+    const nowSp = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+    return nowSp.toISOString().split('T')[0];
+  }
+
+  const templateCategoryInput = document.getElementById('template-category');
+  if (templateCategoryInput) {
+    templateCategoryInput.addEventListener('change', (ev) => {
+      toggleTemplateFields(ev.target.value);
+    });
+  }
+
+  const stockExitReason = document.getElementById('stock-exit-reason');
+  if (stockExitReason) {
+    stockExitReason.addEventListener('change', (ev) => {
+      const wrap = document.getElementById('stock-exit-reason-other-wrapper');
+      if (wrap) wrap.classList.toggle('hidden', ev.target.value !== 'outro');
     });
   }
 
@@ -9017,6 +10066,7 @@
       if (!atendimentoId) throw new Error('Atendimento inválido para finalizar.');
       finalizeModalState.atendimentoId = atendimentoId;
       finalizeModalState.esmaltesSelecionados = new Set();
+      finalizeModalState.esmaltesBusca = '';
       const list = document.getElementById('finalizar-comanda-list');
       if (list) list.innerHTML = '<div class="subtext">Carregando itens da comanda...</div>';
       const confirmBtn = document.getElementById('finalizar-comanda-confirm');
@@ -9051,7 +10101,7 @@
       finalizeModalState.comandaId = comandaId;
       finalizeModalState.itens = itensServico.concat(itensComanda);
       finalizeModalState.cliente = appt.clientName || appt.cliente || 'Cliente';
-      finalizeModalState.profissional = appt.professionalName || appt.professional || 'Profissional';
+      finalizeModalState.profissional = getProfessionalDisplayName(appt);
       finalizeModalState.resumoGeradoEm = new Date();
       renderFinalizarComandaResumo();
       renderFinalizarComandaEsmaltes();
@@ -9083,7 +10133,11 @@
       appointments = appointments.map(a => a.id === finalizeModalState.atendimentoId ? { ...a, status: 'finalizado' } : a);
       refreshAgendaFromAppointments();
       closeFinalizarComandaModal();
-      alert(`Atendimento finalizado. Total para pagamento: ${formatCurrency(result?.total || finalizeModalState.total || 0)}.`);
+      const msgEl = document.getElementById('finalizar-success-message');
+      if (msgEl) {
+        msgEl.textContent = `Pagamento registrado. Total: ${formatCurrency(result?.total || finalizeModalState.total || 0)}.`;
+      }
+      openDialog('finalizar-success-modal');
     } catch (err) {
       alert('Não foi possível finalizar o atendimento.');
       console.error(err);
@@ -9131,22 +10185,33 @@
       profSelect.innerHTML = '';
       collaborators.forEach(col => {
         const opt = document.createElement('option');
-        opt.value = col.id || slugify(col.name);
+        opt.value = col.userId || col.id || slugify(col.name);
         opt.textContent = col.name;
         profSelect.appendChild(opt);
       });
-      if (baseClient?.responsible) profSelect.value = baseClient.responsible.toLowerCase();
+      if (baseClient?.responsibleId || baseClient?.ownerId) {
+        profSelect.value = baseClient.responsibleId || baseClient.ownerId;
+      } else if (baseClient?.responsible) {
+        const match = findCollaboratorByIdOrName(baseClient.responsible);
+        profSelect.value = match?.userId || match?.id || baseClient.responsible.toLowerCase();
+      }
       if (currentRole === 'colab' && currentColabAccount) {
-        profSelect.value = currentColabAccount.id || slugify(currentColabAccount.name);
+        profSelect.value = currentColabAccount.userId || currentColabAccount.id || slugify(currentColabAccount.name);
       }
       if (editing && (editing.professionalId || editing.professional)) {
-        profSelect.value = editing.professionalId || slugify(editing.professional);
+        profSelect.value = editing.professionalId || editing.professional || slugify(editing.professional);
       }
     }
 
     if (serviceSelect) {
       serviceSelect.innerHTML = '';
       const services = [...kioskServices];
+      if (!services.length) {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = 'Sem servicos cadastrados';
+        serviceSelect.appendChild(opt);
+      }
       const editingServiceId = editing?.serviceId || editing?.service;
       if (editingServiceId && !services.some(s => s.id === editingServiceId || s.name === editing.service)) {
         services.push({ id: editingServiceId, name: editing?.serviceName || editing?.service || 'Serviço' });
@@ -9178,45 +10243,56 @@
     const isEditing = appointmentFormMode === 'edit';
     const editingAppt = isEditing ? appointments.find(a => a.id === appointmentEditingId) : null;
     const professional = findCollaboratorByIdOrName(professionalValue) || { name: professionalValue, id: slugify(professionalValue) };
+    let professionalId = professional.userId || professional.id || professionalValue || slugify(professional.name || professionalValue);
+    const currentColabUid = currentColabAccount?.userId || currentUserDoc?.id || firebaseAuth?.currentUser?.uid || '';
+    if (currentRole === 'colab' && !currentColabUid) {
+      alert('Nao foi possivel identificar a colaboradora logada.');
+      return;
+    }
+    if (currentRole === 'colab' && currentColabUid) {
+      if (professionalId === currentColabAccount?.id) professionalId = currentColabUid;
+      if (professionalId !== currentColabUid) {
+        alert('Colaboradora so pode agendar para si mesma.');
+        return;
+      }
+    }
+    const professionalName = currentRole === 'colab' && currentColabUid
+      ? (currentColabAccount?.name || professional.name)
+      : professional.name;
     const service = findServiceByIdOrName(serviceValue) || { name: serviceValue, id: slugify(serviceValue) };
     let client = clients.find(c => c.id === hidden.value) || clients.find(c => c.name.toLowerCase() === (clientInput.value || '').toLowerCase());
     if (!client) {
-      client = {
-        id: `cli-${Date.now()}`,
-        name: clientInput.value,
-        phone: '55',
-        lastService: service.name,
-        lastDate: formatDateLabel(date),
-        instagram: '',
-        birthday: '',
-        prefColor: '',
-        prefShape: '',
-        prefExtension: '',
-        allergies: '',
-        responsible: professional.name,
-        owners: [currentRole === 'colab' && currentColabAccount ? currentColabAccount.name : professional.name || 'Glecie'],
-        notes: '',
-        extra: '',
-        history: [],
-        consume: [],
-        future: [],
-        nextAppointment: {}
-      };
-      clients.push(client);
+      const nameValue = (clientInput.value || '').trim();
+      if (!nameValue) {
+        alert('Informe o nome da cliente.');
+        return;
+      }
+      closeDialog('appointment-modal');
+      openClientModal('add');
+      const nameField = document.getElementById('client-name');
+      if (nameField) nameField.value = nameValue;
+      const respField = document.getElementById('client-responsible');
+      if (respField && professionalId) respField.value = professionalId;
+      alert('Cadastre a cliente antes de agendar.');
+      return;
     }
 
     client.owners = client.owners || [];
-    if (professional.name && !client.owners.includes(professional.name)) client.owners.push(professional.name);
-    client.responsible = professional.name || client.responsible;
+    if (professionalName && !client.owners.includes(professionalName)) client.owners.push(professionalName);
+    client.responsible = professionalName || client.responsible;
+    client.ownersId = client.ownersId || [];
+    if (professionalId && !client.ownersId.includes(professionalId)) client.ownersId.push(professionalId);
+    client.responsibleId = professionalId || client.responsibleId;
+    client.ownerId = client.ownerId || professionalId;
 
     const status = isEditing ? (editingAppt?.status || 'scheduled') : 'scheduled';
     const baseCreatedAt = isEditing ? (editingAppt?.createdAt || new Date().toISOString()) : new Date().toISOString();
     const appointmentPayload = {
       clientId: client.id,
       clientName: client.name,
-      professionalId: professional.id,
-      professionalName: professional.name,
-      professional: professional.name,
+      professionalId: professionalId,
+      professionalName: professionalName,
+      professional: professionalName,
       serviceId: service.id,
       serviceName: service.name,
       service: service.name,
@@ -9873,41 +10949,17 @@
   }
 
   function getSoldConsumptionValue(target) {
-    const isFinalized = (status = '') => {
-      const key = status.toString().toLowerCase();
-      return key === 'finalizado' || key === 'done';
-    };
-    const isConsumptionItem = (item = {}) => {
-      const tipo = (item.tipo || item.type || '').toString().toLowerCase();
-      if (tipo === 'consumo' || tipo === 'consumption') return true;
-      const cat = (item.categoriaEstoque || item.categoria || item.category || '').toString().toLowerCase();
-      return cat.includes('geladeira') || cat.includes('bebida') || cat.includes('consumo');
-    };
-    const getComandaItems = (comanda = {}) =>
-      (comanda.itensProfissional || [])
-        .concat(comanda.itensCliente || [])
-        .concat(comanda.itens || comanda.items || []);
-    const sumConsumptionItems = (items = []) =>
-      items
-        .filter(isConsumptionItem)
-        .reduce((acc, item) => {
-          const price = Number(item.preco || item.valor || 0);
-          const qty = Number(item.quantidade || item.qtd || 1);
-          return acc + (Number.isFinite(price) ? price : 0) * (Number.isFinite(qty) ? qty : 1);
-        }, 0);
-    return appointments
-      .filter(appt => isFinalized(appt.status))
-      .filter(appt => {
-        if (selectedGlobalMonthKey === 'all') return true;
-        const dateRef = appt.updatedAt || appt.atualizadoEm || appt.date;
-        return matchesTargetMonth(dateRef, target);
-      })
-      .reduce((acc, appt) => {
-        if (!appt.comandaId) return acc;
-        const comanda = comandas.find(c => c.id === appt.comandaId);
-        if (!comanda) return acc;
-        return acc + sumConsumptionItems(getComandaItems(comanda));
-      }, 0);
+    return getSoldConsumptionFinancial(target).reduce((acc, cur) => acc + (cur.amount || 0), 0);
+  }
+
+  function getSoldConsumptionFinancial(target) {
+    return financialEntries
+      .filter(e => (e.type || '').toLowerCase() === 'consumo')
+      .filter(e => (e.origem || '').toLowerCase() === 'geladeira')
+      .filter(e => (e.motivo || '').toLowerCase() === 'atendimento')
+      .filter(e => selectedGlobalMonthKey === 'all' || matchesTargetMonth(e.date, target))
+      .map(e => ({ ...e, amount: Number(e.amount || 0) }))
+      .filter(e => Number.isFinite(e.amount));
   }
 
   function getMonthlyConsumptionCount(target) {
@@ -9937,18 +10989,34 @@
       if (selectedGlobalMonthKey === 'all') return true;
       return matchesTargetMonth(e.date, target);
     });
-    const revenue = filteredFin.filter(f => f.type === 'receita').reduce((acc, cur) => acc + (cur.amount || 0), 0);
+    const revenueServices = filteredFin.filter(f => f.type === 'receita').reduce((acc, cur) => acc + (cur.amount || 0), 0);
+    const revenueConsumptions = filteredFin.filter(f => f.type === 'consumo').reduce((acc, cur) => acc + (cur.amount || 0), 0);
+    const revenue = revenueServices + revenueConsumptions;
     const commission = filteredFin.filter(f => f.type === 'comissao').reduce((acc, cur) => acc + (cur.amount || 0), 0);
     const soldConsumptionValue = getSoldConsumptionValue(target);
-    const alertsCount = stockItems.filter(item => {
-      const pct = item.volumeTotal_ml ? (item.volumeAtual_ml / item.volumeTotal_ml) : null;
-      const low = (item.previsaoDuracaoDias && item.previsaoDuracaoDias < 15) || (pct != null && pct < 0.3) || (item.quantidade && item.quantidade <= (item.unidadesPorPack || item.quantidade) * 0.2);
-      return low;
-    }).length;
-    const alertText = alertsCount > 0 ? 'Itens com estoque baixo' : 'Nenhum alerta de estoque';
+    const polishAlerts = stockItems
+      .filter(item => (item.categoria || item.category) === 'esmaltes')
+      .filter(item => {
+        const statusInfo = computePolishUsageStatus(item);
+        return statusInfo.statusEstoque === 'alerta' || statusInfo.statusEstoque === 'critico';
+      }).length;
+    const fridgeAlerts = stockItems
+      .filter(item => (item.categoria || item.category) === 'geladeira')
+      .filter(item => {
+        const qtd = Number(item.quantidade || 0);
+        if (!Number.isFinite(qtd)) return false;
+        const threshold = Number(item.unidadesPorPack || 0) > 0
+          ? Number(item.unidadesPorPack || 0) * 0.2
+          : 1;
+        return qtd <= Math.max(1, threshold);
+      }).length;
+    const alertsCount = polishAlerts + fridgeAlerts;
+    const alertText = alertsCount > 0
+      ? `Esmaltes: ${polishAlerts} - Geladeira: ${fridgeAlerts}`
+      : 'Sem alertas no estoque';
 
     if (revenueEl) revenueEl.textContent = formatCurrency(revenue);
-    if (revenueDelta) revenueDelta.textContent = targetLabel;
+    if (revenueDelta) revenueDelta.textContent = `Serviços ${formatCurrency(revenueServices)} • Consumos ${formatCurrency(revenueConsumptions)}`;
     if (commEl) commEl.textContent = formatCurrency(commission);
     if (commDelta) commDelta.textContent = commission ? `Comissões registradas em ${targetLabel}` : 'Sem comissões registradas';
     if (consEl) consEl.textContent = formatCurrency(soldConsumptionValue);
@@ -10071,7 +11139,7 @@
       if (selectedGlobalMonthKey === 'all') return true;
       return matchesTargetMonth(e.date, target);
     });
-    const revenues = filtered.filter(f => f.type === 'receita');
+    const revenues = filtered.filter(f => f.type === 'receita' || f.type === 'consumo');
     const baseExpenses = filtered.filter(f => f.type === 'despesa');
     const stockExpenses = deriveStockCostEntries(target);
     const expenses = [...baseExpenses, ...stockExpenses];
@@ -10471,52 +11539,191 @@
     renderDashboardCards();
   }
 
+  function getClientName(client) {
+    return client?.name || client?.nome || '';
+  }
+
+  function getClientPhone(client) {
+    return client?.phone || client?.telefone || '';
+  }
+
+  function getClientInstagram(client) {
+    return client?.instagram || client?.insta || '';
+  }
+
+  function getClientNotes(client) {
+    return client?.notes || client?.observacoes || client?.obs || '';
+  }
+
+  function getClientPrefColor(client) {
+    return client?.prefColor || client?.corPreferida || client?.preferenciaCor || '';
+  }
+
+  function getClientPrefShape(client) {
+    return client?.prefShape || client?.formatoUnha || client?.formato || '';
+  }
+
+  function getClientLastService(client) {
+    return client?.lastService || client?.ultimoServico || '';
+  }
+
+  function getClientLastDate(client) {
+    return client?.lastDate || client?.ultimaData || '';
+  }
+
+  function getClientResponsible(client) {
+    return client?.responsible || client?.responsavel || '';
+  }
+
+  function getColabIdentityKeys() {
+    const keys = new Set();
+    const fallback = currentUserDoc || {};
+    const id = currentColabAccount?.id || fallback.id || '';
+    const userId = currentColabAccount?.userId || fallback.userId || '';
+    const name = currentColabAccount?.name || fallback.name || fallback.username || fallback.email || '';
+    if (id) keys.add(String(id).toLowerCase());
+    if (userId) keys.add(String(userId).toLowerCase());
+    if (name) {
+      keys.add(String(name).toLowerCase());
+      keys.add(slugify(name));
+    }
+    return keys;
+  }
+
+  function colabCanSeeAllClients() {
+    return currentRole === 'colab';
+  }
+
   function filterClientsByRole(scope) {
-    if (scope === 'ceo') return clients;
-    const colabName = currentColabAccount?.name || 'colab';
-    const colabId = currentColabAccount?.id || '';
-    const owned = c => (c.owners || []).some(o => o.toLowerCase() === colabName.toLowerCase());
-    const responsible = c => (c.responsible || '').toLowerCase() === colabName.toLowerCase() || (c.responsible || '').toLowerCase() === colabId.toLowerCase();
-    const viaAppointments = c => appointments.some(a => a.clientId === c.id && ((a.professionalName || '').toLowerCase() === colabName.toLowerCase() || (a.professionalId || '').toLowerCase() === colabId.toLowerCase()));
-    const viaFuture = c => (c.future || []).some(f => (f.professionalName || f.professional || '').toLowerCase() === colabName.toLowerCase());
+    if (scope === 'ceo' || (scope === 'colab' && colabCanSeeAllClients())) return clients;
+    const keys = getColabIdentityKeys();
+    if (!keys.size) return [];
+    const matchesKey = (value = '') => {
+      const raw = String(value || '').toLowerCase();
+      return keys.has(raw) || keys.has(slugify(raw));
+    };
+    const owned = c => (c.owners || []).some(o => matchesKey(o)) || (c.ownersId || []).some(id => matchesKey(id)) || matchesKey(c.ownerId || '');
+    const responsible = c => matchesKey(c.responsible || c.responsavel || '') || matchesKey(c.responsibleId || '');
+    const viaAppointments = c => appointments.some(a => a.clientId === c.id && (matchesKey(a.professionalName || '') || matchesKey(a.professionalId || '') || matchesKey(getProfessionalKey(a))));
+    const viaFuture = c => (c.future || []).some(f => matchesKey(f.professionalName || f.professional || ''));
     return clients.filter(c => owned(c) || responsible(c) || viaAppointments(c) || viaFuture(c));
+  }
+
+  function populateClientProfessionalFilters() {
+    const ceoSelect = document.getElementById('client-prof-filter-ceo');
+    const colabSelect = document.getElementById('client-prof-filter-colab');
+    const options = [{ id: 'all', name: 'Todos' }, ...collaborators.map(c => ({ id: c.id || slugify(c.name), name: c.name }))];
+
+    if (ceoSelect) {
+      ceoSelect.innerHTML = '';
+      options.forEach(opt => {
+        const el = document.createElement('option');
+        el.value = opt.id;
+        el.textContent = opt.name;
+        ceoSelect.appendChild(el);
+      });
+      ceoSelect.value = clientProfessionalFilter.ceo || 'all';
+    }
+
+    if (colabSelect) {
+      colabSelect.innerHTML = '';
+      const canSeeAll = currentColabAccount?.permissions?.agendaFull;
+      const colabOptions = canSeeAll
+        ? options
+        : currentColabAccount
+          ? [{ id: currentColabAccount.id || slugify(currentColabAccount.name), name: currentColabAccount.name }]
+          : options;
+      colabOptions.forEach(opt => {
+        const el = document.createElement('option');
+        el.value = opt.id;
+        el.textContent = opt.name;
+        colabSelect.appendChild(el);
+      });
+      const fallback = currentColabAccount?.id || slugify(currentColabAccount?.name || '');
+      colabSelect.value = clientProfessionalFilter.colab || fallback || 'all';
+      colabSelect.disabled = !canSeeAll;
+    }
+  }
+
+  function getClientOwnerKeys(client) {
+    const owners = Array.isArray(client.owners) ? client.owners : [];
+    const ownersId = Array.isArray(client.ownersId) ? client.ownersId : [];
+    const responsible = getClientResponsible(client);
+    const responsibleId = client?.responsibleId || client?.ownerId || '';
+    const names = owners.concat(responsible ? [responsible] : []);
+    return names
+      .map(name => (name || '').toString().toLowerCase())
+      .concat(ownersId.map(id => (id || '').toString().toLowerCase()))
+      .concat(responsibleId ? [String(responsibleId).toLowerCase()] : []);
+  }
+
+  function clientMatchesProfessional(client, filterValue) {
+    if (!filterValue || filterValue === 'all') return true;
+    const ownerKeys = getClientOwnerKeys(client);
+    const matchByName = ownerKeys.some(name => name && (slugify(name) === filterValue || name === filterValue.toLowerCase()));
+    const matchById = ownerKeys.includes(filterValue.toLowerCase());
+    if (matchByName || matchById) return true;
+    return appointments.some(appt => appt.clientId === client.id && (getProfessionalKey(appt) === filterValue.toLowerCase()));
+  }
+
+  function setClientProfessionalFilter(value, scope = 'ceo') {
+    clientProfessionalFilter[scope] = value || 'all';
+    renderClients(scope);
   }
 
   function renderClients(scope = 'ceo') {
     const listEl = document.getElementById(scope === 'ceo' ? 'clients-grid-ceo' : 'clients-grid-colab');
     const searchEl = document.getElementById(scope === 'ceo' ? 'client-search-ceo' : 'client-search-colab');
+    const loadBtn = document.getElementById(scope === 'ceo' ? 'clients-loadmore-ceo' : 'clients-loadmore-colab');
+    const loadingEl = document.getElementById(scope === 'ceo' ? 'clients-loading-ceo' : 'clients-loading-colab');
     if (!listEl) return;
     listEl.innerHTML = '';
     const search = (searchEl?.value || '').toLowerCase();
+    const profFilter = clientProfessionalFilter[scope] || 'all';
     const filtered = filterClientsByRole(scope)
-      .filter(c => c.name.toLowerCase().includes(search) || (c.phone || '').includes(search));
+      .filter(c => {
+        const name = getClientName(c);
+        const phone = getClientPhone(c);
+        return (name.toLowerCase().includes(search) || phone.includes(search)) && clientMatchesProfessional(c, profFilter);
+      });
+    const seen = new Set();
+    const deduped = filtered.filter(c => {
+      const key = c?.id;
+      if (!key) return true;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    const finalList = deduped.sort((a, b) => getClientName(a).localeCompare(getClientName(b)));
 
-    filtered.forEach(c => {
+    finalList.forEach(c => {
       const card = document.createElement('div');
       card.className = 'client-card';
       const statusLabel = c.status || c.nextAppointment?.status || 'Ativo';
-      const lastService = c.lastService || '—';
-      const lastDate = c.lastDate ? formatDateLabel(c.lastDate) : '';
+      const lastService = getClientLastService(c) || '-';
+      const lastDate = getClientLastDate(c) ? formatDateLabel(getClientLastDate(c)) : '';
       const lastBlock = lastDate ? `${lastService} • ${lastDate}` : lastService;
       const whatsapp = buildWhatsAppLink(c);
       const nextAppt = `${c.nextAppointment?.time || '--:--'} • ${c.nextAppointment?.date ? formatDateLabel(c.nextAppointment.date) : 'agenda'}`;
-      const prefLine = `${c.prefColor ? c.prefColor : ''}${c.prefColor && c.prefShape ? ' • ' : ''}${c.prefShape || ''}`.trim();
+      const prefColor = getClientPrefColor(c);
+      const prefShape = getClientPrefShape(c);
+      const prefLine = `${prefColor ? prefColor : ''}${prefColor && prefShape ? ' • ' : ''}${prefShape || ''}`.trim();
       card.innerHTML = `
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.4rem;">
           <div style="display:flex;flex-direction:column;gap:0.18rem;">
             <div style="display:flex;align-items:center;gap:0.35rem;flex-wrap:wrap;">
-              <div class="client-name">${c.name}</div>
+              <div class="client-name">${getClientName(c) || 'Cliente'}</div>
               <span class="client-status">${statusLabel}</span>
             </div>
             <div class="client-meta">${lastBlock}</div>
             ${prefLine ? `<div class="client-meta">${prefLine}</div>` : ''}
-            <div class="client-meta" style="color:var(--text-muted);">${c.notes || 'Sem observações'}</div>
+            <div class="client-meta" style="color:var(--text-muted);">${getClientNotes(c) || 'Sem observações'}</div>
           </div>
           <div class="client-pill">${nextAppt}</div>
         </div>
         <div class="client-meta" style="display:flex;gap:0.35rem;flex-wrap:wrap;align-items:center;">
-          <a href="${whatsapp}" target="_blank" rel="noopener">${c.phone}</a>
-          ${c.instagram ? `<span class="badge-soft">${c.instagram}</span>` : ''}
+          <a href="${whatsapp}" target="_blank" rel="noopener">${getClientPhone(c) || '--'}</a>
+          ${getClientInstagram(c) ? `<span class="badge-soft">${getClientInstagram(c)}</span>` : ''}
         </div>
         <div class="client-actions">
           <div class="inline-actions">
@@ -10525,17 +11732,26 @@
             <button class="ghost-btn secondary icon-mini client-action-edit" style="background: rgba(169,196,229,0.2); color: #2d4d7c; border: 1px solid rgba(169,196,229,0.6);" onclick="openClientModal('edit','${c.id}')">✎</button>
             <button class="ghost-btn secondary icon-mini client-action-remove" style="background: rgba(247,183,183,0.18); color: #b23b3b; border: 1px solid rgba(247,183,183,0.45);" onclick="openRemoveClientModal('${c.id}')">🗑</button>
           </div>
-          <span class="client-pill">${c.responsible || (c.owners || ['Responsável'])[0]}</span>
+          <span class="client-pill">${getClientResponsible(c) || (c.owners || ['Responsável'])[0]}</span>
         </div>
       `;
       listEl.appendChild(card);
     });
 
-    if (!filtered.length) {
+    if (!finalList.length) {
       listEl.innerHTML = '<div class="client-meta">Nenhuma cliente encontrada.</div>';
     }
 
     renderClientsDatalist();
+    if (loadBtn) {
+      if (scope === 'colab') {
+        loadBtn.style.display = 'none';
+      } else {
+        loadBtn.style.display = clientsHasMore ? 'inline-flex' : 'none';
+        loadBtn.disabled = clientsLoading;
+      }
+    }
+    if (loadingEl) loadingEl.classList.toggle('hidden', scope === 'colab' || !clientsLoading);
   }
 
   function renderClientsDatalist() {
@@ -10544,7 +11760,7 @@
     datalist.innerHTML = '';
     clients.forEach(c => {
       const opt = document.createElement('option');
-      opt.value = c.name;
+      opt.value = getClientName(c);
       opt.dataset.id = c.id;
       datalist.appendChild(opt);
     });
@@ -10579,13 +11795,54 @@
     return match?.color || getCssVar('--chart-gold', '#B7A06A');
   }
 
+  function getProfessionalDisplayName(appt) {
+    if (!appt) return 'Equipe';
+    const candidates = [
+      appt.professionalId,
+      appt.professionalName,
+      appt.professional,
+      appt.profissionalId,
+      appt.profissional
+    ]
+      .map(val => (val || '').toString().trim())
+      .filter(Boolean);
+
+    const findById = (value) => collaborators.find(c =>
+      c.id === value ||
+      c.userId === value ||
+      c.username === value
+    );
+
+    for (const value of candidates) {
+      const match = findById(value);
+      if (match?.name) return match.name;
+    }
+
+    for (const value of candidates) {
+      const match = collaborators.find(c => slugify(c.name || '') === slugify(value));
+      if (match?.name) return match.name;
+    }
+
+    const rawName = candidates[0] || '';
+    if (!rawName) return 'Equipe';
+    const looksLikeUid = /^[A-Za-z0-9_-]{20,}$/.test(rawName);
+    return looksLikeUid ? 'Profissional' : rawName;
+  }
+
   function getAppointmentsForScope(scope = 'ceo') {
     let list = appointments.filter(a => a.status !== 'canceled');
     const colabCanSeeAll = scope === 'colab' && (currentColabAccount?.permissions?.agendaFull);
     if (scope === 'colab' && !colabCanSeeAll) {
-      const colabName = (currentColabAccount?.name || '').toLowerCase();
-      const colabId = (currentColabAccount?.id || '').toLowerCase();
-      list = list.filter(a => (a.professionalName || '').toLowerCase() === colabName || (a.professionalId || '').toLowerCase() === colabId);
+      const keys = getColabIdentityKeys();
+      if (!keys.size) {
+        list = [];
+      } else {
+        list = list.filter(a => {
+          const profKey = (getProfessionalKey(a) || '').toLowerCase();
+          const nameKey = (a.professionalName || '').toLowerCase();
+          return keys.has(profKey) || keys.has(nameKey) || keys.has(slugify(nameKey));
+        });
+      }
     }
     const activeFilter = scope === 'ceo' ? agendaProfessionalFilter : agendaProfessionalFilterColab;
     if (activeFilter && activeFilter !== 'all') {
@@ -10603,7 +11860,7 @@
     if (!appt?.id) return '';
     if (appt.status === 'em_atendimento') {
       return `
-        <button class="ghost-btn secondary icon-mini" aria-label="Itens da comanda" onclick="openComandaPanel('${appt.comandaId || ''}', '${appt.clientName || appt.cliente || 'Cliente'}', '${appt.professionalName || appt.professional || 'Profissional'}')">🧾</button>
+        <button class="ghost-btn secondary icon-mini" aria-label="Itens da comanda" onclick="openComandaPanel('${appt.comandaId || ''}', '${appt.clientName || appt.cliente || 'Cliente'}', '${getProfessionalDisplayName(appt)}')">🧾</button>
         <button class="ghost-btn secondary icon-mini" aria-label="Finalizar atendimento" onclick="handleFinalizarAtendimento('${appt.id}')">✅</button>
       `;
     }
@@ -10619,12 +11876,240 @@
     const fallback = Number(appt.price || appt.valor || 0);
     return svc?.price || fallback || 0;
   }
+  function parseCommissionPercent(value) {
+    const cleaned = String(value || '').replace(',', '.');
+    const num = parseFloat(cleaned);
+    if (!Number.isFinite(num)) return 0;
+    return Math.max(0, Math.min(100, num));
+  }
+
+  function buildColabCommissionRows() {
+    if (currentRole !== 'colab') return [];
+    const percent = parseCommissionPercent(currentColabAccount?.commission || currentUserDoc?.commission || '');
+    if (!percent) return [];
+    const keys = getColabIdentityKeys();
+    if (!keys.size) return [];
+    return appointments
+      .filter(appt => {
+        const status = (appt.status || '').toLowerCase();
+        if (status !== 'finalizado' && status !== 'done') return false;
+        const apptKey = getProfessionalKey(appt);
+        const apptName = (appt.professionalName || appt.professional || '').toLowerCase();
+        return keys.has(apptKey) || keys.has(apptName) || keys.has(slugify(apptName));
+      })
+      .map(appt => {
+        const rawDate = appt.date || (appt.atualizadoEm || '').split('T')[0] || (appt.updatedAt || '').split('T')[0];
+        const serviceName = appt.serviceName || appt.service || 'Servico';
+        const price = getServicePriceByAppointment(appt);
+        const commission = price * (percent / 100);
+        return {
+          date: rawDate || '',
+          label: serviceName,
+          amount: commission,
+          sort: new Date(rawDate || 0).getTime()
+        };
+      })
+      .filter(row => Number.isFinite(row.amount) && row.amount > 0)
+      .sort((a, b) => b.sort - a.sort);
+  }
+
+  function buildColabEarningsSeries(range = 'week') {
+    const rows = buildColabCommissionRows();
+    const days = range === 'month' ? 30 : 7;
+    const end = new Date();
+    end.setHours(0, 0, 0, 0);
+    const start = new Date(end);
+    start.setDate(end.getDate() - (days - 1));
+    const series = new Map();
+    for (let i = 0; i < days; i += 1) {
+      const day = new Date(start);
+      day.setDate(start.getDate() + i);
+      const key = day.toISOString().split('T')[0];
+      series.set(key, 0);
+    }
+    rows.forEach(row => {
+      if (!row.date || !series.has(row.date)) return;
+      series.set(row.date, (series.get(row.date) || 0) + row.amount);
+    });
+    const labels = [];
+    const values = [];
+    series.forEach((value, key) => {
+      labels.push(formatDateLabel(key));
+      values.push(Number(value.toFixed(2)));
+    });
+    const total = values.reduce((acc, val) => acc + val, 0);
+    return { labels, values, total };
+  }
+
+  function drawColabEarningsChart(canvasId, labels, values) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas || !window.Chart) return;
+    if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
+    const accent = getCssVar('--accent-gold', '#B7A06A');
+    chartInstances[canvasId] = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          data: values,
+          borderColor: accent,
+          backgroundColor: 'rgba(183,160,106,0.22)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.35,
+          pointRadius: 3,
+          pointBackgroundColor: accent
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => ` ${formatCurrency(ctx.parsed.y || 0)}`
+            }
+          }
+        },
+        scales: {
+          x: { ticks: { color: '#6f5d4c' }, grid: { display: false } },
+          y: { ticks: { color: '#6f5d4c' }, grid: { color: 'rgba(0,0,0,0.05)' } }
+        }
+      }
+    });
+  }
+
+  function setColabEarningsRange(range) {
+    colabEarningsRange = range === 'month' ? 'month' : 'week';
+    renderColabEarnings();
+  }
+
+  function renderColabEarnings() {
+    if (currentRole !== 'colab') return;
+    const totalEl = document.getElementById('colab-earnings-total');
+    const metaEl = document.getElementById('colab-earnings-meta');
+    const btnWeek = document.getElementById('colab-earnings-week');
+    const btnMonth = document.getElementById('colab-earnings-month');
+    const series = buildColabEarningsSeries(colabEarningsRange);
+    if (totalEl) totalEl.textContent = formatCurrency(series.total || 0);
+    if (metaEl) metaEl.textContent = colabEarningsRange === 'month' ? 'Ultimos 30 dias' : 'Ultimos 7 dias';
+    if (btnWeek) btnWeek.classList.toggle('active', colabEarningsRange === 'week');
+    if (btnMonth) btnMonth.classList.toggle('active', colabEarningsRange === 'month');
+    drawColabEarningsChart('colab-earnings-chart', series.labels, series.values);
+  }
+
+  function renderColabCommission() {
+    const tbody = document.getElementById('colab-commission-body');
+    if (!tbody) return;
+    if (currentRole !== 'colab') {
+      tbody.innerHTML = '';
+      return;
+    }
+    renderColabEarnings();
+    const rows = buildColabCommissionRows();
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="3" class="subtext">Nenhuma comissao registrada.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = rows.map(row => {
+      const dateLabel = row.date ? formatDateLabel(row.date) : 'data a combinar';
+      return `<tr><td>${dateLabel}</td><td>${row.label}</td><td>${formatCurrency(row.amount)}</td></tr>`;
+    }).join('');
+  }
+
+  function getAppointmentDateKey(appt) {
+    return appt?.date || (appt?.atualizadoEm || '').split('T')[0] || (appt?.updatedAt || '').split('T')[0] || '';
+  }
+
+  function parseTimeToMinutes(value) {
+    if (!value || typeof value !== 'string') return null;
+    const parts = value.split(':');
+    if (parts.length < 2) return null;
+    const hours = parseInt(parts[0], 10);
+    const mins = parseInt(parts[1], 10);
+    if (!Number.isFinite(hours) || !Number.isFinite(mins)) return null;
+    return hours * 60 + mins;
+  }
+
+  function renderColabDashboard() {
+    if (currentRole !== 'colab') return;
+    const commissionEl = document.getElementById('colab-dashboard-commission');
+    const commissionDesc = document.getElementById('colab-dashboard-commission-desc');
+    const todayCountEl = document.getElementById('colab-dashboard-today-count');
+    const todayDescEl = document.getElementById('colab-dashboard-today-desc');
+    const nextBody = document.getElementById('colab-dashboard-next');
+    const percent = parseCommissionPercent(currentColabAccount?.commission || currentUserDoc?.commission || '');
+    const target = getDashboardFilterTarget();
+    const scoped = getAppointmentsForScope('colab');
+    const monthFiltered = scoped.filter(appt => {
+      if (!appt) return false;
+      if (selectedGlobalMonthKey === 'all') return true;
+      return matchesTargetMonth(getAppointmentDateKey(appt), target);
+    });
+    const commissionTotal = monthFiltered
+      .filter(appt => {
+        const status = (appt.status || '').toLowerCase();
+        return status === 'finalizado' || status === 'done';
+      })
+      .reduce((acc, appt) => acc + (getServicePriceByAppointment(appt) * (percent / 100)), 0);
+    if (commissionEl) commissionEl.textContent = formatCurrency(commissionTotal);
+    if (commissionDesc) {
+      commissionDesc.textContent = selectedGlobalMonthKey === 'all'
+        ? 'Baseada nos servicos finalizados'
+        : `Baseada em ${formatMonthWithYear(target)}`;
+    }
+
+    const todayKey = new Date().toISOString().split('T')[0];
+    const todays = scoped.filter(appt => getAppointmentDateKey(appt) === todayKey && (appt.status || '').toLowerCase() !== 'canceled');
+    const morning = todays.filter(appt => {
+      const mins = parseTimeToMinutes(appt.time || '');
+      return mins != null && mins < 12 * 60;
+    }).length;
+    const afternoon = todays.filter(appt => {
+      const mins = parseTimeToMinutes(appt.time || '');
+      return mins != null && mins >= 12 * 60;
+    }).length;
+    if (todayCountEl) todayCountEl.textContent = `${todays.length}`;
+    if (todayDescEl) todayDescEl.textContent = `${morning} manha | ${afternoon} tarde`;
+
+    if (!nextBody) return;
+    const now = Date.now();
+    const upcoming = scoped
+      .filter(appt => {
+        const dateKey = getAppointmentDateKey(appt);
+        if (!dateKey) return false;
+        const time = (appt.time || '00:00');
+        const ts = Date.parse(`${dateKey}T${time}`);
+        if (!Number.isFinite(ts)) return false;
+        return ts >= now && (appt.status || '').toLowerCase() !== 'canceled';
+      })
+      .sort((a, b) => {
+        const aTs = Date.parse(`${getAppointmentDateKey(a)}T${a.time || '00:00'}`) || 0;
+        const bTs = Date.parse(`${getAppointmentDateKey(b)}T${b.time || '00:00'}`) || 0;
+        return aTs - bTs;
+      })
+      .slice(0, 5);
+
+    if (!upcoming.length) {
+      nextBody.innerHTML = '<tr><td colspan=\"4\" class=\"subtext\">Nenhum agendamento para exibir.</td></tr>';
+      return;
+    }
+    nextBody.innerHTML = upcoming.map(appt => {
+      const time = appt.time || '--:--';
+      const clientName = appt.clientName || appt.cliente || clients.find(c => c.id === appt.clientId)?.name || 'Cliente';
+      const serviceName = appt.serviceName || appt.service || 'Servico';
+      const status = appt.status || 'agendado';
+      return `<tr><td>${time}</td><td>${clientName}</td><td>${serviceName}</td><td>${status}</td></tr>`;
+    }).join('');
+  }
+
 
   async function handleStartAtendimento(atendimentoId) {
     try {
       if (!window.startAtendimento) throw new Error('Função startAtendimento não disponível');
       const appt = appointments.find(a => a.id === atendimentoId);
-      const res = await window.startAtendimento(atendimentoId, {
+    const res = await window.startAtendimento(atendimentoId, {
         nome: appt?.serviceName || appt?.service || 'Serviço',
         preco: getServicePriceByAppointment(appt),
         tipo: 'servico',
@@ -10633,7 +12118,7 @@
       // Atualiza lista local
       appointments = appointments.map(a => a.id === atendimentoId ? { ...a, status: 'em_atendimento', comandaId: res.comandaId } : a);
       refreshAgendaFromAppointments();
-      openComandaPanel(res.comandaId, appt?.clientName || 'Cliente', appt?.professionalName || appt?.professional || 'Profissional');
+      openComandaPanel(res.comandaId, appt?.clientName || 'Cliente', getProfessionalDisplayName(appt));
     } catch (err) {
       alert('Não foi possível iniciar o atendimento.');
       console.error(err);
@@ -10649,7 +12134,7 @@
     }
   }
 
-  async function applyStockConsumptionFromComanda(itens = []) {
+  async function applyStockConsumptionFromComanda(itens = [], atendimentoId = null, comandaId = null) {
     if (!firestore || !Array.isArray(itens) || !itens.length) return;
     const nowISO = new Date().toISOString();
     for (const item of itens) {
@@ -10664,18 +12149,24 @@
         const quantidade = Number(item.quantidade || 1);
         if (categoria === 'esmaltes') {
           const consumo = data.consumoEstimadoPorUso || quantidade;
-          const remaining = Math.max(0, (data.volumeAtual_ml || data.volumeTotal_ml || 0) - consumo);
+          const baseVolume = normalizeVolumeOneDecimal(data.volumeAtual_ml || data.volumeTotal_ml || 0);
+          const remaining = Math.max(0, baseVolume - consumo);
+          const normalized = normalizeVolumeOneDecimal(remaining);
           const usesPerDay = 3;
           const previsao = (data.consumoEstimadoPorUso || 0) > 0
-            ? Math.round(remaining / ((data.consumoEstimadoPorUso || 0) * usesPerDay))
+            ? Math.round(normalized / ((data.consumoEstimadoPorUso || 0) * usesPerDay))
             : data.previsaoDuracaoDias || 0;
-          await ref.set({ volumeAtual_ml: remaining, previsaoDuracaoDias: previsao, updatedAt: nowISO }, { merge: true });
+          const statusInfo = computePolishUsageStatus({ ...data, volumeAtual_ml: normalized });
+          await ref.set({ volumeAtual_ml: normalized, previsaoDuracaoDias: previsao, statusEstoque: statusInfo.statusEstoque, usosRestantes: statusInfo.usosRestantes, updatedAt: nowISO }, { merge: true });
           await saveStockHistory(stockId, {
-            tipo: 'baixa',
+            tipo: 'uso_esmalte',
             volume: consumo,
+            consumoMl: consumo,
             quantidade: consumo,
             data: nowISO,
             origem: 'comanda',
+            atendimentoId,
+            comandaId,
             ref: item.itemId || item.nome || 'consumo'
           });
         } else {
@@ -10709,20 +12200,417 @@
         if (categoria !== 'esmaltes') return;
         const consumo = Number(data.consumoEstimadoPorUso || 0);
         if (!Number.isFinite(consumo) || consumo <= 0) return;
-        const current = Number(data.volumeAtual_ml ?? data.volumeTotal_ml ?? 0);
+        const current = normalizeVolumeOneDecimal(data.volumeAtual_ml ?? data.volumeTotal_ml ?? 0);
         if (!Number.isFinite(current) || current <= 0) return;
         const remaining = Math.max(0, current - consumo);
-        if (remaining === current) return;
-        tx.set(ref, { volumeAtual_ml: remaining, updatedAt: nowISO }, { merge: true });
+        const normalized = normalizeVolumeOneDecimal(remaining);
+        if (normalized === current) return;
+        const statusInfo = computePolishUsageStatus({ ...data, volumeAtual_ml: normalized });
+        tx.set(ref, { volumeAtual_ml: normalized, statusEstoque: statusInfo.statusEstoque, usosRestantes: statusInfo.usosRestantes, updatedAt: nowISO }, { merge: true });
         const historyRef = ref.collection('history').doc();
         tx.set(historyRef, {
           atendimentoId: atendimentoId || null,
           comandaId: comandaId || null,
           consumoMl: consumo,
-          data: nowISO
+          data: nowISO,
+          tipo: 'uso_esmalte'
         });
       });
     }
+  }
+
+  function buildConsumptionSoldHistory(target = getDashboardFilterTarget()) {
+    return getSoldConsumptionFinancial(target)
+      .map(e => ({
+        data: e.date,
+        nome: e.description || e.itemName || 'Consumo',
+        valor: e.amount || 0,
+        motivo: e.motivo || 'atendimento',
+        origem: e.origem || 'geladeira'
+      }))
+      .sort((a, b) => new Date(b.data || 0) - new Date(a.data || 0));
+  }
+
+  function buildRevenueHistory(target = getDashboardFilterTarget()) {
+    return financialEntries
+      .filter(e => (e.type === 'receita' || e.type === 'consumo'))
+      .filter(e => selectedGlobalMonthKey === 'all' || matchesTargetMonth(e.date, target))
+      .map(e => ({
+        data: e.date,
+        origem: e.type === 'receita' ? 'Serviço' : 'Consumo',
+        valor: e.amount || 0,
+        descricao: e.description || e.serviceName || '',
+        profissional: e.professionalName || e.professional || e.professionalId || ''
+      }))
+      .sort((a, b) => new Date(b.data || 0) - new Date(a.data || 0));
+  }
+
+  function buildAlertItems() {
+    return stockItems
+      .filter(item => (item.categoria || item.category) === 'esmaltes')
+      .filter(item => {
+        const statusInfo = computePolishUsageStatus(item);
+        return statusInfo.statusEstoque === 'alerta' || statusInfo.statusEstoque === 'critico';
+      })
+      .map(item => ({ id: item.id, nome: item.nome || item.name || 'Esmalte', status: item.statusEstoque || computePolishUsageStatus(item).statusEstoque }));
+  }
+
+  function getRevenueHistoryRecords(filter = 'all', target = getDashboardFilterTarget()) {
+    const list = buildRevenueHistory(target);
+    return list
+      .filter(rec => {
+        if (filter === 'service') return rec.origem === 'Serviço';
+        if (filter === 'consumption') return rec.origem === 'Consumo';
+        return true;
+      })
+      .filter(rec => revenueHistoryProfessional === 'all' || (rec.profissional || '').toLowerCase() === revenueHistoryProfessional.toLowerCase())
+      .sort((a, b) => new Date(b.data || 0) - new Date(a.data || 0));
+  }
+
+  function buildRevenuePanelLines(target = getDashboardFilterTarget()) {
+    const grouped = {};
+    buildRevenueHistory(target).forEach(rec => {
+      const key = (rec.data || '').split('T')[0] || rec.data || '—';
+      if (!grouped[key]) grouped[key] = { service: 0, consumption: 0, items: [] };
+      if (rec.origem === 'Serviço') grouped[key].service += rec.valor || 0;
+      else grouped[key].consumption += rec.valor || 0;
+      grouped[key].items.push(rec);
+    });
+    return Object.entries(grouped)
+      .sort((a, b) => new Date(b[0]) - new Date(a[0]))
+      .map(([date, info]) => {
+        const total = (info.service || 0) + (info.consumption || 0);
+        const items = info.items.slice(0, 3).map(it => {
+          const badge = it.origem === 'Serviço' ? '<span class="badge-service">Serviço</span>' : '<span class="badge-consumption">Consumo</span>';
+          return `<div class="detail-row"><div>${badge}${it.descricao || ''}</div><span>${formatCurrency(it.valor || 0)}</span></div>`;
+        }).join('');
+        return `<div class="detail-group"><div class="detail-row" style="font-weight:600;"><div>${formatDateLabel(date)}</div><span>${formatCurrency(total)}</span></div>${items}</div>`;
+      });
+  }
+
+  function renderRevenueHistoryModal() {
+    const listEl = document.getElementById('revenue-history-list');
+    const profEl = document.getElementById('rev-filter-prof');
+    if (profEl) {
+      profEl.innerHTML = '<option value="all">Todas colaboradoras</option>';
+      collaborators.forEach(col => {
+        const opt = document.createElement('option');
+        opt.value = col.name || col.id || '';
+        opt.textContent = col.name || col.id || '';
+        opt.selected = revenueHistoryProfessional && revenueHistoryProfessional.toLowerCase() === (opt.value || '').toLowerCase();
+        profEl.appendChild(opt);
+      });
+    }
+    if (!listEl) return;
+    const records = getRevenueHistoryRecords(revenueHistoryFilter);
+    if (!records.length) {
+      listEl.innerHTML = '<div class="subtext">Nenhum registro para exibir.</div>';
+      return;
+    }
+    const groups = records.reduce((acc, cur) => {
+      const key = (cur.data || '').split('T')[0] || cur.data || '—';
+      acc[key] = acc[key] || [];
+      acc[key].push(cur);
+      return acc;
+    }, {});
+    const badge = (type) => {
+      const bg = type === 'Serviço' ? '#e6f6e4' : '#e8eef4';
+      const color = '#2f2f2f';
+      return `<span style="background:${bg};color:${color};padding:2px 8px;border-radius:999px;font-size:0.8rem;">${type}</span>`;
+    };
+    const html = Object.entries(groups)
+      .sort((a, b) => new Date(b[0]) - new Date(a[0]))
+      .map(([date, items]) => {
+        const totalDia = items.reduce((acc, it) => acc + (it.valor || 0), 0);
+        const itensHtml = items.map(it => {
+          return `<div class="detail-row"><div>${badge(it.origem)} ${it.descricao || ''}</div><span>${formatCurrency(it.valor || 0)}</span></div>`;
+        }).join('');
+        return `
+          <div class="detail-group">
+            <div class="detail-row" style="font-weight:600;">
+              <div>${formatDateLabel(date)}</div>
+              <span>${formatCurrency(totalDia)}</span>
+            </div>
+            <div class="details-lines">${itensHtml}</div>
+          </div>
+        `;
+      }).join('');
+    listEl.innerHTML = html;
+    ['rev-filter-all','rev-filter-service','rev-filter-consumption'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.classList.toggle('active', (id === 'rev-filter-all' && revenueHistoryFilter === 'all') || (id === 'rev-filter-service' && revenueHistoryFilter === 'service') || (id === 'rev-filter-consumption' && revenueHistoryFilter === 'consumption'));
+    });
+  }
+
+  function getCommissionHistoryRangeDates() {
+    const now = new Date();
+    if (commissionHistoryRange === 'day') {
+      return { start: startOfDay(now), end: endOfDay(now) };
+    }
+    if (commissionHistoryRange === 'week') {
+      const start = new Date(now);
+      start.setDate(now.getDate() - 6);
+      return { start: startOfDay(start), end: endOfDay(now) };
+    }
+    const target = getDashboardFilterTarget();
+    if (selectedGlobalMonthKey !== 'all') {
+      const start = new Date(target.year, target.monthIndex, 1);
+      const end = new Date(target.year, target.monthIndex + 1, 0, 23, 59, 59, 999);
+      return { start, end };
+    }
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+    return { start, end };
+  }
+
+  function buildCommissionHistoryRecords() {
+    const range = getCommissionHistoryRangeDates();
+    if (!range) return [];
+    return financialEntries
+      .filter(entry => entry.type === 'comissao')
+      .filter(entry => {
+        const date = new Date(entry.date || '');
+        if (Number.isNaN(date.getTime())) return false;
+        return date >= range.start && date <= range.end;
+      })
+      .map(entry => {
+        const service = entry.serviceName || entry.service || 'Servico';
+        const clientName = entry.clientId ? (clients.find(c => c.id === entry.clientId)?.name || '') : '';
+        const description = clientName ? `${service} - ${clientName}` : service;
+        const profMatch = findCollaboratorByIdOrName(entry.professionalId || entry.professional || '');
+        return {
+          data: entry.date || '',
+          descricao: description,
+          valor: entry.amount || 0,
+          profissional: entry.professionalName || profMatch?.name || entry.professional || entry.professionalId || ''
+        };
+      });
+  }
+
+  function renderCommissionHistoryModal() {
+    const listEl = document.getElementById('commission-history-list');
+    if (!listEl) return;
+    const records = buildCommissionHistoryRecords();
+    if (!records.length) {
+      listEl.innerHTML = '<div class="subtext">Nenhuma comissao registrada.</div>';
+      return;
+    }
+    const groups = records.reduce((acc, cur) => {
+      const key = (cur.data || '').split('T')[0] || cur.data || '-';
+      acc[key] = acc[key] || [];
+      acc[key].push(cur);
+      return acc;
+    }, {});
+    const badge = '<span style="background:#f6e7d6;color:#7a5a2c;padding:2px 8px;border-radius:999px;font-size:0.8rem;">Comissao</span>';
+    const html = Object.entries(groups)
+      .sort((a, b) => new Date(b[0]) - new Date(a[0]))
+      .map(([date, items]) => {
+        const totalDia = items.reduce((acc, it) => acc + (it.valor || 0), 0);
+        const itensHtml = items.map(it => {
+          const prof = it.profissional ? ` <span class="subtext">${it.profissional}</span>` : '';
+          return `<div class="detail-row"><div>${badge} ${it.descricao || ''}${prof}</div><span>${formatCurrency(it.valor || 0)}</span></div>`;
+        }).join('');
+        return `
+          <div class="detail-group">
+            <div class="detail-row" style="font-weight:600;">
+              <div>${formatDateLabel(date)}</div>
+              <span>${formatCurrency(totalDia)}</span>
+            </div>
+            <div class="details-lines">${itensHtml}</div>
+          </div>
+        `;
+      }).join('');
+    listEl.innerHTML = html;
+    const ranges = ['day', 'week', 'month'];
+    ranges.forEach(range => {
+      const btn = document.getElementById(`commission-range-${range}`);
+      if (btn) btn.classList.toggle('active', commissionHistoryRange === range);
+    });
+  }
+
+  function setCommissionHistoryRange(range = 'month') {
+    commissionHistoryRange = ['day', 'week', 'month'].includes(range) ? range : 'month';
+    renderCommissionHistoryModal();
+  }
+
+  function openCommissionHistoryModal(initialRange = 'month') {
+    commissionHistoryRange = ['day', 'week', 'month'].includes(initialRange) ? initialRange : 'month';
+    renderCommissionHistoryModal();
+    openDialog('commission-history-modal');
+  }
+
+  function setRevenueHistoryFilter(filter = 'all') {
+    revenueHistoryFilter = filter;
+    renderRevenueHistoryModal();
+  }
+
+  function setRevenueHistoryProfessional(prof = 'all') {
+    revenueHistoryProfessional = prof || 'all';
+    renderRevenueHistoryModal();
+  }
+
+  function shareRevenueHistoryWhatsapp() {
+    const records = getRevenueHistoryRecords(revenueHistoryFilter);
+    if (!records.length) { alert('Nenhum dado para compartilhar.'); return; }
+    const grouped = records.reduce((acc, rec) => {
+      const key = (rec.data || '').split('T')[0] || rec.data || '—';
+      acc[key] = acc[key] || [];
+      acc[key].push(rec);
+      return acc;
+    }, {});
+    let text = '📊 Histórico do mês\n\n';
+    Object.entries(grouped)
+      .sort((a, b) => new Date(b[0]) - new Date(a[0]))
+      .forEach(([date, items]) => {
+        const dateLabel = formatDateLabel(date);
+        text += `🗓 ${dateLabel}\n`;
+        items.forEach(it => {
+          const prof = it.profissional ? ` • ${it.profissional}` : '';
+          text += `• ${it.descricao || 'Registro'} — ${formatCurrency(it.valor || 0)}${prof}\n`;
+        });
+        text += `\n`;
+      });
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+  }
+
+  function formatDateInputValue(date) {
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) return '';
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  function startOfDay(date) {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  }
+
+  function endOfDay(date) {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
+  }
+
+  function getDefaultShareMonthRange() {
+    const target = getDashboardFilterTarget();
+    const start = new Date(target.year, target.monthIndex, 1);
+    const end = new Date(target.year, target.monthIndex + 1, 0);
+    return { start, end };
+  }
+
+  function updateRevenueShareDates() {
+    const startInput = document.getElementById('whatsapp-share-start');
+    const endInput = document.getElementById('whatsapp-share-end');
+    if (startInput) revenueShareStart = startInput.value || '';
+    if (endInput) revenueShareEnd = endInput.value || '';
+  }
+
+  function getRevenueShareRangeDates() {
+    const now = new Date();
+    if (revenueShareRange === 'custom') {
+      const startVal = document.getElementById('whatsapp-share-start')?.value || revenueShareStart;
+      const endVal = document.getElementById('whatsapp-share-end')?.value || revenueShareEnd;
+      if (!startVal || !endVal) return null;
+      const start = new Date(`${startVal}T00:00:00`);
+      const end = new Date(`${endVal}T23:59:59`);
+      if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return null;
+      return { start: startOfDay(start), end: endOfDay(end) };
+    }
+    if (revenueShareRange === 'day') {
+      return { start: startOfDay(now), end: endOfDay(now) };
+    }
+    if (revenueShareRange === 'week') {
+      const start = new Date(now);
+      start.setDate(start.getDate() - 6);
+      return { start: startOfDay(start), end: endOfDay(now) };
+    }
+    const { start, end } = getDefaultShareMonthRange();
+    return { start: startOfDay(start), end: endOfDay(end) };
+  }
+
+  function updateRevenueShareModal() {
+    const customFields = document.getElementById('whatsapp-share-custom-fields');
+    const startInput = document.getElementById('whatsapp-share-start');
+    const endInput = document.getElementById('whatsapp-share-end');
+    const buttons = {
+      day: document.getElementById('rev-share-day'),
+      week: document.getElementById('rev-share-week'),
+      month: document.getElementById('rev-share-month'),
+      custom: document.getElementById('rev-share-custom')
+    };
+    Object.keys(buttons).forEach(key => {
+      const btn = buttons[key];
+      if (btn) btn.classList.toggle('active', revenueShareRange === key);
+    });
+    if (customFields) {
+      customFields.classList.toggle('hidden', revenueShareRange !== 'custom');
+    }
+
+    const defaults = getDefaultShareMonthRange();
+    if (!revenueShareStart) revenueShareStart = formatDateInputValue(defaults.start);
+    if (!revenueShareEnd) revenueShareEnd = formatDateInputValue(defaults.end);
+    if (startInput) startInput.value = revenueShareRange === 'custom' ? revenueShareStart : formatDateInputValue(getRevenueShareRangeDates()?.start || defaults.start);
+    if (endInput) endInput.value = revenueShareRange === 'custom' ? revenueShareEnd : formatDateInputValue(getRevenueShareRangeDates()?.end || defaults.end);
+  }
+
+  function openRevenueShareModal() {
+    if (!revenueShareRange) revenueShareRange = 'month';
+    updateRevenueShareModal();
+    openDialog('whatsapp-share-modal');
+  }
+
+  function setRevenueShareRange(range) {
+    revenueShareRange = range;
+    updateRevenueShareModal();
+  }
+
+  function confirmShareRevenueWhatsapp() {
+    updateRevenueShareDates();
+    const ok = shareRevenueHistoryWhatsapp();
+    if (ok) closeDialog('whatsapp-share-modal');
+  }
+
+  function shareRevenueHistoryWhatsapp() {
+    const range = getRevenueShareRangeDates();
+    if (!range) {
+      alert('Selecione um periodo valido para compartilhar.');
+      return false;
+    }
+    const records = getRevenueHistoryRecords(revenueHistoryFilter)
+      .filter(rec => {
+        const dt = new Date(rec.data || '');
+        if (Number.isNaN(dt.getTime())) return false;
+        return dt >= range.start && dt <= range.end;
+      });
+    if (!records.length) { alert('Nenhum dado para compartilhar.'); return false; }
+    const grouped = records.reduce((acc, rec) => {
+      const key = (rec.data || '').split('T')[0] || rec.data || '-';
+      acc[key] = acc[key] || [];
+      acc[key].push(rec);
+      return acc;
+    }, {});
+    const startLabel = formatDateLabel(formatDateInputValue(range.start));
+    const endLabel = formatDateLabel(formatDateInputValue(range.end));
+    let text = `Historico do periodo ${startLabel} a ${endLabel}\n\n`;
+    Object.entries(grouped)
+      .sort((a, b) => new Date(b[0]) - new Date(a[0]))
+      .forEach(([date, items]) => {
+        const dateLabel = formatDateLabel(date);
+        text += `${dateLabel}\n`;
+        items.forEach(it => {
+          const prof = it.profissional ? ` - ${it.profissional}` : '';
+          text += `${it.descricao || 'Registro'} - ${formatCurrency(it.valor || 0)}${prof}\n`;
+        });
+        text += `\n`;
+      });
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+    return true;
+  }
+
+  function openRevenueHistoryModal(initialFilter = 'all') {
+    revenueHistoryFilter = initialFilter;
+    renderRevenueHistoryModal();
+    openDialog('revenue-history-modal');
   }
 
   function buildClientHistoryEntries(appt, itens, total) {
@@ -10757,21 +12645,27 @@
         itensRegistrados = (comanda.itensProfissional || [])
           .concat(comanda.itensCliente || [])
           .concat(comanda.itens || comanda.items || []);
-        consumoTotal = itensRegistrados.reduce((acc, item) => {
+        const serviceItems = itensRegistrados.filter(it => (it.tipo || '').toLowerCase() === 'servico');
+        const consumptionItems = itensRegistrados.filter(it => (it.tipo || '').toLowerCase() === 'consumo');
+        servicoTotal = serviceItems.length
+          ? serviceItems.reduce((acc, item) => {
+              const preco = Number(item.preco || item.valor || 0);
+              const qtd = Number(item.quantidade || item.qtd || 1);
+              return acc + (preco * qtd);
+            }, 0)
+          : servicoTotal;
+        consumoTotal = consumptionItems.reduce((acc, item) => {
           const preco = Number(item.preco || item.valor || 0);
           const qtd = Number(item.quantidade || item.qtd || 1);
           return acc + (preco * qtd);
         }, 0);
-        if (itensRegistrados.some(it => it.tipo === 'servico')) {
-          servicoTotal = 0;
-        }
 
         const pagamentos = Array.isArray(comanda.pagamentos) ? [...comanda.pagamentos] : [];
         pagamentos.push({
           valor: consumoTotal + servicoTotal,
           data: nowISO,
           metodo: 'registrado',
-          profissional: appt.professionalName || appt.professional || 'Equipe'
+          profissional: getProfessionalDisplayName(appt)
         });
         await firestore.collection('comandas').doc(appt.comandaId).set({
           status: 'fechada',
@@ -10818,7 +12712,7 @@
     try {
       await firestore.collection('financial').add({
         type: 'receita',
-        amount: total,
+        amount: servicoTotal,
         date: nowISO,
         description: `Pagamento atendimento ${appt.clientName || appt.cliente || ''}`.trim(),
         atendimentoId,
@@ -10827,12 +12721,59 @@
         professionalId: appt.professionalId || appt.professional || null,
         serviceName: appt.serviceName || appt.service || 'Serviço'
       });
+      const profMatch = findCollaboratorByIdOrName(appt.professionalId || appt.professionalName || appt.professional || '');
+      const commissionPct = parseCommissionPercent(profMatch?.commission || '');
+      const commissionAmount = (servicoTotal || 0) * (commissionPct / 100);
+      if (commissionAmount > 0) {
+        await firestore.collection('financial').add({
+          type: 'comissao',
+          amount: commissionAmount,
+          date: nowISO,
+          description: `Comissao atendimento ${appt.clientName || appt.cliente || ''}`.trim(),
+          atendimentoId,
+          comandaId: appt.comandaId || null,
+          clientId: appt.clientId || appt.clienteId || null,
+          professionalId: appt.professionalId || appt.professional || null,
+          serviceName: appt.serviceName || appt.service || 'Servico'
+        });
+      }
+
+      const consumoItems = itensRegistrados.filter(it => (it.tipo || '').toLowerCase() === 'consumo');
+      for (const item of consumoItems) {
+        const qty = Number(item.quantidade || item.qtd || 1);
+        const price = Number(item.preco || item.valor || 0);
+        const amount = qty * price;
+        if (!Number.isFinite(amount) || amount <= 0) continue;
+        if (item.estoqueId || item.stockId) {
+          const stockId = item.estoqueId || item.stockId;
+          const stockItem = stockItems.find(s => s.id === stockId);
+          const stockQty = Number(stockItem?.quantidade || 0);
+          if (Number.isFinite(stockQty) && stockQty <= 0) {
+            continue;
+          }
+        }
+        await firestore.collection('financial').add({
+          type: 'consumo',
+          amount,
+          date: nowISO,
+          description: `Consumo: ${item.nome || 'Item'} (${qty}x)`,
+          categoria: item.categoriaEstoque || item.categoria || 'geladeira',
+          origem: item.categoriaEstoque || item.categoria || 'geladeira',
+          motivo: 'atendimento',
+          atendimentoId,
+          comandaId: appt.comandaId || null,
+          clientId: appt.clientId || appt.clienteId || null,
+          professionalId: appt.professionalId || appt.professional || null,
+          itemId: item.itemId || null,
+          stockId: item.estoqueId || item.stockId || null
+        });
+      }
     } catch (err) {
       console.error('Falha ao registrar financeiro do atendimento', err);
     }
 
     if (itensRegistrados.length) {
-      await applyStockConsumptionFromComanda(itensRegistrados);
+      await applyStockConsumptionFromComanda(itensRegistrados, atendimentoId, appt.comandaId || null);
     }
 
     if (selectedEsmaltes && selectedEsmaltes.length) {
@@ -10852,6 +12793,7 @@
     renderAgendaMonthCalendar(scope);
     renderAgendaMonthSummary(scope);
     renderAgendaAppointments(scope);
+    renderAgendaDayList(scope);
     renderDayAppointmentsModal();
   }
 
@@ -10875,7 +12817,7 @@
 
     items.forEach(appt => {
       const client = clients.find(c => c.id === appt.clientId);
-      const color = getProfessionalColor(appt.professionalName || appt.professional);
+      const color = getProfessionalColor(getProfessionalDisplayName(appt));
       const card = document.createElement('div');
       card.className = 'appointment-card';
       card.style.setProperty('--appt-color', color);
@@ -10883,7 +12825,7 @@
         <div class="appointment-meta">
           <div class="appointment-title">
             ${client ? client.name : (appt.clientName || 'Cliente')}
-            <span class="appointment-pill" style="background:${color}1a;border-color:${color}33;">${appt.professionalName || appt.professional || 'Equipe'}</span>
+            <span class="appointment-pill" style="background:${color}1a;border-color:${color}33;">${getProfessionalDisplayName(appt)}</span>
           </div>
           <div class="appointment-subtext">
             <span>${formatDateLabel(appt.date)} • ${appt.time}</span>
@@ -10974,6 +12916,7 @@
   function renderCeoContent() {
     setupMonthSelects();
     populateProfessionalFilters();
+    populateClientProfessionalFilters();
     renderDashboardCards();
     renderYearCalendar('ceo');
     setAgendaView(agendaViewMode, 'ceo');
@@ -10990,6 +12933,7 @@
   function renderColabContent() {
     setupMonthSelects();
     populateProfessionalFilters();
+    populateClientProfessionalFilters();
     renderYearCalendar('colab');
     setAgendaView(agendaViewModeColab, 'colab');
     renderAgendaMonthSummary('colab');
@@ -11175,7 +13119,9 @@
   function ensureAgendaDayPicker(scope = 'ceo') {
     const picker = document.getElementById(scope === 'ceo' ? 'agenda-day-picker' : 'agenda-day-picker-colab');
     const pickerMobile = document.getElementById(scope === 'ceo' ? 'agenda-day-picker-mobile' : 'agenda-day-picker-colab-mobile');
-    const fallback = new Date().toISOString().split('T')[0];
+    const fallback = getTodaySaoPauloDateStr();
+    if (picker) picker.max = fallback;
+    if (pickerMobile) pickerMobile.max = fallback;
     const current = agendaDaySelectedDate[scope] || picker?.value || pickerMobile?.value || fallback;
     agendaDaySelectedDate[scope] = current;
     if (picker && picker.value !== current) picker.value = current;
@@ -11184,7 +13130,10 @@
   }
 
   function handleAgendaDayDateChange(scope = 'ceo', value) {
-    agendaDaySelectedDate[scope] = value || agendaDaySelectedDate[scope];
+    const todaySp = getTodaySaoPauloDateStr();
+    const nextVal = value || agendaDaySelectedDate[scope];
+    const finalVal = nextVal && nextVal <= todaySp ? nextVal : todaySp;
+    agendaDaySelectedDate[scope] = finalVal;
     ensureAgendaDayPicker(scope);
     renderAgendaDayList(scope);
   }
@@ -11239,7 +13188,7 @@
 
     items.forEach(appt => {
       const client = clients.find(c => c.id === appt.clientId);
-      const color = getProfessionalColor(appt.professionalName || appt.professional);
+      const color = getProfessionalColor(getProfessionalDisplayName(appt));
       const clientName = client ? client.name : appt.clientName || 'Cliente';
       const statusKey = appt.status === 'finalizado' || appt.status === 'done'
         ? 'finalizado'
@@ -11254,7 +13203,7 @@
           <div class="appointment-meta">
             <div class="appointment-title" style="font-size:1rem;">
               ${appt.time || '--:--'} • ${appt.serviceName || appt.service}
-              <span class="appointment-pill" style="background:${color}1a;border-color:${color}33;">${appt.professionalName || appt.professional || 'Equipe'}</span>
+              <span class="appointment-pill" style="background:${color}1a;border-color:${color}33;">${getProfessionalDisplayName(appt)}</span>
             </div>
             <div class="appointment-subtext">
               <span>${clientName}</span>
@@ -11283,7 +13232,7 @@
             </div>
           </div>
           <div class="day-mobile-line service">${appt.serviceName || appt.service || 'Serviço'}</div>
-          <div class="day-mobile-line meta">${appt.professionalName || appt.professional || 'Equipe'}</div>
+          <div class="day-mobile-line meta">${getProfessionalDisplayName(appt)}</div>
           <div class="day-mobile-line meta">${clientName}</div>
           <div class="day-mobile-status ${statusKey}">${statusLabel}</div>
         `;
@@ -11586,7 +13535,7 @@
       if (!dayNum) return;
       if (!dayMap[dayNum]) dayMap[dayNum] = { count: 0, pros: '', highlight: '' };
       dayMap[dayNum].count += 1;
-      dayMap[dayNum].pros = mergePros(dayMap[dayNum].pros, appt.professionalName || appt.professional || 'Equipe');
+      dayMap[dayNum].pros = mergePros(dayMap[dayNum].pros, getProfessionalDisplayName(appt));
       dayMap[dayNum].highlight = appt.serviceName || appt.service || dayMap[dayNum].highlight || 'Agendado';
     });
 
@@ -11670,6 +13619,7 @@
     renderAgendaDayList('ceo');
     renderAgendaDayList('colab');
     renderDayAppointmentsModal();
+    renderColabDashboard();
   }
 
   function switchInventoryTab(category) {
@@ -11753,7 +13703,7 @@
     }
     const forecast = consumption > 0 ? Math.round(current / consumption) : 0;
     const forecastEl = document.getElementById('stock-polish-forecast');
-    if (forecastEl) forecastEl.value = forecast ? `${forecast} dias` : '';
+    if (forecastEl) forecastEl.value = forecast ? `${forecast} atendimentos` : '';
   }
 
   function applyInventoryTemplate(templateId) {
@@ -11764,14 +13714,19 @@
     if (currentInventoryCategory === 'esmaltes') {
       document.getElementById('stock-polish-name').value = tmpl.nome || tmpl.name || '';
       document.getElementById('stock-polish-brand').value = tmpl.marca || 'Studio Nails';
-      document.getElementById('stock-polish-total').value = tmpl.volumeTotal || tmpl.volumePorPack || '';
-      document.getElementById('stock-polish-current').value = tmpl.volumeTotal || tmpl.volumePorPack || '';
+      document.getElementById('stock-polish-total').value = tmpl.volumeTotal || '';
+      document.getElementById('stock-polish-current').value = tmpl.volumeTotal || '';
+      document.getElementById('stock-polish-consumption').value = tmpl.consumoEstimadoPorUso || '';
     } else if (currentInventoryCategory === 'geladeira') {
       document.getElementById('stock-fridge-name').value = tmpl.nome || tmpl.name || '';
       document.getElementById('stock-fridge-qty').value = tmpl.unidadesPorPack || tmpl.volumePorPack || '';
+      const priceEl = document.getElementById('stock-fridge-price');
+      if (priceEl) priceEl.value = tmpl.precoVenda || '';
     } else {
       document.getElementById('stock-maint-name').value = tmpl.nome || tmpl.name || '';
       document.getElementById('stock-maint-qty').value = tmpl.unidadesPorPack || '';
+      const costEl = document.getElementById('stock-maint-cost');
+      if (costEl) costEl.value = tmpl.custoEstimado || '';
     }
     updatePolishForecast();
   }
@@ -11783,6 +13738,27 @@
     if (lower.includes('energy') || lower.includes('ener')) return '⚡';
     if (lower.includes('suco')) return '🧃';
     return '🥤';
+  }
+
+  function normalizeVolumeOneDecimal(value = 0) {
+    const num = Number(value) || 0;
+    return Math.round(num * 10) / 10;
+  }
+
+  function computePolishUsageStatus(item = {}) {
+    if ((item.categoria || item.category) !== 'esmaltes') {
+      return { statusEstoque: item.statusEstoque || 'ok', usosRestantes: null };
+    }
+    const volume = normalizeVolumeOneDecimal(item.volumeAtual_ml ?? item.volumeTotal_ml ?? 0);
+    const consumo = Number(item.consumoEstimadoPorUso || 0);
+    if (!consumo || consumo <= 0) {
+      return { statusEstoque: 'ok', usosRestantes: null };
+    }
+    const usosRestantes = Math.max(0, Math.floor(normalizeVolumeOneDecimal(volume / consumo)));
+    let statusEstoque = 'ok';
+    if (usosRestantes <= 2) statusEstoque = 'critico';
+    else if (usosRestantes <= 5) statusEstoque = 'alerta';
+    return { statusEstoque, usosRestantes };
   }
 
   function openInventoryModal(itemId = null) {
@@ -11854,7 +13830,12 @@
           icon.textContent = currentInventoryCategory === 'geladeira' ? '🥤' : currentInventoryCategory === 'manutencao' ? '🧰' : '💅';
           const meta = document.createElement('div');
           meta.className = 'meta';
-          meta.innerHTML = `<strong>${t.nome || t.name}</strong><span>${t.unidadesPorPack ? `${t.unidadesPorPack} por pack` : 'Template rápido'}</span>`;
+          const secondary = currentInventoryCategory === 'esmaltes'
+            ? (t.marca ? t.marca : 'Template rápido')
+            : currentInventoryCategory === 'geladeira'
+              ? (t.unidadesPorPack ? `${t.unidadesPorPack} por pack` : 'Template rápido')
+              : (t.frequenciaDeUso ? `Freq: ${t.frequenciaDeUso}` : 'Template rápido');
+          meta.innerHTML = `<strong>${t.nome || t.name}</strong><span>${secondary}</span>`;
           const quick = document.createElement('button');
           quick.className = 'secondary';
           quick.style.padding = '0.35rem 0.6rem';
@@ -11871,7 +13852,12 @@
       filtered.forEach(t => {
         const btn = document.createElement('div');
         btn.className = `template-chip ${currentInventoryCategory}`;
-        btn.innerHTML = `<div class="icon">⭐</div><div class="meta"><strong>${t.nome || t.name}</strong><span>${t.unidadesPorPack ? t.unidadesPorPack + ' por pack' : 'Sugestão'}</span></div>`;
+        const secondary = currentInventoryCategory === 'esmaltes'
+          ? (t.marca ? t.marca : 'Sugestão')
+          : currentInventoryCategory === 'geladeira'
+            ? (t.unidadesPorPack ? t.unidadesPorPack + ' por pack' : 'Sugestão')
+            : (t.frequenciaDeUso ? `Freq: ${t.frequenciaDeUso}` : 'Sugestão');
+        btn.innerHTML = `<div class="icon">⭐</div><div class="meta"><strong>${t.nome || t.name}</strong><span>${secondary}</span></div>`;
         btn.onclick = () => applyInventoryTemplate(t.id);
         modalRow.appendChild(btn);
       });
@@ -11882,11 +13868,28 @@
   function buildStockHistoryInfo(itemId) {
     const list = stockHistories[itemId] || [];
     const lastEntry = list.find(h => h.tipo === 'entrada');
-    const lastExit = list.find(h => h.tipo === 'saida' || h.tipo === 'baixa');
+    const lastExit = list.find(h => h.tipo === 'saida' || h.tipo === 'baixa' || h.tipo === 'uso');
     return {
       lastEntry: lastEntry?.data || null,
       lastExit: lastExit?.data || null
     };
+  }
+
+  async function loadStockHistory(itemId, limit = 5) {
+    if (!firestore || !itemId) return [];
+    try {
+      const snap = await firestore.collection('stock').doc(itemId).collection('history')
+        .orderBy('data', 'desc')
+        .limit(limit * 2)
+        .get();
+      return snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .filter(h => h.tipo === 'uso_esmalte' || h.tipo === 'saida')
+        .slice(0, limit);
+    } catch (err) {
+      console.warn('Não foi possível carregar histórico de estoque', err);
+      return (stockHistories[itemId] || []).filter(h => h.tipo === 'uso_esmalte' || h.tipo === 'saida').slice(0, limit);
+    }
   }
 
   function attachStockHistoryListener(itemId) {
@@ -11924,15 +13927,20 @@
         const badgeLow = item.previsaoDuracaoDias && item.previsaoDuracaoDias < 15;
         const warnFlag = item.previsaoDuracaoDias && item.previsaoDuracaoDias < 7;
         const lowFlag = badgeLow || (pct != null && pct < 30) || (item.quantidade && item.quantidade <= (item.unidadesPorPack || item.quantidade) * 0.2);
-        const statusLabel = lowFlag ? 'Baixo' : warnFlag ? 'Expirando' : 'OK';
-        const badgeClass = lowFlag ? 'low' : warnFlag ? 'warn' : '';
+        const polishStatus = category === 'esmaltes' ? computePolishUsageStatus(item) : { statusEstoque: 'ok', usosRestantes: null };
+        const statusLabel = category === 'esmaltes'
+          ? (polishStatus.statusEstoque === 'critico' ? 'Crítico' : polishStatus.statusEstoque === 'alerta' ? 'Alerta' : 'OK')
+          : (lowFlag ? 'Baixo' : warnFlag ? 'Expirando' : 'OK');
+        const badgeClass = category === 'esmaltes'
+          ? (polishStatus.statusEstoque === 'critico' ? 'critico' : polishStatus.statusEstoque === 'alerta' ? 'alerta' : '')
+          : (lowFlag ? 'low' : warnFlag ? 'warn' : '');
         const div = document.createElement('div');
         div.className = 'inventory-card';
         const entryLabel = hist.lastEntry ? formatDateLabel((hist.lastEntry || '').split('T')[0] || hist.lastEntry) : '—';
         const exitLabel = hist.lastExit ? formatDateLabel((hist.lastExit || '').split('T')[0] || hist.lastExit) : '—';
         const progress = pct != null ? `<div class="inventory-progress"><div class="fill" style="width:${Math.max(0, Math.min(100, pct))}%;${pct < 10 ? 'background:#d9534f;' : ''}"></div></div>` : '';
         const unitCost = category === 'geladeira' || category === 'manutencao'
-          ? (item.custoCompra ? (item.custoCompra / Math.max(1, item.quantidade || 1)) : 0)
+          ? (category === 'geladeira' ? (item.custoUnitario || (item.custoCompra ? (item.custoCompra / Math.max(1, item.quantidade || 1)) : 0)) : (item.custoCompra ? (item.custoCompra / Math.max(1, item.quantidade || 1)) : 0))
           : (item.custoPorUso || 0);
         const miniMeta = `
           <div class="inventory-mini-meta">
@@ -11941,6 +13949,7 @@
             ${category === 'geladeira' ? `<span>🏷️ Venda ${formatCurrency(item.precoVenda || 0)}</span>` : ''}
             <span>📅 Entrada ${entryLabel}</span>
             ${category === 'esmaltes' ? `<span>⏳ Consumo ${item.consumoEstimadoPorUso || 0}ml</span>` : ''}
+            ${category === 'esmaltes' ? `<span>🧮 Usos ~${polishStatus.usosRestantes ?? '—'} restantes</span>` : ''}
           </div>`;
         div.innerHTML = `
           <div class="line-top">
@@ -11957,7 +13966,7 @@
             <div class="inventory-actions-icons">
               <button class="action-btn edit" title="Editar" aria-label="Editar" onclick="openInventoryModal('${item.id}')">✎</button>
               <button class="action-btn neutral" title="Detalhes" aria-label="Detalhes" onclick="openStockDetailModal('${item.id}')">👁</button>
-              <button class="action-btn exit" title="Registrar saída" aria-label="Registrar saída" onclick="openStockExitModal('${item.id}')">➖</button>
+              ${category === 'esmaltes' ? '' : `<button class="action-btn exit" title="Registrar saída" aria-label="Registrar saída" onclick="openStockExitModal('${item.id}')">➖</button>`}
               <button class="action-btn danger" title="Excluir" aria-label="Excluir" onclick="promptRemoveStockItem('${item.id}')">🗑</button>
             </div>
           </div>
@@ -11992,20 +14001,23 @@
       const dataCompra = document.getElementById('stock-polish-date').value;
       if (!nome || !marca || !volumeTotal) { alert('Preencha nome, marca e volume total.'); return; }
       if (!consumo || consumo <= 0) { alert('Informe o consumo estimado por uso (ml).'); return; }
-      const volumeAtual = inventoryFormMode === 'edit' && original
-        ? (original.volumeAtual_ml ?? original.volumeTotal_ml ?? volumeTotal)
-        : volumeTotal;
+      const volumeAtual = volumeTotal;
       const previsao = Math.round(volumeAtual / consumo);
       const custoPorUso = volumeTotal ? ((custoTotal || 0) / volumeTotal) * consumo : 0;
-      payload = { ...payload, nome, marca, volumeTotal_ml: volumeTotal, volumeAtual_ml: volumeAtual, consumoEstimadoPorUso: consumo, dataCompra: dataCompra || null, previsaoDuracaoDias: previsao, custoTotal, custoPorUso, addedAt: payload.addedAt || now, paused: true };
+      const statusInfo = computePolishUsageStatus({ categoria: 'esmaltes', volumeAtual_ml: volumeAtual, consumoEstimadoPorUso: consumo });
+      payload = { ...payload, nome, marca, volumeTotal_ml: volumeTotal, volumeAtual_ml: volumeAtual, consumoEstimadoPorUso: consumo, dataCompra: dataCompra || null, previsaoDuracaoDias: previsao, custoTotal, custoPorUso, addedAt: payload.addedAt || now, paused: true, statusEstoque: statusInfo.statusEstoque, usosRestantes: statusInfo.usosRestantes };
     } else if (category === 'geladeira') {
       const nome = document.getElementById('stock-fridge-name').value.trim();
-      const quantidade = parseInt(document.getElementById('stock-fridge-qty').value, 10) || 0;
+      const quantidadeCompra = parseInt(document.getElementById('stock-fridge-qty').value, 10) || 0;
       const custoCompra = parseFloat(document.getElementById('stock-fridge-cost').value) || 0;
       const precoVenda = parseFloat(document.getElementById('stock-fridge-price').value) || 0;
       const dataCompra = document.getElementById('stock-fridge-date').value;
-      if (!nome || !quantidade) { alert('Informe nome e quantidade.'); return; }
-      payload = { ...payload, nome, quantidade, custoCompra, precoVenda, dataCompra: dataCompra || null, addedAt: payload.addedAt || now };
+      if (!nome || !quantidadeCompra) { alert('Informe nome e quantidade.'); return; }
+      const originalQty = inventoryFormMode === 'edit' && original ? (original.quantidade || 0) : 0;
+      const quantidadeAtual = (inventoryFormMode === 'edit' && original) ? originalQty + quantidadeCompra : quantidadeCompra;
+      const custoUnitario = quantidadeCompra > 0 ? (custoCompra / quantidadeCompra) : (original?.custoUnitario || 0);
+      const custoTotalEstoqueAtual = custoUnitario ? custoUnitario * quantidadeAtual : null;
+      payload = { ...payload, nome, quantidade: quantidadeAtual, custoCompra, custoUnitario, custoTotalEstoqueAtual, precoVenda, dataCompra: dataCompra || null, addedAt: payload.addedAt || now };
     } else {
       const nome = document.getElementById('stock-maint-name').value.trim();
       const quantidade = parseInt(document.getElementById('stock-maint-qty').value, 10) || 0;
@@ -12017,15 +14029,19 @@
 
     const currentValue = category === 'esmaltes'
       ? (payload.volumeAtual_ml || 0)
-      : (payload.quantidade || 0);
+      : (category === 'geladeira' ? (parseInt(document.getElementById('stock-fridge-qty').value, 10) || 0) : (payload.quantidade || 0));
     const originalValue = category === 'esmaltes'
       ? (original?.volumeAtual_ml || original?.volumeTotal_ml || 0)
-      : (original?.quantidade || 0);
-    const delta = inventoryFormMode === 'edit' && original ? (currentValue - originalValue) : currentValue;
+      : (category === 'geladeira' ? (original?.quantidade || 0) : (original?.quantidade || 0));
+    const delta = category === 'geladeira'
+      ? (parseInt(document.getElementById('stock-fridge-qty').value, 10) || 0)
+      : (inventoryFormMode === 'edit' && original ? (currentValue - originalValue) : currentValue);
     const baseCost = payload.custoTotal || payload.custoCompra || 0;
-    const perUnitCost = originalValue > 0
-      ? ((original?.custoTotal || original?.custoCompra || 0) / originalValue)
-      : 0;
+    const perUnitCost = category === 'geladeira'
+      ? (payload.custoUnitario || original?.custoUnitario || 0)
+      : (originalValue > 0
+        ? ((original?.custoTotal || original?.custoCompra || 0) / originalValue)
+        : 0);
     const inferredCost = delta > 0 && !baseCost ? perUnitCost * delta : baseCost;
     const purchaseDate = payload.dataCompra || payload.addedAt || now;
     if (delta > 0) {
@@ -12036,12 +14052,12 @@
       if (inventoryFormMode === 'edit' && inventoryEditingId) {
         await firestore.collection('stock').doc(inventoryEditingId).set(payload, { merge: true });
         const historyEntry = delta > 0
-          ? { tipo: 'entrada', quantidade: delta, volume: category === 'esmaltes' ? delta : null, custoTotal: inferredCost || 0, categoria: payload.categoria || category, data: purchaseDate, descricao: payload.nome || payload.name }
-          : { tipo: 'edicao', quantidade: payload.quantidade || payload.volumeAtual_ml || 0, volume: payload.volumeAtual_ml || null, custoTotal: payload.custoTotal || payload.custoCompra || 0, categoria: payload.categoria || category };
+          ? { tipo: 'entrada', quantidade: delta, volume: category === 'esmaltes' ? delta : null, custoTotal: inferredCost || 0, custoUnitario: payload.custoUnitario || perUnitCost || null, categoria: payload.categoria || category, data: purchaseDate, descricao: payload.nome || payload.name }
+          : { tipo: 'edicao', quantidade: payload.quantidade || payload.volumeAtual_ml || 0, volume: payload.volumeAtual_ml || null, custoTotal: payload.custoTotal || payload.custoCompra || 0, custoUnitario: payload.custoUnitario || perUnitCost || null, categoria: payload.categoria || category };
         await saveStockHistory(inventoryEditingId, historyEntry);
       } else {
         const ref = await firestore.collection('stock').add({ ...payload, createdAt: now });
-        await saveStockHistory(ref.id, { tipo: 'entrada', quantidade: payload.quantidade || payload.volumeAtual_ml || 0, volume: payload.volumeAtual_ml || null, custoTotal: payload.custoTotal || payload.custoCompra || 0, categoria: payload.categoria || category, descricao: payload.nome || payload.name });
+        await saveStockHistory(ref.id, { tipo: 'entrada', quantidade: payload.quantidade || payload.volumeAtual_ml || 0, volume: payload.volumeAtual_ml || null, custoTotal: payload.custoTotal || payload.custoCompra || 0, custoUnitario: payload.custoUnitario || perUnitCost || null, categoria: payload.categoria || category, descricao: payload.nome || payload.name });
       }
     } catch (err) {
       console.error('Erro ao salvar estoque', err);
@@ -12053,6 +14069,19 @@
     if (!firestore || !itemId) return;
     const item = stockItems.find(i => i.id === itemId);
     await firestore.collection('stock').doc(itemId).set({ paused: !item?.paused, updatedAt: new Date().toISOString() }, { merge: true });
+  }
+
+  function toggleTemplateFields(category) {
+    const sections = {
+      esmaltes: document.querySelectorAll('.template-field-esmaltes'),
+      geladeira: document.querySelectorAll('.template-field-geladeira'),
+      manutencao: document.querySelectorAll('.template-field-manutencao')
+    };
+    Object.entries(sections).forEach(([key, nodes]) => {
+      nodes.forEach(node => {
+        node.style.display = key === category ? 'block' : 'none';
+      });
+    });
   }
 
   async function removeStockItem(itemId) {
@@ -12072,26 +14101,65 @@
     closeDialog('stock-remove-modal');
   }
 
-  function openStockDetailModal(itemId) {
+  async function openStockDetailModal(itemId) {
     const item = stockItems.find(i => i.id === itemId);
     if (!item) return;
     const hist = buildStockHistoryInfo(itemId);
     document.getElementById('stock-detail-name').textContent = item.nome || item.name || 'Item';
     document.getElementById('stock-detail-cat').textContent = item.categoria || item.category || '—';
     document.getElementById('stock-detail-entry').textContent = hist.lastEntry ? formatDateLabel((hist.lastEntry || '').split('T')[0] || hist.lastEntry) : '—';
+    const usosRestantes = item.usosRestantes ?? (item.previsaoDuracaoDias || null);
+    document.getElementById('stock-detail-forecast').textContent = usosRestantes ? `Usos restantes: ${usosRestantes}` : '—';
     document.getElementById('stock-detail-exit').textContent = hist.lastExit ? formatDateLabel((hist.lastExit || '').split('T')[0] || hist.lastExit) : '—';
-    document.getElementById('stock-detail-forecast').textContent = item.previsaoDuracaoDias ? `${item.previsaoDuracaoDias} dias` : '—';
     document.getElementById('stock-detail-cost').textContent = item.custoPorUso ? formatCurrency(item.custoPorUso) : '—';
+    const historySection = document.getElementById('stock-detail-history-section');
+    const historyList = document.getElementById('stock-detail-history-list');
+    const isPolish = (item.categoria || item.category) === 'esmaltes';
+      if (historySection) historySection.style.display = isPolish ? 'grid' : 'none';
+      if (historyList) {
+        historyList.textContent = 'Carregando...';
+        const entries = await loadStockHistory(itemId, 5);
+        if (!entries.length) {
+          historyList.textContent = 'Nenhum uso registrado.';
+        } else {
+          historyList.innerHTML = '';
+          entries.forEach(entry => {
+            const row = document.createElement('div');
+            row.className = 'inventory-history-item';
+            const dateLabel = entry.data ? formatDateLabel((entry.data || '').split('T')[0] || entry.data) : '—';
+            const volume = entry.consumoMl ?? entry.quantidade ?? '—';
+            const motivo = entry.motivo ? ` • ${entry.motivo}` : '';
+            const label = entry.tipo === 'uso_esmalte' ? 'Uso em atendimento' : 'Saída';
+            row.innerHTML = `<span>${dateLabel} • ${label}${motivo}</span><strong>${volume} ${entry.tipo === 'uso_esmalte' ? 'ml' : 'un.'}</strong>`;
+            historyList.appendChild(row);
+          });
+        }
+        const lastUsage = entries[0]?.data || hist.lastExit || null;
+        document.getElementById('stock-detail-exit').textContent = lastUsage ? formatDateLabel((lastUsage || '').split('T')[0] || lastUsage) : '—';
+      } else if (historyList) {
+        historyList.textContent = '';
+      }
     openDialog('stock-detail-modal');
   }
 
   function openStockExitModal(itemId) {
     pendingExitStockId = itemId;
     const item = stockItems.find(i => i.id === itemId);
+    if (!item || (item.categoria || item.category) === 'esmaltes') {
+      alert('Saída manual não disponível para esmaltes.');
+      pendingExitStockId = null;
+      return;
+    }
     const input = document.getElementById('stock-exit-qty');
     const nameEl = document.getElementById('stock-exit-name');
+    const reasonEl = document.getElementById('stock-exit-reason');
+    const reasonOther = document.getElementById('stock-exit-reason-other');
+    const reasonWrap = document.getElementById('stock-exit-reason-other-wrapper');
     if (nameEl) nameEl.textContent = item?.nome || item?.name || 'Item';
     if (input) input.value = item?.consumoEstimadoPorUso || 1;
+    if (reasonEl) reasonEl.value = '';
+    if (reasonOther) reasonOther.value = '';
+    if (reasonWrap) reasonWrap.classList.add('hidden');
     openDialog('stock-exit-modal');
   }
 
@@ -12100,19 +14168,50 @@
     const item = stockItems.find(i => i.id === pendingExitStockId);
     if (!item) return;
     const qty = parseFloat(document.getElementById('stock-exit-qty')?.value || '0');
+    const reason = document.getElementById('stock-exit-reason')?.value || '';
+    const reasonOther = document.getElementById('stock-exit-reason-other')?.value || '';
+    if (!reason) { alert('Selecione o motivo da saída.'); return; }
+    if (reason === 'outro' && !reasonOther.trim()) { alert('Descreva o motivo.'); return; }
     const now = new Date().toISOString();
     let payload = { updatedAt: now };
     if (item.categoria === 'esmaltes') {
       const remaining = Math.max(0, (item.volumeAtual_ml || 0) - qty);
+      const normalized = normalizeVolumeOneDecimal(remaining);
       const usesPerDay = 3;
-      const previsao = (item.consumoEstimadoPorUso || 0) > 0 ? Math.round(remaining / ((item.consumoEstimadoPorUso || 0) * usesPerDay)) : item.previsaoDuracaoDias || 0;
-      payload = { volumeAtual_ml: remaining, previsaoDuracaoDias: previsao };
+      const previsao = (item.consumoEstimadoPorUso || 0) > 0 ? Math.round(normalized / ((item.consumoEstimadoPorUso || 0) * usesPerDay)) : item.previsaoDuracaoDias || 0;
+      const statusInfo = computePolishUsageStatus({ ...item, volumeAtual_ml: normalized });
+      payload = { volumeAtual_ml: normalized, previsaoDuracaoDias: previsao, statusEstoque: statusInfo.statusEstoque, usosRestantes: statusInfo.usosRestantes };
     } else {
       const remaining = Math.max(0, (item.quantidade || 0) - qty);
-      payload = { quantidade: remaining };
+      const custoUnitario = item.custoUnitario || (item.custoCompra && item.quantidade ? item.custoCompra / item.quantidade : 0);
+      const custoTotalEstoqueAtual = custoUnitario ? custoUnitario * remaining : null;
+      payload = { quantidade: remaining, custoUnitario, custoTotalEstoqueAtual };
+      const historyEntry = {
+        tipo: 'saida',
+        quantidade: qty,
+        volume: null,
+        custoUnitario,
+        custoTotal: custoUnitario ? custoUnitario * qty : null,
+        data: now,
+        motivo: reason === 'outro' ? reasonOther : reason,
+        origem: 'manual'
+      };
+      await saveStockHistory(pendingExitStockId, historyEntry);
+      if (reason === 'atendimento') {
+        const valorSaida = Number(item.precoVenda || 0) * qty;
+        await firestore.collection('financial').add({
+          type: 'consumo',
+          amount: valorSaida,
+          date: now,
+          description: `Saída manual geladeira - ${item.nome || item.name || ''} (${reasonOther || reason})`,
+          categoria: 'consumo',
+          origem: 'geladeira',
+          motivo: reason === 'outro' ? reasonOther : reason,
+          stockItemId: pendingExitStockId
+        });
+      }
     }
     await firestore.collection('stock').doc(pendingExitStockId).set(payload, { merge: true });
-    await saveStockHistory(pendingExitStockId, { tipo: 'saida', quantidade: qty, volume: item.categoria === 'esmaltes' ? qty : null, data: now });
     closeDialog('stock-exit-modal');
     pendingExitStockId = null;
   }
@@ -12122,7 +14221,7 @@
     const title = document.getElementById('template-modal-title');
     const tmpl = productTemplates.find(t => t.id === id);
     if (title) title.textContent = id ? 'Editar template' : 'Novo template';
-    ['template-name','template-pack','template-volume','template-volume-pack','template-frequency'].forEach(fid => {
+    ['template-name','template-volume','template-brand','template-consumption','template-pack','template-volume-pack','template-price','template-cost','template-frequency'].forEach(fid => {
       const el = document.getElementById(fid);
       if (el) el.value = '';
     });
@@ -12130,11 +14229,16 @@
     if (cat) cat.value = tmpl?.categoria || tmpl?.category || currentInventoryCategory;
     if (tmpl) {
       document.getElementById('template-name').value = tmpl.nome || tmpl.name || '';
-      document.getElementById('template-pack').value = tmpl.unidadesPorPack || '';
       document.getElementById('template-volume').value = tmpl.volumeTotal || '';
+      document.getElementById('template-brand').value = tmpl.marca || '';
+      document.getElementById('template-consumption').value = tmpl.consumoEstimadoPorUso || tmpl.consumo || '';
+      document.getElementById('template-pack').value = tmpl.unidadesPorPack || '';
       document.getElementById('template-volume-pack').value = tmpl.volumePorPack || '';
+      document.getElementById('template-price').value = tmpl.precoVenda || '';
+      document.getElementById('template-cost').value = tmpl.custoEstimado || '';
       document.getElementById('template-frequency').value = tmpl.frequenciaDeUso || '';
     }
+    toggleTemplateFields(cat?.value || currentInventoryCategory);
     openDialog('template-modal');
   }
 
@@ -12142,15 +14246,23 @@
     initFirebaseApp();
     const nome = document.getElementById('template-name').value.trim();
     const categoria = document.getElementById('template-category').value;
+    const marca = document.getElementById('template-brand').value.trim();
+    const volumeTotal = parseFloat(document.getElementById('template-volume').value) || null;
+    const consumo = parseFloat(document.getElementById('template-consumption').value) || null;
+    const unidadesPorPack = parseFloat(document.getElementById('template-pack').value) || null;
+    const volumePorPack = parseFloat(document.getElementById('template-volume-pack').value) || null;
+    const precoVenda = parseFloat(document.getElementById('template-price').value) || null;
+    const custoEstimado = parseFloat(document.getElementById('template-cost').value) || null;
+    const frequenciaDeUso = document.getElementById('template-frequency').value || '';
     if (!nome) { alert('Informe o nome do template.'); return; }
-    const payload = {
-      nome,
-      categoria,
-      unidadesPorPack: parseInt(document.getElementById('template-pack').value, 10) || null,
-      volumeTotal: parseFloat(document.getElementById('template-volume').value) || null,
-      volumePorPack: parseFloat(document.getElementById('template-volume-pack').value) || null,
-      frequenciaDeUso: document.getElementById('template-frequency').value || ''
-    };
+    if (categoria === 'esmaltes' && (!volumeTotal || !consumo)) { alert('Informe volume total e consumo estimado.'); return; }
+    if (categoria === 'geladeira' && (!unidadesPorPack || unidadesPorPack <= 0)) { alert('Informe unidades por pack para geladeira.'); return; }
+    const base = { nome, categoria };
+    const payload = categoria === 'esmaltes'
+      ? { ...base, marca, volumeTotal, consumoEstimadoPorUso: consumo }
+      : categoria === 'geladeira'
+        ? { ...base, unidadesPorPack, volumePorPack: volumePorPack || null, precoVenda: precoVenda || null }
+        : { ...base, custoEstimado: custoEstimado || null, frequenciaDeUso };
     try {
       if (firestore) {
         if (templateEditingId) {
@@ -12162,10 +14274,12 @@
       } else {
         payload.id = templateEditingId || `tmpl-${Date.now()}`;
       }
-      if (templateEditingId) {
-        productTemplates = productTemplates.map(t => t.id === templateEditingId ? { ...t, ...payload } : t);
-      } else {
-        productTemplates.push({ id: payload.id || `tmpl-${Date.now()}`, ...payload });
+      if (!firestore) {
+        if (templateEditingId) {
+          productTemplates = productTemplates.map(t => t.id === templateEditingId ? { ...t, ...payload } : t);
+        } else {
+          productTemplates.push({ id: payload.id || `tmpl-${Date.now()}`, ...payload });
+        }
       }
       renderInventoryTemplates();
     } catch (err) {
@@ -12214,6 +14328,7 @@
       row.addEventListener('dblclick', () => openEditCollab(index));
       container.appendChild(row);
     });
+    populateClientProfessionalFilters();
   }
 
   let investmentFilter = 'Todos';
@@ -12398,6 +14513,8 @@
     if (mobileSelect && mobileSelect.value !== selectedGlobalMonthKey) mobileSelect.value = selectedGlobalMonthKey;
     if (desktopSelect && desktopSelect.value !== selectedGlobalMonthKey) desktopSelect.value = selectedGlobalMonthKey;
     refreshMonthlyConsumers();
+    renderDashboardCards();
+    renderColabDashboard();
   }
 
   async function persistGlobalMonth(value) {
@@ -12419,6 +14536,8 @@
       selectedDashboardMonth = target.monthIndex;
       selectedDashboardYear = target.year;
       refreshMonthlyConsumers();
+      renderDashboardCards();
+      renderColabDashboard();
     });
   }
 
@@ -12964,7 +15083,36 @@
         categoria: item.categoria || item.category,
         name: item.nome || item.name,
         price: item.precoVenda || 0,
-        icon: '🧾'
+        icon: '??'
+      }));
+    kioskDrinks = fridgeDrinks.concat(maintConsumables);
+    renderKiosk();
+    populateComandaSelect();
+  }
+
+  async function syncKioskFromRemote() {
+    if (!window.fetchKioskStockItems) return;
+    const items = await window.fetchKioskStockItems();
+    if (!Array.isArray(items) || !items.length) return;
+    const fridgeDrinks = items
+      .filter(item => (item.categoria || item.category) === 'geladeira' && !item.paused)
+      .map(item => ({
+        id: item.id,
+        stockId: item.id,
+        categoria: item.categoria || item.category,
+        name: item.nome || item.name,
+        price: item.precoVenda || 0,
+        icon: stockIconFor(item)
+      }));
+    const maintConsumables = items
+      .filter(item => (item.categoria || item.category) === 'manutencao' && !item.paused)
+      .map(item => ({
+        id: item.id,
+        stockId: item.id,
+        categoria: item.categoria || item.category,
+        name: item.nome || item.name,
+        price: item.precoVenda || 0,
+        icon: '??'
       }));
     kioskDrinks = fridgeDrinks.concat(maintConsumables);
     renderKiosk();
@@ -12992,6 +15140,22 @@
     if (hint) hint.textContent = text;
   }
 
+  function setKioskPairingCollapsed(isCollapsed) {
+    const box = document.getElementById('kiosk-pairing-box');
+    const toggle = document.getElementById('kiosk-pairing-toggle');
+    if (!box || !toggle) return;
+    box.classList.toggle('collapsed', Boolean(isCollapsed));
+    toggle.textContent = isCollapsed ? 'Mostrar codigo' : 'Ocultar';
+    toggle.setAttribute('aria-expanded', String(!isCollapsed));
+  }
+
+  function toggleKioskPairing() {
+    const box = document.getElementById('kiosk-pairing-box');
+    if (!box) return;
+    const isCollapsed = box.classList.contains('collapsed');
+    setKioskPairingCollapsed(!isCollapsed);
+  }
+
   function kioskActionsLocked() {
     return !kioskComandaId || kioskComandaStatus !== 'aberta' || Boolean(kioskComandaData?.kioskFinalizado);
   }
@@ -13008,6 +15172,7 @@
     if (content) content.classList.add('hidden');
     updateKioskSessionStatus('Aguardando código', 'waiting');
     setKioskHint('O código é criado quando a comanda é aberta.');
+    setKioskPairingCollapsed(false);
   }
 
   function handleKioskSnapshot(data) {
@@ -13020,23 +15185,27 @@
 
     if (!kioskComandaId) {
       updateKioskSessionStatus('Aguardando código', 'waiting');
+      setKioskPairingCollapsed(false);
       return;
     }
 
     if (kioskComandaStatus !== 'aberta') {
       updateKioskSessionStatus('Comanda não está mais aberta', 'locked');
       setKioskHint('Peça à profissional para abrir uma nova comanda.');
+      setKioskPairingCollapsed(false);
       return;
     }
 
     if (data?.kioskFinalizado) {
       updateKioskSessionStatus('Consumo finalizado no kiosk', 'locked');
       setKioskHint('A profissional foi avisada. Aguarde o atendimento.');
+      setKioskPairingCollapsed(false);
       return;
     }
 
     updateKioskSessionStatus(`Pareado (${data?.codigoPareamento || ''})`, 'success');
     setKioskHint('Adicione os itens e finalize para avisar a profissional.');
+    setKioskPairingCollapsed(true);
     renderCart();
   }
 
@@ -13056,7 +15225,11 @@
         return;
       }
       if (window.ensureComandaBaseService) {
-        await window.ensureComandaBaseService(comandaId);
+        try {
+          await window.ensureComandaBaseService(comandaId);
+        } catch (err) {
+          console.warn('Falha ao sincronizar servico da comanda', err);
+        }
       }
       kioskComandaId = comandaId;
       kioskComandaStatus = 'aberta';
@@ -13066,8 +15239,9 @@
       setKioskHint('Pareado com sucesso. Adicione os itens e finalize.');
     } catch (err) {
       console.error(err);
+      const isPerm = err?.code === 'permission-denied';
       updateKioskSessionStatus('Erro ao buscar comanda', 'locked');
-      setKioskHint('Tente novamente em instantes.');
+      setKioskHint(isPerm ? 'Permissao negada. Verifique auth anonimo nas rules.' : 'Tente novamente em instantes.');
     }
   }
 
@@ -13266,7 +15440,7 @@
 
     try {
       await window.kioskFinalizarConsumo(kioskComandaId, []);
-      alert('Pedido registrado! A profissional ser\u00e1 avisada.');
+      openDialog('kiosk-success-modal');
       updateKioskSessionStatus('Consumo finalizado no kiosk', 'locked');
     } catch (err) {
       console.error(err);
@@ -13292,7 +15466,7 @@
 
     items.forEach(appt => {
       const client = clients.find(c => c.id === appt.clientId);
-      const color = getProfessionalColor(appt.professionalName || appt.professional);
+      const color = getProfessionalColor(getProfessionalDisplayName(appt));
       const card = document.createElement('div');
       card.className = 'appointment-card';
       card.style.setProperty('--appt-color', color);
@@ -13300,7 +15474,7 @@
         <div class="appointment-meta">
           <div class="appointment-title">
             ${client ? client.name : (appt.clientName || 'Cliente')}
-            <span class="appointment-pill" style="background:${color}1a;border-color:${color}33;">${appt.professionalName || appt.professional || 'Equipe'}</span>
+            <span class="appointment-pill" style="background:${color}1a;border-color:${color}33;">${getProfessionalDisplayName(appt)}</span>
           </div>
           <div class="appointment-subtext">
             <span>${formatDateLabel(appt.date)} • ${appt.time}</span>
@@ -13337,7 +15511,7 @@
 
     items.forEach(appt => {
       const client = clients.find(c => c.id === appt.clientId);
-      const color = getProfessionalColor(appt.professionalName || appt.professional);
+      const color = getProfessionalColor(getProfessionalDisplayName(appt));
       const row = document.createElement('div');
       row.className = 'appointment-card';
       row.style.setProperty('--appt-color', color);
@@ -13345,7 +15519,7 @@
         <div class="appointment-meta">
           <div class="appointment-title" style="font-size:1rem;">
             ${appt.time || '--:--'} • ${appt.serviceName || appt.service}
-            <span class="appointment-pill" style="background:${color}1a;border-color:${color}33;">${appt.professionalName || appt.professional || 'Equipe'}</span>
+            <span class="appointment-pill" style="background:${color}1a;border-color:${color}33;">${getProfessionalDisplayName(appt)}</span>
           </div>
           <div class="appointment-subtext">
             <span>${client ? client.name : appt.clientName || 'Cliente'}</span>
@@ -13377,7 +15551,7 @@
       revenue: {
         title: 'Faturamento do mês',
         valueId: 'dashboard-revenue',
-        detailPage: 'finance',
+        detailPage: null,
         lines: ['Baseado no mês filtrado.', 'Inclui serviços e vendas do período.']
       },
       commission: {
@@ -13389,7 +15563,7 @@
       consumption: {
         title: 'Consumo vendido',
         valueId: 'dashboard-consumption',
-        detailPage: 'finance',
+        detailPage: null,
         lines: ['Consumo registrado no período.', 'Acompanhe tendências no financeiro.']
       },
       'invest-month': {
@@ -13437,11 +15611,50 @@
       if (!cfg) return;
       labelEl.textContent = cfg.title || 'Detalhes';
       valueEl.textContent = getText(cfg.valueId) || '--';
-      const lines = [];
-      (cfg.lines || []).forEach((line) => {
-        if (line && !lines.includes(line)) lines.push(line);
-      });
-      linesEl.innerHTML = lines.slice(0, 4).map(line => `<div>${line}</div>`).join('');
+      let lines = [];
+      if (insightId === 'consumption') {
+        const history = buildConsumptionSoldHistory(getDashboardFilterTarget());
+        lines = [
+          `Total ${history.length ? formatCurrency(history.reduce((acc, h) => acc + (h.valor || 0), 0)) : formatCurrency(0)}`,
+          'Clique em Ver detalhes para ver o histórico do período.'
+        ];
+      } else if (insightId === 'commission') {
+        const target = getDashboardFilterTarget();
+        const records = financialEntries.filter(e => {
+          if (e.type !== 'comissao') return false;
+          if (selectedGlobalMonthKey === 'all') return true;
+          return matchesTargetMonth(e.date, target);
+        });
+        const total = records.reduce((acc, cur) => acc + (cur.amount || 0), 0);
+        lines = [
+          `Total no mês: ${formatCurrency(total)}`,
+          'Clique em Ver detalhes para filtrar por dia, semana ou mes.'
+        ];
+      } else if (insightId === 'revenue') {
+        const target = getDashboardFilterTarget();
+        const filteredFin = financialEntries.filter(e => {
+          if (e.isFixed) return e.isActive !== false;
+          if (selectedGlobalMonthKey === 'all') return true;
+          return matchesTargetMonth(e.date, target);
+        });
+        const revenueServices = filteredFin.filter(f => f.type === 'receita').reduce((acc, cur) => acc + (cur.amount || 0), 0);
+        const revenueConsumptions = filteredFin.filter(f => f.type === 'consumo').reduce((acc, cur) => acc + (cur.amount || 0), 0);
+        lines = [
+          `Serviços: ${formatCurrency(revenueServices)}`,
+          `Consumos: ${formatCurrency(revenueConsumptions)}`,
+          'Use Ver detalhes para ver o histórico.'
+        ];
+      } else if (insightId === 'stock-alerts') {
+        const alerts = buildAlertItems();
+        lines = alerts.length
+          ? alerts.map(a => `${a.nome} • ${a.status === 'critico' ? 'Crítico' : 'Alerta'}`)
+          : ['Nenhum item em alerta.'];
+      } else {
+        (cfg.lines || []).forEach((line) => {
+          if (line && !lines.includes(line)) lines.push(line);
+        });
+      }
+      linesEl.innerHTML = lines.slice(0, 6).map(line => `<div>${line}</div>`).join('');
 
       if (cfg.breakdown && cfg.breakdown.length) {
         breakdownEl.innerHTML = cfg.breakdown.map(item => (
@@ -13453,9 +15666,15 @@
         breakdownEl.classList.add('hidden');
       }
 
-      if (cfg.detailPage) {
+      if (cfg.detailPage || insightId === 'revenue' || insightId === 'consumption' || insightId === 'commission') {
         actionBtn.classList.remove('hidden');
-        actionBtn.onclick = () => navigatePage('ceo', cfg.detailPage);
+        if (insightId === 'revenue') {
+          actionBtn.onclick = () => openRevenueHistoryModal('all');
+        } else if (insightId === 'consumption') {
+          actionBtn.onclick = () => openRevenueHistoryModal('consumption');
+        } else if (insightId === 'commission') {
+          actionBtn.onclick = () => openCommissionHistoryModal('month');
+        } else actionBtn.onclick = () => navigatePage('ceo', cfg.detailPage);
       } else {
         actionBtn.classList.add('hidden');
         actionBtn.onclick = null;
@@ -13587,7 +15806,13 @@
   // Override legado: modal de agendamentos em lista não é mais usado.
   function renderDayAppointmentsModal() { return; }
 </script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js');
+    });
+  }
+</script>
 
 </body>
 </html>
-<script async data-explicit-opt-in="true" data-deployment-id="dpl_DxLGAh3sxCHKph4F1XHHbenNCLR8" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
