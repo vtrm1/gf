@@ -7826,6 +7826,7 @@
   let globalMonthUnsub = null;
   let authListenerAttached = false;
   let authResolved = false;
+  let ceoInitialRenderDone = false;
 
   const adminOverrides = {
     'mJ3hkcBr5kT83iTgJROR811X0WP2': {
@@ -8470,9 +8471,11 @@
     firestore.collection('collaborators').onSnapshot(snap => {
       collaborators = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderCollaborators();
+      ensureCeoDataRendered();
     });
     firestore.collection('collaboratorAccounts').onSnapshot(snap => {
       collaboratorAccounts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      ensureCeoDataRendered();
     });
     // Atendimentos (agenda)
     firestore.collection('atendimentos').onSnapshot(snap => {
@@ -8481,6 +8484,7 @@
       refreshAgendaFromAppointments();
       renderColabCommission();
       renderColabDashboard();
+      ensureCeoDataRendered();
     });
     loadClientsPage(true);
     // Serviços
@@ -8496,12 +8500,14 @@
       renderKiosk();
       renderColabCommission();
       renderColabDashboard();
+      ensureCeoDataRendered();
     });
     firestore.collection('investments').onSnapshot(snap => {
       investments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderInvestments();
       renderDashboardCards();
       buildGlobalMonthOptions();
+      ensureCeoDataRendered();
     });
     if ((currentUserDoc?.role || '').toUpperCase() === 'CEO') {
       firestore.collection('financial').onSnapshot(snap => {
@@ -8510,11 +8516,13 @@
         renderFinance();
         renderDashboardCards();
         buildGlobalMonthOptions();
+        ensureCeoDataRendered();
       });
     }
     firestore.collection('productTemplates').onSnapshot(snap => {
       productTemplates = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderInventoryTemplates();
+      ensureCeoDataRendered();
     });
     firestore.collection('stock').onSnapshot(snap => {
       stockItems = snap.docs.map(d => {
@@ -8527,10 +8535,12 @@
       renderDashboardCards();
       renderFinance();
       buildGlobalMonthOptions();
+      ensureCeoDataRendered();
     });
     firestore.collection('comandas').onSnapshot(snap => {
       comandas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderDashboardCards();
+      ensureCeoDataRendered();
     });
   }
 
@@ -8539,6 +8549,7 @@
   // -----------------------------
   function setRole(role, account = null) {
     currentRole = role;
+    if (role === 'ceo') ceoInitialRenderDone = false;
     if (role === 'colab') {
       currentColabAccount = account;
       const canSeeAll = account?.permissions?.agendaFull;
@@ -8576,6 +8587,7 @@
 
   function backToLogin() {
     currentRole = null;
+    ceoInitialRenderDone = false;
     setLoginLoading(false);
     document.getElementById('login-wrapper')?.classList.remove('hidden');
     document.getElementById('login-screen').classList.remove('hidden');
@@ -13058,6 +13070,12 @@
     renderAgendaMonthSummary('colab');
     renderAgendaAppointments('colab');
     renderClients('colab');
+  }
+
+  function ensureCeoDataRendered() {
+    if (currentRole !== 'ceo' || ceoInitialRenderDone === true) return;
+    renderCeoContent();
+    ceoInitialRenderDone = true;
   }
 
   function renderYearCalendar(scope = 'ceo') {
