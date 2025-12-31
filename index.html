@@ -14280,6 +14280,7 @@
     if (reason === 'outro' && !reasonOther.trim()) { alert('Descreva o motivo.'); return; }
     const now = new Date().toISOString();
     let payload = { updatedAt: now };
+    const professionalId = firebaseAuth?.currentUser?.uid || currentUserDoc?.id || null;
     if (item.categoria === 'esmaltes') {
       const remaining = Math.max(0, (item.volumeAtual_ml || 0) - qty);
       const normalized = normalizeVolumeOneDecimal(remaining);
@@ -14307,6 +14308,7 @@
         const valorSaida = Number(item.precoVenda || 0) * qty;
         await firestore.collection('financial').add({
           type: 'consumo',
+          professionalId,
           amount: valorSaida,
           date: now,
           description: `Saída manual geladeira - ${item.nome || item.name || ''} (${reasonOther || reason})`,
