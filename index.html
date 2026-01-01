@@ -7838,7 +7838,7 @@
     }
   };
 
-  const calendarYear = 2025;
+  let calendarYear = new Date().getFullYear();
   const monthNamesFull = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
   const monthNamesShort = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
   const baseYearDetailed = monthNamesFull.map((fullName, idx) => ({
@@ -7859,6 +7859,8 @@
   let selectedDashboardMonth = new Date().getMonth();
   let selectedDashboardYear = new Date().getFullYear();
   let selectedGlobalMonthKey = null;
+  let selectedPeriod = { year: new Date().getFullYear(), month: new Date().getMonth() }; // month index 0-11
+  let lastValidPeriod = { ...selectedPeriod };
 
   let stockItems = [];
   let productTemplates = [];
@@ -10938,20 +10940,25 @@
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   }
 
+  function parsePeriodKey(key) {
+    if (!key || key === 'all') return null;
+    const [year, month] = key.split('-').map(v => parseInt(v, 10));
+    if (Number.isNaN(year) || Number.isNaN(month) || month < 1 || month > 12) return null;
+    return { year, monthIndex: month - 1 };
+  }
+
   function updateGlobalMonthState(key, { persist = false, refresh = true } = {}) {
-    const normalized = key || currentMonthKey();
+    const parsed = parsePeriodKey(key) || lastValidPeriod;
+    const period = parsed || { year: selectedPeriod.year, monthIndex: selectedPeriod.month };
+    const normalized = `${period.year}-${String((period.monthIndex || 0) + 1).padStart(2, '0')}`;
+    selectedPeriod = { year: period.year, month: period.monthIndex };
+    lastValidPeriod = { ...selectedPeriod };
     selectedGlobalMonthKey = normalized;
-    if (normalized === 'all') {
-      const now = new Date();
-      selectedDashboardMonth = now.getMonth();
-      selectedDashboardYear = now.getFullYear();
-    } else {
-      const [year, month] = normalized.split('-').map(v => parseInt(v, 10));
-      if (!Number.isNaN(year) && !Number.isNaN(month)) {
-        selectedDashboardYear = year;
-        selectedDashboardMonth = month - 1;
-      }
-    }
+    selectedDashboardYear = period.year;
+    selectedDashboardMonth = period.month;
+    selectedMonthIndex = period.month;
+    selectedMonthIndexColab = period.month;
+    calendarYear = period.year;
     const mobileSelect = document.getElementById('global-month-filter-mobile');
     const desktopSelect = document.getElementById('global-month-filter');
     if (mobileSelect) mobileSelect.value = normalized;
@@ -11029,10 +11036,7 @@
 
   function computeStockTotals(target = getDashboardFilterTarget()) {
     const totals = { esmaltes: 0, geladeira: 0, manutencao: 0 };
-    const filtered = selectedGlobalMonthKey === 'all'
-      ? stockItems
-      : stockItems.filter(item => matchesTargetMonth(item.dataCompra || item.addedAt || item.createdAt, target));
-    filtered.forEach(item => {
+    stockItems.forEach(item => {
       const cat = item.categoria || item.category;
       const cost = item.custoTotal || item.custoCompra || 0;
       if (totals[cat] != null) totals[cat] += cost;
@@ -11601,11 +11605,7 @@
 
     const historyKeys = new Set(entradas.map(e => `${(e.description || '').toLowerCase()}-${monthKeyFromDate(e.date)}`));
 
-    const scoped = selectedGlobalMonthKey === 'all'
-      ? stockItems
-      : stockItems.filter(item => matchesTargetMonth(item.dataCompra || item.addedAt || item.createdAt, target));
-
-    const baseEntries = scoped
+    const baseEntries = stockItems
       .filter(item => item && (item.custoCompra || item.precoCompra || item.valor || item.custoTotal))
       .filter(item => !historyKeys.has(`${(item.nome || item.name || 'item').toLowerCase()}-${monthKeyFromDate(item.dataCompra || item.addedAt || item.createdAt)}`))
       .map(item => ({
@@ -14113,8 +14113,7 @@
     Object.entries(groups).forEach(([category, container]) => {
       if (!container) return;
       container.innerHTML = '';
-      const scoped = stockItems.filter(i => (i.categoria || i.category) === category)
-        .filter(i => selectedGlobalMonthKey === 'all' || !(i.dataCompra || i.addedAt) || matchesTargetMonth(i.dataCompra || i.addedAt, target));
+      const scoped = stockItems.filter(i => (i.categoria || i.category) === category);
       if (metrics[category]) {
         metrics[category].innerHTML = scoped.length ? `<span class="pill">${scoped.length} itens</span>` : '';
       }
@@ -14720,9 +14719,8 @@
   }
 
   function getDashboardFilterTarget() {
-    if (selectedGlobalMonthKey && selectedGlobalMonthKey !== 'all') {
-      const [year, month] = selectedGlobalMonthKey.split('-').map(v => parseInt(v, 10));
-      return { year, monthIndex: month - 1 };
+    if (selectedPeriod && selectedPeriod.year != null && selectedPeriod.month != null) {
+      return { year: selectedPeriod.year, monthIndex: selectedPeriod.month };
     }
     return { year: selectedDashboardYear, monthIndex: selectedDashboardMonth || 0 };
   }
