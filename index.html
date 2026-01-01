@@ -10947,6 +10947,11 @@
     return { year, monthIndex: month - 1 };
   }
 
+  function periodKeyFromPeriod(period) {
+    if (!period || period.year == null || period.month == null) return currentMonthKey();
+    return `${period.year}-${String((period.month || 0) + 1).padStart(2, '0')}`;
+  }
+
   function updateGlobalMonthState(key, { persist = false, refresh = true } = {}) {
     const parsed = parsePeriodKey(key) || lastValidPeriod;
     const period = parsed || { year: selectedPeriod.year, monthIndex: selectedPeriod.month };
@@ -14616,73 +14621,30 @@
     if (!map.has(key)) map.set(key, { year: y, monthIndex: m });
   }
 
-  function deriveMonthsFromInvestment(inv, map) {
-    const ref = parseMonthRef(inv.mesReferencia);
-    const total = inv.parcelasTotais || 1;
-    if (ref) {
-      if (inv.parcelado && total > 1) {
-        for (let i = 0; i < total; i++) addMonthToMap(map, ref.year, ref.monthIndex + i);
-      } else {
-        addMonthToMap(map, ref.year, ref.monthIndex);
-      }
-    }
-    if (inv.createdAt) {
-      const key = monthKeyFromDate(inv.createdAt);
-      if (key) {
-        const [y, m] = key.split('-').map(v => parseInt(v, 10));
-        addMonthToMap(map, y, m - 1);
-      }
-    }
-  }
-
   async function buildGlobalMonthOptions() {
     const select = document.getElementById('global-month-filter');
     const mobileSelect = document.getElementById('global-month-filter-mobile');
     if (!select && !mobileSelect) return;
-    initFirebaseApp();
-    const map = new Map();
-
-    investments.forEach(inv => deriveMonthsFromInvestment(inv, map));
-    financialEntries.forEach(fin => {
-      const key = monthKeyFromDate(fin.date);
-      if (key) {
-        const [y, m] = key.split('-').map(v => parseInt(v, 10));
-        addMonthToMap(map, y, m - 1);
-      }
-    });
-    stockItems.forEach(item => {
-      const key = monthKeyFromDate(item.dataCompra || item.createdAt || item.addedAt);
-      if (key) {
-        const [y, m] = key.split('-').map(v => parseInt(v, 10));
-        addMonthToMap(map, y, m - 1);
-      }
-    });
-
-    if (firestore) {
-      const snapInvest = await firestore.collection('investments').get().catch(() => null);
-      snapInvest?.forEach(doc => deriveMonthsFromInvestment(doc.data() || {}, map));
-      const snapFin = await firestore.collection('financial').get().catch(() => null);
-      snapFin?.forEach(doc => {
-        const key = monthKeyFromDate((doc.data() || {}).date);
-        if (key) {
-          const [y, m] = key.split('-').map(v => parseInt(v, 10));
-          addMonthToMap(map, y, m - 1);
-        }
-      });
-      const snapStock = await firestore.collection('stock').get().catch(() => null);
-      snapStock?.forEach(doc => {
-        const data = doc.data() || {};
-        const key = monthKeyFromDate(data.dataCompra || data.createdAt || data.addedAt);
-        if (key) {
-          const [y, m] = key.split('-').map(v => parseInt(v, 10));
-          addMonthToMap(map, y, m - 1);
-        }
-      });
+    const currentKey = selectedGlobalMonthKey || periodKeyFromPeriod(selectedPeriod);
+    const now = new Date();
+    const baseYear = now.getFullYear();
+    const baseMonth = now.getMonth();
+    const months = [];
+    const pastRange = 24;
+    const futureRange = 12;
+    for (let offset = -pastRange; offset <= futureRange; offset += 1) {
+      const dt = new Date(baseYear, baseMonth + offset, 1);
+      months.push({ year: dt.getFullYear(), monthIndex: dt.getMonth() });
     }
-
-    const sorted = Array.from(map.entries()).sort((a, b) => (a[1].year - b[1].year) || (a[1].monthIndex - b[1].monthIndex));
-    const options = '<option value="all">Todos</option>' + sorted.map(([key, target]) => `<option value="${key}">${formatMonthSelectLabel(target)}</option>`).join('');
-    const currentKey = selectedGlobalMonthKey || currentMonthKey();
+    const selectedKey = periodKeyFromPeriod(selectedPeriod);
+    const selectedParsed = parsePeriodKey(selectedKey);
+    if (selectedParsed && !months.find(m => m.year === selectedParsed.year && m.monthIndex === selectedParsed.monthIndex)) {
+      months.push({ year: selectedParsed.year, monthIndex: selectedParsed.monthIndex });
+    }
+    const sorted = months
+      .map(m => ({ key: `${m.year}-${String(m.monthIndex + 1).padStart(2, '0')}`, target: m }))
+      .sort((a, b) => (a.target.year - b.target.year) || (a.target.monthIndex - b.target.monthIndex));
+    const options = sorted.map(({ key, target }) => `<option value="${key}">${formatMonthSelectLabel(target)}</option>`).join('');
     if (select) {
       select.innerHTML = options;
       select.value = currentKey;
