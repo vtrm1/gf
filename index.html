@@ -11043,11 +11043,26 @@
 
   function computeStockTotals(target = getDashboardFilterTarget()) {
     const totals = { esmaltes: 0, geladeira: 0, manutencao: 0 };
-    stockItems.forEach(item => {
-      const cat = item.categoria || item.category;
-      const cost = item.custoTotal || item.custoCompra || 0;
-      if (totals[cat] != null) totals[cat] += cost;
-    });
+    if (selectedGlobalMonthKey === 'all') {
+      stockItems.forEach(item => {
+        const cat = item.categoria || item.category;
+        const cost = item.custoTotal || item.custoCompra || 0;
+        if (totals[cat] != null) totals[cat] += cost;
+      });
+      return totals;
+    }
+    const historyEntries = Object.entries(stockHistories).flatMap(([itemId, list]) =>
+      (list || []).map(entry => ({ ...entry, itemId }))
+    );
+    historyEntries
+      .filter(h => h.tipo === 'entrada' && matchesTargetMonth(h.data, target))
+      .forEach(entry => {
+        const item = stockItems.find(i => i.id === entry.itemId);
+        const cat = item?.categoria || item?.category;
+        if (totals[cat] == null) return;
+        const amount = Number(entry.custoTotal || entry.custoCompra || entry.valor || entry.amount || 0);
+        if (Number.isFinite(amount)) totals[cat] += amount;
+      });
     return totals;
   }
 
@@ -14640,7 +14655,15 @@
     addKey(currentMonthKey());
     // Meses com dados financeiros (passado/presente) e projeções futuras
     financialEntries.forEach(fin => addKey(monthKeyFromDate(fin.date)));
-    investments.forEach(inv => addKey(inv.mesReferencia));
+    investments.forEach(inv => {
+      const ref = parseMonthRef(inv.mesReferencia);
+      const parcels = inv.parcelasTotais || 1;
+      if (!ref) return;
+      for (let i = 0; i < parcels; i += 1) {
+        const dt = new Date(ref.year, ref.monthIndex + i, 1);
+        addKey(`${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}`);
+      }
+    });
     const sorted = Array.from(months)
       .map(key => {
         const parsed = parsePeriodKey(key);
