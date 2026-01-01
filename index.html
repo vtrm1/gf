@@ -7828,6 +7828,7 @@
   let authResolved = false;
   let ceoInitialRenderDone = false;
   let globalMonthInitialized = false;
+  let globalMonthHydratedOnce = false;
 
   const adminOverrides = {
     'mJ3hkcBr5kT83iTgJROR811X0WP2': {
@@ -8435,6 +8436,7 @@
   async function postLoginInit() {
     initFirebaseApp();
     await ensureGlobalMonthInitialized();
+    globalMonthHydratedOnce = true;
     buildGlobalMonthOptions();
     listenGlobalMonth();
     subscribeCoreCollections();
@@ -14657,6 +14659,7 @@
   }
 
   function handleGlobalMonthSelect(value) {
+    globalMonthHydratedOnce = true;
     updateGlobalMonthState(value || 'all', { persist: true, refresh: true });
   }
 
@@ -14673,9 +14676,11 @@
     if (!docRef) return;
     if (globalMonthUnsub) globalMonthUnsub();
     globalMonthUnsub = docRef.onSnapshot(doc => {
+      if (globalMonthHydratedOnce) return;
       const data = doc.data() || {};
       const incoming = data.value || currentMonthKey();
       updateGlobalMonthState(incoming, { persist: false, refresh: true });
+      globalMonthHydratedOnce = true;
     });
   }
 
