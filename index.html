@@ -11190,6 +11190,26 @@
       }, 0);
   }
 
+  function computeStockAlertsCounts() {
+    const polishAlerts = stockItems
+      .filter(item => (item.categoria || item.category) === 'esmaltes')
+      .filter(item => {
+        const statusInfo = computePolishUsageStatus(item);
+        return statusInfo.statusEstoque === 'alerta' || statusInfo.statusEstoque === 'critico';
+      }).length;
+    const fridgeAlerts = stockItems
+      .filter(item => (item.categoria || item.category) === 'geladeira')
+      .filter(item => {
+        const qtd = Number(item.quantidade || 0);
+        if (!Number.isFinite(qtd)) return false;
+        const threshold = Number(item.unidadesPorPack || 0) > 0
+          ? Number(item.unidadesPorPack || 0) * 0.2
+          : 1;
+        return qtd <= Math.max(1, threshold);
+      }).length;
+    return { polishAlerts, fridgeAlerts, total: polishAlerts + fridgeAlerts };
+  }
+
   function renderDashboardCards() {
     const target = getDashboardFilterTarget();
     const revenueEl = document.getElementById('dashboard-revenue');
@@ -11211,25 +11231,9 @@
     const revenue = revenueServices + revenueConsumptions;
     const commission = filteredFin.filter(f => f.type === 'comissao').reduce((acc, cur) => acc + (cur.amount || 0), 0);
     const soldConsumptionValue = getSoldConsumptionValue(target);
-    const polishAlerts = stockItems
-      .filter(item => (item.categoria || item.category) === 'esmaltes')
-      .filter(item => {
-        const statusInfo = computePolishUsageStatus(item);
-        return statusInfo.statusEstoque === 'alerta' || statusInfo.statusEstoque === 'critico';
-      }).length;
-    const fridgeAlerts = stockItems
-      .filter(item => (item.categoria || item.category) === 'geladeira')
-      .filter(item => {
-        const qtd = Number(item.quantidade || 0);
-        if (!Number.isFinite(qtd)) return false;
-        const threshold = Number(item.unidadesPorPack || 0) > 0
-          ? Number(item.unidadesPorPack || 0) * 0.2
-          : 1;
-        return qtd <= Math.max(1, threshold);
-      }).length;
-    const alertsCount = polishAlerts + fridgeAlerts;
-    const alertText = alertsCount > 0
-      ? `Esmaltes: ${polishAlerts} - Geladeira: ${fridgeAlerts}`
+    const alerts = computeStockAlertsCounts();
+    const alertText = alerts.total > 0
+      ? `Esmaltes: ${alerts.polishAlerts} - Geladeira: ${alerts.fridgeAlerts}`
       : 'Sem alertas no estoque';
 
     if (revenueEl) revenueEl.textContent = formatCurrency(revenue);
@@ -11238,7 +11242,7 @@
     if (commDelta) commDelta.textContent = commission ? `Comissões registradas em ${targetLabel}` : 'Sem comissões registradas';
     if (consEl) consEl.textContent = formatCurrency(soldConsumptionValue);
     if (consDelta) consDelta.textContent = 'Consumo filtrado pelo mês selecionado';
-    if (alertEl) alertEl.textContent = `${alertsCount} itens`;
+    if (alertEl) alertEl.textContent = `${alerts.total} itens`;
     if (alertDesc) alertDesc.textContent = alertText;
 
     const invStats = computeInvestmentDashboardStats(target);
@@ -11302,22 +11306,19 @@
     });
     drawBarChart('stock-bars', series);
 
-    const lowCount = stockItems.filter(item => {
-      const pct = item.volumeTotal_ml ? (item.volumeAtual_ml / item.volumeTotal_ml) : null;
-      return (item.previsaoDuracaoDias && item.previsaoDuracaoDias < 15) || (pct != null && pct < 0.3);
-    }).length;
+    const alerts = computeStockAlertsCounts();
     const lowEl = document.getElementById('dashboard-stock-low');
-    if (lowEl) lowEl.textContent = `${lowCount}`;
+    if (lowEl) lowEl.textContent = `${alerts.total}`;
     const profitEl = document.getElementById('dashboard-stock-profit');
     const fridgeSales = getSoldConsumptionFinancial(target);
     const fridgeRevenue = fridgeSales.reduce((acc, cur) => acc + (cur.amount || 0), 0);
     const fridgeCost = getFridgeCostForMonth(target);
     const fridgeProfit = fridgeRevenue - fridgeCost;
     if (profitEl) profitEl.textContent = formatCurrency(fridgeProfit);
-    const monthConsumption = fridgeSales.length;
+    const monthConsumption = getMonthlyConsumptionCount(target);
     const consEl = document.getElementById('dashboard-stock-consumption-month');
     if (consEl) consEl.textContent = `${monthConsumption}`;
-    const fridgeLow = stockItems.filter(item => (item.categoria || item.category) === 'geladeira' && item.quantidade && item.quantidade <= (item.unidadesPorPack || item.quantidade) * 0.2).length;
+    const fridgeLow = alerts.fridgeAlerts;
     const indicators = document.getElementById('stock-indicators');
     if (indicators) {
       indicators.innerHTML = '';
