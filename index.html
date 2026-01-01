@@ -1216,6 +1216,55 @@
       transform: translateY(0);
     }
 
+    .fab-fridge-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      max-height: calc(72px * 5 + 12px);
+      overflow-y: auto;
+    }
+
+    .fab-fridge-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.65rem 0.8rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-soft);
+      background: #fff;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .fab-fridge-item .icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(var(--accent-gold-rgb), 0.12);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: var(--accent-gold);
+    }
+
+    .fab-fridge-item .meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .fab-fridge-item:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
     .fab-speed-btn {
       background: #fffaf3;
       border: 1px solid #d8b66a;
@@ -5934,6 +5983,23 @@
       </div>
     </div>
 
+    <div id="fab-fridge-exit-modal" class="dialog-layer hidden">
+      <div class="dialog-card" style="max-width:480px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:0.75rem;">
+          <div>
+            <h3>Registrar consumo</h3>
+            <p class="subtext">Escolha um item da geladeira para dar saída manual.</p>
+          </div>
+          <button class="secondary" onclick="closeDialog('fab-fridge-exit-modal')">Fechar</button>
+        </div>
+        <div class="form-row" style="margin-top:0.5rem;">
+          <label>Filtrar item</label>
+          <input id="fab-fridge-exit-filter" placeholder="Ex.: Água, Refrigerante" oninput="renderFabFridgeExitList()" />
+        </div>
+        <div id="fab-fridge-exit-list" class="fab-fridge-list"></div>
+      </div>
+    </div>
+
     <div id="stock-exit-modal" class="dialog-layer hidden">
       <div class="dialog-card">
         <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -7732,6 +7798,7 @@
   let agendaProfessionalFilter = 'all';
   let agendaProfessionalFilterColab = 'all';
   let fabMenuOpen = false;
+  let fabFridgeFilter = '';
   let fabScrollLast = 0;
   let mobileHeaderLastScroll = 0;
   let mobileHeaderHidden = false;
@@ -7759,6 +7826,9 @@
   let globalMonthUnsub = null;
   let authListenerAttached = false;
   let authResolved = false;
+  let ceoInitialRenderDone = false;
+  let globalMonthInitialized = false;
+  let globalMonthHydratedOnce = false;
 
   const adminOverrides = {
     'mJ3hkcBr5kT83iTgJROR811X0WP2': {
@@ -7769,7 +7839,7 @@
     }
   };
 
-  const calendarYear = 2025;
+  let calendarYear = new Date().getFullYear();
   const monthNamesFull = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
   const monthNamesShort = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
   const baseYearDetailed = monthNamesFull.map((fullName, idx) => ({
@@ -7789,7 +7859,9 @@
   };
   let selectedDashboardMonth = new Date().getMonth();
   let selectedDashboardYear = new Date().getFullYear();
-  let selectedGlobalMonthKey = 'all';
+  let selectedGlobalMonthKey = null;
+  let selectedPeriod = { year: new Date().getFullYear(), month: new Date().getMonth() }; // month index 0-11
+  let lastValidPeriod = { ...selectedPeriod };
 
   let stockItems = [];
   let productTemplates = [];
@@ -8133,22 +8205,10 @@
 
   function normalizeAppointmentsData() {
     appointments = appointments.map(appt => {
-      const fallbackClientId = appt.clientId || (appt.clientName ? `cli-${slugify(appt.clientName)}` : `cli-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`);
-      let client = clients.find(c => c.id === fallbackClientId);
-      if (!client) {
-        client = {
-          id: fallbackClientId,
-          name: appt.clientName || appt.client || 'Cliente',
-          phone: appt.phone || '55',
-          owners: [],
-          responsible: '',
-          history: [],
-          consume: [],
-          future: [],
-          nextAppointment: {}
-        };
-        clients.push(client);
-      }
+      const fallbackClientId = appt.clientId || (appt.clientName ? `cli-${slugify(appt.clientName)}` : null);
+      const client = clients.find(c => c.id === fallbackClientId || c.name.toLowerCase() === (appt.clientName || '').toLowerCase());
+      const resolvedClientId = client?.id || fallbackClientId || `cli-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`;
+      const resolvedClientName = client?.name || appt.clientName || appt.client || 'Cliente';
 
       const service = findServiceByIdOrName(appt.serviceId || appt.serviceName || appt.service);
       const professional = findCollaboratorByIdOrName(appt.professionalId || appt.professionalName || appt.professional);
@@ -8170,8 +8230,8 @@
       return {
         ...appt,
         id: normalizedId,
-        clientId: client.id,
-        clientName: client.name,
+        clientId: resolvedClientId,
+        clientName: resolvedClientName,
         professionalId,
         professionalName,
         professional: professionalName,
@@ -8269,9 +8329,13 @@
         }
       : null;
     setRole(role, account);
+    selectedGlobalMonthKey = null;
+    globalMonthInitialized = false;
     if (!appInitialized) {
-      postLoginInit();
+      postLoginInit().catch(() => {});
       appInitialized = true;
+    } else {
+      ensureGlobalMonthInitialized().catch(() => {});
     }
   }
 
@@ -8357,8 +8421,10 @@
     backToLogin();
   }
 
-  function postLoginInit() {
+  async function postLoginInit() {
     initFirebaseApp();
+    await ensureGlobalMonthInitialized();
+    globalMonthHydratedOnce = true;
     buildGlobalMonthOptions();
     listenGlobalMonth();
     subscribeCoreCollections();
@@ -8380,14 +8446,17 @@
       }
       setLoginLoading(true, 'Carregando dados...');
       try {
-        const data = await fetchUserDoc(user.uid);
+        const [data, collabProfile] = await Promise.all([
+          fetchUserDoc(user.uid),
+          fetchCollaboratorByUid(user.uid)
+        ]);
         if (!data) {
           await firebaseAuth.signOut().catch(() => {});
           setLoginLoading(false);
           backToLogin();
           return;
         }
-        applyUserRole(data);
+        applyUserRole(data, collabProfile);
       } catch (err) {
         console.warn('Falha ao carregar perfil', err);
         await firebaseAuth.signOut().catch(() => {});
@@ -8403,9 +8472,11 @@
     firestore.collection('collaborators').onSnapshot(snap => {
       collaborators = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderCollaborators();
+      ensureCeoDataRendered();
     });
     firestore.collection('collaboratorAccounts').onSnapshot(snap => {
       collaboratorAccounts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      ensureCeoDataRendered();
     });
     // Atendimentos (agenda)
     firestore.collection('atendimentos').onSnapshot(snap => {
@@ -8414,6 +8485,7 @@
       refreshAgendaFromAppointments();
       renderColabCommission();
       renderColabDashboard();
+      ensureCeoDataRendered();
     });
     loadClientsPage(true);
     // Serviços
@@ -8429,12 +8501,14 @@
       renderKiosk();
       renderColabCommission();
       renderColabDashboard();
+      ensureCeoDataRendered();
     });
     firestore.collection('investments').onSnapshot(snap => {
       investments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderInvestments();
       renderDashboardCards();
       buildGlobalMonthOptions();
+      ensureCeoDataRendered();
     });
     if ((currentUserDoc?.role || '').toUpperCase() === 'CEO') {
       firestore.collection('financial').onSnapshot(snap => {
@@ -8443,11 +8517,13 @@
         renderFinance();
         renderDashboardCards();
         buildGlobalMonthOptions();
+        ensureCeoDataRendered();
       });
     }
     firestore.collection('productTemplates').onSnapshot(snap => {
       productTemplates = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderInventoryTemplates();
+      ensureCeoDataRendered();
     });
     firestore.collection('stock').onSnapshot(snap => {
       stockItems = snap.docs.map(d => {
@@ -8460,10 +8536,12 @@
       renderDashboardCards();
       renderFinance();
       buildGlobalMonthOptions();
+      ensureCeoDataRendered();
     });
     firestore.collection('comandas').onSnapshot(snap => {
       comandas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderDashboardCards();
+      ensureCeoDataRendered();
     });
   }
 
@@ -8472,6 +8550,11 @@
   // -----------------------------
   function setRole(role, account = null) {
     currentRole = role;
+    if (role === 'ceo') ceoInitialRenderDone = false;
+    if (role === 'ceo' || role === 'colab') {
+      selectedGlobalMonthKey = null;
+      globalMonthInitialized = false;
+    }
     if (role === 'colab') {
       currentColabAccount = account;
       const canSeeAll = account?.permissions?.agendaFull;
@@ -8509,6 +8592,9 @@
 
   function backToLogin() {
     currentRole = null;
+    ceoInitialRenderDone = false;
+    selectedGlobalMonthKey = null;
+    globalMonthInitialized = false;
     setLoginLoading(false);
     document.getElementById('login-wrapper')?.classList.remove('hidden');
     document.getElementById('login-screen').classList.remove('hidden');
@@ -10715,9 +10801,9 @@
       actions.push({ label: 'Registrar consumo/venda', icon: '🥤', handler: () => openFabFridgeExit() });
     }
     if (currentRole === 'colab') {
+      actions.push({ label: 'Adicionar cliente', icon: '👤➕', handler: () => openClientModal() });
       actions.push({ label: 'Novo agendamento', icon: '📅', handler: () => openAppointmentModal() });
-      actions.push({ label: 'Registrar serviço realizado', icon: '💅', handler: () => openAppointmentModal() });
-      actions.push({ label: 'Registrar consumo do cliente', icon: '🥤', handler: () => openFabFridgeExit() });
+      actions.push({ label: 'Registrar saída de consumo', icon: '🥤', handler: () => openFabFridgeExit() });
     }
     return actions;
   }
@@ -10750,13 +10836,65 @@
     openInventoryModal();
   }
 
+  function getFridgeItems() {
+    return (stockItems || []).filter(i => (i.categoria || i.category) === 'geladeira');
+  }
+
+  function renderFabFridgeExitList() {
+    const list = document.getElementById('fab-fridge-exit-list');
+    if (!list) return;
+    const filterInput = document.getElementById('fab-fridge-exit-filter');
+    const filter = (filterInput?.value || '').toLowerCase();
+    fabFridgeFilter = filter;
+    const fridgeItems = getFridgeItems()
+      .filter(i => {
+        const name = `${i.nome || i.name || ''} ${(i.marca || '')}`.toLowerCase();
+        return !filter || name.includes(filter);
+      })
+      .sort((a, b) => (a.nome || a.name || '').localeCompare(b.nome || b.name || ''));
+    list.innerHTML = '';
+    if (!fridgeItems.length) {
+      list.innerHTML = '<div class="subtext">Nenhum item encontrado.</div>';
+      return;
+    }
+    fridgeItems.forEach(item => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'fab-fridge-item';
+      const qty = item.quantidade ?? item.volumeAtual_ml ?? 0;
+      btn.disabled = qty <= 0;
+      const priceLabel = item.precoVenda ? `<span>R$ ${formatCurrency(item.precoVenda)}</span>` : '';
+      btn.innerHTML = `
+        <span class="icon" aria-hidden="true">🥤</span>
+        <div>
+          <div>${item.nome || item.name || 'Item'}</div>
+          <div class="meta">${item.marca || 'Geladeira'}</div>
+        </div>
+        <div class="meta" style="text-align:right;">
+          <span>Qtd: ${qty}</span>
+          ${priceLabel}
+        </div>
+      `;
+      btn.onclick = () => selectFabFridgeExit(item.id);
+      list.appendChild(btn);
+    });
+  }
+
   function openFabFridgeExit() {
-    const fridgeItem = stockItems.find(i => (i.categoria || i.category) === 'geladeira');
-    if (!fridgeItem) {
+    const fridgeItems = getFridgeItems();
+    if (!fridgeItems.length) {
       alert('Adicione um item da geladeira para registrar consumo.');
       return;
     }
-    openStockExitModal(fridgeItem.id);
+    const filterInput = document.getElementById('fab-fridge-exit-filter');
+    if (filterInput) filterInput.value = '';
+    renderFabFridgeExitList();
+    openDialog('fab-fridge-exit-modal');
+  }
+
+  function selectFabFridgeExit(itemId) {
+    closeDialog('fab-fridge-exit-modal');
+    openStockExitModal(itemId);
   }
 
   function handleFabScroll() {
@@ -10787,25 +10925,80 @@
     renderInventory();
   }
 
+  function currentMonthKey() {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  }
+
+  function parsePeriodKey(key) {
+    if (!key) return null;
+    const [year, month] = key.split('-').map(v => parseInt(v, 10));
+    if (Number.isNaN(year) || Number.isNaN(month) || month < 1 || month > 12) return null;
+    return { year, monthIndex: month - 1 };
+  }
+
+  function periodKeyFromPeriod(period) {
+    if (!period || period.year == null || period.month == null) return currentMonthKey();
+    return `${period.year}-${String((period.month || 0) + 1).padStart(2, '0')}`;
+  }
+
+  function updateGlobalMonthState(key, { persist = false, refresh = true } = {}) {
+    const parsed = parsePeriodKey(key) || lastValidPeriod || selectedPeriod;
+    const period = parsed || { year: selectedPeriod.year, monthIndex: selectedPeriod.month };
+    const normalized = `${period.year}-${String((period.monthIndex || 0) + 1).padStart(2, '0')}`;
+    selectedPeriod = { year: period.year, month: period.monthIndex };
+    lastValidPeriod = { ...selectedPeriod };
+    selectedGlobalMonthKey = normalized;
+    selectedDashboardYear = period.year;
+    selectedDashboardMonth = period.month;
+    selectedMonthIndex = period.month;
+    selectedMonthIndexColab = period.month;
+    calendarYear = period.year;
+    const mobileSelect = document.getElementById('global-month-filter-mobile');
+    const desktopSelect = document.getElementById('global-month-filter');
+    if (mobileSelect) mobileSelect.value = normalized;
+    if (desktopSelect) desktopSelect.value = normalized;
+    if (persist) persistGlobalMonth(normalized);
+    if (refresh) {
+      refreshMonthlyConsumers();
+      renderDashboardCards();
+      renderColabDashboard();
+    }
+  }
+
+  async function ensureGlobalMonthInitialized() {
+    if (globalMonthInitialized) return;
+    initFirebaseApp();
+    const docRef = currentUserConfigDoc();
+    const fallbackKey = currentMonthKey();
+    if (!docRef) {
+      updateGlobalMonthState(fallbackKey, { persist: false, refresh: false });
+      globalMonthInitialized = true;
+      return;
+    }
+    let initialKey = fallbackKey;
+    const snap = await docRef.get().catch(() => null);
+    if (snap?.exists) {
+      initialKey = snap.data()?.value || fallbackKey;
+    } else {
+      await persistGlobalMonth(fallbackKey);
+      initialKey = fallbackKey;
+    }
+    updateGlobalMonthState(initialKey, { persist: false, refresh: false });
+    globalMonthInitialized = true;
+  }
+
   function changeGlobalMonth(delta) {
-    const pivot = new Date(selectedDashboardYear, selectedDashboardMonth + delta, 1);
-    selectedDashboardMonth = pivot.getMonth();
-    selectedDashboardYear = pivot.getFullYear();
-    selectedGlobalMonthKey = `${selectedDashboardYear}-${String(selectedDashboardMonth + 1).padStart(2, '0')}`;
-    persistGlobalMonth(selectedGlobalMonthKey);
-    const select = document.getElementById('global-month-filter');
-    if (select) select.value = selectedGlobalMonthKey;
-    refreshMonthlyConsumers();
+    const pivot = new Date(selectedPeriod.year, selectedPeriod.month + delta, 1);
+    const key = `${pivot.getFullYear()}-${String(pivot.getMonth() + 1).padStart(2, '0')}`;
+    updateGlobalMonthState(key, { persist: true, refresh: true });
   }
 
   function setDashboardMonth(value, year = selectedDashboardYear) {
-    selectedDashboardMonth = parseInt(value, 10) || 0;
-    selectedDashboardYear = year || selectedDashboardYear;
-    selectedGlobalMonthKey = `${selectedDashboardYear}-${String(selectedDashboardMonth + 1).padStart(2, '0')}`;
-    persistGlobalMonth(selectedGlobalMonthKey);
-    const select = document.getElementById('global-month-filter');
-    if (select) select.value = selectedGlobalMonthKey;
-    refreshMonthlyConsumers();
+    const monthIndex = parseInt(value, 10) || 0;
+    const yr = year || selectedPeriod.year;
+    const key = `${yr}-${String(monthIndex + 1).padStart(2, '0')}`;
+    updateGlobalMonthState(key, { persist: true, refresh: true });
   }
 
   function computeInvestmentDashboardStats(target = getDashboardFilterTarget()) {
@@ -10838,14 +11031,26 @@
 
   function computeStockTotals(target = getDashboardFilterTarget()) {
     const totals = { esmaltes: 0, geladeira: 0, manutencao: 0 };
-    const filtered = selectedGlobalMonthKey === 'all'
-      ? stockItems
-      : stockItems.filter(item => matchesTargetMonth(item.dataCompra || item.addedAt || item.createdAt, target));
-    filtered.forEach(item => {
-      const cat = item.categoria || item.category;
-      const cost = item.custoTotal || item.custoCompra || 0;
-      if (totals[cat] != null) totals[cat] += cost;
-    });
+    if (selectedGlobalMonthKey === 'all') {
+      stockItems.forEach(item => {
+        const cat = item.categoria || item.category;
+        const cost = item.custoTotal || item.custoCompra || 0;
+        if (totals[cat] != null) totals[cat] += cost;
+      });
+      return totals;
+    }
+    const historyEntries = Object.entries(stockHistories).flatMap(([itemId, list]) =>
+      (list || []).map(entry => ({ ...entry, itemId }))
+    );
+    historyEntries
+      .filter(h => h.tipo === 'entrada' && matchesTargetMonth(h.data, target))
+      .forEach(entry => {
+        const item = stockItems.find(i => i.id === entry.itemId);
+        const cat = item?.categoria || item?.category;
+        if (totals[cat] == null) return;
+        const amount = Number(entry.custoTotal || entry.custoCompra || entry.valor || entry.amount || 0);
+        if (Number.isFinite(amount)) totals[cat] += amount;
+      });
     return totals;
   }
 
@@ -10962,6 +11167,18 @@
       .filter(e => Number.isFinite(e.amount));
   }
 
+  function getFridgeCostForMonth(target) {
+    const historyEntries = Object.entries(stockHistories).flatMap(([itemId, list]) =>
+      (list || []).map(entry => ({ ...entry, itemId }))
+    );
+    const gelIds = stockItems.filter(i => (i.categoria || i.category) === 'geladeira').map(i => i.id);
+    const gelSet = new Set(gelIds);
+    return historyEntries
+      .filter(h => h.tipo === 'entrada' && (!selectedGlobalMonthKey || selectedGlobalMonthKey === 'all' || matchesTargetMonth(h.data, target)))
+      .filter(h => gelSet.has(h.itemId))
+      .reduce((acc, cur) => acc + (Number(cur.custoTotal || cur.custoCompra || cur.valor || cur.amount || 0) || 0), 0);
+  }
+
   function getMonthlyConsumptionCount(target) {
     const historyEntries = Object.values(stockHistories).flat();
     return historyEntries
@@ -10971,6 +11188,26 @@
         const raw = Number(cur.quantity || cur.quantidade || cur.volume || 0);
         return acc + (Number.isFinite(raw) && raw > 0 ? raw : 1);
       }, 0);
+  }
+
+  function computeStockAlertsCounts() {
+    const polishAlerts = stockItems
+      .filter(item => (item.categoria || item.category) === 'esmaltes')
+      .filter(item => {
+        const statusInfo = computePolishUsageStatus(item);
+        return statusInfo.statusEstoque === 'alerta' || statusInfo.statusEstoque === 'critico';
+      }).length;
+    const fridgeAlerts = stockItems
+      .filter(item => (item.categoria || item.category) === 'geladeira')
+      .filter(item => {
+        const qtd = Number(item.quantidade || 0);
+        if (!Number.isFinite(qtd)) return false;
+        const threshold = Number(item.unidadesPorPack || 0) > 0
+          ? Number(item.unidadesPorPack || 0) * 0.2
+          : 1;
+        return qtd <= Math.max(1, threshold);
+      }).length;
+    return { polishAlerts, fridgeAlerts, total: polishAlerts + fridgeAlerts };
   }
 
   function renderDashboardCards() {
@@ -10994,25 +11231,9 @@
     const revenue = revenueServices + revenueConsumptions;
     const commission = filteredFin.filter(f => f.type === 'comissao').reduce((acc, cur) => acc + (cur.amount || 0), 0);
     const soldConsumptionValue = getSoldConsumptionValue(target);
-    const polishAlerts = stockItems
-      .filter(item => (item.categoria || item.category) === 'esmaltes')
-      .filter(item => {
-        const statusInfo = computePolishUsageStatus(item);
-        return statusInfo.statusEstoque === 'alerta' || statusInfo.statusEstoque === 'critico';
-      }).length;
-    const fridgeAlerts = stockItems
-      .filter(item => (item.categoria || item.category) === 'geladeira')
-      .filter(item => {
-        const qtd = Number(item.quantidade || 0);
-        if (!Number.isFinite(qtd)) return false;
-        const threshold = Number(item.unidadesPorPack || 0) > 0
-          ? Number(item.unidadesPorPack || 0) * 0.2
-          : 1;
-        return qtd <= Math.max(1, threshold);
-      }).length;
-    const alertsCount = polishAlerts + fridgeAlerts;
-    const alertText = alertsCount > 0
-      ? `Esmaltes: ${polishAlerts} - Geladeira: ${fridgeAlerts}`
+    const alerts = computeStockAlertsCounts();
+    const alertText = alerts.total > 0
+      ? `Esmaltes: ${alerts.polishAlerts} - Geladeira: ${alerts.fridgeAlerts}`
       : 'Sem alertas no estoque';
 
     if (revenueEl) revenueEl.textContent = formatCurrency(revenue);
@@ -11021,7 +11242,7 @@
     if (commDelta) commDelta.textContent = commission ? `Comissões registradas em ${targetLabel}` : 'Sem comissões registradas';
     if (consEl) consEl.textContent = formatCurrency(soldConsumptionValue);
     if (consDelta) consDelta.textContent = 'Consumo filtrado pelo mês selecionado';
-    if (alertEl) alertEl.textContent = `${alertsCount} itens`;
+    if (alertEl) alertEl.textContent = `${alerts.total} itens`;
     if (alertDesc) alertDesc.textContent = alertText;
 
     const invStats = computeInvestmentDashboardStats(target);
@@ -11085,21 +11306,19 @@
     });
     drawBarChart('stock-bars', series);
 
-    const lowCount = stockItems.filter(item => {
-      const pct = item.volumeTotal_ml ? (item.volumeAtual_ml / item.volumeTotal_ml) : null;
-      return (item.previsaoDuracaoDias && item.previsaoDuracaoDias < 15) || (pct != null && pct < 0.3);
-    }).length;
+    const alerts = computeStockAlertsCounts();
     const lowEl = document.getElementById('dashboard-stock-low');
-    if (lowEl) lowEl.textContent = `${lowCount}`;
+    if (lowEl) lowEl.textContent = `${alerts.total}`;
     const profitEl = document.getElementById('dashboard-stock-profit');
-    const fridgeProfit = stockItems
-      .filter(i => (i.categoria || i.category) === 'geladeira')
-      .reduce((acc, cur) => acc + ((cur.precoVenda || 0) * (cur.quantidade || 0) - (cur.custoCompra || 0)), 0);
+    const fridgeSales = getSoldConsumptionFinancial(target);
+    const fridgeRevenue = fridgeSales.reduce((acc, cur) => acc + (cur.amount || 0), 0);
+    const fridgeCost = getFridgeCostForMonth(target);
+    const fridgeProfit = fridgeRevenue - fridgeCost;
     if (profitEl) profitEl.textContent = formatCurrency(fridgeProfit);
     const monthConsumption = getMonthlyConsumptionCount(target);
     const consEl = document.getElementById('dashboard-stock-consumption-month');
     if (consEl) consEl.textContent = `${monthConsumption}`;
-    const fridgeLow = stockItems.filter(item => (item.categoria || item.category) === 'geladeira' && item.quantidade && item.quantidade <= (item.unidadesPorPack || item.quantidade) * 0.2).length;
+    const fridgeLow = alerts.fridgeAlerts;
     const indicators = document.getElementById('stock-indicators');
     if (indicators) {
       indicators.innerHTML = '';
@@ -11410,11 +11629,7 @@
 
     const historyKeys = new Set(entradas.map(e => `${(e.description || '').toLowerCase()}-${monthKeyFromDate(e.date)}`));
 
-    const scoped = selectedGlobalMonthKey === 'all'
-      ? stockItems
-      : stockItems.filter(item => matchesTargetMonth(item.dataCompra || item.addedAt || item.createdAt, target));
-
-    const baseEntries = scoped
+    const baseEntries = stockItems
       .filter(item => item && (item.custoCompra || item.precoCompra || item.valor || item.custoTotal))
       .filter(item => !historyKeys.has(`${(item.nome || item.name || 'item').toLowerCase()}-${monthKeyFromDate(item.dataCompra || item.addedAt || item.createdAt)}`))
       .map(item => ({
@@ -12941,6 +13156,12 @@
     renderClients('colab');
   }
 
+  function ensureCeoDataRendered() {
+    if (currentRole !== 'ceo' || ceoInitialRenderDone === true) return;
+    renderCeoContent();
+    ceoInitialRenderDone = true;
+  }
+
   function renderYearCalendar(scope = 'ceo') {
     const container = document.getElementById(scope === 'ceo' ? 'year-calendar' : 'year-calendar-colab');
     if (!container) return;
@@ -13916,8 +14137,7 @@
     Object.entries(groups).forEach(([category, container]) => {
       if (!container) return;
       container.innerHTML = '';
-      const scoped = stockItems.filter(i => (i.categoria || i.category) === category)
-        .filter(i => selectedGlobalMonthKey === 'all' || !(i.dataCompra || i.addedAt) || matchesTargetMonth(i.dataCompra || i.addedAt, target));
+      const scoped = stockItems.filter(i => (i.categoria || i.category) === category);
       if (metrics[category]) {
         metrics[category].innerHTML = scoped.length ? `<span class="pill">${scoped.length} itens</span>` : '';
       }
@@ -14174,6 +14394,7 @@
     if (reason === 'outro' && !reasonOther.trim()) { alert('Descreva o motivo.'); return; }
     const now = new Date().toISOString();
     let payload = { updatedAt: now };
+    const professionalId = firebaseAuth?.currentUser?.uid || currentUserDoc?.id || null;
     if (item.categoria === 'esmaltes') {
       const remaining = Math.max(0, (item.volumeAtual_ml || 0) - qty);
       const normalized = normalizeVolumeOneDecimal(remaining);
@@ -14201,6 +14422,7 @@
         const valorSaida = Number(item.precoVenda || 0) * qty;
         await firestore.collection('financial').add({
           type: 'consumo',
+          professionalId,
           amount: valorSaida,
           date: now,
           description: `Saída manual geladeira - ${item.nome || item.name || ''} (${reasonOther || reason})`,
@@ -14418,110 +14640,61 @@
     if (!map.has(key)) map.set(key, { year: y, monthIndex: m });
   }
 
-  function deriveMonthsFromInvestment(inv, map) {
-    const ref = parseMonthRef(inv.mesReferencia);
-    const total = inv.parcelasTotais || 1;
-    if (ref) {
-      if (inv.parcelado && total > 1) {
-        for (let i = 0; i < total; i++) addMonthToMap(map, ref.year, ref.monthIndex + i);
-      } else {
-        addMonthToMap(map, ref.year, ref.monthIndex);
-      }
-    }
-    if (inv.createdAt) {
-      const key = monthKeyFromDate(inv.createdAt);
-      if (key) {
-        const [y, m] = key.split('-').map(v => parseInt(v, 10));
-        addMonthToMap(map, y, m - 1);
-      }
-    }
-  }
-
   async function buildGlobalMonthOptions() {
     const select = document.getElementById('global-month-filter');
     const mobileSelect = document.getElementById('global-month-filter-mobile');
     if (!select && !mobileSelect) return;
-    initFirebaseApp();
-    const map = new Map();
-
-    investments.forEach(inv => deriveMonthsFromInvestment(inv, map));
-    financialEntries.forEach(fin => {
-      const key = monthKeyFromDate(fin.date);
-      if (key) {
-        const [y, m] = key.split('-').map(v => parseInt(v, 10));
-        addMonthToMap(map, y, m - 1);
+    const currentKey = selectedGlobalMonthKey || periodKeyFromPeriod(selectedPeriod);
+    const months = new Set();
+    const addKey = (key) => {
+      const parsed = parsePeriodKey(key);
+      if (!parsed) return;
+      const safeKey = `${parsed.year}-${String((parsed.monthIndex || 0) + 1).padStart(2, '0')}`;
+      months.add(safeKey);
+    };
+    // Sempre inclui período selecionado e mês atual
+    addKey(currentKey);
+    addKey(currentMonthKey());
+    // Meses com dados financeiros (passado/presente) e projeções futuras
+    financialEntries.forEach(fin => addKey(monthKeyFromDate(fin.date)));
+    investments.forEach(inv => {
+      const ref = parseMonthRef(inv.mesReferencia);
+      const parcels = inv.parcelasTotais || 1;
+      if (!ref) return;
+      for (let i = 0; i < parcels; i += 1) {
+        const dt = new Date(ref.year, ref.monthIndex + i, 1);
+        addKey(`${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}`);
       }
     });
-    stockItems.forEach(item => {
-      const key = monthKeyFromDate(item.dataCompra || item.createdAt || item.addedAt);
-      if (key) {
-        const [y, m] = key.split('-').map(v => parseInt(v, 10));
-        addMonthToMap(map, y, m - 1);
-      }
-    });
-
-    if (firestore) {
-      const snapInvest = await firestore.collection('investments').get().catch(() => null);
-      snapInvest?.forEach(doc => deriveMonthsFromInvestment(doc.data() || {}, map));
-      const snapFin = await firestore.collection('financial').get().catch(() => null);
-      snapFin?.forEach(doc => {
-        const key = monthKeyFromDate((doc.data() || {}).date);
-        if (key) {
-          const [y, m] = key.split('-').map(v => parseInt(v, 10));
-          addMonthToMap(map, y, m - 1);
-        }
-      });
-      const snapStock = await firestore.collection('stock').get().catch(() => null);
-      snapStock?.forEach(doc => {
-        const data = doc.data() || {};
-        const key = monthKeyFromDate(data.dataCompra || data.createdAt || data.addedAt);
-        if (key) {
-          const [y, m] = key.split('-').map(v => parseInt(v, 10));
-          addMonthToMap(map, y, m - 1);
-        }
-      });
-    }
-
-    const sorted = Array.from(map.entries()).sort((a, b) => (a[1].year - b[1].year) || (a[1].monthIndex - b[1].monthIndex));
-    const options = '<option value="all">Todos</option>' + sorted.map(([key, target]) => `<option value="${key}">${formatMonthSelectLabel(target)}</option>`).join('');
+    const sorted = Array.from(months)
+      .map(key => {
+        const parsed = parsePeriodKey(key);
+        return { key, target: { year: parsed.year, monthIndex: parsed.monthIndex } };
+      })
+      .sort((a, b) => (a.target.year - b.target.year) || (a.target.monthIndex - b.target.monthIndex));
+    const options = sorted.map(({ key, target }) => `<option value="${key}">${formatMonthSelectLabel(target)}</option>`).join('');
     if (select) {
       select.innerHTML = options;
-      select.value = selectedGlobalMonthKey;
+      select.value = currentKey;
       select.onchange = (e) => handleGlobalMonthSelect(e.target.value);
     }
     if (mobileSelect) {
       mobileSelect.innerHTML = options;
-      mobileSelect.value = selectedGlobalMonthKey;
+      mobileSelect.value = currentKey;
       mobileSelect.onchange = (e) => handleGlobalMonthSelect(e.target.value);
     }
   }
 
   function handleGlobalMonthSelect(value) {
-    selectedGlobalMonthKey = value || 'all';
-    if (selectedGlobalMonthKey === 'all') {
-      const now = new Date();
-      selectedDashboardMonth = now.getMonth();
-      selectedDashboardYear = now.getFullYear();
-    } else {
-      const [year, month] = selectedGlobalMonthKey.split('-').map(v => parseInt(v, 10));
-      selectedDashboardMonth = month - 1;
-      selectedDashboardYear = year;
-    }
-    persistGlobalMonth(selectedGlobalMonthKey);
-    const mobileSelect = document.getElementById('global-month-filter-mobile');
-    const desktopSelect = document.getElementById('global-month-filter');
-    if (mobileSelect && mobileSelect.value !== selectedGlobalMonthKey) mobileSelect.value = selectedGlobalMonthKey;
-    if (desktopSelect && desktopSelect.value !== selectedGlobalMonthKey) desktopSelect.value = selectedGlobalMonthKey;
-    refreshMonthlyConsumers();
-    renderDashboardCards();
-    renderColabDashboard();
+    globalMonthHydratedOnce = true;
+    updateGlobalMonthState(value || 'all', { persist: true, refresh: true });
   }
 
   async function persistGlobalMonth(value) {
-    selectedGlobalMonthKey = value || 'all';
+    const safe = value || currentMonthKey();
     const docRef = currentUserConfigDoc();
     if (!docRef) return;
-    await docRef.set({ value: selectedGlobalMonthKey, updatedAt: Date.now() }, { merge: true }).catch(() => {});
+    await docRef.set({ value: safe, updatedAt: Date.now() }, { merge: true }).catch(() => {});
   }
 
   async function listenGlobalMonth() {
@@ -14530,21 +14703,17 @@
     if (!docRef) return;
     if (globalMonthUnsub) globalMonthUnsub();
     globalMonthUnsub = docRef.onSnapshot(doc => {
+      if (globalMonthHydratedOnce) return;
       const data = doc.data() || {};
-      selectedGlobalMonthKey = data.value || 'all';
-      const target = getDashboardFilterTarget();
-      selectedDashboardMonth = target.monthIndex;
-      selectedDashboardYear = target.year;
-      refreshMonthlyConsumers();
-      renderDashboardCards();
-      renderColabDashboard();
+      const incoming = data.value || currentMonthKey();
+      updateGlobalMonthState(incoming, { persist: false, refresh: true });
+      globalMonthHydratedOnce = true;
     });
   }
 
   function getDashboardFilterTarget() {
-    if (selectedGlobalMonthKey && selectedGlobalMonthKey !== 'all') {
-      const [year, month] = selectedGlobalMonthKey.split('-').map(v => parseInt(v, 10));
-      return { year, monthIndex: month - 1 };
+    if (selectedPeriod && selectedPeriod.year != null && selectedPeriod.month != null) {
+      return { year: selectedPeriod.year, monthIndex: selectedPeriod.month };
     }
     return { year: selectedDashboardYear, monthIndex: selectedDashboardMonth || 0 };
   }
