@@ -14628,22 +14628,24 @@
     const mobileSelect = document.getElementById('global-month-filter-mobile');
     if (!select && !mobileSelect) return;
     const currentKey = selectedGlobalMonthKey || periodKeyFromPeriod(selectedPeriod);
-    const baseYear = selectedPeriod.year;
-    const baseMonth = selectedPeriod.month || 0;
-    const months = [];
-    const pastRange = 12;
-    const futureRange = 12;
-    for (let offset = -pastRange; offset <= futureRange; offset += 1) {
-      const dt = new Date(baseYear, baseMonth + offset, 1);
-      months.push({ year: dt.getFullYear(), monthIndex: dt.getMonth() });
-    }
-    const selectedKey = periodKeyFromPeriod(selectedPeriod);
-    const selectedParsed = parsePeriodKey(selectedKey);
-    if (selectedParsed && !months.find(m => m.year === selectedParsed.year && m.monthIndex === selectedParsed.monthIndex)) {
-      months.push({ year: selectedParsed.year, monthIndex: selectedParsed.monthIndex });
-    }
-    const sorted = months
-      .map(m => ({ key: `${m.year}-${String(m.monthIndex + 1).padStart(2, '0')}`, target: m }))
+    const months = new Set();
+    const addKey = (key) => {
+      const parsed = parsePeriodKey(key);
+      if (!parsed) return;
+      const safeKey = `${parsed.year}-${String((parsed.monthIndex || 0) + 1).padStart(2, '0')}`;
+      months.add(safeKey);
+    };
+    // Sempre inclui período selecionado e mês atual
+    addKey(currentKey);
+    addKey(currentMonthKey());
+    // Meses com dados financeiros (passado/presente) e projeções futuras
+    financialEntries.forEach(fin => addKey(monthKeyFromDate(fin.date)));
+    investments.forEach(inv => addKey(inv.mesReferencia));
+    const sorted = Array.from(months)
+      .map(key => {
+        const parsed = parsePeriodKey(key);
+        return { key, target: { year: parsed.year, monthIndex: parsed.monthIndex } };
+      })
       .sort((a, b) => (a.target.year - b.target.year) || (a.target.monthIndex - b.target.monthIndex));
     const options = sorted.map(({ key, target }) => `<option value="${key}">${formatMonthSelectLabel(target)}</option>`).join('');
     if (select) {
