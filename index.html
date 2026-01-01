@@ -7827,6 +7827,7 @@
   let authListenerAttached = false;
   let authResolved = false;
   let ceoInitialRenderDone = false;
+  let globalMonthSynced = false;
 
   const adminOverrides = {
     'mJ3hkcBr5kT83iTgJROR811X0WP2': {
@@ -8337,6 +8338,8 @@
         }
       : null;
     setRole(role, account);
+    globalMonthSynced = false;
+    syncMonthFilterToCurrent(true);
     if (!appInitialized) {
       postLoginInit();
       appInitialized = true;
@@ -8427,6 +8430,8 @@
 
   function postLoginInit() {
     initFirebaseApp();
+    globalMonthSynced = false;
+    syncMonthFilterToCurrent(true);
     buildGlobalMonthOptions();
     listenGlobalMonth();
     subscribeCoreCollections();
@@ -8448,14 +8453,17 @@
       }
       setLoginLoading(true, 'Carregando dados...');
       try {
-        const data = await fetchUserDoc(user.uid);
+        const [data, collabProfile] = await Promise.all([
+          fetchUserDoc(user.uid),
+          fetchCollaboratorByUid(user.uid)
+        ]);
         if (!data) {
           await firebaseAuth.signOut().catch(() => {});
           setLoginLoading(false);
           backToLogin();
           return;
         }
-        applyUserRole(data);
+        applyUserRole(data, collabProfile);
       } catch (err) {
         console.warn('Falha ao carregar perfil', err);
         await firebaseAuth.signOut().catch(() => {});
@@ -8550,6 +8558,7 @@
   function setRole(role, account = null) {
     currentRole = role;
     if (role === 'ceo') ceoInitialRenderDone = false;
+    if (role === 'ceo' || role === 'colab') globalMonthSynced = false;
     if (role === 'colab') {
       currentColabAccount = account;
       const canSeeAll = account?.permissions?.agendaFull;
@@ -8588,6 +8597,7 @@
   function backToLogin() {
     currentRole = null;
     ceoInitialRenderDone = false;
+    globalMonthSynced = false;
     setLoginLoading(false);
     document.getElementById('login-wrapper')?.classList.remove('hidden');
     document.getElementById('login-screen').classList.remove('hidden');
@@ -10927,6 +10937,29 @@
     const select = document.getElementById('global-month-filter');
     if (select) select.value = selectedGlobalMonthKey;
     refreshMonthlyConsumers();
+  }
+
+  function currentMonthKey() {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  }
+
+  function syncMonthFilterToCurrent(force = false) {
+    const key = currentMonthKey();
+    if (!force && globalMonthSynced && selectedGlobalMonthKey === key) return;
+    const now = new Date();
+    selectedGlobalMonthKey = key;
+    selectedDashboardMonth = now.getMonth();
+    selectedDashboardYear = now.getFullYear();
+    persistGlobalMonth(key);
+    const mobileSelect = document.getElementById('global-month-filter-mobile');
+    const desktopSelect = document.getElementById('global-month-filter');
+    if (mobileSelect) mobileSelect.value = key;
+    if (desktopSelect) desktopSelect.value = key;
+    refreshMonthlyConsumers();
+    renderDashboardCards();
+    renderColabDashboard();
+    globalMonthSynced = true;
   }
 
   function setDashboardMonth(value, year = selectedDashboardYear) {
@@ -14637,6 +14670,7 @@
 
   function handleGlobalMonthSelect(value) {
     selectedGlobalMonthKey = value || 'all';
+    globalMonthSynced = true;
     if (selectedGlobalMonthKey === 'all') {
       const now = new Date();
       selectedDashboardMonth = now.getMonth();
@@ -14670,13 +14704,19 @@
     if (globalMonthUnsub) globalMonthUnsub();
     globalMonthUnsub = docRef.onSnapshot(doc => {
       const data = doc.data() || {};
-      selectedGlobalMonthKey = data.value || 'all';
-      const target = getDashboardFilterTarget();
-      selectedDashboardMonth = target.monthIndex;
-      selectedDashboardYear = target.year;
-      refreshMonthlyConsumers();
-      renderDashboardCards();
-      renderColabDashboard();
+      const incoming = data.value || selectedGlobalMonthKey || 'all';
+      selectedGlobalMonthKey = incoming;
+      const currentKey = currentMonthKey();
+      if (!globalMonthSynced || incoming !== currentKey) {
+        syncMonthFilterToCurrent(true);
+      } else {
+        const target = getDashboardFilterTarget();
+        selectedDashboardMonth = target.monthIndex;
+        selectedDashboardYear = target.year;
+        refreshMonthlyConsumers();
+        renderDashboardCards();
+        renderColabDashboard();
+      }
     });
   }
 
