@@ -11179,6 +11179,18 @@
       .filter(e => Number.isFinite(e.amount));
   }
 
+  function getFridgeCostForMonth(target) {
+    const historyEntries = Object.entries(stockHistories).flatMap(([itemId, list]) =>
+      (list || []).map(entry => ({ ...entry, itemId }))
+    );
+    const gelIds = stockItems.filter(i => (i.categoria || i.category) === 'geladeira').map(i => i.id);
+    const gelSet = new Set(gelIds);
+    return historyEntries
+      .filter(h => h.tipo === 'entrada' && (!selectedGlobalMonthKey || selectedGlobalMonthKey === 'all' || matchesTargetMonth(h.data, target)))
+      .filter(h => gelSet.has(h.itemId))
+      .reduce((acc, cur) => acc + (Number(cur.custoTotal || cur.custoCompra || cur.valor || cur.amount || 0) || 0), 0);
+  }
+
   function getMonthlyConsumptionCount(target) {
     const historyEntries = Object.values(stockHistories).flat();
     return historyEntries
@@ -11309,11 +11321,12 @@
     const lowEl = document.getElementById('dashboard-stock-low');
     if (lowEl) lowEl.textContent = `${lowCount}`;
     const profitEl = document.getElementById('dashboard-stock-profit');
-    const fridgeProfit = stockItems
-      .filter(i => (i.categoria || i.category) === 'geladeira')
-      .reduce((acc, cur) => acc + ((cur.precoVenda || 0) * (cur.quantidade || 0) - (cur.custoCompra || 0)), 0);
+    const fridgeSales = getSoldConsumptionFinancial(target);
+    const fridgeRevenue = fridgeSales.reduce((acc, cur) => acc + (cur.amount || 0), 0);
+    const fridgeCost = getFridgeCostForMonth(target);
+    const fridgeProfit = fridgeRevenue - fridgeCost;
     if (profitEl) profitEl.textContent = formatCurrency(fridgeProfit);
-    const monthConsumption = getMonthlyConsumptionCount(target);
+    const monthConsumption = fridgeSales.length;
     const consEl = document.getElementById('dashboard-stock-consumption-month');
     if (consEl) consEl.textContent = `${monthConsumption}`;
     const fridgeLow = stockItems.filter(item => (item.categoria || item.category) === 'geladeira' && item.quantidade && item.quantidade <= (item.unidadesPorPack || item.quantidade) * 0.2).length;
