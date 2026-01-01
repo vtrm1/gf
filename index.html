@@ -10941,7 +10941,7 @@
   }
 
   function parsePeriodKey(key) {
-    if (!key || key === 'all') return null;
+    if (!key) return null;
     const [year, month] = key.split('-').map(v => parseInt(v, 10));
     if (Number.isNaN(year) || Number.isNaN(month) || month < 1 || month > 12) return null;
     return { year, monthIndex: month - 1 };
@@ -10953,7 +10953,7 @@
   }
 
   function updateGlobalMonthState(key, { persist = false, refresh = true } = {}) {
-    const parsed = parsePeriodKey(key) || lastValidPeriod;
+    const parsed = parsePeriodKey(key) || lastValidPeriod || selectedPeriod;
     const period = parsed || { year: selectedPeriod.year, monthIndex: selectedPeriod.month };
     const normalized = `${period.year}-${String((period.monthIndex || 0) + 1).padStart(2, '0')}`;
     selectedPeriod = { year: period.year, month: period.monthIndex };
@@ -10999,14 +10999,14 @@
   }
 
   function changeGlobalMonth(delta) {
-    const pivot = new Date(selectedDashboardYear, selectedDashboardMonth + delta, 1);
+    const pivot = new Date(selectedPeriod.year, selectedPeriod.month + delta, 1);
     const key = `${pivot.getFullYear()}-${String(pivot.getMonth() + 1).padStart(2, '0')}`;
     updateGlobalMonthState(key, { persist: true, refresh: true });
   }
 
   function setDashboardMonth(value, year = selectedDashboardYear) {
     const monthIndex = parseInt(value, 10) || 0;
-    const yr = year || selectedDashboardYear;
+    const yr = year || selectedPeriod.year;
     const key = `${yr}-${String(monthIndex + 1).padStart(2, '0')}`;
     updateGlobalMonthState(key, { persist: true, refresh: true });
   }
@@ -14626,11 +14626,10 @@
     const mobileSelect = document.getElementById('global-month-filter-mobile');
     if (!select && !mobileSelect) return;
     const currentKey = selectedGlobalMonthKey || periodKeyFromPeriod(selectedPeriod);
-    const now = new Date();
-    const baseYear = now.getFullYear();
-    const baseMonth = now.getMonth();
+    const baseYear = selectedPeriod.year;
+    const baseMonth = selectedPeriod.month || 0;
     const months = [];
-    const pastRange = 24;
+    const pastRange = 12;
     const futureRange = 12;
     for (let offset = -pastRange; offset <= futureRange; offset += 1) {
       const dt = new Date(baseYear, baseMonth + offset, 1);
