@@ -8205,22 +8205,10 @@
 
   function normalizeAppointmentsData() {
     appointments = appointments.map(appt => {
-      const fallbackClientId = appt.clientId || (appt.clientName ? `cli-${slugify(appt.clientName)}` : `cli-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`);
-      let client = clients.find(c => c.id === fallbackClientId);
-      if (!client) {
-        client = {
-          id: fallbackClientId,
-          name: appt.clientName || appt.client || 'Cliente',
-          phone: appt.phone || '55',
-          owners: [],
-          responsible: '',
-          history: [],
-          consume: [],
-          future: [],
-          nextAppointment: {}
-        };
-        clients.push(client);
-      }
+      const fallbackClientId = appt.clientId || (appt.clientName ? `cli-${slugify(appt.clientName)}` : null);
+      const client = clients.find(c => c.id === fallbackClientId || c.name.toLowerCase() === (appt.clientName || '').toLowerCase());
+      const resolvedClientId = client?.id || fallbackClientId || `cli-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`;
+      const resolvedClientName = client?.name || appt.clientName || appt.client || 'Cliente';
 
       const service = findServiceByIdOrName(appt.serviceId || appt.serviceName || appt.service);
       const professional = findCollaboratorByIdOrName(appt.professionalId || appt.professionalName || appt.professional);
@@ -8242,8 +8230,8 @@
       return {
         ...appt,
         id: normalizedId,
-        clientId: client.id,
-        clientName: client.name,
+        clientId: resolvedClientId,
+        clientName: resolvedClientName,
         professionalId,
         professionalName,
         professional: professionalName,
